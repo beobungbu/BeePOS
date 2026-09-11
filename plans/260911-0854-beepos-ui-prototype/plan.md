@@ -12,7 +12,7 @@ Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 | 2 | Products + categories + inventory (levels, receipts, transfers, counts) | phase-02-products-inventory.md | Sonnet worker | IN PROGRESS (started 2026-09-11 09:40) |
 | 3 | Orders + refunds + customers | phase-03-orders-customers.md | Sonnet worker | IN PROGRESS (started 2026-09-11 09:40) |
 | 4 | Reports dashboard + stores + staff + settings | phase-04-reports-admin.md | Sonnet worker | IN PROGRESS (started 2026-09-11 09:40) |
-| 5 | QA (web + iOS sim screenshots), audit report compile, README, publish | phase-05-qa-audit-publish.md | Ambrose + worker | TODO |
+| 5 | QA (web + iOS sim screenshots), audit report compile, README, publish | phase-05-qa-audit-publish.md | Ambrose + worker | TODO (spec written) |
 
 Dependencies: 1..4 depend on 0 and run in parallel (disjoint route folders + own store files). 5 depends on 1..4.
 

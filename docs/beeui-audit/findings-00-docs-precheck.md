@@ -35,3 +35,13 @@
 - Source consulted: https://beeui.beemvp.com/robots.txt lists `https://beeui.beemvp.com/docs/sitemap-index.xml`
 - Actual: `curl` of `/sitemap-index.xml` returns empty body; `/sitemap.xml` returns 200. Not verified whether `/docs/sitemap-index.xml` is populated (check during phase 5 SEO/AI-discoverability pass).
 - Workaround: none.
+
+### 00-05 · `/docs/ai/` page repeats the "unpublished" rule and mis-describes llms-components.txt
+- Area: docs-public
+- Severity: major
+- Source consulted: https://beeui.beemvp.com/docs/ai/ ("Rules an agent must preserve": "Public npm packages and the CLI are still unpublished. Do not invent live npm install or public npx availability."; context table: llms-components.txt is for "Select/use components and inspect platform/a11y contracts")
+- Expected (per docs): consistent with `/docs/start/` (RC on npm, install with `@next`).
+- Actual: the AI-agent landing page instructs agents not to use npm at all, so any agent that starts at `/docs/ai/` or `llms.txt` (the two documented AI entry points) will refuse the supported install path. The same page sends agents to `llms-components.txt` for "platform/a11y contracts", but that file only lists export names + source paths; the actual contracts and Props tables live on `/docs/components/<name>/`, which none of the AI surfaces link.
+- Repro: `curl -s https://beeui.beemvp.com/docs/ai/ | grep -o 'still unpublished'`
+- Workaround: start from `/docs/start/`, browse `/docs/components/<name>/` manually.
+- Suggested fix for BeeUI: single source of truth for publication status (generator input), update `/docs/ai/`; add per-component docs URLs to `llms-components.txt`; consider an `llms-components-full.txt` that inlines the Props tables.
