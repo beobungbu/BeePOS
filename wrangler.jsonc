@@ -1,0 +1,15 @@
+{
+  // BeePOS web demo: static Expo web export served by Cloudflare Workers static assets.
+  // Build first: npx expo export --platform web  (writes ./dist). Deploy: npx wrangler deploy
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "beepos",
+  "account_id": "d50d87601c82253925e80d1b23ab1fbd",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "html_handling": "auto-trailing-slash"
+  },
+  "routes": [{ "pattern": "beepos.beemvp.com", "custom_domain": true }],
+  "observability": { "enabled": true }
+}
