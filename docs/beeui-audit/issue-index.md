@@ -90,3 +90,11 @@ Reconfirmed in a real flow: #570 (05-02). Android pass (phase 12): no new BeeUI 
 |---|---|---|---|
 | [#588](https://github.com/beobungbu/BeeUI/issues/588) | 13-01 | major | KeyboardAwareScreen does not scroll the focused input into view |
 | [#589](https://github.com/beobungbu/BeeUI/issues/589) | 13-02 | major | Fixed heights clip text at large Dynamic Type |
+
+## Batch 9 (2026-09-11, closing reconciliation)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#590](https://github.com/beobungbu/BeeUI/issues/590) | F-09-18..21, F-09-23, 08-01 | minor | umbrella 3: overlapping pages, sidebar order, Learn example types, Reference Core descriptions, Text.numeric robustness, site stalls |
+
+Coverage check (2026-09-11 20:05): 83 findings across `findings-*.md`; every BeeUI-attributable finding maps to an issue or a supplementary comment above. Not filed by design: BeePOS app bugs (fixed in this repo), positive confirmations (01-04, 01-05, 04-02, 04-07, F-09-22, 06-07), nits that are composition notes (04-06), and worker findings corrected by review notes (00-05 original claim, 04-01, 08-01 severity).
