@@ -56,3 +56,11 @@ Step 3 (reality check against npm package + BeePOS runtime, propose sync fixes) 
 |---|---|---|---|
 | [#579](https://github.com/beobungbu/BeeUI/issues/579) | props-accuracy required-mismatch | major | 3 props marked required but optional in .d.ts |
 | [#580](https://github.com/beobungbu/BeeUI/issues/580) | props-accuracy default/type/missing | minor | Props generator gaps (30 defaults, 2 type names, 2 undocumented props) |
+
+## Batch 5 (2026-09-11, guides and patterns samples, phase 10)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#581](https://github.com/beobungbu/BeeUI/issues/581) | 10-01, 10-04 | major | Branding example throws; stale "unpublished" on branding + learn/foundations |
+| [#582](https://github.com/beobungbu/BeeUI/issues/582) | 10-02, 10-03 | minor | pattern blocks reference undefined types; table guide fragment |
+| [#583](https://github.com/beobungbu/BeeUI/issues/583) | 10-05, 10-06 | minor | troubleshooting metro fragment, theming CSS missing @source |

@@ -17,7 +17,7 @@ Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 | 7 | Step 3: verify docs against reality (props, behavior claims, clean-room usability, readability rubric) | phase-07-doc-truth-verification.md | 2 Sonnet workers (A verifier, B fresh reader) | DONE 2026-09-11 (A: 62 comps, 72 claims hold; B: 2 clean rooms, 12 pages scored; issues #575-#580) |
 | 8 | Pass 1: per-prop, per-value executable verification (570 props) | phase-08-per-prop-behavior.md | Sonnet worker | IN PROGRESS (started 2026-09-11 12:35) |
 | 9 | Pass 2: readability + comprehension exam, all 151 docs pages | phase-09-readability-comprehension.md | Fable (Ambrose writes rubric + exam; Fable subagent scores; fresh Sonnet sits the exam) | TODO, after phase 8 |
-| 10 | Pass 3: guides + patterns code blocks executed in clean room | phase-10-guides-patterns-executable.md | Sonnet worker | IN PROGRESS (started 2026-09-11 12:40) |
+| 10 | Pass 3: guides + patterns code blocks executed in clean room | phase-10-guides-patterns-executable.md | Sonnet worker | DONE 2026-09-11 (73 samples, 37/37 patterns rendered, CLI holds; issues #581-#583) |
 | 11 | Pass 4: native iOS Simulator happy path + 8 web-only claims via Playwright | phase-11-native-and-browser-claims.md | Sonnet worker | IN PROGRESS (started 2026-09-11 12:40) |
 
 Dependencies: 1..4 depend on 0 and run in parallel (disjoint route folders + own store files). 5 depends on 1..4.
