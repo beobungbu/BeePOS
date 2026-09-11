@@ -60,6 +60,8 @@ inspected only through TypeScript compiler diagnostics, never by reading BeeUI's
 - Workaround: Fixed all call sites in `src/components/shell/*` and `app/(auth)/*` to match the real prop shapes.
 - Suggested fix for BeeUI: Publish an actual prop-table doc per component (or at minimum ship richer TSDoc so hover/quick-info surfaces it), and add one composition example for "icon-only trigger button inside DropdownMenu" since the nested-interactive-element pitfall is easy to hit for any consumer.
 
+- **Review note (Ambrose, 2026-09-11):** partially incorrect as stated. The public per-component pages `https://beeui.beemvp.com/docs/components/<name>/` DO carry full Props tables (prop, type, default, description), e.g. `list-item` documents `title` (required), `description`, `leading`, `trailing`, `className`; `app-header` documents `bordered`, `leading`, `trailing`, etc. The worker never reached those pages because it followed `llms.txt` / `llms-components.txt`, which link only to source paths and `docs/components.md` (a repo file, not the site) and never to `/docs/components/<name>/`. Re-classified: Area `llms`, Severity major, title "llms-components.txt does not link the per-component docs pages that hold the Props tables; agents following the AI entry point cannot discover prop contracts". The nested-button and `OTPInput onChange` observations still stand as `component-behavior` / docs-clarity items. Suggested fix: add `docs: https://beeui.beemvp.com/docs/components/<name>/` to every line of `llms-components.txt` and a "Props tables live at ..." sentence in `llms.txt`.
+
 ### 00-06 · No active/selected state prop on ListItem for nav highlighting
 - Area: gap
 - Severity: minor
