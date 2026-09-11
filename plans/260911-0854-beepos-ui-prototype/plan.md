@@ -15,6 +15,10 @@ Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 | 5 | QA (web + iOS sim screenshots), audit report compile, README, publish | phase-05-qa-audit-publish.md | Ambrose + worker | PARTIAL 2026-09-11: cleanups, fresh-clone gate, README, LICENSE, consolidated report, 21 issues filed; iOS Simulator QA still open |
 | 6 | Docs site vs llms*.txt consistency matrix (steps 1-2) | phase-06-docs-llms-consistency-audit.md | Sonnet auditor | DONE 2026-09-11 (501 rows, issue #574) |
 | 7 | Step 3: verify docs against reality (props, behavior claims, clean-room usability, readability rubric) | phase-07-doc-truth-verification.md | 2 Sonnet workers (A verifier, B fresh reader) | DONE 2026-09-11 (A: 62 comps, 72 claims hold; B: 2 clean rooms, 12 pages scored; issues #575-#580) |
+| 8 | Pass 1: per-prop, per-value executable verification (570 props) | phase-08-per-prop-behavior.md | Sonnet worker | IN PROGRESS (started 2026-09-11 12:35) |
+| 9 | Pass 2: readability + comprehension exam, all 151 docs pages | phase-09-readability-comprehension.md | Fable (Ambrose writes rubric + exam; Fable subagent scores; fresh Sonnet sits the exam) | TODO, after phase 8 |
+| 10 | Pass 3: guides + patterns code blocks executed in clean room | phase-10-guides-patterns-executable.md | Sonnet worker | TODO |
+| 11 | Pass 4: native iOS Simulator happy path + 8 web-only claims via Playwright | phase-11-native-and-browser-claims.md | Sonnet worker | TODO |
 
 Dependencies: 1..4 depend on 0 and run in parallel (disjoint route folders + own store files). 5 depends on 1..4.
 
