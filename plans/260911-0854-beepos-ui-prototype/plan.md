@@ -13,7 +13,7 @@ Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 | 3 | Orders + refunds + customers | phase-03-orders-customers.md | Sonnet worker | DONE 2026-09-11 (integrated on main, batch-2 issues filed) |
 | 4 | Reports dashboard + stores + staff + settings | phase-04-reports-admin.md | Sonnet worker | DONE 2026-09-11 (7 findings) |
 | 5 | QA (web + iOS sim screenshots), audit report compile, README, publish | phase-05-qa-audit-publish.md | Ambrose + worker | TODO (spec written) |
-| 6 | Docs site vs llms*.txt consistency matrix (steps 1-2 now, step 3 after feature phases) | phase-06-docs-llms-consistency-audit.md | Sonnet auditor | IN PROGRESS (started 2026-09-11 10:15) |
+| 6 | Docs site vs llms*.txt consistency matrix (steps 1-2 now, step 3 after feature phases) | phase-06-docs-llms-consistency-audit.md | Sonnet auditor | Steps 1-2 DONE 2026-09-11 (501 rows, issue #574); step 3 pending |
 
 Dependencies: 1..4 depend on 0 and run in parallel (disjoint route folders + own store files). 5 depends on 1..4.
 
