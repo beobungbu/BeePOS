@@ -30,3 +30,13 @@ Not BeeUI's problem, not filed: scaffold 00-09 (`expo export --platform web,ios,
 | [#573](https://github.com/beobungbu/BeeUI/issues/573) | 04-04, 03-04, 03-03, 02-03, 02-05 | minor | umbrella 2 |
 
 Own-code bugs (not BeeUI): 01-03, 03-06 (zustand selector returning a new array each call → React 19 `useSyncExternalStore` loop). Positive confirmations: 01-04, 01-05, 04-02, 04-07.
+
+## Batch 3 (2026-09-11, phase 06 docs-vs-llms consistency audit) · tracker comment https://github.com/beobungbu/BeeUI/issues/234#issuecomment-5629005153
+
+| BeeUI issue | BeePOS finding(s) | Severity | Title |
+|---|---|---|---|
+| [#574](https://github.com/beobungbu/BeeUI/issues/574) | findings-06 06-01..06-06; matrix rows (see docs/beeui-audit/docs-llms-matrix.md) | major | Docs site vs llms*.txt consistency matrix, step 1-2 (501 rows) |
+
+Matrix rows already covered by earlier issues (not re-filed, cross-referenced instead): #543 (STATUS/unpublished claims, matrix rows A001-A005, A011), #560 (informs category D "contract sections present" rows), #561 (npm `latest` dist-tag, matrix row A013), #562 (`uniwind generate-artifacts` undocumented, matrix row C007).
+
+Step 3 (reality check against npm package + BeePOS runtime, propose sync fixes) is explicitly deferred; see findings-06 "Step 3 (deferred)" section.

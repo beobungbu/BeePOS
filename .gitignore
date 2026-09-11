@@ -43,3 +43,5 @@ uniwind-types.d.ts
 # generated native folders
 /ios
 /android
+
+scripts/audit/.cache/
