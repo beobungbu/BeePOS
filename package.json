@@ -51,7 +51,8 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/.expo/",
-      "/scripts/audit/claims/"
+      "/scripts/audit/claims/",
+      "/scripts/audit/props/"
     ]
   }
 }
