@@ -27,6 +27,7 @@ import {
   useToast,
 } from '@beemvp/beeui-ui';
 import { router } from 'expo-router';
+import { goBackOr } from '../../lib/navigation';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
@@ -94,7 +95,7 @@ export function CountDetailScreen({ countId }: CountDetailScreenProps) {
     if (lines.length === 0) return;
     upsertStockCount(buildCount('draft'));
     toast.show({ title: t('products.savedToast'), variant: 'success' });
-    router.back();
+    goBackOr('/inventory/counts');
   }
 
   function handlePost() {
@@ -103,14 +104,14 @@ export function CountDetailScreen({ countId }: CountDetailScreenProps) {
     postStockCount(count.id);
     setConfirmOpen(false);
     toast.show({ title: t('inventory.counts.post'), variant: 'success' });
-    router.back();
+    goBackOr('/inventory/counts');
   }
 
   if (notFound) {
     return (
       <View className="flex-1 p-4">
         <EmptyState title={t('products.noResultsTitle')} description="" />
-        <Button variant="outline" onPress={() => router.back()}>
+        <Button variant="outline" onPress={() => goBackOr('/inventory/counts')}>
           {t('common.actions.back')}
         </Button>
       </View>

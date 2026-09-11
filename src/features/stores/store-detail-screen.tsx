@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
+import { goBackOr } from '../../lib/navigation';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -94,7 +95,7 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
     <Screen>
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
         <VStack gap="lg" className="flex-1 p-6">
-          <Button variant="ghost" size="sm" onPress={() => router.back()} className="self-start">
+          <Button variant="ghost" size="sm" onPress={() => goBackOr('/stores')} className="self-start">
             <ButtonLabel>{`< ${t('common.actions.back')}`}</ButtonLabel>
           </Button>
 

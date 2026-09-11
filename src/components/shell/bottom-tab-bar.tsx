@@ -28,19 +28,20 @@ export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
   ];
 
   return (
-    <BottomActionBar className="flex-row items-center justify-around">
+    <BottomActionBar className="flex-row items-stretch justify-between px-0">
       {tabs.map((tab) => (
         <Pressable
           key={tab.key}
           accessibilityRole="button"
           accessibilityLabel={tab.label}
           onPress={tab.onPress}
-          className="items-center gap-1 px-3 py-1"
+          className="min-w-0 flex-1 items-center gap-0.5 px-1 py-1"
         >
           <Text className="text-lg">{tab.icon}</Text>
           <Text
+            numberOfLines={1}
             className={
-              tab.active ? 'text-xs font-medium text-primary' : 'text-xs text-muted-foreground'
+              tab.active ? 'text-[11px] font-medium text-primary' : 'text-[11px] text-muted-foreground'
             }
           >
             {tab.label}

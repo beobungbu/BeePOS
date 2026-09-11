@@ -64,12 +64,13 @@ function buildOrders(): Order[] {
     const cashierPool = cashiersForStore(store.id);
     const cashierId = cashierPool.length > 0 ? pick(rng, cashierPool) : staff[0].id;
     const daysAgo = randInt(rng, 0, 29);
-    const secondsIntoDay = randInt(rng, 8 * 3600, 21 * 3600);
-    const dayStart = Date.UTC(
-      NOW.getUTCFullYear(),
-      NOW.getUTCMonth(),
-      NOW.getUTCDate() - daysAgo,
-    );
+    const drawnSeconds = randInt(rng, 8 * 3600, 21 * 3600);
+    // Local calendar day so the receipt date matches what the cashier sees, and never in
+    // the future: today's seed orders are capped a few minutes before NOW so an order
+    // created during a session is always the newest one.
+    const dayStart = new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - daysAgo).getTime();
+    const latestAllowed = daysAgo === 0 ? Math.max(0, Math.floor((NOW.getTime() - dayStart) / 1000) - 300) : Infinity;
+    const secondsIntoDay = Math.min(drawnSeconds, latestAllowed);
     const createdAt = new Date(dayStart + secondsIntoDay * 1000).toISOString();
 
     const lines = buildOrderLines(rng);

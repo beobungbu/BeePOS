@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { goBackOr } from '../../lib/navigation';
 import { Button, ButtonLabel, SafeArea, Screen, Text, useToast, VStack } from '@beemvp/beeui-ui';
 import { useT } from '../../i18n';
 import { useOrgStore } from '../../data/org-store';
@@ -35,7 +36,7 @@ export function StoreNewScreen() {
     <Screen>
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
         <VStack gap="lg" className="flex-1 p-6">
-          <Button variant="ghost" size="sm" onPress={() => router.back()} className="self-start">
+          <Button variant="ghost" size="sm" onPress={() => goBackOr('/stores')} className="self-start">
             <ButtonLabel>{`< ${t('common.actions.back')}`}</ButtonLabel>
           </Button>
           <Text className="text-xl font-semibold text-foreground">{t('stores.addStore')}</Text>

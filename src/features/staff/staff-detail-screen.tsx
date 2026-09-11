@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import { goBackOr } from '../../lib/navigation';
 import { Button, ButtonLabel, HStack, SafeArea, Screen, Section, Text, useToast, VStack } from '@beemvp/beeui-ui';
 import { useT } from '../../i18n';
 import { useOrgStore, isStaffActive } from '../../data/org-store';
@@ -55,7 +56,7 @@ export function StaffDetailScreen({ staffId }: StaffDetailScreenProps) {
     <Screen>
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
         <VStack gap="lg" className="flex-1 p-6">
-          <Button variant="ghost" size="sm" onPress={() => router.back()} className="self-start">
+          <Button variant="ghost" size="sm" onPress={() => goBackOr('/staff')} className="self-start">
             <ButtonLabel>{`< ${t('common.actions.back')}`}</ButtonLabel>
           </Button>
 

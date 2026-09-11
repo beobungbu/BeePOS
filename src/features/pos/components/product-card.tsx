@@ -84,7 +84,14 @@ export function ProductCard({ product, stock, onAdd }: ProductCardProps) {
         </Dialog>
       </View>
 
-      <Pressable onPress={onAdd} disabled={outOfStock} className="gap-1">
+      <Pressable
+        onPress={onAdd}
+        disabled={outOfStock}
+        accessibilityRole="button"
+        accessibilityLabel={product.name}
+        accessibilityState={{ disabled: outOfStock }}
+        className="gap-1"
+      >
         <Text className="text-xs text-muted-foreground">{product.unit}</Text>
         <Text className="text-base font-semibold text-foreground">{formatVND(product.salePrice)}</Text>
         <Badge variant={badgeVariant}>{badgeLabel}</Badge>

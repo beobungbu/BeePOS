@@ -23,6 +23,7 @@ import {
   useToast,
 } from '@beemvp/beeui-ui';
 import { router } from 'expo-router';
+import { goBackOr } from '../../lib/navigation';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
@@ -139,7 +140,7 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
     setValues(fromProduct(product));
     setTouched(false);
     toast.show({ title: t('products.savedToast'), variant: 'success' });
-    router.back();
+    goBackOr('/products');
   }
 
   function handleDelete() {
@@ -147,14 +148,14 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
     removeProduct(existing.id);
     toast.show({ title: t('products.deletedToast'), variant: 'success' });
     setDeleteOpen(false);
-    router.back();
+    goBackOr('/products');
   }
 
   if (notFound) {
     return (
       <View className="flex-1 p-4">
         <EmptyState title={t('products.noResultsTitle')} description={t('products.noResultsDescription')} />
-        <Button variant="outline" onPress={() => router.back()}>
+        <Button variant="outline" onPress={() => goBackOr('/products')}>
           {t('common.actions.back')}
         </Button>
       </View>
@@ -273,7 +274,7 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
             <View />
           )}
           <View className="flex-row gap-2">
-            <Button variant="outline" onPress={() => router.back()}>
+            <Button variant="outline" onPress={() => goBackOr('/products')}>
               {t('products.form.cancelButton')}
             </Button>
             <Button onPress={handleSave}>{t('products.form.saveButton')}</Button>

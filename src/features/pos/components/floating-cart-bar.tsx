@@ -17,6 +17,8 @@ export function FloatingCartBar({ itemCount, total, onPress }: FloatingCartBarPr
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={t('pos.cart.viewCart')}
       className="flex-row items-center justify-between border-t border-border bg-primary px-4 py-3"
     >
       <View>

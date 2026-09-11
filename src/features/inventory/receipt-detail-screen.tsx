@@ -21,6 +21,7 @@ import {
   useToast,
 } from '@beemvp/beeui-ui';
 import { router } from 'expo-router';
+import { goBackOr } from '../../lib/navigation';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
@@ -78,7 +79,7 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
     const receipt = buildReceipt('draft');
     upsertGoodsReceipt(receipt);
     toast.show({ title: t('products.savedToast'), variant: 'success' });
-    router.back();
+    goBackOr('/inventory/receipts');
   }
 
   function handleConfirmReceive() {
@@ -87,14 +88,14 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
     receiveGoodsReceipt(receipt.id);
     setConfirmOpen(false);
     toast.show({ title: t('inventory.receipts.confirmReceive'), variant: 'success' });
-    router.back();
+    goBackOr('/inventory/receipts');
   }
 
   if (notFound) {
     return (
       <View className="flex-1 p-4">
         <EmptyState title={t('products.noResultsTitle')} description="" />
-        <Button variant="outline" onPress={() => router.back()}>
+        <Button variant="outline" onPress={() => goBackOr('/inventory/receipts')}>
           {t('common.actions.back')}
         </Button>
       </View>

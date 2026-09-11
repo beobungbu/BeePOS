@@ -15,6 +15,7 @@ import {
   useToast,
 } from '@beemvp/beeui-ui';
 import { router } from 'expo-router';
+import { goBackOr } from '../../lib/navigation';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
@@ -76,7 +77,7 @@ export function TransferDetailScreen({ transferId }: TransferDetailScreenProps) 
     if (!canSave) return;
     upsertStockTransfer(buildTransfer());
     toast.show({ title: t('products.savedToast'), variant: 'success' });
-    router.back();
+    goBackOr('/inventory/transfers');
   }
 
   function handleSend() {
@@ -85,21 +86,21 @@ export function TransferDetailScreen({ transferId }: TransferDetailScreenProps) 
     upsertStockTransfer(transfer);
     sendTransfer(transfer.id);
     toast.show({ title: t('inventory.transfers.send'), variant: 'success' });
-    router.back();
+    goBackOr('/inventory/transfers');
   }
 
   function handleReceive() {
     if (!existing) return;
     receiveTransfer(existing.id);
     toast.show({ title: t('inventory.transfers.receive'), variant: 'success' });
-    router.back();
+    goBackOr('/inventory/transfers');
   }
 
   if (notFound) {
     return (
       <View className="flex-1 p-4">
         <EmptyState title={t('products.noResultsTitle')} description="" />
-        <Button variant="outline" onPress={() => router.back()}>
+        <Button variant="outline" onPress={() => goBackOr('/inventory/transfers')}>
           {t('common.actions.back')}
         </Button>
       </View>
