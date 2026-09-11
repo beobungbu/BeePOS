@@ -13,7 +13,8 @@
     "typecheck": "npm run uniwind:types && tsc --noEmit",
     "test": "jest",
     "export:all": "expo export --platform all",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "qa:e2e": "playwright test -c scripts/qa/e2e/playwright.config.ts"
   },
   "dependencies": {
     "@beemvp/beeui-core": "0.86.2-rc.1",
@@ -54,7 +55,8 @@
       "/.expo/",
       "/scripts/audit/claims/",
       "/scripts/audit/props/",
-      "/scripts/audit/browser/"
+      "/scripts/audit/browser/",
+      "/scripts/qa/"
     ]
   }
 }

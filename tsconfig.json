@@ -8,6 +8,7 @@
     "node_modules",
     "scripts/audit/claims/**/*",
     "scripts/audit/props/**/*",
-    "scripts/audit/browser/**/*"
+    "scripts/audit/browser/**/*",
+    "scripts/qa/**/*"
   ]
 }
