@@ -1,7 +1,5 @@
-import { AreaPlaceholder } from '../../../src/components/shell/area-placeholder';
-import { useT } from '../../../src/i18n';
+import { OrdersListScreen } from '../../../src/features/orders/screens/orders-list-screen';
 
 export default function OrdersScreen() {
-  const t = useT();
-  return <AreaPlaceholder title={t('common.nav.orders')} description={t('common.nav.orders')} />;
+  return <OrdersListScreen />;
 }

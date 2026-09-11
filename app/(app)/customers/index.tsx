@@ -1,7 +1,5 @@
-import { AreaPlaceholder } from '../../../src/components/shell/area-placeholder';
-import { useT } from '../../../src/i18n';
+import { CustomersListScreen } from '../../../src/features/customers/screens/customers-list-screen';
 
 export default function CustomersScreen() {
-  const t = useT();
-  return <AreaPlaceholder title={t('common.nav.customers')} description={t('common.nav.customers')} />;
+  return <CustomersListScreen />;
 }
