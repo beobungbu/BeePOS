@@ -1,6 +1,6 @@
 # BeePOS UI prototype + BeeUI field audit
 
-Status: IN PROGRESS · started 2026-09-11 · owner Ambrose · repo github.com/beobungbu/BeePOS (public)
+Status: DONE except iOS Simulator QA · started 2026-09-11 · owner Ambrose · repo github.com/beobungbu/BeePOS (public)
 
 Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 
@@ -12,7 +12,7 @@ Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 | 2 | Products + categories + inventory (levels, receipts, transfers, counts) | phase-02-products-inventory.md | Sonnet worker | DONE 2026-09-11 (integrated on main, batch-2 issues filed) |
 | 3 | Orders + refunds + customers | phase-03-orders-customers.md | Sonnet worker | DONE 2026-09-11 (integrated on main, batch-2 issues filed) |
 | 4 | Reports dashboard + stores + staff + settings | phase-04-reports-admin.md | Sonnet worker | DONE 2026-09-11 (7 findings) |
-| 5 | QA (web + iOS sim screenshots), audit report compile, README, publish | phase-05-qa-audit-publish.md | Ambrose + worker | TODO (spec written) |
+| 5 | QA (web + iOS sim screenshots), audit report compile, README, publish | phase-05-qa-audit-publish.md | Ambrose + worker | PARTIAL 2026-09-11: cleanups, fresh-clone gate, README, LICENSE, consolidated report, 21 issues filed; iOS Simulator QA still open |
 | 6 | Docs site vs llms*.txt consistency matrix (steps 1-2) | phase-06-docs-llms-consistency-audit.md | Sonnet auditor | DONE 2026-09-11 (501 rows, issue #574) |
 | 7 | Step 3: verify docs against reality (props, behavior claims, clean-room usability, readability rubric) | phase-07-doc-truth-verification.md | 2 Sonnet workers (A verifier, B fresh reader) | DONE 2026-09-11 (A: 62 comps, 72 claims hold; B: 2 clean rooms, 12 pages scored; issues #575-#580) |
 
