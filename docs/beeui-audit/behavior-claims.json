@@ -1,0 +1,733 @@
+{
+  "generatedAt": "2026-09-11T04:59:37.061Z",
+  "totals": {
+    "holds": 72,
+    "fails": 0,
+    "untested-needs-browser": 8,
+    "untestable": 0
+  },
+  "executed": 72,
+  "totalClaims": 80,
+  "claims": [
+    {
+      "id": "AB-01",
+      "claim": "sets accessibilityLiveRegion from the `live` prop, default \"polite\"",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/alert-banner/#state-and-behavior-contract",
+      "quote": "Stateless inline callout with no open/close or controlled prop; it live-announces (Android live-region, iOS AccessibilityInfo) whenever mounted with new content, with an optional explicit announcement override for complex children.",
+      "testFile": "scripts/audit/claims/__tests__/alert-banner.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "AB-02",
+      "claim": "live=\"none\" is reflected as accessibilityLiveRegion=\"none\" (suppressing the announcement)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/alert-banner/#state-and-behavior-contract",
+      "quote": "Stateless inline callout with no open/close or controlled prop; it live-announces (Android live-region, iOS AccessibilityInfo) whenever mounted with new content, with an optional explicit announcement override for complex children.",
+      "testFile": "scripts/audit/claims/__tests__/alert-banner.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "ADLG-01",
+      "claim": "AlertDialog never closes from a backdrop press or an Escape keypress, unlike Dialog; it still closes on a native request-close because cancelOnRequestClose defaults to true.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/alert-dialog/#state-and-behavior-contract",
+      "quote": "AlertDialog never closes from a backdrop press or an Escape keypress, unlike Dialog; it still closes on a native request-close because cancelOnRequestClose defaults to true.",
+      "testFile": null,
+      "result": "untested-needs-browser",
+      "observed": "Same overlay-runtime dependency as DLG-01/DLG-02."
+    },
+    {
+      "id": "AV-01",
+      "claim": "an image load failure resets to the fallback text",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/avatar/#state-and-behavior-contract",
+      "quote": "Stateless image-with-fallback: an image load failure resets to the fallback, and the reset is keyed to the semantic image source content (not object identity), so re-supplying an already-failed source shows the fallback again immediately.",
+      "testFile": "scripts/audit/claims/__tests__/avatar.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "AV-02",
+      "claim": "re-supplying an already-failed source (new object, same URI) shows the fallback again immediately",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/avatar/#state-and-behavior-contract",
+      "quote": "Stateless image-with-fallback: an image load failure resets to the fallback, and the reset is keyed to the semantic image source content (not object identity), so re-supplying an already-failed source shows the fallback again immediately.",
+      "testFile": "scripts/audit/claims/__tests__/avatar.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "AV-03",
+      "claim": "a different source (new URI) resets the failed flag and attempts the image again",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/avatar/#state-and-behavior-contract",
+      "quote": "Stateless image-with-fallback: an image load failure resets to the fallback, and the reset is keyed to the semantic image source content (not object identity), so re-supplying an already-failed source shows the fallback again immediately.",
+      "testFile": "scripts/audit/claims/__tests__/avatar.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "BAB-01",
+      "claim": "bordered defaults to true (border className present without an explicit prop)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/bottom-action-bar/#state-and-behavior-contract",
+      "quote": "Stateless bottom-anchored action surface with no controlled props; it adds no system-inset padding itself, so the app shell must wrap it with SafeArea or safe-area utilities.",
+      "testFile": "scripts/audit/claims/__tests__/bottom-action-bar.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "BAB-02",
+      "claim": "bordered=false omits the border className",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/bottom-action-bar/#state-and-behavior-contract",
+      "quote": "Stateless bottom-anchored action surface with no controlled props; it adds no system-inset padding itself, so the app shell must wrap it with SafeArea or safe-area utilities.",
+      "testFile": "scripts/audit/claims/__tests__/bottom-action-bar.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "BADGE-01",
+      "claim": "variant selects a distinct className token pair (default primary vs. destructive differ)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/badge/#state-and-behavior-contract",
+      "quote": "Stateless semantic status label; variant selects the paired foreground/background token pair, with no controlled/open state or callbacks.",
+      "testFile": "scripts/audit/claims/__tests__/badge-card.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "BTN-01",
+      "claim": "disabled blocks press handling (Pressable receives disabled=true)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/button/#state-and-behavior-contract",
+      "quote": "Stateless pressable driven entirely by props (variant/size/loading/disabled); disabled or loading both block press handling and mark the accessibility disabled state, and loading swaps in a spinner without changing the button's footprint.",
+      "testFile": "scripts/audit/claims/__tests__/button.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "BTN-02",
+      "claim": "loading blocks press handling (Pressable receives disabled=true)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/button/#state-and-behavior-contract",
+      "quote": "Stateless pressable driven entirely by props (variant/size/loading/disabled); disabled or loading both block press handling and mark the accessibility disabled state, and loading swaps in a spinner without changing the button's footprint.",
+      "testFile": "scripts/audit/claims/__tests__/button.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "BTN-03",
+      "claim": "disabled marks the accessibility disabled state",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/button/#state-and-behavior-contract",
+      "quote": "Stateless pressable driven entirely by props (variant/size/loading/disabled); disabled or loading both block press handling and mark the accessibility disabled state, and loading swaps in a spinner without changing the button's footprint.",
+      "testFile": "scripts/audit/claims/__tests__/button.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "BTN-04",
+      "claim": "loading marks the accessibility disabled state (and aria-busy)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/button/#state-and-behavior-contract",
+      "quote": "Stateless pressable driven entirely by props (variant/size/loading/disabled); disabled or loading both block press handling and mark the accessibility disabled state, and loading swaps in a spinner without changing the button's footprint.",
+      "testFile": "scripts/audit/claims/__tests__/button.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "BTN-05",
+      "claim": "loading swaps in a spinner (ActivityIndicator) alongside the label",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/button/#state-and-behavior-contract",
+      "quote": "Stateless pressable driven entirely by props (variant/size/loading/disabled); disabled or loading both block press handling and mark the accessibility disabled state, and loading swaps in a spinner without changing the button's footprint.",
+      "testFile": "scripts/audit/claims/__tests__/button.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "BTN-06",
+      "claim": "non-loading, non-disabled Button is not disabled and shows no spinner",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/button/#state-and-behavior-contract",
+      "quote": "Stateless pressable driven entirely by props (variant/size/loading/disabled); disabled or loading both block press handling and mark the accessibility disabled state, and loading swaps in a spinner without changing the button's footprint.",
+      "testFile": "scripts/audit/claims/__tests__/button.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CARD-01",
+      "claim": "default variant is \"outlined\" (bordered) per its documented default",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/card/#state-and-behavior-contract",
+      "quote": "Stateless elevated/outlined surface driven by a variant and spacing prop; no controlled state or callbacks.",
+      "testFile": "scripts/audit/claims/__tests__/badge-card.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CARD-02",
+      "claim": "padding=\"none\" renders no padding utility class",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/card/#state-and-behavior-contract",
+      "quote": "Stateless elevated/outlined surface driven by a variant and spacing prop; no controlled state or callbacks.",
+      "testFile": "scripts/audit/claims/__tests__/badge-card.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHIP-01",
+      "claim": "a grouped Chip without a value fails safe as disabled",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/chip/#state-and-behavior-contract",
+      "quote": "a grouped Chip rendered without a value fails safe as disabled and warns in development",
+      "testFile": "scripts/audit/claims/__tests__/chip.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHIP-02",
+      "claim": "a grouped Chip without a value warns in development",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/chip/#state-and-behavior-contract",
+      "quote": "a grouped Chip rendered without a value fails safe as disabled and warns in development",
+      "testFile": "scripts/audit/claims/__tests__/chip.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHIPGROUP-01",
+      "claim": "uncontrolled ChipGroup single-selection reflects the pressed Chip as selected",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/chip/#state-and-behavior-contract",
+      "quote": "ChipGroup supports controlled/uncontrolled single- or multiple-selection.",
+      "testFile": "scripts/audit/claims/__tests__/chip.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHIPGROUP-02",
+      "claim": "controlled ChipGroup selection state is driven by the `value` prop, not internal state",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/chip/#state-and-behavior-contract",
+      "quote": "ChipGroup supports controlled/uncontrolled single- or multiple-selection.",
+      "testFile": "scripts/audit/claims/__tests__/chip.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHK-01",
+      "claim": "enabled usage (checked, no disabled) without onCheckedChange warns in development",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/checkbox/#state-and-behavior-contract",
+      "quote": "Controlled boolean/indeterminate checked/onCheckedChange checkbox; enabling it without onCheckedChange warns in development instead of silently doing nothing, and disabled blocks both press handling and the accessibility toggle action.",
+      "testFile": "scripts/audit/claims/__tests__/checkbox.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHK-02",
+      "claim": "disabled + no onCheckedChange does not warn (interaction is intentionally read-only)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/checkbox/#state-and-behavior-contract",
+      "quote": "Controlled boolean/indeterminate checked/onCheckedChange checkbox; enabling it without onCheckedChange warns in development instead of silently doing nothing, and disabled blocks both press handling and the accessibility toggle action.",
+      "testFile": "scripts/audit/claims/__tests__/checkbox.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHK-03",
+      "claim": "disabled blocks press handling (Pressable receives disabled=true)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/checkbox/#state-and-behavior-contract",
+      "quote": "Controlled boolean/indeterminate checked/onCheckedChange checkbox; enabling it without onCheckedChange warns in development instead of silently doing nothing, and disabled blocks both press handling and the accessibility toggle action.",
+      "testFile": "scripts/audit/claims/__tests__/checkbox.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHK-04",
+      "claim": "disabled marks the accessibility toggle action disabled",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/checkbox/#state-and-behavior-contract",
+      "quote": "Controlled boolean/indeterminate checked/onCheckedChange checkbox; enabling it without onCheckedChange warns in development instead of silently doing nothing, and disabled blocks both press handling and the accessibility toggle action.",
+      "testFile": "scripts/audit/claims/__tests__/checkbox.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHK-05",
+      "claim": "checked=true reflects accessibilityState.checked === true",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/checkbox/#state-and-behavior-contract",
+      "quote": "Controlled boolean/indeterminate checked/onCheckedChange checkbox; enabling it without onCheckedChange warns in development instead of silently doing nothing, and disabled blocks both press handling and the accessibility toggle action.",
+      "testFile": "scripts/audit/claims/__tests__/checkbox.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "CHK-06",
+      "claim": "checked='indeterminate' reflects accessibilityState.checked === 'mixed'",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/checkbox/#state-and-behavior-contract",
+      "quote": "Controlled boolean/indeterminate checked/onCheckedChange checkbox; enabling it without onCheckedChange warns in development instead of silently doing nothing, and disabled blocks both press handling and the accessibility toggle action.",
+      "testFile": "scripts/audit/claims/__tests__/checkbox.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "DLG-01",
+      "claim": "Supplying open without onOpenChange warns in development and falls back to dismissable behavior.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/dialog/#state-and-behavior-contract",
+      "quote": "Supplying open without onOpenChange warns in development and falls back to dismissable behavior.",
+      "testFile": null,
+      "result": "untested-needs-browser",
+      "observed": "Dialog mounts through the shared overlay runtime (portal + focus trap + Escape/backdrop dismissal) this harness does not provide a real implementation of."
+    },
+    {
+      "id": "DLG-02",
+      "claim": "Backdrop press, Web Escape, and Android hardware back all route through one close policy, while dismissOnRequestClose={false}/dismissOnEscape={false} opt individual channels out.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/dialog/#state-and-behavior-contract",
+      "quote": "Backdrop press, Web Escape, and Android hardware back all route through one close policy, while dismissOnRequestClose={false}/dismissOnEscape={false} opt individual channels out.",
+      "testFile": null,
+      "result": "untested-needs-browser",
+      "observed": "Requires a real Web DOM (Escape keydown) or native back-handler runtime; not exercisable via react-test-renderer."
+    },
+    {
+      "id": "FI-01",
+      "claim": "Field wires its labelNativeID to the wrapped Input as accessibilityLabelledBy",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/field/#state-and-behavior-contract",
+      "quote": "Stateless label/description/error composition; it wires accessible label/required/error relationships only to a wrapped text-entry control (Input/Textarea) — never to checkbox/radio/switch, which label themselves explicitly.",
+      "testFile": "scripts/audit/claims/__tests__/field-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "FI-02",
+      "claim": "Field required=true is reflected in the wrapped Input's synthesized accessibilityLabel",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/field/#state-and-behavior-contract",
+      "quote": "Stateless label/description/error composition; it wires accessible label/required/error relationships only to a wrapped text-entry control (Input/Textarea) — never to checkbox/radio/switch, which label themselves explicitly.",
+      "testFile": "scripts/audit/claims/__tests__/field-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "FI-03",
+      "claim": "Field disabled=true ORs into the wrapped Input's own disabled/editable state",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/field/#state-and-behavior-contract",
+      "quote": "Stateless label/description/error composition; it wires accessible label/required/error relationships only to a wrapped text-entry control (Input/Textarea) — never to checkbox/radio/switch, which label themselves explicitly.",
+      "testFile": "scripts/audit/claims/__tests__/field-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "FI-04",
+      "claim": "Input disabled sets editable=false",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/field/#state-and-behavior-contract",
+      "quote": "Stateless label/description/error composition; it wires accessible label/required/error relationships only to a wrapped text-entry control (Input/Textarea) — never to checkbox/radio/switch, which label themselves explicitly.",
+      "testFile": "scripts/audit/claims/__tests__/field-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "FI-05",
+      "claim": "Input is uncontrolled-by-default (no `value` prop is forced; a plain defaultValue passes through)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/field/#state-and-behavior-contract",
+      "quote": "Stateless label/description/error composition; it wires accessible label/required/error relationships only to a wrapped text-entry control (Input/Textarea) — never to checkbox/radio/switch, which label themselves explicitly.",
+      "testFile": "scripts/audit/claims/__tests__/field-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "IB-01",
+      "claim": "shares Button's loading semantics — loading blocks press handling (disabled=true)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/icon-button/#state-and-behavior-contract",
+      "quote": "Stateless 44px icon-only pressable sharing Button's disabled/loading semantics; an accessible label (accessibilityLabel) is required because there is no visible text to derive one from.",
+      "testFile": "scripts/audit/claims/__tests__/icon-button.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "IB-02",
+      "claim": "renders the supplied accessibilityLabel on the underlying Pressable (required, no visible text to derive one from)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/icon-button/#state-and-behavior-contract",
+      "quote": "Stateless 44px icon-only pressable sharing Button's disabled/loading semantics; an accessible label (accessibilityLabel) is required because there is no visible text to derive one from.",
+      "testFile": "scripts/audit/claims/__tests__/icon-button.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "IB-03",
+      "claim": "always renders size=\"icon\" on the shared Button regardless of a caller-supplied size",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/icon-button/#state-and-behavior-contract",
+      "quote": "Stateless 44px icon-only pressable sharing Button's disabled/loading semantics; an accessible label (accessibilityLabel) is required because there is no visible text to derive one from.",
+      "testFile": "scripts/audit/claims/__tests__/icon-button.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "LI-01",
+      "claim": "without onPress, the row is not accessibilityRole=\"button\" (press behavior is opt-in)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/list-item/#state-and-behavior-contract",
+      "quote": "Press behavior is opt-in (onPress makes the row interactive); an interactive row without an explicit accessibilityLabel synthesizes one from its primitive title/description/trailing content, while non-interactive rows never hide complex descendant content.",
+      "testFile": "scripts/audit/claims/__tests__/list-item.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "LI-02",
+      "claim": "with onPress, the row is accessibilityRole=\"button\" (interactive)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/list-item/#state-and-behavior-contract",
+      "quote": "Press behavior is opt-in (onPress makes the row interactive); an interactive row without an explicit accessibilityLabel synthesizes one from its primitive title/description/trailing content, while non-interactive rows never hide complex descendant content.",
+      "testFile": "scripts/audit/claims/__tests__/list-item.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "LI-03",
+      "claim": "an interactive row without an explicit accessibilityLabel synthesizes one from title + description",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/list-item/#state-and-behavior-contract",
+      "quote": "Press behavior is opt-in (onPress makes the row interactive); an interactive row without an explicit accessibilityLabel synthesizes one from its primitive title/description/trailing content, while non-interactive rows never hide complex descendant content.",
+      "testFile": "scripts/audit/claims/__tests__/list-item.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "LI-04",
+      "claim": "an explicit accessibilityLabel overrides the synthesized one",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/list-item/#state-and-behavior-contract",
+      "quote": "Press behavior is opt-in (onPress makes the row interactive); an interactive row without an explicit accessibilityLabel synthesizes one from its primitive title/description/trailing content, while non-interactive rows never hide complex descendant content.",
+      "testFile": "scripts/audit/claims/__tests__/list-item.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "OTP-01",
+      "claim": "numeric mode (default) strips non-digit characters from the rendered value",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/otp-input/#state-and-behavior-contract",
+      "quote": "Controlled/uncontrolled one-time-code input; entered text is normalized to digits only when mode is 'numeric' (the default) — mode: 'text' accepts any character unnormalized — and the completion callback fires exactly once per completed value — it does not re-fire on further keystrokes while already complete, only after the value becomes incomplete again.",
+      "testFile": "scripts/audit/claims/__tests__/otp-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "OTP-02",
+      "claim": "mode='text' accepts non-digit characters unnormalized",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/otp-input/#state-and-behavior-contract",
+      "quote": "Controlled/uncontrolled one-time-code input; entered text is normalized to digits only when mode is 'numeric' (the default) — mode: 'text' accepts any character unnormalized — and the completion callback fires exactly once per completed value — it does not re-fire on further keystrokes while already complete, only after the value becomes incomplete again.",
+      "testFile": "scripts/audit/claims/__tests__/otp-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "OTP-03",
+      "claim": "onComplete fires exactly once when the value first reaches `length`",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/otp-input/#state-and-behavior-contract",
+      "quote": "Controlled/uncontrolled one-time-code input; entered text is normalized to digits only when mode is 'numeric' (the default) — mode: 'text' accepts any character unnormalized — and the completion callback fires exactly once per completed value — it does not re-fire on further keystrokes while already complete, only after the value becomes incomplete again.",
+      "testFile": "scripts/audit/claims/__tests__/otp-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "OTP-04",
+      "claim": "onComplete does not re-fire on further keystrokes while already complete (maxLength clamps input, same value)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/otp-input/#state-and-behavior-contract",
+      "quote": "Controlled/uncontrolled one-time-code input; entered text is normalized to digits only when mode is 'numeric' (the default) — mode: 'text' accepts any character unnormalized — and the completion callback fires exactly once per completed value — it does not re-fire on further keystrokes while already complete, only after the value becomes incomplete again.",
+      "testFile": "scripts/audit/claims/__tests__/otp-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "OTP-05",
+      "claim": "onComplete fires again after the value becomes incomplete and then completes again",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/otp-input/#state-and-behavior-contract",
+      "quote": "Controlled/uncontrolled one-time-code input; entered text is normalized to digits only when mode is 'numeric' (the default) — mode: 'text' accepts any character unnormalized — and the completion callback fires exactly once per completed value — it does not re-fire on further keystrokes while already complete, only after the value becomes incomplete again.",
+      "testFile": "scripts/audit/claims/__tests__/otp-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "PAG-01",
+      "claim": "an out-of-range target item (page beyond pageCount) is disabled",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/pagination/#state-and-behavior-contract",
+      "quote": "Controlled page/onPageChange context shared with every PaginationItem; page boundaries are normalized (out-of-range requests are clamped), and a malformed runtime page item (e.g. a type=\"page\" item with no page number) fails safe as disabled.",
+      "testFile": "scripts/audit/claims/__tests__/pagination.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "PAG-02",
+      "claim": "a malformed runtime page item (type=\"page\", no page number) fails safe as disabled",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/pagination/#state-and-behavior-contract",
+      "quote": "Controlled page/onPageChange context shared with every PaginationItem; page boundaries are normalized (out-of-range requests are clamped), and a malformed runtime page item (e.g. a type=\"page\" item with no page number) fails safe as disabled.",
+      "testFile": "scripts/audit/claims/__tests__/pagination.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "PAG-03",
+      "claim": "a malformed page item warns in development",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/pagination/#state-and-behavior-contract",
+      "quote": "Controlled page/onPageChange context shared with every PaginationItem; page boundaries are normalized (out-of-range requests are clamped), and a malformed runtime page item (e.g. a type=\"page\" item with no page number) fails safe as disabled.",
+      "testFile": "scripts/audit/claims/__tests__/pagination.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "PAG-04",
+      "claim": "page is clamped to [1, pageCount] — an out-of-range Pagination page prop renders the clamped page as selected",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/pagination/#state-and-behavior-contract",
+      "quote": "Controlled page/onPageChange context shared with every PaginationItem; page boundaries are normalized (out-of-range requests are clamped), and a malformed runtime page item (e.g. a type=\"page\" item with no page number) fails safe as disabled.",
+      "testFile": "scripts/audit/claims/__tests__/pagination.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "PROG-01",
+      "claim": "a value above max is clamped to max",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/progress/#state-and-behavior-contract",
+      "quote": "Stateless clamped determinate progress bar; there is no lower-bound prop — value is clamped between 0 and max, and max itself falls back to 100 when non-finite or <= 0 — and it exposes native progressbar semantics with no indeterminate mode.",
+      "testFile": "scripts/audit/claims/__tests__/progress.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "PROG-02",
+      "claim": "a negative value is clamped to 0 (no lower-bound prop, floor is fixed at 0)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/progress/#state-and-behavior-contract",
+      "quote": "Stateless clamped determinate progress bar; there is no lower-bound prop — value is clamped between 0 and max, and max itself falls back to 100 when non-finite or <= 0 — and it exposes native progressbar semantics with no indeterminate mode.",
+      "testFile": "scripts/audit/claims/__tests__/progress.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "PROG-03",
+      "claim": "a non-finite max falls back to 100",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/progress/#state-and-behavior-contract",
+      "quote": "Stateless clamped determinate progress bar; there is no lower-bound prop — value is clamped between 0 and max, and max itself falls back to 100 when non-finite or <= 0 — and it exposes native progressbar semantics with no indeterminate mode.",
+      "testFile": "scripts/audit/claims/__tests__/progress.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "PROG-04",
+      "claim": "a max <= 0 falls back to 100",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/progress/#state-and-behavior-contract",
+      "quote": "Stateless clamped determinate progress bar; there is no lower-bound prop — value is clamped between 0 and max, and max itself falls back to 100 when non-finite or <= 0 — and it exposes native progressbar semantics with no indeterminate mode.",
+      "testFile": "scripts/audit/claims/__tests__/progress.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "PROG-05",
+      "claim": "exposes accessibilityRole progressbar",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/progress/#state-and-behavior-contract",
+      "quote": "Stateless clamped determinate progress bar; there is no lower-bound prop — value is clamped between 0 and max, and max itself falls back to 100 when non-finite or <= 0 — and it exposes native progressbar semantics with no indeterminate mode.",
+      "testFile": "scripts/audit/claims/__tests__/progress.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "RD-01",
+      "claim": "standalone Radio supports deselection — pressing a checked standalone Radio calls onCheckedChange(false)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/radio/#state-and-behavior-contract",
+      "quote": "Standalone Radio supports both selection and deselection through onCheckedChange.",
+      "testFile": "scripts/audit/claims/__tests__/radio.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "RG-01",
+      "claim": "enabled RadioGroup usage without onValueChange warns in development",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/radio/#state-and-behavior-contract",
+      "quote": "grouped through RadioGroup (value/onValueChange, fully controlled — there is no uncontrolled mode) radios become mutually exclusive and can no longer deselect. Enabled usage without the matching callback warns in development.",
+      "testFile": "scripts/audit/claims/__tests__/radio.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "RG-02",
+      "claim": "grouped radios are mutually exclusive — only the matching value is checked",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/radio/#state-and-behavior-contract",
+      "quote": "grouped through RadioGroup (value/onValueChange, fully controlled — there is no uncontrolled mode) radios become mutually exclusive and can no longer deselect. Enabled usage without the matching callback warns in development.",
+      "testFile": "scripts/audit/claims/__tests__/radio.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "RG-03",
+      "claim": "grouped Radio press selects its own value via the group onValueChange, not onCheckedChange",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/radio/#state-and-behavior-contract",
+      "quote": "grouped through RadioGroup (value/onValueChange, fully controlled — there is no uncontrolled mode) radios become mutually exclusive and can no longer deselect. Enabled usage without the matching callback warns in development.",
+      "testFile": "scripts/audit/claims/__tests__/radio.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "SC-01",
+      "claim": "enabled usage without onValueChange warns in development",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/segmented-control/#state-and-behavior-contract",
+      "quote": "Controlled (value/onValueChange) mutually exclusive selection with radiogroup semantics; enabled usage without onValueChange warns in development, and a disabled segment cannot be selected.",
+      "testFile": "scripts/audit/claims/__tests__/segmented-control.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "SC-02",
+      "claim": "a disabled segment cannot be selected (its onValueChange is not invoked, and it reports accessibilityState.disabled)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/segmented-control/#state-and-behavior-contract",
+      "quote": "Controlled (value/onValueChange) mutually exclusive selection with radiogroup semantics; enabled usage without onValueChange warns in development, and a disabled segment cannot be selected.",
+      "testFile": "scripts/audit/claims/__tests__/segmented-control.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "SEL-01",
+      "claim": "A duplicate SelectItem value disables every item sharing it and warns in development.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/select/#state-and-behavior-contract",
+      "quote": "A duplicate SelectItem value disables every item sharing it and warns in development.",
+      "testFile": null,
+      "result": "untested-needs-browser",
+      "observed": "Select is built on the anchored-overlay/portal runtime (open/close, focus trap, collision-aware positioning) that this harness stubs out (see jest.setup.js); its real value-collision logic runs inside that portal."
+    },
+    {
+      "id": "SEL-02",
+      "claim": "Removing the selected option does not synthesize a value change — SelectValue falls back to its placeholder until a matching item returns.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/select/#state-and-behavior-contract",
+      "quote": "Removing the selected option does not synthesize a value change — SelectValue falls back to its placeholder until a matching item returns.",
+      "testFile": null,
+      "result": "untested-needs-browser",
+      "observed": "Same overlay-runtime dependency as SEL-01."
+    },
+    {
+      "id": "SHEET-01",
+      "claim": "Dismissal (backdrop press, swipe, Web Escape, Android hardware back) routes through the same dismissOnRequestClose/onRequestClose contract Dialog uses.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/sheet/#state-and-behavior-contract",
+      "quote": "Dismissal (backdrop press, swipe, Web Escape, Android hardware back) routes through the same dismissOnRequestClose/onRequestClose contract Dialog uses.",
+      "testFile": null,
+      "result": "untested-needs-browser",
+      "observed": "Sheet is the direct @gorhom/bottom-sheet consumer this harness stubs (see jest.setup.js); real gesture-driven dismissal needs Reanimated worklets running on a real (or full native-simulator) runtime."
+    },
+    {
+      "id": "SI-01",
+      "claim": "clearing a previously non-empty query emits exactly one onSearch('') call",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/search-input/#state-and-behavior-contract",
+      "quote": "Uncontrolled-by-default search-keyboard field layered on Input; clearing a previously non-empty query emits exactly one onSearch('') reset call, not one per keystroke of the clear action.",
+      "testFile": "scripts/audit/claims/__tests__/search-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "SI-02",
+      "claim": "onSearch is not called for every keystroke while typing (only on the empty-clear transition or submit)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/search-input/#state-and-behavior-contract",
+      "quote": "Uncontrolled-by-default search-keyboard field layered on Input; clearing a previously non-empty query emits exactly one onSearch('') reset call, not one per keystroke of the clear action.",
+      "testFile": "scripts/audit/claims/__tests__/search-input.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "SK-01",
+      "claim": "hidden from the accessibility tree (aria-hidden + accessible=false)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/skeleton/#state-and-behavior-contract",
+      "quote": "Stateless decorative static loading placeholder; it is hidden from the accessibility tree and carries no loading-state callbacks.",
+      "testFile": "scripts/audit/claims/__tests__/skeleton.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "SW-01",
+      "claim": "enabled usage without onValueChange warns in development",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/switch/#state-and-behavior-contract",
+      "quote": "Controlled native Switch (value/onValueChange); enabled usage without onValueChange warns in development instead of silently doing nothing.",
+      "testFile": "scripts/audit/claims/__tests__/switch.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "SW-02",
+      "claim": "disabled + no onValueChange does not warn, and sets disabled on the underlying RN Switch",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/switch/#state-and-behavior-contract",
+      "quote": "Controlled native Switch (value/onValueChange); enabled usage without onValueChange warns in development instead of silently doing nothing.",
+      "testFile": "scripts/audit/claims/__tests__/switch.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TABS-01",
+      "claim": "enabled usage without onValueChange warns in development",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/tabs/#state-and-behavior-contract",
+      "quote": "Fully controlled (value/onValueChange, required — there is no uncontrolled mode) tab state shared across TabsList/TabsTrigger/TabsContent; enabled usage without onValueChange warns in development, and an inactive TabsContent panel is not mounted.",
+      "testFile": "scripts/audit/claims/__tests__/tabs.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TABS-02",
+      "claim": "the active TabsContent panel is mounted",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/tabs/#state-and-behavior-contract",
+      "quote": "Fully controlled (value/onValueChange, required — there is no uncontrolled mode) tab state shared across TabsList/TabsTrigger/TabsContent; enabled usage without onValueChange warns in development, and an inactive TabsContent panel is not mounted.",
+      "testFile": "scripts/audit/claims/__tests__/tabs.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TABS-03",
+      "claim": "an inactive TabsContent panel is not mounted",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/tabs/#state-and-behavior-contract",
+      "quote": "Fully controlled (value/onValueChange, required — there is no uncontrolled mode) tab state shared across TabsList/TabsTrigger/TabsContent; enabled usage without onValueChange warns in development, and an inactive TabsContent panel is not mounted.",
+      "testFile": "scripts/audit/claims/__tests__/tabs.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TBL-01",
+      "claim": "TableRow renders as a plain View (no button/row accessibility role of its own)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/table/#state-and-behavior-contract",
+      "quote": "Composable primitive family with no owned fetching, sort/filter/selection state, or spreadsheet-style cell navigation. TableHead's sortDirection/onSortChange pair is fully caller-controlled (the presence of sortDirection is what marks a column sortable); TableRow's selected is a caller-owned boolean reflected only visually/for accessibility.",
+      "testFile": "scripts/audit/claims/__tests__/table.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TBL-02",
+      "claim": "the presence of sortDirection is what marks a TableHead column sortable (renders a press target)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/table/#state-and-behavior-contract",
+      "quote": "Composable primitive family with no owned fetching, sort/filter/selection state, or spreadsheet-style cell navigation. TableHead's sortDirection/onSortChange pair is fully caller-controlled (the presence of sortDirection is what marks a column sortable); TableRow's selected is a caller-owned boolean reflected only visually/for accessibility.",
+      "testFile": "scripts/audit/claims/__tests__/table.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TBL-03",
+      "claim": "a sortable TableHead without onSortChange warns in development",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/table/#state-and-behavior-contract",
+      "quote": "Composable primitive family with no owned fetching, sort/filter/selection state, or spreadsheet-style cell navigation. TableHead's sortDirection/onSortChange pair is fully caller-controlled (the presence of sortDirection is what marks a column sortable); TableRow's selected is a caller-owned boolean reflected only visually/for accessibility.",
+      "testFile": "scripts/audit/claims/__tests__/table.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TBL-04",
+      "claim": "TableRow's selected is reflected in accessibilityState.selected on the row's own host View",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/table/#state-and-behavior-contract",
+      "quote": "Composable primitive family with no owned fetching, sort/filter/selection state, or spreadsheet-style cell navigation. TableHead's sortDirection/onSortChange pair is fully caller-controlled (the presence of sortDirection is what marks a column sortable); TableRow's selected is a caller-owned boolean reflected only visually/for accessibility.",
+      "testFile": "scripts/audit/claims/__tests__/table.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TL-01",
+      "claim": "only the last TimelineItem omits its connector line (terminal placement auto-derived)",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/timeline/#state-and-behavior-contract",
+      "quote": "Stateless read-only ordered history composition; terminal connector placement is derived automatically from the rendered TimelineItem children, and supplied child keys are preserved — it owns no workflow state.",
+      "testFile": "scripts/audit/claims/__tests__/timeline.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TL-02",
+      "claim": "the rail column is hidden from accessibility on every item, regardless of position",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/timeline/#state-and-behavior-contract",
+      "quote": "Stateless read-only ordered history composition; terminal connector placement is derived automatically from the rendered TimelineItem children, and supplied child keys are preserved — it owns no workflow state.",
+      "testFile": "scripts/audit/claims/__tests__/timeline.claims.test.tsx",
+      "result": "holds",
+      "observed": ""
+    },
+    {
+      "id": "TOAST-01",
+      "claim": "Toasts queue FIFO with at most three visible at once.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/toast/#state-and-behavior-contract",
+      "quote": "Toasts queue FIFO with at most three visible at once.",
+      "testFile": null,
+      "result": "untested-needs-browser",
+      "observed": "useToast() is a provider-scoped imperative singleton whose queue/portal lives outside any single rendered tree; needs a real app-level BeeUIProvider mount, best exercised in a browser."
+    },
+    {
+      "id": "TOAST-02",
+      "claim": "An explicit persistent mode opts a toast out of auto-dismiss, and action-triggered dismissal is deterministic (never racing the auto-dismiss timer).",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/toast/#state-and-behavior-contract",
+      "quote": "An explicit persistent mode opts a toast out of auto-dismiss, and action-triggered dismissal is deterministic (never racing the auto-dismiss timer).",
+      "testFile": null,
+      "result": "untested-needs-browser",
+      "observed": "Same provider-singleton/timer dependency as TOAST-01; real timer race behavior is best verified in a browser, not a mocked jsdom/native-mock timer."
+    }
+  ]
+}

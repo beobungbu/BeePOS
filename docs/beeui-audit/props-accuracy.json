@@ -1,0 +1,2232 @@
+{
+  "generatedAt": "2026-09-11T04:43:47.273Z",
+  "summary": {
+    "totals": {
+      "documented-and-real": 532,
+      "missing-in-docs": 3,
+      "extra-in-docs": 0,
+      "type-mismatch": 2,
+      "default-mismatch": 30,
+      "required-mismatch": 3,
+      "type-not-resolved": 0,
+      "base-unresolved-limited-coverage": 4
+    },
+    "componentsChecked": 62,
+    "propTypesChecked": 137
+  },
+  "components": [
+    {
+      "slug": "accordion",
+      "url": "https://beeui.beemvp.com/docs/components/accordion/",
+      "propTypes": [
+        {
+          "typeName": "AccordionContentProps",
+          "headingId": "accordioncontentprops",
+          "inheritsRaw": "Omit<ViewProps, 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "AccordionItemProps",
+          "headingId": "accordionitemprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 3,
+          "diffs": []
+        },
+        {
+          "typeName": "AccordionProps",
+          "headingId": "accordionprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 7,
+          "diffs": []
+        },
+        {
+          "typeName": "AccordionTriggerProps",
+          "headingId": "accordiontriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'accessibilityState' | 'children' | 'disabled' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 3,
+          "docsRowCount": 4,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "alert-banner",
+      "url": "https://beeui.beemvp.com/docs/components/alert-banner/",
+      "propTypes": [
+        {
+          "typeName": "AlertBannerProps",
+          "headingId": "alertbannerprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 7,
+          "docsRowCount": 7,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "alert-dialog",
+      "url": "https://beeui.beemvp.com/docs/components/alert-dialog/",
+      "propTypes": [
+        {
+          "typeName": "AlertDialogActionProps",
+          "headingId": "alertdialogactionprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        },
+        {
+          "typeName": "AlertDialogCancelProps",
+          "headingId": "alertdialogcancelprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        },
+        {
+          "typeName": "AlertDialogContentProps",
+          "headingId": "alertdialogcontentprops",
+          "inheritsRaw": "Omit<DialogContentProps, 'closeOnBackdropPress' | 'dismissOnEscape' | 'dismissOnRequestClose'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "AlertDialogDescriptionProps",
+          "headingId": "alertdialogdescriptionprops",
+          "inheritsRaw": "Omit<TextProps, 'tone' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "AlertDialogFooterProps",
+          "headingId": "alertdialogfooterprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "AlertDialogProps",
+          "headingId": "alertdialogprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "AlertDialogTitleProps",
+          "headingId": "alertdialogtitleprops",
+          "inheritsRaw": "Omit<TextProps, 'accessibilityRole' | 'role' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "AlertDialogTriggerProps",
+          "headingId": "alertdialogtriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "app-header",
+      "url": "https://beeui.beemvp.com/docs/components/app-header/",
+      "propTypes": [
+        {
+          "typeName": "AppHeaderProps",
+          "headingId": "appheaderprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 8,
+          "docsRowCount": 8,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "avatar",
+      "url": "https://beeui.beemvp.com/docs/components/avatar/",
+      "propTypes": [
+        {
+          "typeName": "AvatarProps",
+          "headingId": "avatarprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 7,
+          "docsRowCount": 7,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "badge",
+      "url": "https://beeui.beemvp.com/docs/components/badge/",
+      "propTypes": [
+        {
+          "typeName": "BadgeProps",
+          "headingId": "badgeprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 3,
+          "docsRowCount": 4,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "bottom-action-bar",
+      "url": "https://beeui.beemvp.com/docs/components/bottom-action-bar/",
+      "propTypes": [
+        {
+          "typeName": "BottomActionBarProps",
+          "headingId": "bottomactionbarprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 2,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "box",
+      "url": "https://beeui.beemvp.com/docs/components/box/",
+      "propTypes": [
+        {
+          "typeName": "BoxProps",
+          "headingId": "boxprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "breadcrumb",
+      "url": "https://beeui.beemvp.com/docs/components/breadcrumb/",
+      "propTypes": [
+        {
+          "typeName": "BreadcrumbItemProps",
+          "headingId": "breadcrumbitemprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "BreadcrumbProps",
+          "headingId": "breadcrumbprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 3,
+          "diffs": [
+            {
+              "prop": "separator",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "›",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `separator` is \"—\" (none shown); reality (JSDoc) is `›`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "button",
+      "url": "https://beeui.beemvp.com/docs/components/button/",
+      "propTypes": [
+        {
+          "typeName": "ButtonLabelProps",
+          "headingId": "buttonlabelprops",
+          "inheritsRaw": "RNTextProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 3,
+          "docsRowCount": 3,
+          "diffs": []
+        },
+        {
+          "typeName": "ButtonProps",
+          "headingId": "buttonprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "calendar",
+      "url": "https://beeui.beemvp.com/docs/components/calendar/",
+      "propTypes": [
+        {
+          "typeName": "CalendarProps",
+          "headingId": "calendarprops",
+          "inheritsRaw": "Omit<ViewProps, 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 17,
+          "docsRowCount": 18,
+          "diffs": [
+            {
+              "prop": "locale",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'en-US'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `locale` is \"—\" (none shown); reality (JSDoc) is `'en-US'`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "card",
+      "url": "https://beeui.beemvp.com/docs/components/card/",
+      "propTypes": [
+        {
+          "typeName": "CardProps",
+          "headingId": "cardprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 3,
+          "docsRowCount": 3,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "checkbox",
+      "url": "https://beeui.beemvp.com/docs/components/checkbox/",
+      "propTypes": [
+        {
+          "typeName": "CheckboxProps",
+          "headingId": "checkboxprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children' | 'onPress'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "chip",
+      "url": "https://beeui.beemvp.com/docs/components/chip/",
+      "propTypes": [
+        {
+          "typeName": "ChipGroupProps",
+          "headingId": "chipgroupprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 7,
+          "diffs": []
+        },
+        {
+          "typeName": "ChipProps",
+          "headingId": "chipprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 7,
+          "docsRowCount": 7,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "collapsible",
+      "url": "https://beeui.beemvp.com/docs/components/collapsible/",
+      "propTypes": [
+        {
+          "typeName": "CollapsibleContentProps",
+          "headingId": "collapsiblecontentprops",
+          "inheritsRaw": "Omit<ViewProps, 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "CollapsibleProps",
+          "headingId": "collapsibleprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 5,
+          "docsRowCount": 6,
+          "diffs": []
+        },
+        {
+          "typeName": "CollapsibleTriggerProps",
+          "headingId": "collapsibletriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'accessibilityState' | 'children' | 'disabled' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 3,
+          "docsRowCount": 4,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "date-picker",
+      "url": "https://beeui.beemvp.com/docs/components/date-picker/",
+      "propTypes": [
+        {
+          "typeName": "DatePickerProps",
+          "headingId": "datepickerprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 31,
+          "docsRowCount": 31,
+          "diffs": [
+            {
+              "prop": "clearAccessibilityLabel",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Clear date'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `clearAccessibilityLabel` is \"—\" (none shown); reality (JSDoc) is `'Clear date'`."
+            },
+            {
+              "prop": "locale",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'en-US'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `locale` is \"—\" (none shown); reality (JSDoc) is `'en-US'`."
+            },
+            {
+              "prop": "nextMonthAccessibilityLabel",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Next month'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `nextMonthAccessibilityLabel` is \"—\" (none shown); reality (JSDoc) is `'Next month'`."
+            },
+            {
+              "prop": "placeholder",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Select a date'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `placeholder` is \"—\" (none shown); reality (JSDoc) is `'Select a date'`."
+            },
+            {
+              "prop": "previousMonthAccessibilityLabel",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Previous month'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `previousMonthAccessibilityLabel` is \"—\" (none shown); reality (JSDoc) is `'Previous month'`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "date-time-picker",
+      "url": "https://beeui.beemvp.com/docs/components/date-time-picker/",
+      "propTypes": [
+        {
+          "typeName": "DateTimePickerProps",
+          "headingId": "datetimepickerprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 35,
+          "docsRowCount": 35,
+          "diffs": [
+            {
+              "prop": "clearAccessibilityLabel",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Clear date and time'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `clearAccessibilityLabel` is \"—\" (none shown); reality (JSDoc) is `'Clear date and time'`."
+            },
+            {
+              "prop": "hourAccessibilityLabel",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Hour'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `hourAccessibilityLabel` is \"—\" (none shown); reality (JSDoc) is `'Hour'`."
+            },
+            {
+              "prop": "locale",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'en-US'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `locale` is \"—\" (none shown); reality (JSDoc) is `'en-US'`."
+            },
+            {
+              "prop": "minuteAccessibilityLabel",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Minute'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `minuteAccessibilityLabel` is \"—\" (none shown); reality (JSDoc) is `'Minute'`."
+            },
+            {
+              "prop": "nextMonthAccessibilityLabel",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Next month'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `nextMonthAccessibilityLabel` is \"—\" (none shown); reality (JSDoc) is `'Next month'`."
+            },
+            {
+              "prop": "periodAccessibilityLabel",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'AM or PM'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `periodAccessibilityLabel` is \"—\" (none shown); reality (JSDoc) is `'AM or PM'`."
+            },
+            {
+              "prop": "placeholder",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Select a date and time'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `placeholder` is \"—\" (none shown); reality (JSDoc) is `'Select a date and time'`."
+            },
+            {
+              "prop": "previousMonthAccessibilityLabel",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "'Previous month'",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `previousMonthAccessibilityLabel` is \"—\" (none shown); reality (JSDoc) is `'Previous month'`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "description-list",
+      "url": "https://beeui.beemvp.com/docs/components/description-list/",
+      "propTypes": [
+        {
+          "typeName": "DescriptionItemProps",
+          "headingId": "descriptionitemprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "DescriptionListProps",
+          "headingId": "descriptionlistprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "dialog",
+      "url": "https://beeui.beemvp.com/docs/components/dialog/",
+      "propTypes": [
+        {
+          "typeName": "DialogCloseProps",
+          "headingId": "dialogcloseprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        },
+        {
+          "typeName": "DialogContentProps",
+          "headingId": "dialogcontentprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityRole' | 'accessibilityViewIsModal' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 9,
+          "docsRowCount": 9,
+          "diffs": []
+        },
+        {
+          "typeName": "DialogDescriptionProps",
+          "headingId": "dialogdescriptionprops",
+          "inheritsRaw": "Omit<TextProps, 'tone' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "DialogFooterProps",
+          "headingId": "dialogfooterprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "DialogProps",
+          "headingId": "dialogprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "DialogTitleProps",
+          "headingId": "dialogtitleprops",
+          "inheritsRaw": "Omit<TextProps, 'accessibilityRole' | 'role' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "DialogTriggerProps",
+          "headingId": "dialogtriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "dropdown-menu",
+      "url": "https://beeui.beemvp.com/docs/components/dropdown-menu/",
+      "propTypes": [
+        {
+          "typeName": "DropdownMenuCheckboxItemProps",
+          "headingId": "dropdownmenucheckboxitemprops",
+          "inheritsRaw": "Omit<DropdownMenuItemBaseProps, 'closeOnSelect' | 'onSelect'>",
+          "baseResolved": false,
+          "note": "Inherited base type (\"Omit<DropdownMenuItemBaseProps, 'closeOnSelect' | 'onSelect'>\") is a third-party or BeeUI-internal non-exported type; coverage limited to the 3 prop(s) the docs table already names (no missing-in-docs check against the full inherited surface).",
+          "ownPropCount": 3,
+          "docsRowCount": 3,
+          "diffs": []
+        },
+        {
+          "typeName": "DropdownMenuContentProps",
+          "headingId": "dropdownmenucontentprops",
+          "inheritsRaw": "Omit<ViewProps, 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 13,
+          "docsRowCount": 13,
+          "diffs": []
+        },
+        {
+          "typeName": "DropdownMenuItemProps",
+          "headingId": "dropdownmenuitemprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'children' | 'onPress' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": []
+        },
+        {
+          "typeName": "DropdownMenuLabelProps",
+          "headingId": "dropdownmenulabelprops",
+          "inheritsRaw": "Omit<TextProps, 'role' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "DropdownMenuProps",
+          "headingId": "dropdownmenuprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "DropdownMenuRadioGroupProps",
+          "headingId": "dropdownmenuradiogroupprops",
+          "inheritsRaw": "Omit<ViewProps, 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 2,
+          "diffs": []
+        },
+        {
+          "typeName": "DropdownMenuRadioItemProps",
+          "headingId": "dropdownmenuradioitemprops",
+          "inheritsRaw": "Omit<DropdownMenuItemBaseProps, 'closeOnSelect' | 'onSelect'>",
+          "baseResolved": false,
+          "note": "Inherited base type (\"Omit<DropdownMenuItemBaseProps, 'closeOnSelect' | 'onSelect'>\") is a third-party or BeeUI-internal non-exported type; coverage limited to the 2 prop(s) the docs table already names (no missing-in-docs check against the full inherited surface).",
+          "ownPropCount": 2,
+          "docsRowCount": 2,
+          "diffs": []
+        },
+        {
+          "typeName": "DropdownMenuSeparatorProps",
+          "headingId": "dropdownmenuseparatorprops",
+          "inheritsRaw": "Omit<ViewProps, 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "DropdownMenuTriggerProps",
+          "headingId": "dropdownmenutriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "field",
+      "url": "https://beeui.beemvp.com/docs/components/field/",
+      "propTypes": [
+        {
+          "typeName": "FieldProps",
+          "headingId": "fieldprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 9,
+          "docsRowCount": 10,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "form-group",
+      "url": "https://beeui.beemvp.com/docs/components/form-group/",
+      "propTypes": [
+        {
+          "typeName": "FormGroupProps",
+          "headingId": "formgroupprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityRole' | 'accessible' | 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 9,
+          "docsRowCount": 10,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "form-message",
+      "url": "https://beeui.beemvp.com/docs/components/form-message/",
+      "propTypes": [
+        {
+          "typeName": "FormMessageProps",
+          "headingId": "formmessageprops",
+          "inheritsRaw": "Omit<TextProps, 'tone' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "HelperTextProps",
+          "headingId": "helpertextprops",
+          "inheritsRaw": "Omit<TextProps, 'tone' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 1,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "icon-button",
+      "url": "https://beeui.beemvp.com/docs/components/icon-button/",
+      "propTypes": [
+        {
+          "typeName": "IconButtonProps",
+          "headingId": "iconbuttonprops",
+          "inheritsRaw": "Omit<ButtonProps, 'accessibilityLabel' | 'children' | 'labelClassName' | 'size'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 2,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "input",
+      "url": "https://beeui.beemvp.com/docs/components/input/",
+      "propTypes": [
+        {
+          "typeName": "InputProps",
+          "headingId": "inputprops",
+          "inheritsRaw": "TextInputProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": [
+            {
+              "prop": "disabled",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `disabled` is \"—\" (none shown); reality (JSDoc) is `false`."
+            },
+            {
+              "prop": "invalid",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `invalid` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "keyboard-aware-screen",
+      "url": "https://beeui.beemvp.com/docs/components/keyboard-aware-screen/",
+      "propTypes": [
+        {
+          "typeName": "KeyboardAwareScreenProps",
+          "headingId": "keyboardawarescreenprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 8,
+          "docsRowCount": 8,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "label",
+      "url": "https://beeui.beemvp.com/docs/components/label/",
+      "propTypes": [
+        {
+          "typeName": "LabelProps",
+          "headingId": "labelprops",
+          "inheritsRaw": "Omit<TextProps, 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 2,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "link",
+      "url": "https://beeui.beemvp.com/docs/components/link/",
+      "propTypes": [
+        {
+          "typeName": "LinkProps",
+          "headingId": "linkprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 3,
+          "docsRowCount": 3,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "list-group",
+      "url": "https://beeui.beemvp.com/docs/components/list-group/",
+      "propTypes": [
+        {
+          "typeName": "ListGroupHeaderProps",
+          "headingId": "listgroupheaderprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "ListGroupProps",
+          "headingId": "listgroupprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityRole' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "list-item",
+      "url": "https://beeui.beemvp.com/docs/components/list-item/",
+      "propTypes": [
+        {
+          "typeName": "ListItemProps",
+          "headingId": "listitemprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'accessibilityState' | 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 7,
+          "docsRowCount": 7,
+          "diffs": []
+        },
+        {
+          "typeName": "SettingsItemProps",
+          "headingId": "settingsitemprops",
+          "inheritsRaw": "Omit<ListItemProps, 'trailing'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 2,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "metadata-row",
+      "url": "https://beeui.beemvp.com/docs/components/metadata-row/",
+      "propTypes": [
+        {
+          "typeName": "MetadataRowProps",
+          "headingId": "metadatarowprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "otp-input",
+      "url": "https://beeui.beemvp.com/docs/components/otp-input/",
+      "propTypes": [
+        {
+          "typeName": "OTPInputProps",
+          "headingId": "otpinputprops",
+          "inheritsRaw": "Omit<InputProps, 'defaultValue' | 'inputMode' | 'keyboardType' | 'maxLength' | 'onChangeText' | 'value'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 6,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "pagination",
+      "url": "https://beeui.beemvp.com/docs/components/pagination/",
+      "propTypes": [
+        {
+          "typeName": "PaginationItemProps",
+          "headingId": "paginationitemprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 5,
+          "docsRowCount": 5,
+          "diffs": [
+            {
+              "prop": "page",
+              "classification": "required-mismatch",
+              "real": {
+                "optional": true
+              },
+              "docs": {
+                "requiredPerDocs": true
+              },
+              "detail": "Docs table marks `page` \"(required)\", but the installed .d.ts declares it optional on `PaginationItemProps`."
+            }
+          ]
+        },
+        {
+          "typeName": "PaginationProps",
+          "headingId": "paginationprops",
+          "inheritsRaw": "Omit<ViewProps, 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 5,
+          "docsRowCount": 6,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "password-input",
+      "url": "https://beeui.beemvp.com/docs/components/password-input/",
+      "propTypes": [
+        {
+          "typeName": "PasswordInputProps",
+          "headingId": "passwordinputprops",
+          "inheritsRaw": "Omit<InputProps, 'secureTextEntry'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 7,
+          "docsRowCount": 7,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "popover",
+      "url": "https://beeui.beemvp.com/docs/components/popover/",
+      "propTypes": [
+        {
+          "typeName": "PopoverCloseProps",
+          "headingId": "popovercloseprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        },
+        {
+          "typeName": "PopoverContentProps",
+          "headingId": "popovercontentprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityViewIsModal' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 13,
+          "docsRowCount": 13,
+          "diffs": []
+        },
+        {
+          "typeName": "PopoverDescriptionProps",
+          "headingId": "popoverdescriptionprops",
+          "inheritsRaw": "Omit<TextProps, 'tone' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "PopoverProps",
+          "headingId": "popoverprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "PopoverTitleProps",
+          "headingId": "popovertitleprops",
+          "inheritsRaw": "Omit<TextProps, 'accessibilityRole' | 'role' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "PopoverTriggerProps",
+          "headingId": "popovertriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "progress",
+      "url": "https://beeui.beemvp.com/docs/components/progress/",
+      "propTypes": [
+        {
+          "typeName": "ProgressProps",
+          "headingId": "progressprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "radio",
+      "url": "https://beeui.beemvp.com/docs/components/radio/",
+      "propTypes": [
+        {
+          "typeName": "RadioGroupProps",
+          "headingId": "radiogroupprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 5,
+          "diffs": []
+        },
+        {
+          "typeName": "RadioProps",
+          "headingId": "radioprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children' | 'onPress'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 7,
+          "docsRowCount": 7,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "safe-area",
+      "url": "https://beeui.beemvp.com/docs/components/safe-area/",
+      "propTypes": [
+        {
+          "typeName": "BeeUIProviderProps",
+          "headingId": "beeuiproviderprops",
+          "inheritsRaw": "Omit<React.ComponentProps<typeof NativeSafeAreaProvider>, 'children'>",
+          "baseResolved": false,
+          "note": "Inherited base type (\"Omit<React.ComponentProps<typeof NativeSafeAreaProvider>, 'children'>\") is a third-party or BeeUI-internal non-exported type; coverage limited to the 2 prop(s) the docs table already names (no missing-in-docs check against the full inherited surface).",
+          "ownPropCount": 2,
+          "docsRowCount": 2,
+          "diffs": []
+        },
+        {
+          "typeName": "SafeAreaProps",
+          "headingId": "safeareaprops",
+          "inheritsRaw": "React.ComponentProps<typeof NativeSafeAreaView>",
+          "baseResolved": false,
+          "note": "Inherited base type (\"React.ComponentProps<typeof NativeSafeAreaView>\") is a third-party or BeeUI-internal non-exported type; coverage limited to the 1 prop(s) the docs table already names (no missing-in-docs check against the full inherited surface).",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "screen",
+      "url": "https://beeui.beemvp.com/docs/components/screen/",
+      "propTypes": [
+        {
+          "typeName": "ScreenProps",
+          "headingId": "screenprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 2,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "search-input",
+      "url": "https://beeui.beemvp.com/docs/components/search-input/",
+      "propTypes": [
+        {
+          "typeName": "SearchInputProps",
+          "headingId": "searchinputprops",
+          "inheritsRaw": "Omit<InputProps, 'inputMode' | 'returnKeyType'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "section",
+      "url": "https://beeui.beemvp.com/docs/components/section/",
+      "propTypes": [
+        {
+          "typeName": "SectionProps",
+          "headingId": "sectionprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "segmented-control",
+      "url": "https://beeui.beemvp.com/docs/components/segmented-control/",
+      "propTypes": [
+        {
+          "typeName": "SegmentedControlItemProps",
+          "headingId": "segmentedcontrolitemprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'children' | 'onPress' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 5,
+          "docsRowCount": 5,
+          "diffs": []
+        },
+        {
+          "typeName": "SegmentedControlProps",
+          "headingId": "segmentedcontrolprops",
+          "inheritsRaw": "Omit<ViewProps, 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 5,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "select",
+      "url": "https://beeui.beemvp.com/docs/components/select/",
+      "propTypes": [
+        {
+          "typeName": "SelectContentProps",
+          "headingId": "selectcontentprops",
+          "inheritsRaw": "Omit<ViewProps, 'nativeID' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 15,
+          "docsRowCount": 15,
+          "diffs": [
+            {
+              "prop": "maxHeight",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "320",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `maxHeight` is \"—\" (none shown); reality (JSDoc) is `320`."
+            }
+          ]
+        },
+        {
+          "typeName": "SelectGroupProps",
+          "headingId": "selectgroupprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityRole' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "SelectItemProps",
+          "headingId": "selectitemprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'children' | 'onPress' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": []
+        },
+        {
+          "typeName": "SelectLabelProps",
+          "headingId": "selectlabelprops",
+          "inheritsRaw": "Omit<RNTextProps, 'nativeID' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "SelectProps",
+          "headingId": "selectprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 8,
+          "docsRowCount": 8,
+          "diffs": []
+        },
+        {
+          "typeName": "SelectTriggerProps",
+          "headingId": "selecttriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "SelectValueProps",
+          "headingId": "selectvalueprops",
+          "inheritsRaw": "Omit<RNTextProps, 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 2,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "separator",
+      "url": "https://beeui.beemvp.com/docs/components/separator/",
+      "propTypes": [
+        {
+          "typeName": "SeparatorProps",
+          "headingId": "separatorprops",
+          "inheritsRaw": "Omit<ViewProps, 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 3,
+          "docsRowCount": 3,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "sheet",
+      "url": "https://beeui.beemvp.com/docs/components/sheet/",
+      "propTypes": [
+        {
+          "typeName": "SheetCloseProps",
+          "headingId": "sheetcloseprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        },
+        {
+          "typeName": "SheetContentProps",
+          "headingId": "sheetcontentprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityRole' | 'accessibilityViewIsModal' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 14,
+          "docsRowCount": 14,
+          "diffs": []
+        },
+        {
+          "typeName": "SheetDescriptionProps",
+          "headingId": "sheetdescriptionprops",
+          "inheritsRaw": "Omit<TextProps, 'tone' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "SheetFooterProps",
+          "headingId": "sheetfooterprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "SheetHandleProps",
+          "headingId": "sheethandleprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityRole' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "SheetProps",
+          "headingId": "sheetprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "SheetTitleProps",
+          "headingId": "sheettitleprops",
+          "inheritsRaw": "Omit<TextProps, 'accessibilityRole' | 'role' | 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "SheetTriggerProps",
+          "headingId": "sheettriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "skeleton",
+      "url": "https://beeui.beemvp.com/docs/components/skeleton/",
+      "propTypes": [
+        {
+          "typeName": "SkeletonProps",
+          "headingId": "skeletonprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessible' | 'aria-hidden'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 2,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "spinner",
+      "url": "https://beeui.beemvp.com/docs/components/spinner/",
+      "propTypes": [
+        {
+          "typeName": "SpinnerProps",
+          "headingId": "spinnerprops",
+          "inheritsRaw": "Omit<ActivityIndicatorProps, 'color'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 2,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "stack",
+      "url": "https://beeui.beemvp.com/docs/components/stack/",
+      "propTypes": [
+        {
+          "typeName": "HStackProps",
+          "headingId": "hstackprops",
+          "inheritsRaw": "Omit<StackProps, 'direction'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "StackProps",
+          "headingId": "stackprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": []
+        },
+        {
+          "typeName": "VStackProps",
+          "headingId": "vstackprops",
+          "inheritsRaw": "Omit<StackProps, 'direction'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "stat",
+      "url": "https://beeui.beemvp.com/docs/components/stat/",
+      "propTypes": [
+        {
+          "typeName": "StatHelpTextProps",
+          "headingId": "stathelptextprops",
+          "inheritsRaw": "Omit<TextProps, 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "StatLabelProps",
+          "headingId": "statlabelprops",
+          "inheritsRaw": "Omit<TextProps, 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        },
+        {
+          "typeName": "StatProps",
+          "headingId": "statprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "StatValueProps",
+          "headingId": "statvalueprops",
+          "inheritsRaw": "Omit<TextProps, 'variant'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "state-message",
+      "url": "https://beeui.beemvp.com/docs/components/state-message/",
+      "propTypes": [
+        {
+          "typeName": "EmptyStateProps",
+          "headingId": "emptystateprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 5,
+          "docsRowCount": 5,
+          "diffs": []
+        },
+        {
+          "typeName": "ErrorStateProps",
+          "headingId": "errorstateprops",
+          "inheritsRaw": "Omit<EmptyStateProps, 'title'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 1,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "stepper",
+      "url": "https://beeui.beemvp.com/docs/components/stepper/",
+      "propTypes": [
+        {
+          "typeName": "StepperItemProps",
+          "headingId": "stepperitemprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        },
+        {
+          "typeName": "StepperProps",
+          "headingId": "stepperprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 5,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "switch",
+      "url": "https://beeui.beemvp.com/docs/components/switch/",
+      "propTypes": [
+        {
+          "typeName": "SwitchProps",
+          "headingId": "switchprops",
+          "inheritsRaw": "Omit<RNSwitchProps, 'accessibilityRole' | 'role' | 'ios_backgroundColor' | 'thumbColor' | 'trackColor'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "table",
+      "url": "https://beeui.beemvp.com/docs/components/table/",
+      "propTypes": [
+        {
+          "typeName": "TableBodyProps",
+          "headingId": "tablebodyprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 2,
+          "diffs": []
+        },
+        {
+          "typeName": "TableCaptionProps",
+          "headingId": "tablecaptionprops",
+          "inheritsRaw": "Omit<React.ComponentProps<typeof Text>, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 2,
+          "diffs": []
+        },
+        {
+          "typeName": "TableCellProps",
+          "headingId": "tablecellprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": [
+            {
+              "prop": "columnIndex",
+              "classification": "missing-in-docs",
+              "real": {
+                "type": "number | undefined",
+                "optional": true,
+                "default": null
+              },
+              "docs": null,
+              "detail": "`columnIndex` is a BeeUI-specific member of `TableCellProps` per the installed .d.ts but has no row in the docs Props table for TableCellProps."
+            }
+          ]
+        },
+        {
+          "typeName": "TableFooterProps",
+          "headingId": "tablefooterprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 2,
+          "diffs": []
+        },
+        {
+          "typeName": "TableHeaderProps",
+          "headingId": "tableheaderprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 2,
+          "diffs": []
+        },
+        {
+          "typeName": "TableHeadProps",
+          "headingId": "tableheadprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 5,
+          "docsRowCount": 5,
+          "diffs": [
+            {
+              "prop": "columnIndex",
+              "classification": "missing-in-docs",
+              "real": {
+                "type": "number | undefined",
+                "optional": true,
+                "default": null
+              },
+              "docs": null,
+              "detail": "`columnIndex` is a BeeUI-specific member of `TableHeadProps` per the installed .d.ts but has no row in the docs Props table for TableHeadProps."
+            }
+          ]
+        },
+        {
+          "typeName": "TableProps",
+          "headingId": "tableprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 3,
+          "diffs": []
+        },
+        {
+          "typeName": "TableRowProps",
+          "headingId": "tablerowprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 3,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "tabs",
+      "url": "https://beeui.beemvp.com/docs/components/tabs/",
+      "propTypes": [
+        {
+          "typeName": "TabsContentProps",
+          "headingId": "tabscontentprops",
+          "inheritsRaw": "Omit<ViewProps, 'children' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 2,
+          "docsRowCount": 3,
+          "diffs": []
+        },
+        {
+          "typeName": "TabsListProps",
+          "headingId": "tabslistprops",
+          "inheritsRaw": "Omit<ViewProps, 'accessibilityRole' | 'role'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 1,
+          "diffs": []
+        },
+        {
+          "typeName": "TabsProps",
+          "headingId": "tabsprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 5,
+          "diffs": []
+        },
+        {
+          "typeName": "TabsTriggerProps",
+          "headingId": "tabstriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children' | 'onPress'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 4,
+          "docsRowCount": 4,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "text",
+      "url": "https://beeui.beemvp.com/docs/components/text/",
+      "propTypes": [
+        {
+          "typeName": "TextProps",
+          "headingId": "textprops",
+          "inheritsRaw": "RNTextProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 5,
+          "docsRowCount": 5,
+          "diffs": [
+            {
+              "prop": "family",
+              "classification": "type-mismatch",
+              "real": {
+                "type": "\"mono\" | undefined",
+                "optional": true
+              },
+              "docs": {
+                "type": "FontFamily"
+              },
+              "detail": "Docs table lists type `FontFamily`; installed .d.ts resolves `family` on `TextProps` to `\"mono\" | undefined`."
+            },
+            {
+              "prop": "numeric",
+              "classification": "type-mismatch",
+              "real": {
+                "type": "\"tabular\" | undefined",
+                "optional": true
+              },
+              "docs": {
+                "type": "NumericVariant"
+              },
+              "detail": "Docs table lists type `NumericVariant`; installed .d.ts resolves `numeric` on `TextProps` to `\"tabular\" | undefined`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "textarea",
+      "url": "https://beeui.beemvp.com/docs/components/textarea/",
+      "propTypes": [
+        {
+          "typeName": "TextareaProps",
+          "headingId": "textareaprops",
+          "inheritsRaw": "Omit<InputProps, 'multiline' | 'size'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 0,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "theme-scope",
+      "url": "https://beeui.beemvp.com/docs/components/theme-scope/",
+      "propTypes": [
+        {
+          "typeName": "BeeThemeScopeProps",
+          "headingId": "beethemescopeprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 5,
+          "docsRowCount": 4,
+          "diffs": [
+            {
+              "prop": "appearance",
+              "classification": "required-mismatch",
+              "real": {
+                "optional": true
+              },
+              "docs": {
+                "requiredPerDocs": true
+              },
+              "detail": "Docs table marks `appearance` \"(required)\", but the installed .d.ts declares it optional on `BeeThemeScopeProps`."
+            },
+            {
+              "prop": "brand",
+              "classification": "required-mismatch",
+              "real": {
+                "optional": true
+              },
+              "docs": {
+                "requiredPerDocs": true
+              },
+              "detail": "Docs table marks `brand` \"(required)\", but the installed .d.ts declares it optional on `BeeThemeScopeProps`."
+            },
+            {
+              "prop": "registry",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "beeThemeRegistry",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `registry` is \"—\" (none shown); reality (JSDoc) is `beeThemeRegistry`."
+            },
+            {
+              "prop": "theme",
+              "classification": "missing-in-docs",
+              "real": {
+                "type": "RegistryRuntimeTheme<{ readonly bee: { readonly light: \"light\"; readonly dark: \"dark\"; }; readonly violet: { readonly light: \"violet-light\"; readonly dark: \"violet-dark\"; }; }> | undefined",
+                "optional": true,
+                "default": null
+              },
+              "docs": null,
+              "detail": "`theme` is a BeeUI-specific member of `BeeThemeScopeProps` per the installed .d.ts but has no row in the docs Props table for BeeThemeScopeProps."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "timeline",
+      "url": "https://beeui.beemvp.com/docs/components/timeline/",
+      "propTypes": [
+        {
+          "typeName": "TimelineItemProps",
+          "headingId": "timelineitemprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": []
+        },
+        {
+          "typeName": "TimelineProps",
+          "headingId": "timelineprops",
+          "inheritsRaw": "Omit<ViewProps, 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 1,
+          "docsRowCount": 2,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "toast",
+      "url": "https://beeui.beemvp.com/docs/components/toast/",
+      "propTypes": [
+        {
+          "typeName": "ToastAction",
+          "headingId": "toastaction",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 3,
+          "docsRowCount": 3,
+          "diffs": []
+        },
+        {
+          "typeName": "ToastOptions",
+          "headingId": "toastoptions",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 5,
+          "docsRowCount": 5,
+          "diffs": []
+        }
+      ]
+    },
+    {
+      "slug": "tooltip",
+      "url": "https://beeui.beemvp.com/docs/components/tooltip/",
+      "propTypes": [
+        {
+          "typeName": "TooltipContentProps",
+          "headingId": "tooltipcontentprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityViewIsModal' | 'role' | 'children' | 'style'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 12,
+          "docsRowCount": 12,
+          "diffs": []
+        },
+        {
+          "typeName": "TooltipProps",
+          "headingId": "tooltipprops",
+          "inheritsRaw": null,
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": []
+        },
+        {
+          "typeName": "TooltipTriggerProps",
+          "headingId": "tooltiptriggerprops",
+          "inheritsRaw": "Omit<PressableProps, 'accessibilityRole' | 'role' | 'children'>",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 6,
+          "docsRowCount": 6,
+          "diffs": [
+            {
+              "prop": "loading",
+              "classification": "default-mismatch",
+              "real": {
+                "default": "false",
+                "source": "d.ts JSDoc prose default"
+              },
+              "docs": {
+                "default": null
+              },
+              "detail": "Docs table default for `loading` is \"—\" (none shown); reality (JSDoc) is `false`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "use-bee-token",
+      "url": "https://beeui.beemvp.com/docs/components/use-bee-token/",
+      "propTypes": []
+    },
+    {
+      "slug": "visually-hidden",
+      "url": "https://beeui.beemvp.com/docs/components/visually-hidden/",
+      "propTypes": [
+        {
+          "typeName": "VisuallyHiddenProps",
+          "headingId": "visuallyhiddenprops",
+          "inheritsRaw": "ViewProps",
+          "baseResolved": true,
+          "note": "",
+          "ownPropCount": 0,
+          "docsRowCount": 1,
+          "diffs": []
+        }
+      ]
+    }
+  ]
+}
