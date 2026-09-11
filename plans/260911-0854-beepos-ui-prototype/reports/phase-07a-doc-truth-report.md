@@ -138,3 +138,12 @@ flagged as `untested-needs-browser`).
 Props checked: 62 components / 137 props-bearing types · Claims: 72 executed / 72 holds / 0
 fails (8 untested-needs-browser) · Verdicts: docs-right 110, llms-right 4, both-wrong 115,
 both-right 214, reality-unknown 58
+
+## False doc sentences, ranked by cost to the reader
+
+1. **"page (required)"** on `PaginationItemProps` (https://beeui.beemvp.com/docs/components/pagination/#paginationitemprops) — highest cost: a reader following the table literally would pass `page` on every `<PaginationItem type="previous" />`/`type="next"` too, which the real type forbids (`page?: never`), producing a confusing type error with no explanation in the docs of why.
+2. **"appearance (required)" / "brand (required)"** on `BeeThemeScopeProps` (https://beeui.beemvp.com/docs/components/theme-scope/#beethemescopeprops) — a reader using the documented `theme`-prop form would be told (incorrectly) that they also must supply `appearance`/`brand`.
+3. **11x missing `loading` default** across the Dialog/Sheet/Popover/Tooltip/DropdownMenu/AlertDialog `*Trigger`/`*Close` Props tables — moderate cost: a reader has no way to know the default without reading Button's own page and inferring the "X is exactly ButtonProps" chain applies to defaults too, not just the prop list.
+4. **13x missing DatePicker/DateTimePicker/Calendar label/locale defaults** — moderate cost, same shape as #3: a reader can't tell `'en-US'`/`'Next month'`/etc. are already sensible defaults without reading the compiled `.d.ts`.
+5. **`FontFamily`/`NumericVariant` type names on `TextProps`** (https://beeui.beemvp.com/docs/components/text/#textprops) — low cost: the docs table does state the concrete allowed values in its Description column even though the Type column shows an unexported alias name, so a reader is not actually blocked, just unable to double-check the type themselves via import.
+6. **Undocumented `columnIndex` on `TableCellProps`/`TableHeadProps`** — lowest cost: nobody would guess to pass it; the risk is a reader stumbling on it in editor autocomplete and wondering what it does, not a functional error.
