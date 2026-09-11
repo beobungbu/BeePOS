@@ -125,4 +125,4 @@ status breakdown verified across two consecutive runs).
 Status: DONE
 Summary: Built and ran a regenerable 501-row consistency matrix across categories A-I comparing the BeeUI docs site to its 4 llms*.txt files plus /docs/ai/, wrote narrative findings, filed one GitHub issue (#574) with full mismatch/docs-only/llms-only detail and one tracker comment on #234, and committed all owned paths.
 Concerns/Blockers: None blocking. Step 3 (reality check + which-side-is-right calls) is explicitly deferred to a later phase per spec.
-Matrix rows: 501 · Mismatches: 12 · Issue: #574 · Commit: (see below)
+Matrix rows: 501 · Mismatches: 12 · Issue: #574 · Commit: 22162fe5ef0df124313ecc37efaeb865239b7df1
