@@ -40,3 +40,12 @@ Own-code bugs (not BeeUI): 01-03, 03-06 (zustand selector returning a new array 
 Matrix rows already covered by earlier issues (not re-filed, cross-referenced instead): #543 (STATUS/unpublished claims, matrix rows A001-A005, A011), #560 (informs category D "contract sections present" rows), #561 (npm `latest` dist-tag, matrix row A013), #562 (`uniwind generate-artifacts` undocumented, matrix row C007).
 
 Step 3 (reality check against npm package + BeePOS runtime, propose sync fixes) is explicitly deferred; see findings-06 "Step 3 (deferred)" section.
+
+## Batch 3 (2026-09-11, clean-room fresh reader, phase 07B)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#575](https://github.com/beobungbu/BeeUI/issues/575) | cleanroom-web-log steps 5-7 | major | Web start "Vite configuration" has no configuration |
+| [#576](https://github.com/beobungbu/BeeUI/issues/576) | cleanroom logs steps 2-4, 10-11 | major | no project-creation step, install order ERESOLVE, expo-router root |
+| [#577](https://github.com/beobungbu/BeeUI/issues/577) | cleanroom-expo-log step 7 | minor | @source path without CSS file location |
+| [#578](https://github.com/beobungbu/BeeUI/issues/578) | readability-rubric B4 | minor | Verified example source not runnable as pasted |
