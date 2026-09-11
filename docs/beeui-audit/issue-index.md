@@ -83,3 +83,10 @@ Not filed: 08-01 (`Text.numeric` crash on a TypeScript-invalid value, robustness
 | [#587](https://github.com/beobungbu/BeeUI/issues/587) | 05-01, 05-03 | minor | AlertDialog Web role; SelectValue default placeholder |
 
 Reconfirmed in a real flow: #570 (05-02). Android pass (phase 12): no new BeeUI defects.
+
+## Batch 8 (2026-09-11, iOS keyboard avoidance and Dynamic Type, phase 13)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#588](https://github.com/beobungbu/BeeUI/issues/588) | 13-01 | major | KeyboardAwareScreen does not scroll the focused input into view |
+| [#589](https://github.com/beobungbu/BeeUI/issues/589) | 13-02 | major | Fixed heights clip text at large Dynamic Type |

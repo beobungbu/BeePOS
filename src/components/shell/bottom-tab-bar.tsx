@@ -1,5 +1,5 @@
 import { BottomActionBar, Text } from '@beemvp/beeui-ui';
-import { Pressable } from 'react-native';
+import { Pressable, useWindowDimensions } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { useT } from '../../i18n';
 import { PRIMARY_MOBILE_TABS, SECONDARY_MOBILE_ITEMS } from './nav-items';
@@ -9,6 +9,9 @@ export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
   const t = useT();
   const router = useRouter();
   const pathname = usePathname();
+  // Large Dynamic Type: five labels no longer fit a phone width, keep icons only (labels stay
+  // available to assistive tech through accessibilityLabel).
+  const iconOnly = useWindowDimensions().fontScale >= 1.3;
 
   const tabs = [
     ...PRIMARY_MOBILE_TABS.map((item) => ({
@@ -38,6 +41,7 @@ export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
           className="min-w-0 flex-1 items-center gap-0.5 px-1 py-1"
         >
           <Text className="text-lg">{tab.icon}</Text>
+          {iconOnly ? null : (
           <Text
             numberOfLines={1}
             className={
@@ -46,6 +50,7 @@ export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
           >
             {tab.label}
           </Text>
+          )}
         </Pressable>
       ))}
     </BottomActionBar>

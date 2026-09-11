@@ -94,6 +94,6 @@ Totals: 27 BeeUI issues (#560 to #586) and 10 supplementary comments, all indexe
 
 - Integrated Web E2E (`scripts/qa/e2e`, `npm run qa:e2e`): one 12-step journey per run, 8 runs (1280/390 x vi/en x light/dark), all green with zero console errors. Four BeePOS bugs fixed on the way (a11y roles on tiles and cart bar, future-dated seed orders, unsafe `router.back()`, tab bar overflow at 390 with Vietnamese labels). New BeeUI finding: AlertDialog Web role (#587); #570 reconfirmed in a real flow.
 - Native: the cart and More menu fall back to a route and a Dialog on iOS and Android because of #584; verified on iPhone 16 Pro simulator and an Android emulator (11 screenshots). Android hardware back closes the child Dialog first, as documented. No Android-specific BeeUI defects found.
-- Open: keyboard avoidance and font scaling on native remain unobserved.
+- Keyboard avoidance and Dynamic Type observed on the iOS Simulator (phase 13): KeyboardAwareScreen pads but does not scroll the focused input into view (#588); AppHeader, Input and SearchInput clip at accessibility-large because of fixed heights and line heights (#589). BeePOS switched the tab bar to icons at fontScale >= 1.3; content under the grown tab bar at large text stays open on the app side.
 
-Totals: 28 BeeUI issues (#560 to #587) and 11 supplementary comments.
+Totals: 30 BeeUI issues (#560 to #589) and 12 supplementary comments. Native coverage now: one iOS happy path, one Android happy path, keyboard and large-text passes; VoiceOver/TalkBack still not exercised.
