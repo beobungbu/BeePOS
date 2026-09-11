@@ -1,6 +1,6 @@
 # BeePOS UI prototype + BeeUI field audit
 
-Status: DONE except iOS Simulator QA · started 2026-09-11 · owner Ambrose · repo github.com/beobungbu/BeePOS (public)
+Status: DONE (all 12 phases) · started 2026-09-11 · owner Ambrose · repo github.com/beobungbu/BeePOS (public)
 
 Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 
@@ -16,9 +16,9 @@ Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 | 6 | Docs site vs llms*.txt consistency matrix (steps 1-2) | phase-06-docs-llms-consistency-audit.md | Sonnet auditor | DONE 2026-09-11 (501 rows, issue #574) |
 | 7 | Step 3: verify docs against reality (props, behavior claims, clean-room usability, readability rubric) | phase-07-doc-truth-verification.md | 2 Sonnet workers (A verifier, B fresh reader) | DONE 2026-09-11 (A: 62 comps, 72 claims hold; B: 2 clean rooms, 12 pages scored; issues #575-#580) |
 | 8 | Pass 1: per-prop, per-value executable verification (570 props) | phase-08-per-prop-behavior.md | Sonnet worker | DONE 2026-09-11 (570 props, 947 tests, 1 robustness fail, 3 too-vague) |
-| 9 | Pass 2: readability + comprehension exam, all 151 docs pages | phase-09-readability-comprehension.md | Fable (Ambrose writes rubric + exam; Fable subagent scores; fresh Sonnet sits the exam) | IN PROGRESS (started 2026-09-11 13:25: 09A Fable scorer, 09B exam taker, 09C template sampler) |
+| 9 | Pass 2: readability + comprehension exam, all 151 docs pages | phase-09-readability-comprehension.md | Fable (Ambrose writes rubric + exam; Fable subagent scores; fresh Sonnet sits the exam) | DONE 2026-09-11 (52 pages 3.82, templates 3.0/3.3, exam 50/50; #585) |
 | 10 | Pass 3: guides + patterns code blocks executed in clean room | phase-10-guides-patterns-executable.md | Sonnet worker | DONE 2026-09-11 (73 samples, 37/37 patterns rendered, CLI holds; issues #581-#583) |
-| 11 | Pass 4: native iOS Simulator happy path + 8 web-only claims via Playwright | phase-11-native-and-browser-claims.md | Sonnet worker | IN PROGRESS (started 2026-09-11 12:40) |
+| 11 | Pass 4: native iOS Simulator happy path + 8 web-only claims via Playwright | phase-11-native-and-browser-claims.md | Sonnet worker + Ambrose Sheet reproduction | DONE 2026-09-11 (iOS 12 screenshots, 8/8 browser claims, Sheet defect isolated; #584, #586) |
 
 Dependencies: 1..4 depend on 0 and run in parallel (disjoint route folders + own store files). 5 depends on 1..4.
 

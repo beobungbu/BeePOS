@@ -64,3 +64,14 @@ Step 3 (reality check against npm package + BeePOS runtime, propose sync fixes) 
 | [#581](https://github.com/beobungbu/BeeUI/issues/581) | 10-01, 10-04 | major | Branding example throws; stale "unpublished" on branding + learn/foundations |
 | [#582](https://github.com/beobungbu/BeeUI/issues/582) | 10-02, 10-03 | minor | pattern blocks reference undefined types; table guide fragment |
 | [#583](https://github.com/beobungbu/BeeUI/issues/583) | 10-05, 10-06 | minor | troubleshooting metro fragment, theming CSS missing @source |
+
+## Batch 6 (2026-09-11, per-prop, readability, native passes)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#584](https://github.com/beobungbu/BeeUI/issues/584) | 11-03 + Ambrose reproduction | blocker (native) | Sheet never presents on iOS in a real Expo 57 consumer |
+| [#585](https://github.com/beobungbu/BeeUI/issues/585) | 09A readability-site, 09C readability-templates, exam results | major | Readability and knowledge-transfer audit, 7 site-level fixes |
+| [#586](https://github.com/beobungbu/BeeUI/issues/586) | 11-01, 11-02 | minor | Toast top placement on iOS; DatePicker deprecated onChange |
+| [#543](https://github.com/beobungbu/BeeUI/issues/543) (comment) | F-09-01..10 | major | 20 stale publication sentences on 17 pages |
+
+Not filed: 08-01 (`Text.numeric` crash on a TypeScript-invalid value, robustness only; noted in #234 comment).

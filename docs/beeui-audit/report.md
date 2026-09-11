@@ -76,3 +76,16 @@ npx jest -c scripts/audit/claims/jest.config.js     # 72 behavior claims
 - Native runtime (iOS Simulator, Android) was not exercised; all runtime evidence is Chromium. Native-only claims (Sheet gestures, pageSheet, DatePicker system picker) remain unverified by this audit.
 - 58 matrix rows stay `reality-unknown` (ADR contents and accessibility contract prose have no public source to test against).
 - Accessibility was checked structurally (roles, names, keyboard) but not with a screen reader.
+
+## 9. Addendum: round 2 passes (same day, after the first consolidated verdict)
+
+| Pass | Scope | Result |
+|---|---|---|
+| Per-prop verification (phase 08) | 62 components, 570 own props, 947 generated Jest tests against the installed package | 98.6% of props executed; 0 documented behaviors false; 1 robustness crash on a TypeScript-invalid `Text.numeric` value; 3 props too vague to test |
+| Guides and patterns samples (phase 10) | 73 code blocks on 9 guides, theming/reference and 37 pattern pages, compiled and rendered in a clean room; CLI run for real | 22 run as pasted, 50 need context the page omits, 1 broken (Branding example throws); 37/37 patterns render; CLI guide holds end to end (#581 to #583) |
+| Readability and knowledge transfer (phase 09) | 52 hand-written pages scored on a 10-criterion rubric; 14 template samples; 25-question comprehension exam by a fresh reader | site 3.82/5 (Learn 4.40, Start 4.27, worst pages 3.00); templates 3.0 and 3.3; exam 50/50: the conceptual layer transfers knowledge; 20 stale publication sentences on 17 pages (#585, #543) |
+| Native and browser claims (phase 11) | iOS Simulator happy path; 8 Web-only claims via Playwright | 8/8 browser claims hold; iOS: Dialog, SafeArea, DatePicker hold; **Sheet never presents on iOS** (isolated and reproduced by the auditor, root-cause lead: gorhom dynamic sizing with flex:1 content) (#584); Toast top placement, deprecated DatePicker onChange (#586) |
+
+**Verdict update.** The component verdict from section 1 needs one qualifier: on iOS, `Sheet` is non-functional in a real Expo 57 consumer with the documented root wiring, and no deterministic or compile gate in BeeUI catches it. Everything else in the component layer held under 947 per-prop tests, 80 behavior-claim tests and a device pass. Coverage after round 2: props 98.6% executed; components with executed behavior evidence 62/62; guides 9/9 with every code block run; patterns 37/37 rendered; docs pages with a readability score 52 hand-written + template-level for the 99 generated; native runtime: one happy path on one simulator, keyboard avoidance and font scaling still unobserved.
+
+Totals: 27 BeeUI issues (#560 to #586) and 10 supplementary comments, all indexed in `issue-index.md` and summarised on BeeUI #234.
