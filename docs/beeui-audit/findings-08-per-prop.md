@@ -12,6 +12,8 @@ Reality source: the installed `@beemvp/beeui-ui@0.86.2-rc.1` npm package, exerci
 - Docs description: "'tabular' opts numeric content into equal-width figures so columns of amounts/KPIs/timers align. Omit for normal proportional figures."
 - Observed: an undocumented (non-TypeScript-valid) literal value crashes at render: numericVariantFontVariants[numeric] is not iterable
 
+- **Review note (Ambrose, 2026-09-11):** re-classified to Severity minor, Area component-behavior (robustness). The crash needs a value TypeScript already rejects; the docs sentence is accurate for valid values. Worth a defensive fallback in `numericVariantFontVariants` lookup, filed in the next umbrella, not as a docs error.
+
 ## Docs too vague to test
 
 A documented prop whose description could not be turned into any assertion beyond "renders without
