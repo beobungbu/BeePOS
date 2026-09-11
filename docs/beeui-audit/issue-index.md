@@ -49,3 +49,10 @@ Step 3 (reality check against npm package + BeePOS runtime, propose sync fixes) 
 | [#576](https://github.com/beobungbu/BeeUI/issues/576) | cleanroom logs steps 2-4, 10-11 | major | no project-creation step, install order ERESOLVE, expo-router root |
 | [#577](https://github.com/beobungbu/BeeUI/issues/577) | cleanroom-expo-log step 7 | minor | @source path without CSS file location |
 | [#578](https://github.com/beobungbu/BeeUI/issues/578) | readability-rubric B4 | minor | Verified example source not runnable as pasted |
+
+## Batch 4 (2026-09-11, doc-truth verification, phase 07A)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#579](https://github.com/beobungbu/BeeUI/issues/579) | props-accuracy required-mismatch | major | 3 props marked required but optional in .d.ts |
+| [#580](https://github.com/beobungbu/BeeUI/issues/580) | props-accuracy default/type/missing | minor | Props generator gaps (30 defaults, 2 type names, 2 undocumented props) |

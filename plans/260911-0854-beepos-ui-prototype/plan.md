@@ -14,7 +14,7 @@ Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 | 4 | Reports dashboard + stores + staff + settings | phase-04-reports-admin.md | Sonnet worker | DONE 2026-09-11 (7 findings) |
 | 5 | QA (web + iOS sim screenshots), audit report compile, README, publish | phase-05-qa-audit-publish.md | Ambrose + worker | TODO (spec written) |
 | 6 | Docs site vs llms*.txt consistency matrix (steps 1-2) | phase-06-docs-llms-consistency-audit.md | Sonnet auditor | DONE 2026-09-11 (501 rows, issue #574) |
-| 7 | Step 3: verify docs against reality (props, behavior claims, clean-room usability, readability rubric) | phase-07-doc-truth-verification.md | 2 Sonnet workers (A verifier, B fresh reader) | IN PROGRESS (started 2026-09-11 11:30) |
+| 7 | Step 3: verify docs against reality (props, behavior claims, clean-room usability, readability rubric) | phase-07-doc-truth-verification.md | 2 Sonnet workers (A verifier, B fresh reader) | DONE 2026-09-11 (A: 62 comps, 72 claims hold; B: 2 clean rooms, 12 pages scored; issues #575-#580) |
 
 Dependencies: 1..4 depend on 0 and run in parallel (disjoint route folders + own store files). 5 depends on 1..4.
 
