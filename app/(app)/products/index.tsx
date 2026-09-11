@@ -1,7 +1,5 @@
-import { AreaPlaceholder } from '../../../src/components/shell/area-placeholder';
-import { useT } from '../../../src/i18n';
+import { ProductListScreen } from '../../../src/features/products/product-list-screen';
 
 export default function ProductsScreen() {
-  const t = useT();
-  return <AreaPlaceholder title={t('common.nav.products')} description={t('common.nav.products')} />;
+  return <ProductListScreen />;
 }

@@ -1,7 +1,5 @@
-import { AreaPlaceholder } from '../../../src/components/shell/area-placeholder';
-import { useT } from '../../../src/i18n';
+import { InventoryScreen } from '../../../src/features/inventory/inventory-screen';
 
-export default function InventoryScreen() {
-  const t = useT();
-  return <AreaPlaceholder title={t('common.nav.inventory')} description={t('common.nav.inventory')} />;
+export default function InventoryIndexScreen() {
+  return <InventoryScreen />;
 }
