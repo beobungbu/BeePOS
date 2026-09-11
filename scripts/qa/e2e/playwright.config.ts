@@ -6,6 +6,8 @@ import { defineConfig } from '@playwright/test';
 // never hard-reload between steps (navigation goes through lib/session.ts).
 const projectRoot = path.resolve(__dirname, '../../..');
 const PORT = Number(process.env.BEEPOS_E2E_PORT ?? 8099);
+// Point the suite at a deployed build: BEEPOS_E2E_BASEURL=https://beepos.beemvp.com npm run qa:e2e
+const BASE_URL = process.env.BEEPOS_E2E_BASEURL ?? `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: './specs',
@@ -17,13 +19,13 @@ export default defineConfig({
   timeout: 300_000,
   expect: { timeout: 10_000 },
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: BASE_URL,
     trace: 'retain-on-failure',
     actionTimeout: 15_000,
     navigationTimeout: 20_000,
     screenshot: 'only-on-failure',
   },
-  webServer: {
+  webServer: process.env.BEEPOS_E2E_BASEURL ? undefined : {
     command: `npx expo start --web --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     cwd: projectRoot,

@@ -1,5 +1,7 @@
 # BeePOS
 
+Live web demo: https://beepos.beemvp.com (store code `HN01`, PIN `1234`). Deployed from `npm run deploy:web` (Expo web export served by Cloudflare Workers static assets, config in `wrangler.jsonc`).
+
 BeePOS is an interactive UI prototype of a point-of-sale system for a Vietnamese grocery
 chain (tap hoa). One Expo codebase renders the same product on iOS, Android and Web: a
 cashier POS screen, orders and refunds, products and inventory, customers, chain-wide
