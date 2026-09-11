@@ -14,6 +14,8 @@ shipped `.d.ts` files. `~/workspace/BeeUI` was never opened during this phase.
 - Workaround: Built the reports custom-period picker with `Popover` + `Calendar` (two poppers, "Từ ngày"/"Đến ngày") instead of `DatePicker`, per `src/features/reports/components/period-filter.tsx`. This is the doc's own documented cross-platform pattern, not a guess.
 - Suggested fix for BeeUI: none needed here — this is a case where the AI-facing doc entry point *did* carry the right information up front. Noting it because the phase spec (written before this was checked) assumed `DatePicker` works everywhere.
 
+- **Review note (Ambrose, 2026-09-11):** the premise is wrong. `llms-components.txt` line 16 ("ship only as *.native.tsx, no date-picker.web.tsx") contradicts its own line 9 (lists `date-picker` as a platform-split module), the Dates and times guide, and `/docs/components/date-picker/` ("renders from date-picker.web.tsx (Web)"). Phase 3 rendered `DatePicker` on Chromium in `/orders` and the customer birthday field with zero console errors (finding 03-01, screenshots phase-03-orders-wide-light.png). Verdict: docs correct, llms wrong; the reports period filter rebuilt Popover+Calendar unnecessarily. Re-classified: Area `llms`, Severity major, filed upstream in batch 2. Phase 5 may switch the period filter to `DatePicker`.
+
 ### 04-02 · Density guide is real and functional, not a gap
 - Area: docs-public
 - Severity: nit
