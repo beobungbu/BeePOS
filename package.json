@@ -50,7 +50,8 @@
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/.expo/"
+      "/.expo/",
+      "/scripts/audit/claims/"
     ]
   }
 }

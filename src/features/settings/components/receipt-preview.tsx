@@ -9,11 +9,12 @@ interface ReceiptPreviewProps {
 }
 
 /**
- * Local receipt preview built from BeeUI primitives. The real `/pos` checkout receipt
- * (src/features/pos) is owned by another phase worker who is actively editing it in
- * parallel; importing from an in-progress sibling feature folder would create an
- * unreviewable coupling point, so this settings preview is intentionally self-contained
- * rather than reusing that component (see findings file).
+ * Local receipt preview built from BeeUI primitives. `src/features/pos/receipt-screen.tsx`
+ * is a full route screen bound to `useLocalSearchParams` and the order/catalog/customer/
+ * session stores; it renders a real `Order`, not sample data, and does not export a
+ * presentational sub-component. Extracting one so this settings preview (static header,
+ * footer and a fixed sample line) could reuse it would mean refactoring the live checkout
+ * screen, which is out of scope here, so this preview stays self-contained.
  */
 export function ReceiptPreview({ header, footer, showLogo }: ReceiptPreviewProps) {
   const t = useT();
