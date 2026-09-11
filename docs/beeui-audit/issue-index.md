@@ -16,3 +16,17 @@ Tracker comment: https://github.com/beobungbu/BeeUI/issues/234 (batch 1, 2026-09
 Already covered upstream, not re-filed: [#547](https://github.com/beobungbu/BeeUI/issues/547) (SafeArea doc contradiction), [#558](https://github.com/beobungbu/BeeUI/issues/558) (DropdownMenuTrigger aria-haspopup).
 
 Not BeeUI's problem, not filed: scaffold 00-09 (`expo export --platform web,ios,android` comma syntax rejected by Expo CLI; BeePOS spec error).
+
+## Batch 2 (2026-09-11, feature phases) · tracker comment https://github.com/beobungbu/BeeUI/issues/234#issuecomment-5628947586
+
+| BeeUI issue | BeePOS finding(s) | Severity | Title |
+|---|---|---|---|
+| [#567](https://github.com/beobungbu/BeeUI/issues/567) | 03-01, 04-01 (re-classified) | major | llms-components.txt claims DatePicker is native-only; it ships date-picker.web.tsx and works |
+| [#568](https://github.com/beobungbu/BeeUI/issues/568) | 01-01, 03-02 | minor | IconButton has no `size` prop |
+| [#569](https://github.com/beobungbu/BeeUI/issues/569) | 02-01, 03-05 | minor | TimelineStatus values not published |
+| [#570](https://github.com/beobungbu/BeeUI/issues/570) | 02-02 | major | Field exposes accessible name twice (getByLabel → 2 nodes) |
+| [#571](https://github.com/beobungbu/BeeUI/issues/571) | 04-03, 04-05 | minor | Field/FormGroup relationships do not reach Switch/Checkbox lists |
+| [#572](https://github.com/beobungbu/BeeUI/issues/572) | 02-04 | minor | TableRow has no onPress; row navigation undocumented |
+| [#573](https://github.com/beobungbu/BeeUI/issues/573) | 04-04, 03-04, 03-03, 02-03, 02-05 | minor | umbrella 2 |
+
+Own-code bugs (not BeeUI): 01-03, 03-06 (zustand selector returning a new array each call → React 19 `useSyncExternalStore` loop). Positive confirmations: 01-04, 01-05, 04-02, 04-07.
