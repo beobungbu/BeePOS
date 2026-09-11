@@ -1,12 +1,12 @@
 {
   "generatedAt": "2026-09-11T04:59:37.061Z",
   "totals": {
-    "holds": 72,
+    "holds": 80,
     "fails": 0,
-    "untested-needs-browser": 8,
+    "untested-needs-browser": 0,
     "untestable": 0
   },
-  "executed": 72,
+  "executed": 80,
   "totalClaims": 80,
   "claims": [
     {
@@ -32,9 +32,9 @@
       "claim": "AlertDialog never closes from a backdrop press or an Escape keypress, unlike Dialog; it still closes on a native request-close because cancelOnRequestClose defaults to true.",
       "sourceUrl": "https://beeui.beemvp.com/docs/components/alert-dialog/#state-and-behavior-contract",
       "quote": "AlertDialog never closes from a backdrop press or an Escape keypress, unlike Dialog; it still closes on a native request-close because cancelOnRequestClose defaults to true.",
-      "testFile": null,
-      "result": "untested-needs-browser",
-      "observed": "Same overlay-runtime dependency as DLG-01/DLG-02."
+      "testFile": "scripts/audit/browser/specs/dialog.spec.ts",
+      "result": "holds",
+      "observed": "Verified in Chromium via Playwright against the /audit harness route: Escape and a backdrop press both leave the AlertDialog open; AlertDialogCancel closes it. Holds."
     },
     {
       "id": "AV-01",
@@ -257,18 +257,18 @@
       "claim": "Supplying open without onOpenChange warns in development and falls back to dismissable behavior.",
       "sourceUrl": "https://beeui.beemvp.com/docs/components/dialog/#state-and-behavior-contract",
       "quote": "Supplying open without onOpenChange warns in development and falls back to dismissable behavior.",
-      "testFile": null,
-      "result": "untested-needs-browser",
-      "observed": "Dialog mounts through the shared overlay runtime (portal + focus trap + Escape/backdrop dismissal) this harness does not provide a real implementation of."
+      "testFile": "scripts/audit/browser/specs/dialog.spec.ts",
+      "result": "holds",
+      "observed": "Verified: mounting Dialog with open={true} and no onOpenChange logs \"BeeUI Dialog: `open` requires `onOpenChange`. Falling back to dismissable uncontrolled behavior.\" and Escape then closes it. Holds."
     },
     {
       "id": "DLG-02",
       "claim": "Backdrop press, Web Escape, and Android hardware back all route through one close policy, while dismissOnRequestClose={false}/dismissOnEscape={false} opt individual channels out.",
       "sourceUrl": "https://beeui.beemvp.com/docs/components/dialog/#state-and-behavior-contract",
       "quote": "Backdrop press, Web Escape, and Android hardware back all route through one close policy, while dismissOnRequestClose={false}/dismissOnEscape={false} opt individual channels out.",
-      "testFile": null,
-      "result": "untested-needs-browser",
-      "observed": "Requires a real Web DOM (Escape keydown) or native back-handler runtime; not exercisable via react-test-renderer."
+      "testFile": "scripts/audit/browser/specs/dialog.spec.ts",
+      "result": "holds",
+      "observed": "Verified: default Dialog closes on both Escape and backdrop press; a dismissOnEscape={false} Dialog ignores Escape but still closes on backdrop press (independent channel). Holds."
     },
     {
       "id": "FI-01",
@@ -563,27 +563,27 @@
       "claim": "A duplicate SelectItem value disables every item sharing it and warns in development.",
       "sourceUrl": "https://beeui.beemvp.com/docs/components/select/#state-and-behavior-contract",
       "quote": "A duplicate SelectItem value disables every item sharing it and warns in development.",
-      "testFile": null,
-      "result": "untested-needs-browser",
-      "observed": "Select is built on the anchored-overlay/portal runtime (open/close, focus trap, collision-aware positioning) that this harness stubs out (see jest.setup.js); its real value-collision logic runs inside that portal."
+      "testFile": "scripts/audit/browser/specs/select.spec.ts",
+      "result": "holds",
+      "observed": "Verified: two SelectItems sharing value=\"dup\" both render aria-disabled=\"true\" and do not select on press; console logs \"BeeUI Select: duplicate option value `dup` detected...\". Holds."
     },
     {
       "id": "SEL-02",
       "claim": "Removing the selected option does not synthesize a value change — SelectValue falls back to its placeholder until a matching item returns.",
       "sourceUrl": "https://beeui.beemvp.com/docs/components/select/#state-and-behavior-contract",
       "quote": "Removing the selected option does not synthesize a value change — SelectValue falls back to its placeholder until a matching item returns.",
-      "testFile": null,
-      "result": "untested-needs-browser",
-      "observed": "Same overlay-runtime dependency as SEL-01."
+      "testFile": "scripts/audit/browser/specs/select.spec.ts",
+      "result": "holds",
+      "observed": "Verified: removing the SelectItem matching the controlled value flips SelectValue to its placeholder text, while the parent's value state (and onValueChange call count) is unchanged. Holds."
     },
     {
       "id": "SHEET-01",
       "claim": "Dismissal (backdrop press, swipe, Web Escape, Android hardware back) routes through the same dismissOnRequestClose/onRequestClose contract Dialog uses.",
       "sourceUrl": "https://beeui.beemvp.com/docs/components/sheet/#state-and-behavior-contract",
       "quote": "Dismissal (backdrop press, swipe, Web Escape, Android hardware back) routes through the same dismissOnRequestClose/onRequestClose contract Dialog uses.",
-      "testFile": null,
-      "result": "untested-needs-browser",
-      "observed": "Sheet is the direct @gorhom/bottom-sheet consumer this harness stubs (see jest.setup.js); real gesture-driven dismissal needs Reanimated worklets running on a real (or full native-simulator) runtime."
+      "testFile": "scripts/audit/browser/specs/sheet.spec.ts",
+      "result": "holds",
+      "observed": "Verified: default Sheet closes on Escape and backdrop press like Dialog; dismissOnRequestClose={false} blocks both and only the explicit SheetClose closes it. Holds."
     },
     {
       "id": "SI-01",
@@ -716,18 +716,18 @@
       "claim": "Toasts queue FIFO with at most three visible at once.",
       "sourceUrl": "https://beeui.beemvp.com/docs/components/toast/#state-and-behavior-contract",
       "quote": "Toasts queue FIFO with at most three visible at once.",
-      "testFile": null,
-      "result": "untested-needs-browser",
-      "observed": "useToast() is a provider-scoped imperative singleton whose queue/portal lives outside any single rendered tree; needs a real app-level BeeUIProvider mount, best exercised in a browser."
+      "testFile": "scripts/audit/browser/specs/toast.spec.ts",
+      "result": "holds",
+      "observed": "Verified: triggering 5 toasts leaves exactly the 3 oldest (Toast 1-3) visible; dismissing the oldest admits the next queued toast (Toast 4), confirming FIFO admission with a 3-visible cap. Holds."
     },
     {
       "id": "TOAST-02",
       "claim": "An explicit persistent mode opts a toast out of auto-dismiss, and action-triggered dismissal is deterministic (never racing the auto-dismiss timer).",
       "sourceUrl": "https://beeui.beemvp.com/docs/components/toast/#state-and-behavior-contract",
       "quote": "An explicit persistent mode opts a toast out of auto-dismiss, and action-triggered dismissal is deterministic (never racing the auto-dismiss timer).",
-      "testFile": null,
-      "result": "untested-needs-browser",
-      "observed": "Same provider-singleton/timer dependency as TOAST-01; real timer race behavior is best verified in a browser, not a mocked jsdom/native-mock timer."
+      "testFile": "scripts/audit/browser/specs/toast.spec.ts",
+      "result": "holds",
+      "observed": "Verified: a duration:\"persistent\" toast is still visible 5.5s after TOAST_DEFAULT_DURATION (5000ms); a duration:1500 toast dismissed via its action button before the timer fires is removed exactly once with no console/page error and does not reappear. Holds."
     }
   ]
 }

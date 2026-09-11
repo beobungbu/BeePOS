@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-09-11T00:00:00.000Z",
+  "generatedBy": "manual Playwright run: npx playwright test -c scripts/audit/browser/playwright.config.ts",
+  "harnessRoute": "app/(app)/audit/index.tsx (src/features/audit/audit-harness-screen.tsx)",
+  "totals": { "holds": 8, "fails": 0, "untestable-in-app": 0 },
+  "claims": [
+    {
+      "id": "ADLG-01",
+      "claim": "AlertDialog never closes from a backdrop press or an Escape keypress, unlike Dialog; it still closes on a native request-close because cancelOnRequestClose defaults to true.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/alert-dialog/#state-and-behavior-contract",
+      "specFile": "scripts/audit/browser/specs/dialog.spec.ts",
+      "specTest": "ADLG-01: AlertDialog never closes from backdrop press or Escape, but an explicit action closes it",
+      "result": "holds",
+      "observed": "Escape and a backdrop press both left the AlertDialog open; pressing the explicit AlertDialogCancel closed it. The Escape-never-dismisses and backdrop-never-dismisses parts of the claim are directly web-testable; the native-request-close path (Android hardware back / iOS native modal dismissal) is out of scope for a browser run and is covered by Phase 11 Part A instead."
+    },
+    {
+      "id": "DLG-01",
+      "claim": "Supplying open without onOpenChange warns in development and falls back to dismissable behavior.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/dialog/#state-and-behavior-contract",
+      "specFile": "scripts/audit/browser/specs/dialog.spec.ts",
+      "specTest": "DLG-01: open without onOpenChange warns in development and falls back to dismissable behavior",
+      "result": "holds",
+      "observed": "Mounting <Dialog open={true}> with no onOpenChange logged exactly the documented dev warning (\"BeeUI Dialog: `open` requires `onOpenChange`. Falling back to dismissable uncontrolled behavior.\"), and a subsequent Escape keypress closed it, confirming the uncontrolled fallback."
+    },
+    {
+      "id": "DLG-02",
+      "claim": "Backdrop press, Web Escape, and Android hardware back all route through one close policy, while dismissOnRequestClose={false}/dismissOnEscape={false} opt individual channels out.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/dialog/#state-and-behavior-contract",
+      "specFile": "scripts/audit/browser/specs/dialog.spec.ts",
+      "specTest": "DLG-02: backdrop press and Escape route through one close policy; dismissOnEscape opts Escape out independently",
+      "result": "holds",
+      "observed": "A default Dialog closed on both Escape and a backdrop press. A dismissOnEscape={false} Dialog ignored Escape but still closed on a backdrop press, confirming the two are independent channels within the same close policy. The Android-hardware-back channel is native-only and is covered by Phase 11 Part A instead."
+    },
+    {
+      "id": "SEL-01",
+      "claim": "A duplicate SelectItem value disables every item sharing it and warns in development.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/select/#state-and-behavior-contract",
+      "specFile": "scripts/audit/browser/specs/select.spec.ts",
+      "specTest": "SEL-01: a duplicate SelectItem value disables every item sharing it and warns in development",
+      "result": "holds",
+      "observed": "Two SelectItems sharing value=\"dup\" both rendered aria-disabled=\"true\" (a third, unique-value item did not); pressing a disabled duplicate did not select it. Console logged the documented dev warning (\"BeeUI Select: duplicate option value `dup` detected. All options with that value are disabled until the duplicate is removed.\")."
+    },
+    {
+      "id": "SEL-02",
+      "claim": "Removing the selected option does not synthesize a value change - SelectValue falls back to its placeholder until a matching item returns.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/select/#state-and-behavior-contract",
+      "specFile": "scripts/audit/browser/specs/select.spec.ts",
+      "specTest": "SEL-02: removing the selected option does not synthesize a value change; SelectValue falls back to its placeholder",
+      "result": "holds",
+      "observed": "With the parent's controlled value=\"keep\" pointing at a SelectItem, removing that item from the rendered list flipped SelectValue's text from the item's label to the placeholder (\"No selection\"), while the parent's own value/readout (updated only by onValueChange) stayed \"keep\" - confirming no synthesized onValueChange call."
+    },
+    {
+      "id": "SHEET-01",
+      "claim": "Dismissal (backdrop press, swipe, Web Escape, Android hardware back) routes through the same dismissOnRequestClose/onRequestClose contract Dialog uses.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/sheet/#state-and-behavior-contract",
+      "specFile": "scripts/audit/browser/specs/sheet.spec.ts",
+      "specTest": "SHEET-01: Sheet dismissal routes through the same dismissOnRequestClose contract Dialog uses",
+      "result": "holds",
+      "observed": "A default Sheet closed on both Escape and a backdrop press, matching Dialog's default. A dismissOnRequestClose={false} Sheet ignored both Escape and a backdrop press, and only the explicit SheetClose button closed it - matching the documented contract exactly. The swipe-gesture and Android-hardware-back channels are native-only (sheet.web.tsx has no drag gesture per ADR-006) and are covered by Phase 11 Part A instead."
+    },
+    {
+      "id": "TOAST-01",
+      "claim": "Toasts queue FIFO with at most three visible at once.",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/toast/#state-and-behavior-contract",
+      "specFile": "scripts/audit/browser/specs/toast.spec.ts",
+      "specTest": "TOAST-01: toasts queue FIFO with at most three visible at once",
+      "result": "holds",
+      "observed": "Enqueuing 5 toasts (Toast 1..5) via useToast().show() left exactly the 3 oldest (Toast 1-3) visible, not the 3 newest. Dismissing the oldest (Toast 1) admitted the next queued toast (Toast 4), keeping the visible set at {Toast 2, Toast 3, Toast 4} - confirming FIFO admission order with TOAST_MAX_VISIBLE=3."
+    },
+    {
+      "id": "TOAST-02",
+      "claim": "An explicit persistent mode opts a toast out of auto-dismiss, and action-triggered dismissal is deterministic (never racing the auto-dismiss timer).",
+      "sourceUrl": "https://beeui.beemvp.com/docs/components/toast/#state-and-behavior-contract",
+      "specFile": "scripts/audit/browser/specs/toast.spec.ts",
+      "specTest": "TOAST-02: an explicit persistent toast never auto-dismisses; action-triggered dismissal is deterministic",
+      "result": "holds",
+      "observed": "A duration:'persistent' toast was still visible 5.5s after TOAST_DEFAULT_DURATION (5000ms) elapsed. A duration:1500 toast with an action (dismissOnPress: true) was dismissed by pressing its action button, removed exactly once, and did not reappear after waiting past its original duration - with zero console/page errors, confirming the cancelled timer never fires a redundant dismiss."
+    }
+  ]
+}

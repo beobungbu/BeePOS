@@ -53,3 +53,7 @@ dist-*/
 # Phase 08 prop-behavior audit: intermediate per-slug result rows, regenerated
 # by `npx jest -c scripts/audit/props/jest.config.js` (see scripts/audit/props/build-report.mjs).
 scripts/audit/props/.results/
+
+# Phase 11 Part B: Playwright's own run artifacts (traces/screenshots on failure, HTML report)
+/test-results/
+/playwright-report/
