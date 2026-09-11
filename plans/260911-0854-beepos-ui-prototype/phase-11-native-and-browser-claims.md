@@ -1,0 +1,19 @@
+# Phase 11 · Pass 4: native iOS Simulator happy path + the 8 browser-only behavior claims
+
+Owner: one Sonnet worker. Tracker: BeeUI #234. Question: do the native-only and Web-only documented behaviors hold at runtime (evidence classes 3 and 4 in the docs' own vocabulary)?
+
+## Part A · iOS Simulator (evidence class 4)
+1. Boot an available iPhone simulator (`xcrun simctl list devices available`), build BeePOS with `npx expo run:ios` (first build is slow; if it fails on native deps, record the exact error and try `npx expo prebuild --clean` once; if still failing after two honest attempts, log BLOCKED with evidence and continue with Part B).
+2. Drive the happy path with the iOS Simulator MCP tools if available to you (`mcp__Claude_Code_iOS_Simulator__control`: attach, screenshot, tap, swipe, text) or `xcrun simctl io booted screenshot` + `xcrun simctl` input where possible: login (any store code from the seed, PIN 1234) → /pos: add 2 products, open cart Sheet, change qty, checkout with cash, receipt → /orders: open the order, open refund Dialog and cancel → /products: open a product, edit price, save → /inventory: open a receipt → /reports → /settings: switch theme dark and back, switch locale en and back. Screenshot every screen to `docs/screenshots/ios-*.png`.
+3. Native-only claims to check and record (`holds | fails | not-observed`, with screenshot): Sheet is the @gorhom bottom sheet with drag handle and swipe-to-dismiss (ADR-006); Dialog uses RN Modal `overFullScreen` transparent; Android/iOS back/dismiss semantics per the overlays page; SafeArea insets applied once (no double inset at top/bottom, compare against the notch); KeyboardAwareScreen keeps the focused input above the keyboard on the product edit form; DatePicker opens the OS system picker (orders filter or customer birthday); Toast stacks above the bottom tab bar respecting the home indicator; font scaling: set Larger Text in simulator accessibility settings (`xcrun simctl` cannot set it; use Settings app via taps if feasible, else `not-observed`) and check no clipped text on /pos.
+4. Log every native runtime defect with the finding template in `docs/beeui-audit/findings-11-native.md` (distinguish BeePOS bugs from BeeUI bugs; BeePOS bugs go in the report, not the findings file).
+
+## Part B · the 8 `untested-needs-browser` claims (evidence class 3)
+From `docs/beeui-audit/behavior-claims.md` (Select, Dialog, AlertDialog, Sheet, Toast Web-only claims: focus trap, Escape closes deepest scope, aria relationships, keyboard listbox navigation, focus restoration to trigger). Write Playwright specs under `scripts/audit/browser/` against the BeePOS web build (`npx expo start --web --port 8098`; reuse the phase-00 Playwright pattern), one `test()` per claim ID, asserting the documented behavior with `page.keyboard`, `document.activeElement`, and `aria-*` checks. Record results in `docs/beeui-audit/behavior-claims-browser.{md,json}` and mirror the verdicts into `behavior-claims.json` (update the 8 rows' `result`).
+
+## Output and acceptance
+- Part A: ≥ 12 iOS screenshots, the native claims table with verdicts, findings file; or BLOCKED with the exact native build error after two attempts.
+- Part B: 8 claims executed, results recorded; suite runnable with `npx playwright test -c scripts/audit/browser/playwright.config.ts`.
+- One comment on BeeUI #234: native claims table + browser claims table, links to screenshots. No new issues, no em-dash, credit BeePOS.
+- Report `plans/260911-0854-beepos-ui-prototype/reports/phase-11-native-browser-report.md` with command evidence and the Status block.
+- Files you own: `scripts/audit/browser/**`, `docs/beeui-audit/findings-11-native.md`, `docs/beeui-audit/behavior-claims-browser.*`, the 8 rows in `docs/beeui-audit/behavior-claims.json`, `docs/screenshots/ios-*.png`, your report. Do not commit `ios/` (gitignored) or any Xcode artefacts. Commit only owned paths; do not push.
