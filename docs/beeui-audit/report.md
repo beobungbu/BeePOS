@@ -1,6 +1,6 @@
 # BeeUI production-readiness field audit: consolidated report
 
-Date: 2026-09-11 · Auditor: Ambrose (Hive Enterprise) with 8 worker passes · Subject: `@beemvp/beeui-ui@0.86.2-rc.1` and https://beeui.beemvp.com · Vehicle: BeePOS, a grocery-chain POS built in one day from the public surfaces only.
+Date: 2026-09-11 (final, 21:20) · Auditor: Ambrose (Hive Enterprise) with 14 worker passes plus hands-on simulator and E2E work · Subject: `@beemvp/beeui-ui@0.86.2-rc.1` and https://beeui.beemvp.com · Vehicle: BeePOS, a grocery-chain POS built in one day from the public surfaces only.
 
 ## 1. Executive summary
 
@@ -97,3 +97,11 @@ Totals: 27 BeeUI issues (#560 to #586) and 10 supplementary comments, all indexe
 - Keyboard avoidance and Dynamic Type observed on the iOS Simulator (phase 13): KeyboardAwareScreen pads but does not scroll the focused input into view (#588); AppHeader, Input and SearchInput clip at accessibility-large because of fixed heights and line heights (#589). BeePOS switched the tab bar to icons at fontScale >= 1.3; content under the grown tab bar at large text stays open on the app side.
 
 Totals: 31 BeeUI issues (#560 to #590) and 13 supplementary comments; all 83 findings reconciled against the issue index. Native coverage now: one iOS happy path, one Android happy path, keyboard and large-text passes; VoiceOver/TalkBack still not exercised.
+
+## 11. Final state (end of 2026-09-11)
+
+- Live web demo: https://beepos.beemvp.com (Cloudflare Workers static assets, `npm run deploy:web`); the integrated E2E journey passes against production.
+- BeePOS: 31 screens (incl. `/pos/cart` native fallback), 140 unit tests, 947 per-prop tests, 80 behavior-claim tests, 8-run Playwright journey, iOS and Android happy paths, 130+ screenshots.
+- BeeUI issues from this audit: 31 (#560 to #590), 13 supplementary comments, all 83 findings reconciled in `issue-index.md`.
+- Verdict unchanged in direction, sharpened in detail: components hold under every deterministic probe we could build; the docs, the AI surfaces and the native runtime (Sheet, keyboard scroll, Dynamic Type, Toast placement) are where a consumer loses time. Highest-leverage fixes, in order: single release-state source for all docs (#543 family), the two Start pages (#575, #576, #577, #562), llms linking and generated platform notes (#560, #567, #574), native Sheet (#584), keyboard scroll and large text (#588, #589), styleq and Field a11y (#563, #564, #570), Props generator (#579, #580).
+- Still not exercised: VoiceOver/TalkBack, physical devices, Firefox/Safari.

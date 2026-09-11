@@ -1,6 +1,6 @@
 # BeePOS UI prototype + BeeUI field audit
 
-Status: DONE (all 12 phases) · started 2026-09-11 · owner Ambrose · repo github.com/beobungbu/BeePOS (public)
+Status: DONE (all phases 0-14) · started 2026-09-11 · live demo https://beepos.beemvp.com · owner Ambrose · repo github.com/beobungbu/BeePOS (public)
 
 Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 
@@ -20,6 +20,7 @@ Spec: `docs/product-spec.md` · Audit protocol: `docs/beeui-audit/protocol.md`
 | 10 | Pass 3: guides + patterns code blocks executed in clean room | phase-10-guides-patterns-executable.md | Sonnet worker | DONE 2026-09-11 (73 samples, 37/37 patterns rendered, CLI holds; issues #581-#583) |
 | 11 | Pass 4: native iOS Simulator happy path + 8 web-only claims via Playwright | phase-11-native-and-browser-claims.md | Sonnet worker + Ambrose Sheet reproduction | DONE 2026-09-11 (iOS 12 screenshots, 8/8 browser claims, Sheet defect isolated; #584, #586) |
 | 13 | iOS keyboard avoidance + Dynamic Type pass (Ambrose on simulator) | docs/beeui-audit/findings-13-native-keyboard-fontscale.md | Ambrose | DONE 2026-09-11 (2 BeeUI defects #588, #589; tab bar icon-only at large text) |
+| 14 | Deploy web demo to Cloudflare Workers at beepos.beemvp.com; E2E against production | wrangler.jsonc, README | Ambrose | DONE 2026-09-11 (journey green on prod) |
 | 12 | Native fixes (tab bar, Sheet fallback for cart and More) + Android emulator happy path | reports/phase-12-native-fixes-android-report.md | Sonnet worker | DONE 2026-09-11 (iOS 3 + Android 11 screenshots, back-on-Dialog holds) |
 
 Dependencies: 1..4 depend on 0 and run in parallel (disjoint route folders + own store files). 5 depends on 1..4.
