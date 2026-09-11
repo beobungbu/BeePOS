@@ -1,0 +1,56 @@
+{
+  "name": "beepos",
+  "version": "0.1.0",
+  "main": "expo-router/entry",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm run uniwind:types",
+    "uniwind:types": "uniwind generate-artifacts --css ./global.css --theme violet-light --theme violet-dark --theme high-contrast-light --theme high-contrast-dark --dts ./uniwind-types.d.ts",
+    "start": "expo start",
+    "web": "expo start --web",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "typecheck": "npm run uniwind:types && tsc --noEmit",
+    "test": "jest",
+    "export:all": "expo export --platform all",
+    "lint": "expo lint"
+  },
+  "dependencies": {
+    "@beemvp/beeui-core": "0.86.2-rc.1",
+    "@beemvp/beeui-tokens": "0.86.2-rc.1",
+    "@beemvp/beeui-ui": "0.86.2-rc.1",
+    "@expo/metro-runtime": "~57.0.15",
+    "@gorhom/bottom-sheet": "^5.2.14",
+    "@react-native-community/datetimepicker": "9.1.0",
+    "expo": "~57.0.21",
+    "expo-router": "~57.0.20",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-teleport": "^1.2.2",
+    "react-native-web": "^0.21.2",
+    "react-native-worklets": "0.10.1",
+    "tailwindcss": "4.3.3",
+    "uniwind": "1.10.1",
+    "zustand": "5.0.15"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/react": "~19.2.2",
+    "jest": "~29.7.0",
+    "jest-expo": "~57.0.5",
+    "typescript": "~6.0.3"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/.expo/"
+    ]
+  }
+}
