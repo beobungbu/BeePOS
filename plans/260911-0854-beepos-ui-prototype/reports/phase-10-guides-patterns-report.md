@@ -104,4 +104,4 @@ with reproductions and screenshots.
 Concerns/Blockers: none blocking. `pnpm`-prefixed maintainer/monorepo commands (repository-local
 CLI path, `pnpm bench:web`, `pnpm registry:verify` and friends) could not be run from a public-docs-only
 consumer clean room by design; their underlying operations were verified another way where possible.
-Samples: 73 total - as-pasted 22 - needs-context 50 - broken 1 - pattern pages rendered 37/37 - guide instructions: holds 24 / fails 3 / untestable 6 - Commit: PENDING
+Samples: 73 total - as-pasted 22 - needs-context 50 - broken 1 - pattern pages rendered 37/37 - guide instructions: holds 24 / fails 3 / untestable 6 - Commit: 3a39c54
