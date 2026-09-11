@@ -1,7 +1,5 @@
-import { AreaPlaceholder } from '../../../src/components/shell/area-placeholder';
-import { useT } from '../../../src/i18n';
+import { StoreListScreen } from '../../../src/features/stores/store-list-screen';
 
-export default function StoresScreen() {
-  const t = useT();
-  return <AreaPlaceholder title={t('common.nav.stores')} description={t('common.nav.stores')} />;
+export default function StoresRoute() {
+  return <StoreListScreen />;
 }

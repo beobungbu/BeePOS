@@ -1,7 +1,5 @@
-import { AreaPlaceholder } from '../../../src/components/shell/area-placeholder';
-import { useT } from '../../../src/i18n';
+import { StaffListScreen } from '../../../src/features/staff/staff-list-screen';
 
-export default function StaffScreen() {
-  const t = useT();
-  return <AreaPlaceholder title={t('common.nav.staff')} description={t('common.nav.staff')} />;
+export default function StaffRoute() {
+  return <StaffListScreen />;
 }
