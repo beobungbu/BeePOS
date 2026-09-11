@@ -75,3 +75,11 @@ Step 3 (reality check against npm package + BeePOS runtime, propose sync fixes) 
 | [#543](https://github.com/beobungbu/BeeUI/issues/543) (comment) | F-09-01..10 | major | 20 stale publication sentences on 17 pages |
 
 Not filed: 08-01 (`Text.numeric` crash on a TypeScript-invalid value, robustness only; noted in #234 comment).
+
+## Batch 7 (2026-09-11, integrated E2E + native fallbacks + Android)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#587](https://github.com/beobungbu/BeeUI/issues/587) | 05-01, 05-03 | minor | AlertDialog Web role; SelectValue default placeholder |
+
+Reconfirmed in a real flow: #570 (05-02). Android pass (phase 12): no new BeeUI defects.

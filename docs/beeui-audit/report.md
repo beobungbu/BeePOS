@@ -89,3 +89,11 @@ npx jest -c scripts/audit/claims/jest.config.js     # 72 behavior claims
 **Verdict update.** The component verdict from section 1 needs one qualifier: on iOS, `Sheet` is non-functional in a real Expo 57 consumer with the documented root wiring, and no deterministic or compile gate in BeeUI catches it. Everything else in the component layer held under 947 per-prop tests, 80 behavior-claim tests and a device pass. Coverage after round 2: props 98.6% executed; components with executed behavior evidence 62/62; guides 9/9 with every code block run; patterns 37/37 rendered; docs pages with a readability score 52 hand-written + template-level for the 99 generated; native runtime: one happy path on one simulator, keyboard avoidance and font scaling still unobserved.
 
 Totals: 27 BeeUI issues (#560 to #586) and 10 supplementary comments, all indexed in `issue-index.md` and summarised on BeeUI #234.
+
+## 10. Addendum: round 3 (integration QA and native fallbacks)
+
+- Integrated Web E2E (`scripts/qa/e2e`, `npm run qa:e2e`): one 12-step journey per run, 8 runs (1280/390 x vi/en x light/dark), all green with zero console errors. Four BeePOS bugs fixed on the way (a11y roles on tiles and cart bar, future-dated seed orders, unsafe `router.back()`, tab bar overflow at 390 with Vietnamese labels). New BeeUI finding: AlertDialog Web role (#587); #570 reconfirmed in a real flow.
+- Native: the cart and More menu fall back to a route and a Dialog on iOS and Android because of #584; verified on iPhone 16 Pro simulator and an Android emulator (11 screenshots). Android hardware back closes the child Dialog first, as documented. No Android-specific BeeUI defects found.
+- Open: keyboard avoidance and font scaling on native remain unobserved.
+
+Totals: 28 BeeUI issues (#560 to #587) and 11 supplementary comments.
