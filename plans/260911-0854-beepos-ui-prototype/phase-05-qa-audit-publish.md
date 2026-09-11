@@ -14,3 +14,9 @@
 ## Acceptance
 - CI-less but reproducible: fresh clone + `npm ci` + `npm run typecheck && npm test && npm run export:all` passes (worker verifies in a temp dir).
 - Report published in repo; issues opened; plan.md marked DONE.
+
+## Integration cleanups collected from phase reports
+- Fold `description?: string` into `src/domain/types.ts#Product` and delete `src/features/products/product-type-augment.d.ts` (phase 2 workaround).
+- Settings receipt preview should reuse the receipt component from `src/features/pos` (phase 4 kept a local copy to avoid a cross-phase dependency).
+- Delete `dist-phase0N/` dirs; make sure `.gitignore` covers `dist*/`.
+- Batch 2 issues for BeeUI: `IconButton` lacks `size` (01-01), `TimelineStatus` undocumented (02-01), `Field` duplicate `aria-label` (02-02), `TableRow` no `onPress` (02-04), `DatePicker` web gap (04-01), `Field` does not label `Switch`/`Checkbox`/`Radio` (04-03), `FormGroup` context not reaching `Checkbox` lists (04-05), no static tag chip (04-04); plus whatever phase 3 adds.
