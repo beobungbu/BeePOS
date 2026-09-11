@@ -45,3 +45,6 @@ uniwind-types.d.ts
 /android
 
 scripts/audit/.cache/
+
+# per-phase export dirs
+dist-*/
