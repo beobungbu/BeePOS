@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Chip, ChipGroup, SearchInput, Sheet, SheetContent, SheetTitle, useToast } from '@beemvp/beeui-ui';
 import { calcCart, type PricedCartLine } from '../../domain/pos';
 import type { Product } from '../../domain/types';
@@ -20,6 +21,7 @@ const ALL_CATEGORY = 'all';
 export default function PosScreen() {
   const t = useT();
   const toast = useToast();
+  const router = useRouter();
   const { isCartPaneVisible, gridColumns } = usePosLayout();
 
   const store = useSessionStore((state) => state.store);
@@ -73,6 +75,20 @@ export default function PosScreen() {
     }
   }
 
+  /**
+   * BeeUI's native `Sheet` never presents on iOS (BeeUI #584): `present()` fires with no
+   * visible content and no error, while `Dialog`/`AlertDialog` (RN `Modal`-based) work fine.
+   * On native, open the cart as a full-screen route instead; keep the `Sheet` on web where
+   * it works. Remove this branch once #584 lands.
+   */
+  function handleOpenCart() {
+    if (Platform.OS === 'web') {
+      setSheetOpen(true);
+    } else {
+      router.push('/pos/cart');
+    }
+  }
+
   const pricedLines: PricedCartLine[] = cart.lines.map((line) => ({
     ...line,
     taxRate: activeProducts.find((product) => product.id === line.productId)?.taxRate ?? 0,
@@ -111,7 +127,7 @@ export default function PosScreen() {
         />
 
         {!isCartPaneVisible && (
-          <FloatingCartBar itemCount={itemCount} total={totals.total} onPress={() => setSheetOpen(true)} />
+          <FloatingCartBar itemCount={itemCount} total={totals.total} onPress={handleOpenCart} />
         )}
       </View>
 
@@ -121,7 +137,7 @@ export default function PosScreen() {
         </View>
       )}
 
-      {!isCartPaneVisible && (
+      {!isCartPaneVisible && Platform.OS === 'web' && (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetContent snapPoints={['85%']}>
             <SheetTitle>{t('pos.cart.title')}</SheetTitle>
