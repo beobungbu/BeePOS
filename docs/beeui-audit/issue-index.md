@@ -158,3 +158,10 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 | [#606](https://github.com/beobungbu/BeeUI/issues/606) | 19-01 | major | focused Input stops keydown bubbling |
 | [#607](https://github.com/beobungbu/BeeUI/issues/607) | 19-02, 18-04 | minor | umbrella 7: nested role=dialog, trigger hover |
 | [#597](https://github.com/beobungbu/BeeUI/issues/597) (comment) | 19-03 | evidence | SearchInput focus handle |
+
+## Batch 17 (2026-09-13, native smoke)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#608](https://github.com/beobungbu/BeeUI/issues/608) | 20N-01 | major | DialogContent does not clip children on iOS |
+| [#607](https://github.com/beobungbu/BeeUI/issues/607) (comment) | 20N-02 | minor | autoFocus inert inside DialogContent on iOS |
