@@ -12,6 +12,7 @@ export const posEn = {
   emptyCatalogTitle: 'No products here',
   emptyCatalogDescription: 'Try another category or clear part of the search',
   stockOnHand: 'In stock',
+  inCart: 'In cart',
 
   order: {
     label: 'Order',

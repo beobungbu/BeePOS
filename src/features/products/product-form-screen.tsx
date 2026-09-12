@@ -33,6 +33,7 @@ import type { Product, ProductVariant } from '../../domain/types';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { ProductThumb } from '../../components/product-thumb';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { ProductStockTable } from './product-stock-table';
 import { ProductVariantsSection } from './product-variants-section';
 import { useUnsavedChangesGuard } from './hooks/use-unsaved-changes-guard';
@@ -98,6 +99,14 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
 
   const isDirty = touched && JSON.stringify(values) !== JSON.stringify(initial);
   const guard = useUnsavedChangesGuard(isDirty);
+
+  // Pushed route: the shell header carries the way back, so the form is never a dead end on a
+  // phone, where there is no rail or sidebar to fall back on.
+  useScreenHeader({
+    title: existing ? t('products.form.editTitle') : t('products.form.newTitle'),
+    subtitle: existing?.sku,
+    backTo: '/products',
+  });
 
   function update<K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -179,15 +188,6 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
         className={`w-full self-center gap-6 ${FORM_PADDING[breakpoint]}`}
         style={{ maxWidth: FORM_MAX_WIDTH }}
       >
-        <View className="gap-1">
-          <Text variant="title">{existing ? t('products.form.editTitle') : t('products.form.newTitle')}</Text>
-          {existing && (
-            <Text variant="caption" tone="muted" numeric="tabular">
-              {existing.sku}
-            </Text>
-          )}
-        </View>
-
         <Section title={t('products.form.sectionBasics')}>
           <View className="gap-4">
             <View className="flex-row items-center gap-3">

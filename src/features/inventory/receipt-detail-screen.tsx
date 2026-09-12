@@ -17,7 +17,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Text,
   useToast,
 } from '@beemvp/beeui-ui';
 import { router } from 'expo-router';
@@ -30,6 +29,7 @@ import { useSessionStore } from '../../data/session-store';
 import { stores as allStores } from '../../data/seed';
 import type { GoodsReceipt, GoodsReceiptLine } from '../../domain/types';
 import { useT } from '../../i18n';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { LineEditorTable } from './line-editor-table';
 import { ProductPicker } from './product-picker';
 
@@ -62,6 +62,9 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
 
   const isReceived = existing?.status === 'received';
   const canSave = supplierName.trim().length > 0 && lines.length > 0;
+
+  // Pushed route: the shell header names the screen and carries the way back to the list.
+  useScreenHeader({ title: t('inventory.receipts.detailTitle'), backTo: '/inventory/receipts' });
 
   function buildReceipt(status: GoodsReceipt['status']): GoodsReceipt {
     return {
@@ -105,8 +108,7 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
   return (
     <KeyboardAwareScreen contentWidth="md">
       <View className="gap-4 p-4">
-        <View className="flex-row items-center justify-between">
-          <Text variant="title">{t('inventory.receipts.detailTitle')}</Text>
+        <View className="flex-row items-center justify-end">
           {existing && (
             <Badge variant={isReceived ? 'success' : 'outline'}>
               {isReceived ? t('inventory.receipts.statusReceived') : t('inventory.receipts.statusDraft')}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { EmptyState, Pagination, PaginationItem, Skeleton, Text } from '@beemvp/beeui-ui';
 import { useOrderStore } from '../../../data/order-store';
@@ -50,10 +50,17 @@ export function OrdersListScreen() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+  const firstPass = useRef(true);
 
   // Simulated loading on every filter/sort change, to exercise the Skeleton state (there is
   // no real network round-trip in this prototype).
   useEffect(() => {
+    // Opening the tab is not a filter change: the rows are already in memory, so the first
+    // pass renders them straight away instead of holding three grey blocks over them.
+    if (firstPass.current) {
+      firstPass.current = false;
+      return;
+    }
     setLoading(true);
     const timeout = setTimeout(() => setLoading(false), FILTER_LOADING_DELAY_MS);
     return () => clearTimeout(timeout);

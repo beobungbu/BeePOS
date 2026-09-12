@@ -6,6 +6,9 @@ import type { CartTotals } from '../../../domain/pos';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
 
+/** Label may wrap, amount may not, and the pair drops to a second line before either clips. */
+const ROW_CLASS = 'flex-row flex-wrap items-center justify-between gap-x-3 gap-y-0.5';
+
 interface OrderTotalsPanelProps {
   totals: CartTotals;
   /** The cart pane draws its own surface; checkout needs the card. */
@@ -17,7 +20,13 @@ interface OrderTotalsPanelProps {
   collapsible?: boolean;
 }
 
-/** Tạm tính, giảm giá, thuế, then the rule and the grand total in the title step, weight 700. */
+/**
+ * Tạm tính, giảm giá, thuế, then the rule and the grand total in the title step, weight 700.
+ *
+ * Every row is a label that may shrink and wrap next to an amount that may not: at
+ * accessibility text sizes the amount used to be the side that gave way, and the row read
+ * "TỔNG CỘNG 13.200" with the currency suffix cut off. The row wraps before that happens.
+ */
 export function OrderTotalsPanel({ totals, bordered = true, collapsible = false }: OrderTotalsPanelProps) {
   const t = useT();
   const [expanded, setExpanded] = useState(!collapsible);
@@ -35,7 +44,7 @@ export function OrderTotalsPanel({ totals, bordered = true, collapsible = false 
           <Text variant="label" className="flex-1 font-semibold text-foreground">
             {t('pos.checkout.orderDetails')}
           </Text>
-          <Text variant="label" className="font-normal tabular-nums text-muted-foreground">
+          <Text variant="label" className="shrink-0 font-normal tabular-nums text-muted-foreground">
             {formatVND(totals.subtotal)}
           </Text>
           <AppIcon name="chevron-right" size={18} tone="muted-foreground" />
@@ -44,24 +53,24 @@ export function OrderTotalsPanel({ totals, bordered = true, collapsible = false 
 
       {expanded ? (
         <>
-          <View className="flex-row items-center justify-between">
-            <Text variant="label" className="font-normal text-muted-foreground">{t('pos.cart.subtotal')}</Text>
-            <Text variant="label" className="font-normal tabular-nums text-foreground">{formatVND(totals.subtotal)}</Text>
+          <View className={ROW_CLASS}>
+            <Text variant="label" className="min-w-0 shrink font-normal text-muted-foreground">{t('pos.cart.subtotal')}</Text>
+            <Text variant="label" className="shrink-0 font-normal tabular-nums text-foreground">{formatVND(totals.subtotal)}</Text>
           </View>
-          <View className="flex-row items-center justify-between">
-            <Text variant="label" className="font-normal text-muted-foreground">{t('pos.cart.discount')}</Text>
+          <View className={ROW_CLASS}>
+            <Text variant="label" className="min-w-0 shrink font-normal text-muted-foreground">{t('pos.cart.discount')}</Text>
             <Text
               variant="label"
-              className={`font-normal tabular-nums ${
+              className={`shrink-0 font-normal tabular-nums ${
                 totals.discountTotal > 0 ? 'font-semibold text-success' : 'text-foreground'
               }`}
             >
               {totals.discountTotal > 0 ? `-${formatVND(totals.discountTotal)}` : formatVND(0)}
             </Text>
           </View>
-          <View className="flex-row items-center justify-between">
-            <Text variant="caption" className="text-subtle-foreground">{t('pos.cart.taxIncluded')}</Text>
-            <Text variant="caption" className="tabular-nums text-subtle-foreground">
+          <View className={ROW_CLASS}>
+            <Text variant="caption" className="min-w-0 shrink text-subtle-foreground">{t('pos.cart.taxIncluded')}</Text>
+            <Text variant="caption" className="shrink-0 tabular-nums text-subtle-foreground">
               {formatVND(totals.taxTotal)}
             </Text>
           </View>
@@ -69,9 +78,9 @@ export function OrderTotalsPanel({ totals, bordered = true, collapsible = false 
         </>
       ) : null}
 
-      <View className="flex-row items-center justify-between">
-        <Text variant="label" className="font-normal text-muted-foreground">{t('pos.cart.grandTotal')}</Text>
-        <Text variant="title" className="font-bold tabular-nums text-foreground">{formatVND(totals.total)}</Text>
+      <View className={ROW_CLASS}>
+        <Text variant="label" className="min-w-0 shrink font-normal text-muted-foreground">{t('pos.cart.grandTotal')}</Text>
+        <Text variant="title" className="shrink-0 font-bold tabular-nums text-foreground">{formatVND(totals.total)}</Text>
       </View>
     </View>
   );

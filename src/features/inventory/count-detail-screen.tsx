@@ -37,6 +37,7 @@ import { stores as allStores } from '../../data/seed';
 import { countVariance } from '../../domain/inventory';
 import type { StockCount, StockCountLine } from '../../domain/types';
 import { useT } from '../../i18n';
+import { useScreenHeader } from '../../components/shell/screen-header';
 
 function makeCountId(): string {
   return `count-${Date.now()}`;
@@ -68,6 +69,9 @@ export function CountDetailScreen({ countId }: CountDetailScreenProps) {
 
   const isDraft = !existing || existing.status === 'draft';
   const isPosted = existing?.status === 'posted';
+
+  // Pushed route: the shell header names the screen and carries the way back to the list.
+  useScreenHeader({ title: t('inventory.counts.detailTitle'), backTo: '/inventory/counts' });
 
   function updateCounted(index: number, value: number) {
     setLines((prev) => prev.map((line, i) => (i === index ? { ...line, counted: Math.max(0, value) } : line)));
@@ -121,8 +125,7 @@ export function CountDetailScreen({ countId }: CountDetailScreenProps) {
   return (
     <KeyboardAwareScreen contentWidth="md">
       <View className="gap-4 p-4">
-        <View className="flex-row items-center justify-between">
-          <Text variant="title">{t('inventory.counts.detailTitle')}</Text>
+        <View className="flex-row items-center justify-end">
           {existing && (
             <Badge variant={isPosted ? 'success' : 'outline'}>
               {isPosted ? t('inventory.counts.statusPosted') : t('inventory.counts.statusDraft')}

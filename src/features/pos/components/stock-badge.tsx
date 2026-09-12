@@ -2,6 +2,7 @@ import { View } from 'react-native';
 import { Text } from '@beemvp/beeui-ui';
 import { AppIcon } from '../../../components/icons';
 import { useT } from '../../../i18n';
+import { stockLabel } from '../lib/stock-label';
 
 interface StockBadgeProps {
   onHand: number;
@@ -38,7 +39,7 @@ export function StockBadge({ onHand, minLevel, inCart = 0, compact = false }: St
     return (
       <View className="absolute right-1.5 top-1.5 rounded-full bg-destructive px-2 py-0.5">
         <Text variant="caption" numberOfLines={1} className="font-semibold text-primary-foreground">
-          {t('pos.stockOut')}
+          {stockLabel(t, onHand, minLevel)}
         </Text>
       </View>
     );
@@ -54,7 +55,7 @@ export function StockBadge({ onHand, minLevel, inCart = 0, compact = false }: St
           numberOfLines={1}
           className="font-semibold text-primary-foreground"
         >
-          {`${t('pos.stockLow')} ${onHand}`}
+          {stockLabel(t, onHand, minLevel)}
         </Text>
       </View>
     );
@@ -63,7 +64,7 @@ export function StockBadge({ onHand, minLevel, inCart = 0, compact = false }: St
   return (
     <View className="absolute right-1.5 top-1.5 rounded-full bg-surface px-2 py-0.5">
       <Text variant="caption" numeric="tabular" numberOfLines={1} className="text-muted-foreground">
-        {`${t('pos.stockOnHand')} ${onHand}`}
+        {stockLabel(t, onHand, minLevel)}
       </Text>
     </View>
   );

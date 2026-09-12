@@ -14,7 +14,7 @@ import '../../../i18n/orders.en';
 import '../../../i18n/customers.vi';
 import '../../../i18n/customers.en';
 import { useBreakpoint } from '../../../hooks/use-breakpoint';
-import { AppIcon } from '../../../components/icons';
+import { useScreenHeader } from '../../../components/shell/screen-header';
 import { OrderStatusBadge } from '../components/order-status-badge';
 import { OrderLinesList } from '../components/order-lines-list';
 import { OrderTimeline } from '../components/order-timeline';
@@ -40,6 +40,9 @@ export function OrderDetailScreen() {
 
   const [refundOpen, setRefundOpen] = useState(false);
   const [voidOpen, setVoidOpen] = useState(false);
+
+  // Pushed route: the back control lives in the shell header, next to the order code.
+  useScreenHeader({ title: order?.code ?? t('orders.title'), backTo: '/orders' });
 
   if (!order) {
     return (
@@ -101,18 +104,6 @@ export function OrderDetailScreen() {
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerClassName={`gap-4 pb-8 pt-3 ${gutter}`}>
-      <View className="flex-row">
-        <Button
-          accessibilityLabel={t('orders.detail.back')}
-          className="flex-row items-center gap-1.5"
-          onPress={() => router.push('/orders')}
-          variant="ghost"
-        >
-          <AppIcon name="chevron-left" size={20} tone="muted-foreground" />
-          <Text variant="label" className="font-semibold text-foreground">{t('orders.detail.back')}</Text>
-        </Button>
-      </View>
-
       <View className={isPhone ? 'gap-3' : 'flex-row flex-wrap items-start justify-between gap-3'}>
         <View className="min-w-0 gap-1">
           <View className="flex-row flex-wrap items-center gap-3">

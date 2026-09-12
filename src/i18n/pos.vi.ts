@@ -12,6 +12,7 @@ export const posVi = {
   emptyCatalogTitle: 'Không có sản phẩm nào',
   emptyCatalogDescription: 'Thử đổi danh mục hoặc xoá bớt từ khoá tìm kiếm',
   stockOnHand: 'Còn',
+  inCart: 'Trong giỏ',
 
   order: {
     label: 'Đơn',

@@ -1,10 +1,16 @@
-import { Pressable, View } from 'react-native';
+import { PixelRatio, Pressable, View } from 'react-native';
 import { Text } from '@beemvp/beeui-ui';
 import { variantAndUnit } from '../../../domain/catalog';
 import { formatVND } from '../../../domain/money';
 import type { Product, StockLevel } from '../../../domain/types';
+import { useT } from '../../../i18n';
+import { stockLabel } from '../lib/stock-label';
 import { ProductImageSlot } from './product-image-slot';
 import { StockBadge } from './stock-badge';
+
+/** Line height of the step the name uses, from the token table in the design direction. */
+const NAME_LINE_HEIGHT = { caption: 16, label: 20 } as const;
+const NAME_LINES = 2;
 
 interface ProductCardProps {
   product: Product;
@@ -23,8 +29,9 @@ interface ProductCardProps {
  * two lines, unit line, price loudest. The whole tile adds one unit; there is no secondary
  * control on it, which is what keeps the 2 x 1:1 phone grid readable at arm's length.
  *
- * The name box is a fixed two lines high so a one-line name and a two-line name produce the
- * same tile height and the grid never staggers.
+ * The name box reserves two lines so a one-line name and a two-line name produce the same
+ * tile height and the grid never staggers. The reservation scales with the text size instead
+ * of being a fixed height, which is what clipped the second line at accessibility sizes.
  *
  * `compact` is the 3 column phone grid of the polish pass: the name drops to the caption
  * variant and the price to the label variant, one step down the scale of section 4, which keeps
@@ -38,16 +45,34 @@ export function ProductCard({
   compact = false,
   onAdd,
 }: ProductCardProps) {
+  const t = useT();
   const onHand = stock?.onHand ?? 0;
   const minLevel = stock?.minLevel ?? 0;
   const outOfStock = onHand <= 0;
+
+  // Two lines of the step this tile uses, grown with the user's text size. A fixed height cut
+  // the second line through the glyphs at accessibility sizes; a min height keeps every tile
+  // the same height at a given text size and still lets the box grow with the text.
+  const nameMinHeight =
+    NAME_LINES * NAME_LINE_HEIGHT[compact ? 'caption' : 'label'] * PixelRatio.getFontScale();
+
+  // Screen readers get what a sighted cashier reads off the tile: name, price, stock state
+  // and, when the order already holds some, the in-cart count.
+  const accessibilityLabel = [
+    product.name,
+    formatVND(product.salePrice),
+    stockLabel(t, onHand, minLevel),
+    !outOfStock && inCart > 0 ? `${t('pos.inCart')} ${inCart}` : undefined,
+  ]
+    .filter(Boolean)
+    .join(', ');
 
   return (
     <Pressable
       onPress={onAdd}
       disabled={outOfStock}
       accessibilityRole="button"
-      accessibilityLabel={product.name}
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: outOfStock }}
       className={`flex-1 rounded-md border border-border ${compact ? 'gap-1 p-2' : 'gap-1.5 p-2.5'} ${
         outOfStock ? 'bg-surface-muted' : 'bg-surface active:bg-muted'
@@ -63,10 +88,10 @@ export function ProductCard({
       </ProductImageSlot>
 
       {/* Exactly two lines of the name, in a box sized to the step this tile uses: 2 x 16 at
-          caption, 2 x 20 at label. The step comes from `variant`, not from a text size class:
-          a font size in `className` loses to the component's own variant
-          (docs/beeui-audit/findings-15-polish.md, 15-02). */}
-      <View className={compact ? 'h-8 justify-start' : 'h-10 justify-start'}>
+          caption, 2 x 20 at label, times the current text scale. The step comes from
+          `variant`, not from a text size class: a font size in `className` loses to the
+          component's own variant (docs/beeui-audit/findings-15-polish.md, 15-02). */}
+      <View className="justify-start" style={{ minHeight: nameMinHeight }}>
         <Text
           variant={compact ? 'caption' : 'label'}
           className={`font-semibold ${outOfStock ? 'text-muted-foreground' : 'text-foreground'}`}

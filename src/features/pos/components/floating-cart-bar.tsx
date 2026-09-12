@@ -65,8 +65,14 @@ export function FloatingCartBar({
         </Button>
       ) : null}
 
-      <Button disabled={isEmpty} onPress={onCheckout}>
-        <ButtonLabel>
+      {/* The phone bar has no room to print the amount on the button, but the announcement
+          carries it, so the cart screen and this bar read the same to a screen reader. */}
+      <Button
+        disabled={isEmpty}
+        onPress={onCheckout}
+        accessibilityLabel={`${t('pos.cart.checkout')} · ${formatVND(total)}`}
+      >
+        <ButtonLabel numberOfLines={2} className="text-center">
           {wide ? `${t('pos.cart.checkout')} · ${formatVND(total)}` : t('pos.cart.checkout')}
         </ButtonLabel>
       </Button>

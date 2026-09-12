@@ -19,6 +19,7 @@ import { nextOrderCode, pointsEarned } from '../../domain/pos';
 import { formatVND, roundVND, sum } from '../../domain/money';
 import type { Order, Payment, PaymentMethod } from '../../domain/types';
 import { useT } from '../../i18n';
+import { useLargeText } from '../../hooks/use-large-text';
 import { useActiveCart, useCartStore } from '../../data/cart-store';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useCustomerStore } from '../../data/customer-store';
@@ -40,6 +41,7 @@ export default function CheckoutScreen() {
   const router = useRouter();
   const toast = useToast();
   const layout = usePosLayout();
+  const largeText = useLargeText();
 
   const store = useSessionStore((state) => state.store);
   const staff = useSessionStore((state) => state.staff);
@@ -197,14 +199,30 @@ export default function CheckoutScreen() {
     </>
   );
 
+  const actionWord = canFinish ? t('pos.checkout.finish') : t('pos.checkout.addPayment');
+  const actionAmount = formatVND(canFinish ? totals.total : draft.payment?.amount ?? remaining);
+  const actionLabel = `${actionWord} · ${actionAmount}`;
+
   const primaryAction = (
     <View className="gap-1.5">
-      <Button className="min-h-[52px]" disabled={!canAct} onPress={handlePrimaryPress}>
-        <ButtonLabel>
-          {canFinish
-            ? `${t('pos.checkout.finish')} · ${formatVND(totals.total)}`
-            : `${t('pos.checkout.addPayment')} · ${formatVND(draft.payment?.amount ?? remaining)}`}
-        </ButtonLabel>
+      {/* BeeUI clamps a button label to one line, so at large text sizes "Thêm thanh toán ·
+          13.200 đ" truncated to "· 13.2…" and the amount lost its currency. Above the
+          threshold the verb and the amount are stacked instead, and the button grows: the
+          cashier never confirms a figure they cannot read in full. */}
+      <Button
+        className="min-h-[52px]"
+        disabled={!canAct}
+        onPress={handlePrimaryPress}
+        accessibilityLabel={actionLabel}
+      >
+        {largeText ? (
+          <View className="items-center">
+            <ButtonLabel>{actionWord}</ButtonLabel>
+            <ButtonLabel>{actionAmount}</ButtonLabel>
+          </View>
+        ) : (
+          <ButtonLabel>{actionLabel}</ButtonLabel>
+        )}
       </Button>
       {otherOpenOrders > 0 ? (
         <Text variant="caption" className="text-center text-subtle-foreground">

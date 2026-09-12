@@ -47,11 +47,14 @@ export function ProductStockTable({ productId, layout = 'scroll' }: ProductStock
               <Text numeric="tabular" className="w-full text-right font-semibold">{level ? availableQty(level) : 0}</Text>
             </TableCell>
             <TableCell label={t('products.form.stockColumns.minLevel')}>
+              {/* One column of identical inputs: the label has to name the row's store, or
+                  every field in the table announces as "Định mức tối thiểu". */}
               <Input
                 value={String(level?.minLevel ?? 0)}
                 onChangeText={(value) => setMinLevel(productId, store.id, Number(value) || 0)}
                 keyboardType="numeric"
                 editable={level !== undefined}
+                accessibilityLabel={`${t('products.form.stockColumns.minLevel')}, ${store.name}`}
               />
             </TableCell>
           </TableRow>

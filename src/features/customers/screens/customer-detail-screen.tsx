@@ -23,7 +23,7 @@ import { useT } from '../../../i18n';
 import '../../../i18n/customers.vi';
 import '../../../i18n/customers.en';
 import { useBreakpoint } from '../../../hooks/use-breakpoint';
-import { AppIcon } from '../../../components/icons';
+import { useScreenHeader } from '../../../components/shell/screen-header';
 import { formatDate } from '../../orders/lib/order-presentation';
 import { TierBadge } from '../components/tier-badge';
 import { CustomerOrdersTab } from '../components/customer-orders-tab';
@@ -56,6 +56,9 @@ export function CustomerDetailScreen() {
   const [tab, setTab] = useState<'orders' | 'points' | 'info'>('orders');
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  // Pushed route: the back control lives in the shell header, with the customer as the title.
+  useScreenHeader({ title: customer?.name ?? t('customers.title'), backTo: '/customers' });
+
   if (!customer || !id) {
     return (
       <View className="flex-1 items-center justify-center gap-4 p-4">
@@ -72,18 +75,6 @@ export function CustomerDetailScreen() {
 
   return (
     <ScrollView className="flex-1 bg-background" contentContainerClassName={`gap-4 pb-8 pt-3 ${gutter}`}>
-      <View className="flex-row">
-        <Button
-          accessibilityLabel={t('customers.detail.back')}
-          className="flex-row items-center gap-1.5"
-          onPress={() => router.push('/customers')}
-          variant="ghost"
-        >
-          <AppIcon name="chevron-left" size={20} tone="muted-foreground" />
-          <Text variant="label" className="font-semibold text-foreground">{t('customers.detail.back')}</Text>
-        </Button>
-      </View>
-
       <Card className="gap-4">
         <View className="flex-row flex-wrap items-center justify-between gap-4">
           <View className="min-w-0 flex-row items-center gap-3">

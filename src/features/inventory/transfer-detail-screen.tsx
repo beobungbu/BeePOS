@@ -11,7 +11,6 @@ import {
   SelectValue,
   Stepper,
   StepperItem,
-  Text,
   useToast,
 } from '@beemvp/beeui-ui';
 import { router } from 'expo-router';
@@ -24,6 +23,7 @@ import { useSessionStore } from '../../data/session-store';
 import { stores as allStores } from '../../data/seed';
 import type { GoodsReceiptLine, StockTransfer } from '../../domain/types';
 import { useT } from '../../i18n';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { LineEditorTable } from './line-editor-table';
 import { ProductPicker } from './product-picker';
 
@@ -60,6 +60,9 @@ export function TransferDetailScreen({ transferId }: TransferDetailScreenProps) 
   const isDraft = !existing || existing.status === 'draft';
   const isSent = existing?.status === 'sent';
   const sameStoreError = fromStoreId === toStoreId;
+
+  // Pushed route: the shell header names the screen and carries the way back to the list.
+  useScreenHeader({ title: t('inventory.transfers.detailTitle'), backTo: '/inventory/transfers' });
   const canSave = !sameStoreError && lines.length > 0;
 
   function buildTransfer(): StockTransfer {
@@ -112,8 +115,6 @@ export function TransferDetailScreen({ transferId }: TransferDetailScreenProps) 
   return (
     <KeyboardAwareScreen contentWidth="md">
       <View className="gap-4 p-4">
-        <Text variant="title">{t('inventory.transfers.detailTitle')}</Text>
-
         <Stepper currentStep={currentStep}>
           <StepperItem step={1} title={t('inventory.transfers.statusDraft')} />
           <StepperItem step={2} title={t('inventory.transfers.statusSent')} />
