@@ -50,6 +50,7 @@ export const posVi = {
     items: 'sản phẩm',
     lineItems: 'mặt hàng',
     attachCustomer: 'Gắn khách hàng',
+    changeCustomer: 'Đổi khách hàng',
     noteAction: 'Ghi chú',
     noteTitle: 'Ghi chú đơn hàng',
     taxIncluded: 'Thuế VAT đã gồm',

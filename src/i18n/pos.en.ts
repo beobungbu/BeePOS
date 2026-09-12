@@ -50,6 +50,7 @@ export const posEn = {
     items: 'items',
     lineItems: 'line items',
     attachCustomer: 'Attach customer',
+    changeCustomer: 'Change customer',
     noteAction: 'Note',
     noteTitle: 'Order note',
     taxIncluded: 'VAT included',

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, View } from 'react-native';
+import { Platform, Pressable, ScrollView, View, type TextInput } from 'react-native';
 import { Dialog, DialogContent, DialogTitle, SearchInput, Text } from '@beemvp/beeui-ui';
 import { useRouter } from 'expo-router';
 import { useCatalogStore } from '../data/catalog-store';
@@ -23,6 +23,12 @@ const ROWS_PER_GROUP = 5;
 const ORDER_SOURCE_LIMIT = 200;
 /** DOM id of the search wrapper, so the field can be focused when the dialog opens (web). */
 const SEARCH_WRAPPER_ID = 'command-palette-search';
+/**
+ * How long to wait before focusing the field. Native needs the longer one: the dialog is a
+ * React Native `Modal`, and a `focus()` issued while it is still being presented is dropped
+ * (the same race as BeeUI's `autoFocus`, `docs/beeui-audit/findings-20-native-p5.md` 20N-02).
+ */
+const FOCUS_DELAY_MS = Platform.OS === 'web' ? 50 : 250;
 
 /**
  * `Cmd/Ctrl+K`: one field that reaches every screen, product, order and customer without
@@ -129,13 +135,22 @@ function CommandPaletteBody({ onClose }: { onClose: () => void }) {
     setActiveIndex(0);
   }
 
+  // The palette opens to be typed into, so the field takes focus on both platforms rather
+  // than costing a second tap on the tablet, where there is no Cmd+K to open it with.
+  const searchRef = useRef<TextInput>(null);
+
   useEffect(() => {
-    if (Platform.OS !== 'web' || typeof document === 'undefined') return undefined;
-    // `SearchInput` exposes no imperative focus handle, so the field is reached through the
-    // wrapper's DOM node, the same way the POS and orders F3 shortcuts reach theirs.
     const focusTimer = setTimeout(() => {
-      document.getElementById(SEARCH_WRAPPER_ID)?.querySelector('input')?.focus();
-    }, 50);
+      if (Platform.OS === 'web') {
+        // On web the field is reached through the wrapper's DOM node, the same way the POS
+        // and orders F3 shortcuts reach theirs.
+        if (typeof document !== 'undefined') {
+          document.getElementById(SEARCH_WRAPPER_ID)?.querySelector('input')?.focus();
+        }
+        return;
+      }
+      searchRef.current?.focus();
+    }, FOCUS_DELAY_MS);
     return () => clearTimeout(focusTimer);
   }, []);
 
@@ -189,6 +204,7 @@ function CommandPaletteBody({ onClose }: { onClose: () => void }) {
         <SearchInput
           accessibilityLabel={t('common.command.title')}
           defaultValue=""
+          ref={searchRef}
           onChangeText={handleQueryChange}
           onSearch={handleQueryChange}
           placeholder={t('common.command.placeholder')}
@@ -236,9 +252,14 @@ function CommandPaletteBody({ onClose }: { onClose: () => void }) {
         </ScrollView>
       )}
 
-      <Text variant="caption" className="text-subtle-foreground">
-        {t('common.command.hint')}
-      </Text>
+      {/* The hint names arrow keys, Enter and Esc, which is the keyboard this component
+          installs on web only. On a tablet none of those keys exist and the rows are tapped,
+          so the line would be instructions for hardware the cashier does not have. */}
+      {Platform.OS === 'web' ? (
+        <Text variant="caption" className="text-subtle-foreground">
+          {t('common.command.hint')}
+        </Text>
+      ) : null}
     </>
   );
 }

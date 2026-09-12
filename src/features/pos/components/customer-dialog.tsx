@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import {
   Button,
   ButtonLabel,
@@ -105,7 +105,11 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect, onCrea
         <Text variant="label" className="font-normal ml-2.5 flex-1 text-foreground" numberOfLines={1}>
           {selected ? `${selected.name} · ${selected.phone}` : t('pos.cart.customerDefault')}
         </Text>
-        <Text variant="label" className="font-semibold text-info">{t('pos.cart.attachCustomer')}</Text>
+        {/* The row is one press either way, so the action word says which press this is:
+            attaching the first customer, or swapping the one already on the bill. */}
+        <Text variant="label" className="font-semibold text-info">
+          {selected ? t('pos.cart.changeCustomer') : t('pos.cart.attachCustomer')}
+        </Text>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle>
@@ -179,7 +183,15 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect, onCrea
             {results.length === 0 ? (
               <EmptyState title={t('pos.customerDialog.noResults')} />
             ) : (
-              <View className="max-h-80 gap-2">
+              /* A capped `View` does not clip on iOS: the rows past the cap painted over the
+                 cart and the tab bar with no way to reach them. A `ScrollView` both clips and
+                 scrolls, and `overflow-hidden` keeps the rounded dialog edge over the rows. */
+              <ScrollView
+                className="max-h-80 overflow-hidden"
+                contentContainerClassName="gap-2"
+                keyboardShouldPersistTaps="handled"
+                nestedScrollEnabled
+              >
                 {results.slice(0, 20).map((customer) => (
                   <Pressable
                     key={customer.id}
@@ -202,7 +214,7 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect, onCrea
                     </Text>
                   </Pressable>
                 ))}
-              </View>
+              </ScrollView>
             )}
           </View>
         )}

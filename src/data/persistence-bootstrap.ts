@@ -221,13 +221,19 @@ export async function flushAll(): Promise<void> {
 export async function resetDemoData(): Promise<void> {
   const { staff, store, storeOptions } = useSessionStore.getState();
 
-  await Promise.all(entries.map((entry) => entry.reset()));
-  await clearPreferences();
-  useSettingsStore.setState({ sidebarCollapsed: false });
-
+  // `reset()` puts its seed slice back synchronously and only then awaits the storage clear,
+  // so the session is signed back in inside the same tick it was emptied. Restoring it after
+  // the await instead left one render with `staff === null`, and the app-area layout redirects
+  // to /login on exactly that: the cashier was thrown off the Settings screen mid-reset and
+  // never saw the toast.
+  const cleared = entries.map((entry) => entry.reset());
   if (staff && store) {
     useSessionStore.setState({ staff, store, storeOptions });
   }
+
+  await Promise.all(cleared);
+  await clearPreferences();
+  useSettingsStore.setState({ sidebarCollapsed: false });
   await flushAll();
 }
 

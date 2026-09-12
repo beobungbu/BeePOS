@@ -18,8 +18,9 @@ rebuild was required, not a reload:
 LANG=en_US.UTF-8 RCT_METRO_PORT=8106 npx expo run:ios --port 8106 --device "iPhone 16 Pro"
 ```
 
-`pod install` linked `RNCAsyncStorage`, the build finished with **0 errors and 1 warning**
-(the known duplicate `-lc++`), and the app bundled 4402 modules in 2065 ms. Metro ran on 8106
+`pod install` linked `RNCAsyncStorage`, the build finished with **0 errors and 1 warning** (the
+warning text is not printed by the Expo CLI summary; phase 3b recorded the same count for the
+duplicate `-lc++`), and the app bundled 4402 modules in 2065 ms. Metro ran on 8106
 with a cold cache (the Metro cache directory was deleted before the run rather than passing
 `--clear`, because `run:ios` starts its own bundler and the port has to be baked into the
 build). The same `.app` was installed on the iPad with `xcrun simctl install`; it connects to
@@ -48,14 +49,16 @@ repeated. Labels and selected state were checked instead.
 
 ## Concurrent-edit hazard
 
-W-R was saving `src/` files while this smoke ran, and Fast Refresh pushed three broken bundles
-into the running app (`command-palette.tsx` and `receipt-screen.tsx` syntax errors,
-`use-report-filters.ts` syntax error, one `shell-header.tsx` render error). Each cost a redo of
-the step in flight. It was contained by turning the dev client's hot loading off
+W-R was saving `src/` files while this smoke ran, and Fast Refresh pushed four broken bundles
+into the running app (syntax errors in `command-palette.tsx`, `receipt-screen.tsx` and
+`use-report-filters.ts`, plus one `shell-header.tsx` render error). Each cost a redo of the step
+in flight. It was contained by turning the dev client's hot loading off
 (`xcrun simctl spawn booted defaults write com.beemvp.beepos RCTDevMenu '{ hotLoadingEnabled = 0;
 liveReloadEnabled = 0; }'`) and then taking new bundles deliberately, by relaunching the app when
-a checkpoint was wanted. The last pass (cold start, customer dialog) was re-run at 01:41 against
-the tree as it stood after W-R's report was complete: no red box, no render error.
+a checkpoint was wanted. No red box appeared after that (one "Refreshing..." banner still showed
+up, so the flag may only have suppressed the error surface rather than every push; either way the
+app stayed usable). The last pass (cold start, customer dialog) was re-run at 01:41 against the
+tree as it stood after W-R's report was complete: no red box, no render error.
 
 ## Result table
 
