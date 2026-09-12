@@ -142,3 +142,11 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 |---|---|---|---|
 | [#603](https://github.com/beobungbu/BeeUI/issues/603) | 17-01, 17-02 | minor | umbrella 6: per-table density step, DropdownMenuItem description slot |
 | [#573](https://github.com/beobungbu/BeeUI/issues/573) (comment) | 17-03 | evidence | Chip tonal variant |
+
+## Batch 15 (2026-09-13, feature wave)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#604](https://github.com/beobungbu/BeeUI/issues/604) | 18-01 | major | Table th text inherits document colour in dark |
+| [#605](https://github.com/beobungbu/BeeUI/issues/605) | 18-02 | major | Avatar fallback initials black in dark |
+| [#593](https://github.com/beobungbu/BeeUI/issues/593) (comment) | 18-03 | evidence | ButtonLabel child ignores variant colour |
