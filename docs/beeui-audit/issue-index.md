@@ -135,3 +135,10 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 | [#589](https://github.com/beobungbu/BeeUI/issues/589) (comment) | 15N-03 | evidence | fixed heights still clip |
 | [#599](https://github.com/beobungbu/BeeUI/issues/599) (comment) | sweep | evidence | Avatar uses dead text-caption class |
 | [#602](https://github.com/beobungbu/BeeUI/issues/602) | 16N-01 | major | ButtonLabel clamps to one line, ignores numberOfLines at large text |
+
+## Batch 14 (2026-09-12, desktop density)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#603](https://github.com/beobungbu/BeeUI/issues/603) | 17-01, 17-02 | minor | umbrella 6: per-table density step, DropdownMenuItem description slot |
+| [#573](https://github.com/beobungbu/BeeUI/issues/573) (comment) | 17-03 | evidence | Chip tonal variant |
