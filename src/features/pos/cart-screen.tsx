@@ -7,7 +7,7 @@ import { CartClearButton } from './components/cart-clear-button';
 import { CartPanel } from './components/cart-panel';
 import { PosSubHeader } from './components/pos-sub-header';
 import { cartUnitCount } from './lib/cart-totals';
-import { countLabel, orderLabel } from './lib/order-label';
+import { cartLabel, countLabel } from './lib/order-label';
 
 /**
  * The cart as a pushed route, which is what phone and tablet get instead of the desktop
@@ -23,7 +23,7 @@ export default function CartScreen() {
   return (
     <View className="flex-1">
       <PosSubHeader
-        title={orderLabel(t, cart.ordinal)}
+        title={cartLabel(t, cart)}
         subtitle={countLabel(t, cartUnitCount(cart), 'pos.cart.items')}
         trailing={<CartClearButton disabled={cart.lines.length === 0} />}
       />

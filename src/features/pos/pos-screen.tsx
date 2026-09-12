@@ -17,9 +17,10 @@ import { FloatingCartBar } from './components/floating-cart-bar';
 import { NoShiftBanner } from './components/no-shift-banner';
 import { OrderTabStrip } from './components/order-tab-strip';
 import { ProductGrid } from './components/product-grid';
+import { useBarcodeScan } from './hooks/use-barcode-scan';
 import { usePosLayout } from './hooks/use-pos-layout';
 import { cartTotalsOf, cartLineCount, cartUnitCount } from './lib/cart-totals';
-import { orderLabel } from './lib/order-label';
+import { cartLabel } from './lib/order-label';
 
 export default function PosScreen() {
   const t = useT();
@@ -64,6 +65,30 @@ export default function PosScreen() {
     addProduct(product.id, product.salePrice);
     toast.show({ title: t('pos.addedToCart'), description: product.name, variant: 'success', duration: 1500 });
   }
+
+  /**
+   * A hardware scanner types the barcode and sends Enter without ever touching the search
+   * field, so the burst is caught at the window and looked up here. An unknown code names
+   * itself in the toast: the cashier can read it off the packet and check the catalog.
+   *
+   * Plain functions, not `useCallback`: the hook keeps the latest one in a ref, so memoising
+   * would buy nothing and would freeze `t` at the locale of the first render.
+   */
+  function handleScan(code: string) {
+    const match = activeProducts.find((product) => product.barcode === code);
+    if (match) {
+      handleAddProduct(match);
+      return;
+    }
+    toast.show({
+      title: t('pos.barcodeNotFound'),
+      description: code,
+      variant: 'warning',
+      duration: 4000,
+    });
+  }
+
+  useBarcodeScan(handleScan);
 
   function handleBarcodeSubmit(value: string) {
     const trimmed = value.trim();
@@ -127,7 +152,7 @@ export default function PosScreen() {
 
         {layout.isCartPaneVisible ? null : (
           <FloatingCartBar
-            orderLabel={orderLabel(t, cart.ordinal)}
+            orderLabel={cartLabel(t, cart)}
             unitCount={cartUnitCount(cart)}
             lineCount={cartLineCount(cart)}
             total={totals.total}

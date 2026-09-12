@@ -98,6 +98,11 @@ export interface Cart {
    * carts, reused once a cart is closed, and always the smallest free number on open.
    */
   ordinal: number;
+  /**
+   * Cashier-given name for the order ("Chị Lan", "Bàn 3"). When set it replaces "Đơn N"
+   * everywhere the order is named; the ordinal stays the identity underneath.
+   */
+  label?: string;
   storeId: string;
   lines: CartLine[];
   customerId?: string;

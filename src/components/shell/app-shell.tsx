@@ -4,7 +4,10 @@ import { Screen, SafeArea } from '@beemvp/beeui-ui';
 import { usePathname } from 'expo-router';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useSettingsStore } from '../../data/settings-store';
+import { CommandPalette } from '../command-palette';
+import { ShortcutHelp } from '../shortcut-help';
 import { ShellHeader } from './shell-header';
+import { useOverlayShortcuts } from './overlay-store';
 import { isFocusedSellRoute, useShellRail } from './use-shell-rail';
 import { NavRail } from './nav-rail';
 import { Sidebar } from './sidebar';
@@ -46,21 +49,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isPos = isFocusedSellRoute(pathname);
 
   useSidebarShortcut(isDesktop);
+  useOverlayShortcuts();
 
   // Leaving the sell screen arms the rail again, so POS is always entered focused.
   useEffect(() => {
     if (!isPos) setPosSidebarCollapsed(true);
   }, [isPos, setPosSidebarCollapsed]);
 
+  // Both app-level dialogs are mounted once, outside the breakpoint branches: `Cmd+K` and `?`
+  // are bound app wide, so the dialog they open has to exist at every width.
+  const overlays = (
+    <>
+      <CommandPalette />
+      <ShortcutHelp />
+    </>
+  );
+
   if (breakpoint === 'phone') {
     return (
       <Screen>
-        <SafeArea className="flex-1" edges={['top', 'bottom', 'left', 'right']}>
+        <SafeArea className="flex-1 text-foreground" edges={['top', 'bottom', 'left', 'right']}>
           <ShellHeader />
           <View className="flex-1">{children}</View>
           <BottomTabBar onMorePress={() => setMoreOpen(true)} />
         </SafeArea>
         <MoreSheet open={moreOpen} onOpenChange={setMoreOpen} />
+        {overlays}
       </Screen>
     );
   }
@@ -70,7 +84,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <Screen>
-      <SafeArea className="flex-1 flex-row" edges={['top', 'bottom', 'left', 'right']}>
+      <SafeArea className="flex-1 flex-row text-foreground" edges={['top', 'bottom', 'left', 'right']}>
         {showRail ? <NavRail showToggle={!railOnly} /> : <Sidebar />}
         <View className="min-w-0 flex-1">
           <ShellHeader />
@@ -79,6 +93,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </View>
         </View>
       </SafeArea>
+      {overlays}
     </Screen>
   );
 }

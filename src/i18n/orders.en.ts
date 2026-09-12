@@ -43,6 +43,7 @@ export const ordersEn = {
   },
   table: {
     code: 'Code',
+    time: 'Time',
     cashier: 'Cashier',
     customer: 'Customer',
     total: 'Total',

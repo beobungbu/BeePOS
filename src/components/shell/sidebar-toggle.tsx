@@ -4,6 +4,7 @@ import { IconButton } from '@beemvp/beeui-ui';
 import { usePathname } from 'expo-router';
 import { AppIcon } from '../icons';
 import { useT } from '../../i18n';
+import { isTypingTarget } from '../../lib/keyboard';
 import { toggleShellRail } from './use-shell-rail';
 
 /**
@@ -25,14 +26,6 @@ export function SidebarToggle({ collapsed }: { collapsed: boolean }) {
       <AppIcon name={collapsed ? 'chevron-right' : 'chevron-left'} tone="muted-foreground" />
     </IconButton>
   );
-}
-
-/** True when the key event came from a field, where `[` is a character and not a shortcut. */
-function isTypingTarget(target: EventTarget | null): boolean {
-  const element = target as HTMLElement | null;
-  if (!element || typeof element.tagName !== 'string') return false;
-  if (element.isContentEditable) return true;
-  return /^(input|textarea|select)$/i.test(element.tagName);
 }
 
 /**

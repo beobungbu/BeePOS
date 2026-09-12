@@ -27,6 +27,7 @@ import { formatVND } from '../../domain/money';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { StatStrip } from '../../components/stat-strip';
+import { CsvExportButton, type CsvExportData } from '../../components/csv-export-button';
 import { Toolbar } from '../../components/toolbar';
 import { useT } from '../../i18n';
 import { fill } from '../orders/lib/fill';
@@ -119,10 +120,39 @@ export function InventoryScreen() {
     </View>
   );
 
+  // Exports the rows the scope, the search and the low-stock filter left on screen, so the
+  // file matches what the stock keeper is looking at.
+  function buildInventoryCsv(): CsvExportData {
+    const visible = lowOnly ? lowRows : rows;
+    return {
+      header: [
+        t('inventory.columns.product'),
+        t('products.columns.sku'),
+        t('products.form.stockColumns.store'),
+        t('inventory.columns.onHand'),
+        t('inventory.columns.reserved'),
+        t('inventory.columns.available'),
+        t('inventory.columns.minLevel'),
+        t('inventory.columns.status'),
+      ],
+      rows: visible.map((row) => [
+        row.product.name,
+        row.product.sku,
+        row.store.name,
+        row.level.onHand,
+        row.level.reserved,
+        row.available,
+        row.level.minLevel,
+        t(row.status === 'out' ? 'inventory.statusOut' : row.status === 'low' ? 'inventory.statusLow' : 'inventory.statusOk'),
+      ]),
+    };
+  }
+
   // Only one action per screen is primary (direction doc section 2), and receiving goods is
   // the one a stock keeper starts from, so it is last in the row and the only filled button.
   const documentButtons = (
     <>
+      <CsvExportButton build={buildInventoryCsv} nameKey="inventory" />
       <Button variant="outline" onPress={() => router.push('/inventory/counts')}>
         {t('inventory.counts.title')}
       </Button>

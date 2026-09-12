@@ -56,7 +56,7 @@ export function CustomerTable({
                 className="min-h-11 flex-row items-center gap-2.5"
                 onPress={() => router.push(`/customers/${customer.id}`)}
               >
-                <Avatar fallback={initials(customer.name)} size="sm" />
+                <Avatar fallback={initials(customer.name)} fallbackClassName="text-foreground" size="sm" />
                 <Text variant="label" className="min-w-0 flex-1 font-semibold text-foreground" numberOfLines={1}>
                   {customer.name}
                 </Text>

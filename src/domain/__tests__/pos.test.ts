@@ -19,8 +19,14 @@ import {
   shiftSummary,
   switchCart,
   updateActiveCart,
+  emptyScanBuffer,
+  formatReceiptText,
+  RECEIPT_WIDTH,
+  scanBuffer,
+  SCAN_MAX_GAP_MS,
   type CartSet,
   type PricedCartLine,
+  type ReceiptTextInput,
 } from '../pos';
 import type { Order, Shift } from '../types';
 
@@ -349,5 +355,128 @@ describe('open order set', () => {
   it('falls back to the first order when the active id is stale', () => {
     const state: CartSet = { ...setWith([1, 2]), activeCartId: 'cart-missing' };
     expect(activeCartOf(state).ordinal).toBe(1);
+  });
+});
+
+describe('scanBuffer', () => {
+  /** Feeds a whole burst at a fixed keystroke interval and returns the last step. */
+  function burst(keys: string[], gapMs: number, startAt = 1000) {
+    let step = { buffer: emptyScanBuffer } as ReturnType<typeof scanBuffer>;
+    keys.forEach((key, index) => {
+      step = scanBuffer(step.buffer, key, startAt + index * gapMs);
+    });
+    return step;
+  }
+
+  const CODE = '8935001234567';
+
+  it('emits a fast digit burst that ends with Enter', () => {
+    const step = burst([...CODE, 'Enter'], 5);
+    expect(step.code).toBe(CODE);
+    expect(step.buffer).toEqual(emptyScanBuffer);
+  });
+
+  it('emits an 8 digit code, the shortest real symbology', () => {
+    expect(burst([...'89350012', 'Enter'], 5).code).toBe('89350012');
+  });
+
+  it('ignores a burst shorter than 8 digits', () => {
+    expect(burst([...'1234567', 'Enter'], 5).code).toBeUndefined();
+  });
+
+  it('ignores human typing speed', () => {
+    expect(burst([...CODE, 'Enter'], SCAN_MAX_GAP_MS + 1).code).toBeUndefined();
+  });
+
+  it('restarts the burst after a slow keystroke instead of splicing two codes', () => {
+    let step = burst([...'99999'], 5);
+    // A pause, then a full code: the five stale digits must not end up on the front.
+    step = scanBuffer(step.buffer, '8', 5000);
+    [...CODE.slice(1), 'Enter'].forEach((key, index) => {
+      step = scanBuffer(step.buffer, key, 5005 + index * 5);
+    });
+    expect(step.code).toBe(CODE);
+  });
+
+  it('cancels on any other key so typed words never scan', () => {
+    let step = burst([...'12345678'], 5);
+    step = scanBuffer(step.buffer, 'a', 1045);
+    expect(step.buffer).toEqual(emptyScanBuffer);
+    step = scanBuffer(step.buffer, 'Enter', 1050);
+    expect(step.code).toBeUndefined();
+  });
+
+  it('drops a burst whose Enter arrives late', () => {
+    const digits = burst([...CODE], 5);
+    expect(scanBuffer(digits.buffer, 'Enter', 9000).code).toBeUndefined();
+  });
+});
+
+describe('formatReceiptText', () => {
+  const input: ReceiptTextInput = {
+    storeName: 'Tạp hoá Cầu Giấy',
+    storeAddress: '12 Xuân Thuỷ, Cầu Giấy, Hà Nội',
+    code: 'HD-HN01-20260912-001',
+    dateText: '12/09/2026 14:32',
+    cashierName: 'Nguyễn Thị Lan',
+    customerName: 'Khách lẻ',
+    lines: [
+      { name: 'Nước ngọt Coca-Cola 330ml', qty: 2, unitPrice: 9000 },
+      { name: 'Bánh Oreo Gói 133g', qty: 1, unitPrice: 22000 },
+    ],
+    subtotal: 40000,
+    discountTotal: 4000,
+    taxTotal: 3600,
+    total: 39600,
+    payments: [{ label: 'Tiền mặt', amount: 50000 }],
+    change: 10400,
+    footer: 'Cảm ơn quý khách',
+    labels: {
+      orderCode: 'Mã hoá đơn',
+      date: 'Ngày',
+      cashier: 'Thu ngân',
+      customer: 'Khách hàng',
+      subtotal: 'Tạm tính',
+      tax: 'Thuế',
+      discount: 'Giảm giá',
+      total: 'TỔNG CỘNG',
+      change: 'Tiền thừa',
+    },
+  };
+
+  it('never exceeds the 58 mm roll width', () => {
+    for (const row of formatReceiptText(input).split('\n')) {
+      expect(row.length).toBeLessThanOrEqual(RECEIPT_WIDTH);
+    }
+  });
+
+  it('carries the order code, every line and the total', () => {
+    const text = formatReceiptText(input);
+    expect(text).toContain('HD-HN01-20260912-001');
+    expect(text).toContain('Nước ngọt Coca-Cola 330ml');
+    expect(text).toContain('2 x 9.000');
+    expect(text).toContain('TỔNG CỘNG');
+    expect(text).toContain('39.600');
+  });
+
+  it('signs the discount and shows the change only when there is some', () => {
+    expect(formatReceiptText(input)).toContain('-4.000');
+    expect(formatReceiptText(input)).toContain('Tiền thừa');
+    expect(formatReceiptText({ ...input, change: 0 })).not.toContain('Tiền thừa');
+  });
+
+  it('wraps a name too long for the roll instead of clipping its price', () => {
+    const text = formatReceiptText({
+      ...input,
+      lines: [{ name: 'Nước mắm cốt cá cơm Phú Quốc 40 độ đạm chai thuỷ tinh', qty: 3, unitPrice: 125000 }],
+    });
+    expect(text).toContain('Nước mắm cốt cá cơm Phú Quốc 40');
+    expect(text).toContain('3 x 125.000');
+    for (const row of text.split('\n')) expect(row.length).toBeLessThanOrEqual(RECEIPT_WIDTH);
+  });
+
+  it('prints without a store address', () => {
+    const text = formatReceiptText({ ...input, storeAddress: undefined });
+    expect(text.split('\n')[1]).toBe('-'.repeat(RECEIPT_WIDTH));
   });
 });

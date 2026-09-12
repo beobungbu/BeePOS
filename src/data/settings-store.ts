@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { readBooleanPreference, writeBooleanPreference } from '../lib/preference-storage';
 
 /** Storage key for the desktop sidebar/rail preference. */
-const SIDEBAR_COLLAPSED_KEY = 'beepos.sidebar-collapsed';
+export const SIDEBAR_COLLAPSED_KEY = 'beepos.sidebar-collapsed';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type Locale = 'vi' | 'en';

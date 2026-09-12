@@ -27,7 +27,13 @@ interface CartState extends CartSet {
   setOrderDiscount: (discount: Discount | undefined) => void;
   setCustomer: (customerId: string | undefined) => void;
   setNote: (note: string) => void;
-  /** Empties the active order's lines and resets its discount, customer and note. */
+  /** Names an open order ("Chị Lan", "Bàn 3"); an empty name goes back to "Đơn N". */
+  setLabel: (cartId: string, label: string) => void;
+  /**
+   * Empties the active order's lines and resets its discount, customer and note. The name
+   * survives: "Bàn 3" is still table 3 after the cashier voids what was rung up on it, and
+   * a finished sale closes its order outright instead of clearing it.
+   */
   clearCart: () => void;
 }
 
@@ -91,11 +97,20 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   setNote: (note) => set((state) => updateActiveCart(state, (cart) => ({ ...cart, note }))),
 
+  setLabel: (cartId, label) =>
+    set((state) => ({
+      ...state,
+      carts: state.carts.map((cart) =>
+        cart.id === cartId ? { ...cart, label: label.trim() || undefined } : cart,
+      ),
+    })),
+
   clearCart: () =>
     set((state) =>
       updateActiveCart(state, (cart) => ({
         id: cart.id,
         ordinal: cart.ordinal,
+        label: cart.label,
         storeId: cart.storeId,
         lines: [],
       })),

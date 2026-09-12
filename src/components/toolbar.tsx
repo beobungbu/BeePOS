@@ -26,7 +26,10 @@ export function Toolbar({
     <View
       className={
         isDesktop
-          ? 'h-14 flex-row items-center gap-2'
+          ? // One 56 pt row is the target, but the row wraps rather than clips: a screen that
+            // grows one more filter or one more action (CSV export) would otherwise push its
+            // primary button off the right edge, where nothing on screen says it exists.
+            'min-h-14 flex-row flex-wrap items-center gap-2'
           : 'flex-row flex-wrap items-center gap-2 py-2'
       }
     >

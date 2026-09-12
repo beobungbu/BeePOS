@@ -1,14 +1,21 @@
 /**
  * Small key/value store for UI preferences that must outlive a page reload.
  *
- * Web writes `localStorage`, which is what makes "the sidebar stays collapsed after F5" true.
- * Native has no storage dependency in this prototype (the same trade
- * `src/features/auth/remembered-store.ts` documents), so the value lives in module memory for
- * the session and is gone on relaunch; nothing in the UI claims otherwise.
+ * Reads are synchronous because stores read a preference while they are being created. Web
+ * reads `localStorage` directly; native keeps the value in module memory and mirrors it to the
+ * async device storage, so `hydratePreferences()` (awaited by the persistence bootstrap before
+ * the UI renders) is what makes a native preference survive a relaunch.
  */
 import { Platform } from 'react-native';
+import { getPlatformStorage } from '../data/persist';
 
 const memory = new Map<string, string>();
+
+/**
+ * Every preference key, so the native hydration can read them back without an enumeration API
+ * and `clearPreferences()` knows what to drop.
+ */
+const PREFERENCE_KEYS = ['beepos.sidebar-collapsed'] as const;
 
 function webStorage(): Storage | null {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return null;
@@ -33,12 +40,37 @@ export function readPreference(key: string): string | null {
 export function writePreference(key: string, value: string): void {
   memory.set(key, value);
   const storage = webStorage();
-  if (!storage) return;
+  if (!storage) {
+    if (Platform.OS !== 'web') void getPlatformStorage().setItem(key, value);
+    return;
+  }
   try {
     storage.setItem(key, value);
   } catch {
     // The memory copy above already holds the value for this session.
   }
+}
+
+/**
+ * Native only: pulls the saved preferences into the synchronous memory map. On web the values
+ * are already readable from `localStorage`, so this resolves without touching storage.
+ */
+export async function hydratePreferences(): Promise<void> {
+  if (Platform.OS === 'web') return;
+  const storage = getPlatformStorage();
+  await Promise.all(
+    PREFERENCE_KEYS.map(async (key) => {
+      const value = await storage.getItem(key);
+      if (value !== null) memory.set(key, value);
+    }),
+  );
+}
+
+/** Drops every stored preference. Used by the "reset demo data" action. */
+export async function clearPreferences(): Promise<void> {
+  const storage = getPlatformStorage();
+  for (const key of PREFERENCE_KEYS) memory.delete(key);
+  await Promise.all(PREFERENCE_KEYS.map((key) => storage.removeItem(key)));
 }
 
 export function readBooleanPreference(key: string, fallback: boolean): boolean {

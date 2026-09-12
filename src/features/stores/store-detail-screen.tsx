@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { goBackOr } from '../../lib/navigation';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +28,6 @@ import {
   useToast,
   VStack,
 } from '@beemvp/beeui-ui';
-import { AppIcon } from '../../components/icons';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { formatVND } from '../../domain/money';
@@ -37,6 +35,7 @@ import { staffForStore } from '../../domain/org';
 import { filterOrders, periodRange, totalRevenue } from '../../domain/reports';
 import { useOrderStore } from '../../data/order-store';
 import { useOrgStore } from '../../data/org-store';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { StoreFormFields } from './components/store-form-fields';
 import { storeToForm, useStoreForm } from './store-form-state';
 
@@ -66,6 +65,9 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
   const orders = useOrderStore((state) => state.orders);
 
   const store = stores.find((item) => item.id === storeId);
+
+  // Pushed route: the back control lives in the shell header, with the branch as the title.
+  useScreenHeader({ title: store?.name ?? t('stores.title'), backTo: '/stores' });
   const assignedStaff = staffForStore(staff, storeId);
 
   const todayStats = useMemo(() => {
@@ -108,11 +110,6 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
         {/* `Screen` owns no scroll behaviour, so the detail sections need one here. */}
         <ScrollView className="flex-1">
         <VStack gap="lg" className={GUTTER[breakpoint]}>
-          <Button variant="ghost" size="sm" onPress={() => goBackOr('/stores')} className="self-start">
-            <AppIcon name="chevron-left" size={16} tone="foreground" />
-            <ButtonLabel>{t('common.actions.back')}</ButtonLabel>
-          </Button>
-
           <VStack gap="xs">
             <Text variant="title">{store.name}</Text>
             <Text variant="caption" tone="muted">{`${store.code} · ${store.address}`}</Text>

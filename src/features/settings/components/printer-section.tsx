@@ -40,7 +40,9 @@ export function PrinterSection() {
           </Select>
         </Field>
         <Button variant="outline" onPress={handleTestPrint}>
-          <ButtonLabel>{t('settings.printer.testPrint')}</ButtonLabel>
+          {/* `ButtonLabel` paints itself `text-primary-foreground` whatever the variant, which
+              is unreadable on an outline button in dark (findings-18-w-c). */}
+          <ButtonLabel className="text-foreground">{t('settings.printer.testPrint')}</ButtonLabel>
         </Button>
       </HStack>
     </Section>

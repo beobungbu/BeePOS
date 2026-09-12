@@ -33,7 +33,7 @@ import { PaymentMethodPanel } from './components/payment-method-panel';
 import { SplitPaymentList } from './components/split-payment-list';
 import { usePosLayout } from './hooks/use-pos-layout';
 import { cartLineCount, cartTotalsOf, cartUnitCount } from './lib/cart-totals';
-import { countLabel, openOrdersLabel, orderLabel } from './lib/order-label';
+import { cartLabel, countLabel, openOrdersLabel } from './lib/order-label';
 import { draftPayment } from './lib/payment-draft';
 
 export default function CheckoutScreen() {
@@ -93,7 +93,7 @@ export default function CheckoutScreen() {
         ]
           .filter(Boolean)
           .join(' · '),
-    badge: orderLabel(t, cart.ordinal),
+    badge: cartLabel(t, cart),
     backTo: '/pos',
   });
   const canFinish = remaining === 0 || (draft.payment !== undefined && draft.settlesBalance);
@@ -226,9 +226,9 @@ export default function CheckoutScreen() {
       </Button>
       {otherOpenOrders > 0 ? (
         <Text variant="caption" className="text-center text-subtle-foreground">
-          {`${t('pos.checkout.nextOrderHint')} ${orderLabel(
+          {`${t('pos.checkout.nextOrderHint')} ${cartLabel(
             t,
-            carts.find((item) => item.id !== cart.id)?.ordinal ?? cart.ordinal,
+            carts.find((item) => item.id !== cart.id) ?? cart,
           )}`}
         </Text>
       ) : null}

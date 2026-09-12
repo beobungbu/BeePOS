@@ -72,7 +72,7 @@ export function StaffListScreen() {
                       key={member.id}
                       accessibilityLabel={`${member.name}, ${t(`staff.role.${member.role}`)}`}
                       onPress={() => router.push(`/staff/${member.id}`)}
-                      leading={<Avatar accessibilityLabel={member.name} fallback={member.name.slice(0, 1)} />}
+                      leading={<Avatar accessibilityLabel={member.name} fallback={member.name.slice(0, 1)} fallbackClassName="text-foreground" />}
                       title={member.name}
                       description={member.storeIds.map(storeName).join(' · ')}
                       trailing={

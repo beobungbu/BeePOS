@@ -1,11 +1,10 @@
 import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { goBackOr } from '../../lib/navigation';
 import { Button, ButtonLabel, SafeArea, Screen, Text, useToast, VStack } from '@beemvp/beeui-ui';
-import { AppIcon } from '../../components/icons';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { useOrgStore } from '../../data/org-store';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { StoreFormFields } from './components/store-form-fields';
 import { emptyStoreForm, useStoreForm } from './store-form-state';
 
@@ -24,6 +23,9 @@ export function StoreNewScreen() {
   const stores = useOrgStore((state) => state.stores);
 
   const form = useStoreForm(emptyStoreForm(), t('stores.validation.required'));
+
+  // Pushed route: the back control lives in the shell header.
+  useScreenHeader({ title: t('stores.addStore'), backTo: '/stores' });
 
   function handleCreate() {
     if (!form.validate()) return;
@@ -51,10 +53,6 @@ export function StoreNewScreen() {
             className={`w-full self-center ${FORM_PADDING[breakpoint]}`}
             style={{ maxWidth: FORM_MAX_WIDTH }}
           >
-            <Button variant="ghost" size="sm" onPress={() => goBackOr('/stores')} className="self-start">
-              <AppIcon name="chevron-left" size={16} tone="foreground" />
-              <ButtonLabel>{t('common.actions.back')}</ButtonLabel>
-            </Button>
             <Text variant="title">{t('stores.addStore')}</Text>
             <VStack gap="md">
               <StoreFormFields values={form.values} errors={form.errors} setField={form.setField} />

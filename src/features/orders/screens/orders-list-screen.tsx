@@ -7,6 +7,7 @@ import { staff, stores } from '../../../data/seed';
 import { filterOrders, orderStats, sortOrders, type OrderSortKey, type SortDirection } from '../../../domain/orders';
 import type { Order } from '../../../domain/types';
 import { useScreenHeader } from '../../../components/shell/screen-header';
+import { CsvExportButton, type CsvExportData } from '../../../components/csv-export-button';
 import { useT } from '../../../i18n';
 import '../../../i18n/orders.vi';
 import '../../../i18n/orders.en';
@@ -17,7 +18,7 @@ import { OrderTable } from '../components/order-table';
 import { OrderListGroup } from '../components/order-list-group';
 import { OrderPreviewPane } from '../components/order-preview-pane';
 import { fill } from '../lib/fill';
-import { pageRange, rangeForPreset } from '../lib/order-presentation';
+import { formatDateTime, pageRange, paymentSummary, rangeForPreset } from '../lib/order-presentation';
 
 const FILTER_LOADING_DELAY_MS = 300;
 
@@ -123,8 +124,36 @@ export function OrdersListScreen() {
     })}`,
   });
 
+  // Every row the filters selected, sorted the way the screen is sorted, not the page on
+  // screen: the export answers the question the filter bar asked.
+  function buildOrdersCsv(): CsvExportData {
+    const cashierName = (cashierId: string) =>
+      staff.find((member) => member.id === cashierId)?.name ?? cashierId;
+    return {
+      header: [
+        t('orders.table.code'),
+        t('orders.table.time'),
+        t('orders.table.customer'),
+        t('orders.table.cashier'),
+        t('orders.table.payment'),
+        t('orders.table.status'),
+        t('orders.table.total'),
+      ],
+      rows: sorted.map((order) => [
+        order.code,
+        formatDateTime(order.createdAt),
+        customerLabel(order),
+        cashierName(order.cashierId),
+        paymentSummary(order, (method) => t(`orders.paymentMethod.${method}`)),
+        t(`orders.status.${order.status}`),
+        order.total,
+      ]),
+    };
+  }
+
   const filtersBar = (
     <OrderFiltersBar
+      actions={<CsvExportButton build={buildOrdersCsv} nameKey="orders" />}
       breakpoint={breakpoint}
       cashiers={staff}
       onChange={setFilters}

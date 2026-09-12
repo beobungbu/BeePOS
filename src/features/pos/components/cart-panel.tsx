@@ -8,7 +8,7 @@ import { useT } from '../../../i18n';
 import { useActiveCart, useCartStore } from '../../../data/cart-store';
 import { useCustomerStore } from '../../../data/customer-store';
 import { cartTotalsOf, cartUnitCount } from '../lib/cart-totals';
-import { countLabel, orderLabel } from '../lib/order-label';
+import { cartLabel, countLabel } from '../lib/order-label';
 import { CartClearButton } from './cart-clear-button';
 import { CartLineItem } from './cart-line-item';
 import { CustomerDialog } from './customer-dialog';
@@ -40,6 +40,7 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
   const setCustomer = useCartStore((state) => state.setCustomer);
   const setNote = useCartStore((state) => state.setNote);
   const customers = useCustomerStore((state) => state.customers);
+  const createCustomer = useCustomerStore((state) => state.createCustomer);
 
   const totals = cartTotalsOf(cart, products);
   const isEmpty = cart.lines.length === 0;
@@ -60,7 +61,7 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
       {showHeader ? (
       <View className="h-14 flex-row items-center gap-2 border-b border-border px-4">
         <Text variant="heading" className="flex-1 font-semibold text-foreground">
-          {orderLabel(t, cart.ordinal)}
+          {cartLabel(t, cart)}
         </Text>
         {isEmpty ? null : (
           <View className="rounded-full bg-muted px-2 py-0.5">
@@ -73,7 +74,12 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
       </View>
       ) : null}
 
-      <CustomerDialog customers={customers} selectedCustomerId={cart.customerId} onSelect={setCustomer} />
+      <CustomerDialog
+        customers={customers}
+        selectedCustomerId={cart.customerId}
+        onSelect={setCustomer}
+        onCreate={createCustomer}
+      />
 
       {isEmpty ? (
         <View className="flex-1 items-center px-6 pt-10">

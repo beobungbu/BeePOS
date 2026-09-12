@@ -1,11 +1,9 @@
 import { ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { goBackOr } from '../../lib/navigation';
 import { Button, ButtonLabel, HStack, SafeArea, Screen, Section, Text, useToast, VStack } from '@beemvp/beeui-ui';
-import { AppIcon } from '../../components/icons';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { useOrgStore, isStaffActive } from '../../data/org-store';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { StaffFormFields } from './components/staff-form-fields';
 import { ResetPinDialog } from './components/reset-pin-dialog';
 import { staffToForm, useStaffForm } from './staff-form-state';
@@ -21,7 +19,6 @@ interface StaffDetailScreenProps {
 
 export function StaffDetailScreen({ staffId }: StaffDetailScreenProps) {
   const t = useT();
-  const router = useRouter();
   const toast = useToast();
   const breakpoint = useBreakpoint();
 
@@ -33,6 +30,9 @@ export function StaffDetailScreen({ staffId }: StaffDetailScreenProps) {
   const resetStaffPin = useOrgStore((state) => state.resetStaffPin);
 
   const member = staffList.find((item) => item.id === staffId);
+
+  // Pushed route: the back control lives in the shell header, with the member as the title.
+  useScreenHeader({ title: member?.name ?? t('staff.title'), backTo: '/staff' });
   const form = useStaffForm(
     member ? staffToForm(member, isStaffActive(staffActiveById, staffId)) : { name: '', phone: '', role: 'cashier', storeIds: [], active: true },
     t('staff.validation.required'),
@@ -71,11 +71,6 @@ export function StaffDetailScreen({ staffId }: StaffDetailScreenProps) {
             className={`w-full self-center ${FORM_PADDING[breakpoint]}`}
             style={{ maxWidth: FORM_MAX_WIDTH }}
           >
-            <Button variant="ghost" size="sm" onPress={() => goBackOr('/staff')} className="self-start">
-              <AppIcon name="chevron-left" size={16} tone="foreground" />
-              <ButtonLabel>{t('common.actions.back')}</ButtonLabel>
-            </Button>
-
             <VStack gap="xs">
               <Text variant="title">{member.name}</Text>
               <Text variant="caption" tone="muted">{t(`staff.role.${member.role}`)}</Text>

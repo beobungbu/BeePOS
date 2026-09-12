@@ -7,6 +7,7 @@ import { useInventoryStore } from '../../data/inventory-store';
 import type { Product } from '../../domain/types';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useScreenHeader } from '../../components/shell/screen-header';
+import { CsvExportButton, type CsvExportData } from '../../components/csv-export-button';
 import { useT } from '../../i18n';
 import { ProductListCards } from './product-list-cards';
 import {
@@ -14,6 +15,7 @@ import {
   filterProducts,
   paginate,
   sortProducts,
+  totalStock,
   type ProductFilters,
   type ProductSortField,
   type SortDirection,
@@ -88,8 +90,34 @@ export function ProductListScreen() {
   const hasAnyProducts = products.length > 0;
   const showEmpty = sorted.length === 0;
 
+  // Exports what the filters selected, every row of it, not the page on screen: a cashier
+  // asked for "the inactive drinks" and a 20 row slice of that answer is a different answer.
+  function buildProductCsv(): CsvExportData {
+    const categoryName = (categoryId: string) =>
+      categories.find((category) => category.id === categoryId)?.name ?? '';
+    return {
+      header: [
+        t('products.columns.product'),
+        t('products.columns.sku'),
+        t('products.columns.category'),
+        t('products.columns.sale'),
+        t('products.columns.stock'),
+        t('products.columns.status'),
+      ],
+      rows: sorted.map((product) => [
+        product.name,
+        product.sku,
+        categoryName(product.categoryId),
+        product.salePrice,
+        totalStock(product.id, stockLevels),
+        product.isActive ? t('products.statusActive') : t('products.statusInactive'),
+      ]),
+    };
+  }
+
   const actions = (
     <>
+      <CsvExportButton build={buildProductCsv} nameKey="products" />
       <Button variant="outline" onPress={() => router.push('/products/categories')}>
         {t('products.categories.title')}
       </Button>

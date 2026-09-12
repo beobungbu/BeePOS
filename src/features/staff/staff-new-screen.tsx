@@ -1,11 +1,10 @@
 import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { goBackOr } from '../../lib/navigation';
 import { Button, ButtonLabel, SafeArea, Screen, Text, useToast, VStack } from '@beemvp/beeui-ui';
-import { AppIcon } from '../../components/icons';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { useOrgStore } from '../../data/org-store';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { StaffFormFields } from './components/staff-form-fields';
 import { emptyStaffForm, useStaffForm } from './staff-form-state';
 
@@ -25,6 +24,9 @@ export function StaffNewScreen() {
 
   const form = useStaffForm(emptyStaffForm(stores[0]?.id), t('staff.validation.required'));
 
+  // Pushed route: the back control lives in the shell header.
+  useScreenHeader({ title: t('staff.addStaff'), backTo: '/staff' });
+
   function handleCreate() {
     if (!form.validate()) return;
     const id = `staff-${staffList.length + 1}-${Date.now()}`;
@@ -43,10 +45,6 @@ export function StaffNewScreen() {
             className={`w-full self-center ${FORM_PADDING[breakpoint]}`}
             style={{ maxWidth: FORM_MAX_WIDTH }}
           >
-            <Button variant="ghost" size="sm" onPress={() => goBackOr('/staff')} className="self-start">
-              <AppIcon name="chevron-left" size={16} tone="foreground" />
-              <ButtonLabel>{t('common.actions.back')}</ButtonLabel>
-            </Button>
             <Text variant="title">{t('staff.addStaff')}</Text>
             <VStack gap="md">
               <StaffFormFields

@@ -1,9 +1,10 @@
 /**
  * Pure domain logic for the POS sell flow: cart line math, discounts, change, loyalty
- * points, order code generation, and shift summaries. No store/UI dependencies.
+ * points, order code generation, shift summaries, the keyboard-wedge scan parser and the
+ * plain-text receipt. No store/UI dependencies.
  */
 
-import { roundVND, sum } from './money';
+import { formatVND, roundVND, sum } from './money';
 import type { Cart, CartLine, Discount, Order, Shift } from './types';
 
 /** A cart line combined with the tax rate its product carries. */
@@ -233,4 +234,176 @@ export function updateActiveCart(state: CartSet, update: (cart: Cart) => Cart): 
 /** The active cart, or the first one if the active id has gone stale. */
 export function activeCartOf(state: CartSet): Cart {
   return state.carts.find((cart) => cart.id === state.activeCartId) ?? state.carts[0];
+}
+
+/* ---------------------------------------------------------------------------------------
+ * Keyboard-wedge barcode scanner.
+ *
+ * A till scanner is a keyboard: it types the digits of the code far faster than a human can
+ * and finishes with Enter. The parser below is the whole rule, kept pure so the burst timing
+ * is testable without a DOM: digits closer together than `SCAN_MAX_GAP_MS` accumulate, a
+ * slower keystroke starts a new burst, and Enter emits the buffer only when it is long
+ * enough to be a real code. Anything that is not a digit or Enter cancels the burst, so a
+ * cashier typing "cola" never turns into a scan.
+ * ------------------------------------------------------------------------------------ */
+
+/** Longest pause between two keystrokes that still counts as one scanner burst. */
+export const SCAN_MAX_GAP_MS = 50;
+
+/** Shortest burst that may be emitted as a barcode; EAN-8 is the shortest real symbology. */
+export const SCAN_MIN_LENGTH = 8;
+
+/** Digits collected so far and when the last of them arrived (ms, monotonic per caller). */
+export interface ScanBuffer {
+  digits: string;
+  lastAt: number;
+}
+
+/** The buffer after a keystroke, plus the code to look up when that keystroke ended a burst. */
+export interface ScanStep {
+  buffer: ScanBuffer;
+  /** Set only on the Enter that closes a burst of at least {@link SCAN_MIN_LENGTH} digits. */
+  code?: string;
+}
+
+/** A fresh buffer: no digits, and a timestamp far enough back that the next key starts a burst. */
+export const emptyScanBuffer: ScanBuffer = { digits: '', lastAt: Number.NEGATIVE_INFINITY };
+
+function isDigit(key: string): boolean {
+  return key.length === 1 && key >= '0' && key <= '9';
+}
+
+/**
+ * Feeds one keystroke to the wedge parser. `key` is the `KeyboardEvent.key` value and `at`
+ * is the moment it arrived in milliseconds.
+ */
+export function scanBuffer(state: ScanBuffer, key: string, at: number): ScanStep {
+  const withinBurst = at - state.lastAt <= SCAN_MAX_GAP_MS;
+
+  if (isDigit(key)) {
+    const digits = withinBurst ? state.digits + key : key;
+    return { buffer: { digits, lastAt: at } };
+  }
+
+  if (key === 'Enter') {
+    const complete = withinBurst && state.digits.length >= SCAN_MIN_LENGTH;
+    return complete ? { buffer: emptyScanBuffer, code: state.digits } : { buffer: emptyScanBuffer };
+  }
+
+  // Shift, Alt and friends are modifiers a scanner never sends mid-code, but they also never
+  // carry a digit, so treating every other key as a cancel keeps the rule to one sentence.
+  return { buffer: emptyScanBuffer };
+}
+
+/* ---------------------------------------------------------------------------------------
+ * Plain-text receipt, the payload the native share sheet sends and the fallback a 58 mm
+ * thermal printer understands. Every visible word is passed in, so the formatter stays pure
+ * and the dictionary stays the single source of the copy.
+ * ------------------------------------------------------------------------------------ */
+
+/** Character columns on a 58 mm roll at the usual 12x24 font. */
+export const RECEIPT_WIDTH = 32;
+
+export interface ReceiptTextLine {
+  name: string;
+  qty: number;
+  unitPrice: number;
+}
+
+export interface ReceiptTextLabels {
+  orderCode: string;
+  date: string;
+  cashier: string;
+  customer: string;
+  subtotal: string;
+  discount: string;
+  tax: string;
+  total: string;
+  change: string;
+}
+
+export interface ReceiptTextInput {
+  storeName: string;
+  storeAddress?: string;
+  code: string;
+  /** Already localised by the caller; the domain owns no locale. */
+  dateText: string;
+  cashierName: string;
+  customerName: string;
+  lines: ReceiptTextLine[];
+  subtotal: number;
+  discountTotal: number;
+  taxTotal: number;
+  total: number;
+  payments: { label: string; amount: number }[];
+  change: number;
+  footer: string;
+  labels: ReceiptTextLabels;
+}
+
+/** `left` padded out to `RECEIPT_WIDTH` with `right` flush to the edge, wrapping if needed. */
+function pair(left: string, right: string): string {
+  const gap = RECEIPT_WIDTH - left.length - right.length;
+  if (gap >= 1) return `${left}${' '.repeat(gap)}${right}`;
+  return `${left}\n${right.padStart(RECEIPT_WIDTH)}`;
+}
+
+function centre(text: string): string {
+  if (text.length >= RECEIPT_WIDTH) return text;
+  return ' '.repeat(Math.floor((RECEIPT_WIDTH - text.length) / 2)) + text;
+}
+
+/** Hard wraps a product name so a long one never pushes its price off the roll. */
+function wrap(text: string): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  const rows: string[] = [];
+  let row = '';
+  for (const word of words) {
+    const candidate = row ? `${row} ${word}` : word;
+    if (candidate.length <= RECEIPT_WIDTH) {
+      row = candidate;
+    } else {
+      if (row) rows.push(row);
+      row = word.length > RECEIPT_WIDTH ? word.slice(0, RECEIPT_WIDTH) : word;
+    }
+  }
+  if (row) rows.push(row);
+  return rows.length > 0 ? rows : [''];
+}
+
+/** The receipt as monospaced text: the share payload on native, 32 columns wide. */
+export function formatReceiptText(input: ReceiptTextInput): string {
+  const rule = '-'.repeat(RECEIPT_WIDTH);
+  const rows: string[] = [centre(input.storeName)];
+  if (input.storeAddress) rows.push(...wrap(input.storeAddress).map(centre));
+
+  rows.push(
+    rule,
+    pair(input.labels.orderCode, input.code),
+    pair(input.labels.date, input.dateText),
+    pair(input.labels.cashier, input.cashierName),
+    pair(input.labels.customer, input.customerName),
+    rule,
+  );
+
+  for (const line of input.lines) {
+    rows.push(...wrap(line.name));
+    rows.push(pair(`  ${line.qty} x ${formatVND(line.unitPrice)}`, formatVND(line.unitPrice * line.qty)));
+  }
+
+  rows.push(
+    rule,
+    pair(input.labels.subtotal, formatVND(input.subtotal)),
+    pair(input.labels.discount, input.discountTotal > 0 ? `-${formatVND(input.discountTotal)}` : formatVND(0)),
+    pair(input.labels.tax, formatVND(input.taxTotal)),
+    pair(input.labels.total, formatVND(input.total)),
+  );
+
+  for (const payment of input.payments) {
+    rows.push(pair(payment.label, formatVND(payment.amount)));
+  }
+  if (input.change > 0) rows.push(pair(input.labels.change, formatVND(input.change)));
+
+  rows.push(rule, centre(input.footer));
+  return rows.join('\n');
 }

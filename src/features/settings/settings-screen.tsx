@@ -12,6 +12,7 @@ import { TaxSection } from './components/tax-section';
 import { PaymentSection } from './components/payment-section';
 import { PrinterSection } from './components/printer-section';
 import { AboutSection } from './components/about-section';
+import { ResetDataSection } from './components/reset-data-section';
 import { LogoutSection } from './components/logout-section';
 
 /** Form content is capped at 480 and centred at every breakpoint (direction doc section 7). */
@@ -48,6 +49,7 @@ export function SettingsScreen() {
             <PaymentSection />
             <PrinterSection />
             <AboutSection />
+            <ResetDataSection />
             <LogoutSection />
           </VStack>
         </ScrollView>

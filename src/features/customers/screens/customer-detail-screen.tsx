@@ -78,7 +78,7 @@ export function CustomerDetailScreen() {
       <Card className="gap-4">
         <View className="flex-row flex-wrap items-center justify-between gap-4">
           <View className="min-w-0 flex-row items-center gap-3">
-            <Avatar fallback={initials(customer.name)} size="xl" />
+            <Avatar fallback={initials(customer.name)} fallbackClassName="text-foreground" size="xl" />
             <View className="min-w-0 gap-1">
               <View className="flex-row flex-wrap items-center gap-2">
                 <Text variant="title" className="font-bold text-foreground" numberOfLines={1}>

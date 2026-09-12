@@ -11,6 +11,7 @@ export const settingsVi = {
     printer: 'Máy in',
     about: 'Về ứng dụng',
     account: 'Tài khoản',
+    data: 'Dữ liệu',
   },
   density: {
     label: 'Mật độ hiển thị',
@@ -51,6 +52,15 @@ export const settingsVi = {
     appVersion: 'Phiên bản BeePOS',
     beeuiVersion: 'Phiên bản BeeUI',
     expoSdk: 'Expo SDK',
+  },
+  resetData: {
+    action: 'Đặt lại dữ liệu mẫu',
+    description: 'Xoá dữ liệu đã lưu trên máy và nạp lại bộ dữ liệu mẫu ban đầu.',
+    confirmTitle: 'Đặt lại dữ liệu mẫu?',
+    confirmDescription: 'Đơn hàng, tồn kho, khách hàng và cài đặt đã thay đổi sẽ bị xoá, không khôi phục được.',
+    confirmAction: 'Đặt lại',
+    successToast: 'Đã nạp lại dữ liệu mẫu',
+    errorToast: 'Không đặt lại được dữ liệu mẫu',
   },
   logout: {
     action: 'Đăng xuất',

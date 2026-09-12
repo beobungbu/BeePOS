@@ -1,10 +1,12 @@
 import '../global.css';
+import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { BeeUIProvider } from '@beemvp/beeui-ui';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useAppTheme } from '../src/theme/use-app-theme';
+import { useHydrated } from '../src/data/persistence-bootstrap';
 
 /**
  * The status bar follows the resolved theme, not the OS: Android draws white glyphs by
@@ -13,10 +15,24 @@ import { useAppTheme } from '../src/theme/use-app-theme';
  */
 function ThemedStack() {
   const theme = useAppTheme();
+  // Routes wait for the saved session, carts and catalogue to be read back, so the first
+  // frame is never seed data that is about to be replaced.
+  const hydrated = useHydrated();
+
   return (
     <>
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false }} />
+      {hydrated ? (
+        <Stack screenOptions={{ headerShown: false }} />
+      ) : (
+        <View
+          className="flex-1 items-center justify-center bg-background"
+          accessibilityRole="progressbar"
+          accessibilityLabel="Đang tải dữ liệu"
+        >
+          <ActivityIndicator size="large" />
+        </View>
+      )}
     </>
   );
 }

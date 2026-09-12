@@ -8,7 +8,15 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogTitle,
+  Button,
   ButtonLabel,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+  Field,
+  Input,
   Text,
   useToast,
 } from '@beemvp/beeui-ui';
@@ -20,7 +28,7 @@ import { useT } from '../../../i18n';
 import { useCartStore } from '../../../data/cart-store';
 import { cartLineCount, cartTotalsOf } from '../lib/cart-totals';
 import { SecondaryButtonLabel } from './secondary-button-label';
-import { countLabel, orderLabel } from '../lib/order-label';
+import { cartLabel, countLabel, orderLabel } from '../lib/order-label';
 
 interface OrderTabStripProps {
   products: Product[];
@@ -28,6 +36,13 @@ interface OrderTabStripProps {
 
 /** Horizontal padding inside the scroller, and the margin a revealed tab keeps from the edge. */
 const STRIP_PADDING = 8;
+
+/**
+ * Two presses this close together are one gesture, not two switches. 320 ms sits above the
+ * platform double-click defaults (macOS 250 to 300 ms) and well below a deliberate second
+ * press on the tab the cashier already selected.
+ */
+const DOUBLE_PRESS_MS = 320;
 
 /**
  * The open-order strip of `docs/design/design-direction.md` section 6. An app composite, not
@@ -47,6 +62,7 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
   const openCart = useCartStore((state) => state.openCart);
   const switchCart = useCartStore((state) => state.switchCart);
   const closeCart = useCartStore((state) => state.closeCart);
+  const setLabel = useCartStore((state) => state.setLabel);
 
   const scrollRef = useRef<ScrollView>(null);
   /** Where each tab sits inside the scroller, and what part of it is currently on screen. */
@@ -55,6 +71,9 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
   const viewportWidth = useRef(0);
   const [pendingCloseId, setPendingCloseId] = useState<string | undefined>(undefined);
   const pendingCart = carts.find((cart) => cart.id === pendingCloseId);
+  const [renameId, setRenameId] = useState<string | undefined>(undefined);
+  const [renameDraft, setRenameDraft] = useState('');
+  const renameCart = carts.find((cart) => cart.id === renameId);
   const atLimit = carts.length >= MAX_OPEN_CARTS;
 
   function handleNewOrder() {
@@ -70,6 +89,18 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
       return;
     }
     setPendingCloseId(cart.id);
+  }
+
+  /** Opens the naming dialog on the order the gesture landed on, seeded with its name. */
+  function requestRename(cart: Cart) {
+    setRenameDraft(cart.label ?? '');
+    setRenameId(cart.id);
+  }
+
+  /** An empty name is how the cashier gets "Đơn N" back, so blank is a valid submission. */
+  function applyRename(label: string) {
+    if (renameId) setLabel(renameId, label);
+    setRenameId(undefined);
   }
 
   /**
@@ -131,6 +162,16 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
         }
         return;
       }
+      // Naming an order is a double-click or a long press, neither of which a keyboard can
+      // produce, so Alt+R is the keyboard's way into the same dialog.
+      if (event.code === 'KeyR') {
+        const active = carts.find((cart) => cart.id === activeCartId);
+        if (active) {
+          event.preventDefault();
+          requestRename(active);
+        }
+        return;
+      }
       const digit = /^Digit([1-8])$/.exec(event.code);
       if (digit) {
         const target = carts[Number(digit[1]) - 1];
@@ -172,6 +213,7 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
             active={cart.id === activeCartId}
             onSwitch={() => switchCart(cart.id)}
             onClose={() => requestClose(cart)}
+            onRename={() => requestRename(cart)}
             onMeasure={(layout) => {
               tabLayouts.current[cart.id] = layout;
               // A tab opened by `Alt+N` is measured after the effect above has run, so the
@@ -192,14 +234,54 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
         <AppIcon name="plus" tone={atLimit ? 'disabled-foreground' : 'foreground'} />
       </Pressable>
 
+      <Dialog
+        open={renameId !== undefined}
+        onOpenChange={(next) => {
+          if (!next) setRenameId(undefined);
+        }}
+      >
+        <DialogContent>
+          <DialogTitle>{t('pos.order.rename')}</DialogTitle>
+          <View className="gap-2 py-2">
+            <Text variant="caption" className="text-muted-foreground">
+              {renameCart ? orderLabel(t, renameCart.ordinal) : ''}
+            </Text>
+            <Field label={t('pos.order.renameField')}>
+              <Input
+                value={renameDraft}
+                onChangeText={setRenameDraft}
+                placeholder={t('pos.order.renamePlaceholder')}
+                autoFocus
+                returnKeyType="done"
+                onSubmitEditing={() => applyRename(renameDraft)}
+              />
+            </Field>
+          </View>
+          <DialogFooter>
+            {renameCart?.label ? (
+              <Button variant="outline" onPress={() => applyRename('')}>
+                <SecondaryButtonLabel>{t('pos.order.renameClear')}</SecondaryButtonLabel>
+              </Button>
+            ) : (
+              <DialogClose variant="outline">
+                <SecondaryButtonLabel>{t('common.actions.cancel')}</SecondaryButtonLabel>
+              </DialogClose>
+            )}
+            <Button onPress={() => applyRename(renameDraft)}>
+              <ButtonLabel>{t('pos.order.renameSave')}</ButtonLabel>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <AlertDialog open={pendingCloseId !== undefined} onOpenChange={() => setPendingCloseId(undefined)}>
         <AlertDialogContent>
           <AlertDialogTitle>
-            {pendingCart ? `${t('pos.order.closePrefix')} ${orderLabel(t, pendingCart.ordinal)}?` : ''}
+            {pendingCart ? `${t('pos.order.closePrefix')} ${cartLabel(t, pendingCart)}?` : ''}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {pendingCart
-              ? `${orderLabel(t, pendingCart.ordinal)} · ${countLabel(
+              ? `${cartLabel(t, pendingCart)} · ${countLabel(
                   t,
                   cartLineCount(pendingCart),
                   'pos.cart.lineItems',
@@ -232,15 +314,34 @@ interface OrderTabProps {
   active: boolean;
   onSwitch: () => void;
   onClose: () => void;
+  /** Double press on web, long press on native: both open the naming dialog. */
+  onRename: () => void;
   /** Where this tab sits inside the scroller, so the strip can bring it into view. */
   onMeasure: (layout: { x: number; width: number }) => void;
 }
 
-function OrderTab({ cart, products, active, onSwitch, onClose, onMeasure }: OrderTabProps) {
+function OrderTab({ cart, products, active, onSwitch, onClose, onRename, onMeasure }: OrderTabProps) {
   const t = useT();
-  const label = orderLabel(t, cart.ordinal);
+  const label = cartLabel(t, cart);
   const lineCount = cartLineCount(cart);
   const total = cartTotalsOf(cart, products).total;
+  const lastPressAt = useRef(0);
+
+  /**
+   * The second of two quick presses names the order instead of switching to it. Timing the
+   * presses rather than binding `onDoubleClick` keeps one code path for web and native:
+   * React Native's `Pressable` has no double-press event on either platform.
+   */
+  function handlePress() {
+    const now = Date.now();
+    if (now - lastPressAt.current < DOUBLE_PRESS_MS) {
+      lastPressAt.current = 0;
+      onRename();
+      return;
+    }
+    lastPressAt.current = now;
+    onSwitch();
+  }
 
   return (
     <View
@@ -250,9 +351,12 @@ function OrderTab({ cart, products, active, onSwitch, onClose, onMeasure }: Orde
       }`}
     >
       <Pressable
-        onPress={onSwitch}
+        onPress={handlePress}
+        onLongPress={onRename}
+        delayLongPress={450}
         accessibilityRole="button"
         accessibilityLabel={`${t('pos.order.switchTo')} ${label}`}
+        accessibilityHint={t('pos.order.renameHint')}
         accessibilityState={{ selected: active }}
         className="h-9 flex-row items-center gap-2 px-3"
       >

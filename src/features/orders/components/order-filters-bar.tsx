@@ -41,12 +41,15 @@ export function OrderFiltersBar({
   stores,
   cashiers,
   breakpoint,
+  actions,
 }: {
   value: OrdersFilterValue;
   onChange: (next: OrdersFilterValue) => void;
   stores: Store[];
   cashiers: Staff[];
   breakpoint: Breakpoint;
+  /** Page actions; desktop pins them to the right of the same 56 pt row. */
+  actions?: React.ReactNode;
 }) {
   const t = useT();
   const isPhone = breakpoint === 'phone';
@@ -158,6 +161,7 @@ export function OrderFiltersBar({
             ))}
           </ChipGroup>
         </ScrollView>
+        {actions ? <View className="flex-row flex-wrap items-center gap-2">{actions}</View> : null}
         {customRange}
       </View>
     );
@@ -210,7 +214,7 @@ export function OrderFiltersBar({
   if (isDesktop) {
     return (
       <View className="border-b border-border bg-surface px-6">
-        <Toolbar>
+        <Toolbar actions={actions}>
           <View style={{ width: 300 }}>{search}</View>
           <Text variant="caption" className="text-subtle-foreground" numberOfLines={1}>
             F3
@@ -231,6 +235,7 @@ export function OrderFiltersBar({
         {search}
         <View className="min-w-32">{presetSelect}</View>
         <View className="min-w-36">{statusSelect}</View>
+        {actions ? <View className="ml-auto flex-row items-center gap-2">{actions}</View> : null}
       </View>
       {customRange}
     </View>

@@ -1,8 +1,9 @@
-import { ScrollView, View } from 'react-native';
+import { useEffect } from 'react';
+import { Platform, ScrollView, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button, ButtonLabel, Text, useToast } from '@beemvp/beeui-ui';
 import { useScreenHeader } from '../../components/shell/screen-header';
-import { calcChange } from '../../domain/pos';
+import { calcChange, formatReceiptText, type ReceiptTextInput } from '../../domain/pos';
 import { formatVND } from '../../domain/money';
 import type { Payment } from '../../domain/types';
 import { useT } from '../../i18n';
@@ -14,7 +15,13 @@ import { useSessionStore } from '../../data/session-store';
 import { METHOD_LABEL_KEY } from './components/payment-method-cards';
 import { SecondaryButtonLabel } from './components/secondary-button-label';
 import { usePosLayout } from './hooks/use-pos-layout';
-import { orderLabel } from './lib/order-label';
+import { cartLabel } from './lib/order-label';
+import {
+  ensurePrintStylesheet,
+  printReceipt,
+  RECEIPT_PRINT_ID,
+  shareReceipt,
+} from './lib/receipt-print';
 
 /** Cash payments encode the tendered amount in `ref` as "tendered=<n>" so change can be shown here. */
 function tenderedFromRef(ref: string | undefined): number | undefined {
@@ -44,6 +51,12 @@ export default function ReceiptScreen() {
     backTo: '/pos',
   });
 
+  // Before the early return below: the stylesheet has to be in the document whether or not
+  // this receipt resolved, and hooks cannot run conditionally.
+  useEffect(() => {
+    ensurePrintStylesheet();
+  }, []);
+
   if (!order) {
     return (
       <View className="flex-1 items-center justify-center px-6">
@@ -57,6 +70,67 @@ export default function ReceiptScreen() {
     const tendered = tenderedFromRef(payment.ref);
     return tendered !== undefined ? accumulator + calcChange(payment.amount, tendered) : accumulator;
   }, 0);
+  const dateText = new Date(order.createdAt).toLocaleString('vi-VN');
+  const customerName = customer?.name ?? t('pos.cart.customerDefault');
+
+  // Bound once so the two callbacks below keep the narrowing the guard above established.
+  const paidOrder = order;
+
+  /** The same receipt as the screen, in the 32 column form a share sheet can carry. */
+  function receiptText(): string {
+    const input: ReceiptTextInput = {
+      storeName: store?.name ?? t('pos.receipt.title'),
+      storeAddress: store?.address,
+      code: paidOrder.code,
+      dateText,
+      cashierName: staff?.name ?? paidOrder.cashierId,
+      customerName,
+      lines: paidOrder.lines.map((line) => ({
+        name: products.find((item) => item.id === line.productId)?.name ?? line.productId,
+        qty: line.qty,
+        unitPrice: line.unitPrice,
+      })),
+      subtotal: paidOrder.subtotal,
+      discountTotal: paidOrder.discountTotal,
+      taxTotal: paidOrder.taxTotal,
+      total: paidOrder.total,
+      payments: paidOrder.payments.map((payment) => ({
+        label: t(METHOD_LABEL_KEY[payment.method]),
+        amount: payment.amount,
+      })),
+      change: totalChange,
+      footer: t('pos.receipt.footer'),
+      labels: {
+        orderCode: t('pos.receipt.orderCode'),
+        date: t('pos.receipt.date'),
+        cashier: t('pos.receipt.cashier'),
+        customer: t('pos.receipt.customer'),
+        subtotal: t('pos.receipt.subtotal'),
+        discount: t('pos.receipt.discount'),
+        tax: t('pos.receipt.tax'),
+        total: t('pos.cart.grandTotal'),
+        change: t('pos.receipt.change'),
+      },
+    };
+    return formatReceiptText(input);
+  }
+
+  function handlePrint() {
+    if (printReceipt()) {
+      toast.show({ title: t('pos.receipt.printedToast'), variant: 'success' });
+      return;
+    }
+    toast.show({ title: t('pos.receipt.printFailed'), variant: 'destructive' });
+  }
+
+  async function handleShare() {
+    const outcome = await shareReceipt(receiptText(), paidOrder.code);
+    if (outcome === 'shared') {
+      toast.show({ title: t('pos.receipt.sharedToast'), variant: 'success' });
+    } else if (outcome === 'failed') {
+      toast.show({ title: t('pos.receipt.shareFailed'), variant: 'destructive' });
+    }
+  }
 
   return (
     <View className="flex-1">
@@ -75,7 +149,9 @@ export default function ReceiptScreen() {
             ) : null}
           </View>
 
-          <View className="gap-3 rounded-lg border border-border bg-surface p-4">
+          {/* The printed block. Everything outside it is hidden by the print stylesheet in
+              lib/receipt-print.ts, so what leaves the browser is the receipt at 58 mm. */}
+          <View nativeID={RECEIPT_PRINT_ID} className="gap-3 rounded-lg border border-border bg-surface p-4">
             <View className="items-center gap-0.5">
               <Text variant="body" className="font-semibold text-foreground">
                 {store?.name ?? t('pos.receipt.title')}
@@ -86,15 +162,9 @@ export default function ReceiptScreen() {
             <View className="h-px bg-border" />
 
             <ReceiptRow label={t('pos.receipt.orderCode')} value={order.code} />
-            <ReceiptRow
-              label={t('pos.receipt.date')}
-              value={new Date(order.createdAt).toLocaleString('vi-VN')}
-            />
+            <ReceiptRow label={t('pos.receipt.date')} value={dateText} />
             <ReceiptRow label={t('pos.receipt.cashier')} value={staff?.name ?? order.cashierId} />
-            <ReceiptRow
-              label={t('pos.receipt.customer')}
-              value={customer?.name ?? t('pos.cart.customerDefault')}
-            />
+            <ReceiptRow label={t('pos.receipt.customer')} value={customerName} />
 
             <View className="h-px bg-border" />
 
@@ -151,26 +221,26 @@ export default function ReceiptScreen() {
             </Text>
           </View>
 
+          {/*
+            One control, because only one of the two is real on a given platform: the browser
+            prints, and a phone with no printer driver shares the text instead. A button that
+            does nothing when pressed is a lie about the product.
+          */}
           <View className="flex-row gap-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onPress={() => toast.show({ title: t('pos.receipt.printedToast'), variant: 'success' })}
-            >
-              <SecondaryButtonLabel>{t('pos.receipt.print')}</SecondaryButtonLabel>
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onPress={() => toast.show({ title: t('pos.receipt.sharedToast'), variant: 'success' })}
-            >
-              <SecondaryButtonLabel>{t('pos.receipt.share')}</SecondaryButtonLabel>
-            </Button>
+            {Platform.OS === 'web' ? (
+              <Button variant="outline" className="flex-1" onPress={handlePrint}>
+                <SecondaryButtonLabel>{t('pos.receipt.print')}</SecondaryButtonLabel>
+              </Button>
+            ) : (
+              <Button variant="outline" className="flex-1" onPress={handleShare}>
+                <SecondaryButtonLabel>{t('pos.receipt.share')}</SecondaryButtonLabel>
+              </Button>
+            )}
           </View>
 
           <Button className="min-h-[52px]" onPress={() => router.replace('/pos')}>
             <ButtonLabel>
-              {`${t('pos.receipt.continueTo')} · ${orderLabel(t, nextCart.ordinal)}`}
+              {`${t('pos.receipt.continueTo')} · ${cartLabel(t, nextCart)}`}
             </ButtonLabel>
           </Button>
         </View>

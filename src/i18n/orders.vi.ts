@@ -43,6 +43,7 @@ export const ordersVi = {
   },
   table: {
     code: 'Mã đơn',
+    time: 'Thời gian',
     cashier: 'Thu ngân',
     customer: 'Khách hàng',
     total: 'Tổng tiền',

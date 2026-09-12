@@ -19,6 +19,12 @@ interface CustomerState {
   /** Keyed by customerId. `Customer` (src/domain/types.ts, phase-0-owned) has no birthday/note fields. */
   profileExtras: Record<string, CustomerProfileExtra>;
   upsertCustomer: (customer: Customer) => void;
+  /**
+   * Creates a customer from the two fields a cashier can collect at the till and returns it,
+   * so the caller can attach it to the order it was typed for. The id is minted here because
+   * a new customer has no server to mint one.
+   */
+  createCustomer: (input: { name: string; phone: string }) => Customer;
   setProfileExtra: (customerId: string, extra: CustomerProfileExtra) => void;
   addPoints: (customerId: string, points: number, spent: number) => void;
   /** Manager-driven manual adjustment: records a movement and updates points only. */
@@ -35,7 +41,7 @@ interface CustomerState {
   removeCustomer: (customerId: string) => void;
 }
 
-export const useCustomerStore = create<CustomerState>((set) => ({
+export const useCustomerStore = create<CustomerState>((set, get) => ({
   customers: seedCustomers,
   pointHistory: buildSeedPointHistory(seedCustomers, seedOrders, seedRefunds),
   profileExtras: {},
@@ -49,6 +55,25 @@ export const useCustomerStore = create<CustomerState>((set) => ({
           : [...state.customers, customer],
       };
     }),
+
+  createCustomer: ({ name, phone }) => {
+    // Ids stay unique against both the seed ("customer-7") and earlier quick-adds.
+    const taken = new Set(get().customers.map((item) => item.id));
+    let sequence = get().customers.length + 1;
+    while (taken.has(`customer-${sequence}`)) sequence += 1;
+
+    const customer: Customer = {
+      id: `customer-${sequence}`,
+      name: name.trim(),
+      phone: phone.trim(),
+      points: 0,
+      tier: tierFor(0),
+      totalSpent: 0,
+      createdAt: new Date().toISOString(),
+    };
+    set((state) => ({ customers: [...state.customers, customer] }));
+    return customer;
+  },
 
   setProfileExtra: (customerId, extra) =>
     set((state) => ({

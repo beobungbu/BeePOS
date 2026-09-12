@@ -11,6 +11,7 @@ export const settingsEn = {
     printer: 'Printer',
     about: 'About',
     account: 'Account',
+    data: 'Data',
   },
   density: {
     label: 'Display density',
@@ -51,6 +52,15 @@ export const settingsEn = {
     appVersion: 'BeePOS version',
     beeuiVersion: 'BeeUI version',
     expoSdk: 'Expo SDK',
+  },
+  resetData: {
+    action: 'Reset demo data',
+    description: 'Clears the data saved on this device and loads the original demo set again.',
+    confirmTitle: 'Reset the demo data?',
+    confirmDescription: 'Orders, stock, customers and changed settings are deleted and cannot be restored.',
+    confirmAction: 'Reset',
+    successToast: 'Demo data reloaded',
+    errorToast: 'The demo data could not be reset',
   },
   logout: {
     action: 'Log out',

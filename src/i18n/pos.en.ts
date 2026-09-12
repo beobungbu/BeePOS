@@ -27,6 +27,12 @@ export const posEn = {
     maxReached: 'Up to 8 orders at once. Complete or close one first.',
     openCountPrefix: '',
     openCountSuffix: 'orders still open',
+    rename: 'Name the order',
+    renameHint: 'Double press or hold to name the order',
+    renameField: 'Order name',
+    renamePlaceholder: 'e.g. Ms Lan, Table 3',
+    renameSave: 'Save name',
+    renameClear: 'Remove name',
   },
 
   cart: {
@@ -68,6 +74,7 @@ export const posEn = {
     trigger: 'Order discount',
     reason: 'Reason',
     reasonPlaceholder: 'e.g. loyal customer, promotion',
+    presets: 'Quick discounts',
   },
 
   customerDialog: {
@@ -76,6 +83,17 @@ export const posEn = {
     noResults: 'No customer found',
     detach: 'Clear (walk-in customer)',
     points: 'points',
+    addAction: 'New customer',
+    addTitle: 'New customer',
+    name: 'Customer name',
+    namePlaceholder: 'e.g. Nguyen Thi Lan',
+    phone: 'Phone number',
+    phonePlaceholder: '09xxxxxxxx',
+    save: 'Save customer',
+    errorName: 'Enter the customer name',
+    errorPhone: 'The phone number needs 9 to 11 digits',
+    errorPhoneTaken: 'Another customer already has this phone number',
+    created: 'Customer added',
   },
 
   shiftBanner: {
@@ -140,8 +158,10 @@ export const posEn = {
     change: 'Change',
     print: 'Print',
     printedToast: 'Print job sent',
+    printFailed: 'This browser cannot print',
     share: 'Share',
     sharedToast: 'Receipt shared',
+    shareFailed: 'The receipt could not be shared',
     footer: 'Thank you, see you again',
     successTitle: 'Paid',
     continueTo: 'Next sale',

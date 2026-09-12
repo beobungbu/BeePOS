@@ -49,7 +49,10 @@ export function ReportScreen() {
               <Toolbar
                 actions={
                   <Button variant="outline" size="sm" onPress={handleExport} accessibilityLabel={t('reports.export.button')}>
-                    <ButtonLabel>{t('reports.export.button')}</ButtonLabel>
+                    {/* `ButtonLabel` paints itself `text-primary-foreground` whatever the
+                        variant, which is 1.2:1 on an outline button in dark
+                        (docs/beeui-audit/findings-18-w-c.md). */}
+                    <ButtonLabel className="text-foreground">{t('reports.export.button')}</ButtonLabel>
                   </Button>
                 }
               >
@@ -62,7 +65,7 @@ export function ReportScreen() {
               <Stack direction={isWide ? 'horizontal' : 'vertical'} gap="md" wrap justify="between" align="start">
                 <PeriodFilter filters={filters} stores={data.stores} />
                 <Button variant="outline" size="sm" onPress={handleExport} accessibilityLabel={t('reports.export.button')}>
-                  <ButtonLabel>{t('reports.export.button')}</ButtonLabel>
+                  <ButtonLabel className="text-foreground">{t('reports.export.button')}</ButtonLabel>
                 </Button>
               </Stack>
             )}

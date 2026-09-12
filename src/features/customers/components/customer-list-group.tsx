@@ -47,7 +47,7 @@ export function CustomerListGroup({
               </View>
             }
             key={customer.id}
-            leading={<Avatar fallback={initials(customer.name)} size="md" />}
+            leading={<Avatar fallback={initials(customer.name)} fallbackClassName="text-foreground" size="md" />}
             onPress={() => router.push(`/customers/${customer.id}`)}
             title={
               <View className="flex-row items-center gap-3">

@@ -27,6 +27,12 @@ export const posVi = {
     maxReached: 'Tối đa 8 đơn cùng lúc. Hoàn tất hoặc đóng bớt một đơn.',
     openCountPrefix: 'Còn',
     openCountSuffix: 'đơn đang mở',
+    rename: 'Đặt tên đơn',
+    renameHint: 'Nhấn đúp hoặc giữ để đặt tên đơn',
+    renameField: 'Tên đơn',
+    renamePlaceholder: 'Ví dụ: Chị Lan, Bàn 3',
+    renameSave: 'Lưu tên',
+    renameClear: 'Bỏ tên',
   },
 
   cart: {
@@ -68,6 +74,7 @@ export const posVi = {
     trigger: 'Giảm giá đơn',
     reason: 'Lý do',
     reasonPlaceholder: 'Ví dụ: khách quen, chương trình khuyến mãi',
+    presets: 'Mức giảm nhanh',
   },
 
   customerDialog: {
@@ -76,6 +83,17 @@ export const posVi = {
     noResults: 'Không tìm thấy khách hàng',
     detach: 'Bỏ chọn (Khách lẻ)',
     points: 'điểm',
+    addAction: 'Thêm khách mới',
+    addTitle: 'Khách hàng mới',
+    name: 'Tên khách hàng',
+    namePlaceholder: 'Ví dụ: Nguyễn Thị Lan',
+    phone: 'Số điện thoại',
+    phonePlaceholder: '09xxxxxxxx',
+    save: 'Lưu khách hàng',
+    errorName: 'Nhập tên khách hàng',
+    errorPhone: 'Số điện thoại phải có 9 đến 11 chữ số',
+    errorPhoneTaken: 'Số điện thoại này đã có khách hàng',
+    created: 'Đã thêm khách hàng',
   },
 
   shiftBanner: {
@@ -140,8 +158,10 @@ export const posVi = {
     change: 'Tiền thừa',
     print: 'In hoá đơn',
     printedToast: 'Đã gửi lệnh in',
+    printFailed: 'Trình duyệt không hỗ trợ in',
     share: 'Chia sẻ',
     sharedToast: 'Đã chia sẻ hoá đơn',
+    shareFailed: 'Không chia sẻ được hoá đơn',
     footer: 'Cảm ơn quý khách, hẹn gặp lại',
     successTitle: 'Đã thanh toán',
     continueTo: 'Bán tiếp',

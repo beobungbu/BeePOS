@@ -40,7 +40,7 @@ export function Sidebar() {
 
       {staff ? (
         <View className="mt-2 flex-row items-center gap-2.5 border-t border-border px-2 pb-1 pt-3">
-          <Avatar fallback={initialsOf(staff.name)} size="sm" />
+          <Avatar fallback={initialsOf(staff.name)} fallbackClassName="text-foreground" size="sm" />
           <View className="min-w-0 flex-1">
             <Text variant="label" className="font-semibold text-foreground" numberOfLines={1}>
               {staff.name}

@@ -9,11 +9,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   HStack,
+  IconButton,
   Text,
 } from '@beemvp/beeui-ui';
+import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { AppIcon } from '../icons';
+import { openCommandPalette } from './overlay-store';
 import { useT } from '../../i18n';
 import { useSessionStore } from '../../data/session-store';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
@@ -76,6 +79,19 @@ export function ShellHeader() {
     <BrandMark size="sm" />
   ) : undefined;
 
+  // Tablet and desktop get a visible way into the palette: the chord is invisible affordance,
+  // and a tablet on a counter has no keyboard at all. Phone has no room for it and reaches the
+  // same screens through the bottom tabs.
+  const paletteButton = isPhone ? null : (
+    <IconButton
+      accessibilityLabel={t('common.command.title')}
+      onPress={openCommandPalette}
+      variant="ghost"
+    >
+      <AppIcon name="search" tone="muted-foreground" />
+    </IconButton>
+  );
+
   const avatarMenu = (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -83,7 +99,10 @@ export function ShellHeader() {
         accessibilityLabel={t('common.shell.profile')}
         className="h-11 w-11 items-center justify-center rounded-full p-0"
       >
-        <Avatar fallback={initialsOf(staff?.name)} size="md" />
+        {/* `fallbackClassName` is not decoration: the initials inherit react-native-web's
+            default black otherwise, which is 1.4:1 on the muted circle in dark
+            (docs/beeui-audit/findings-18-w-c.md, 18-02). */}
+        <Avatar fallback={initialsOf(staff?.name)} fallbackClassName="text-foreground" size="md" />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {staff ? <DropdownMenuLabel>{staff.name}</DropdownMenuLabel> : null}
@@ -139,6 +158,7 @@ export function ShellHeader() {
                 </Text>
               </View>
             ) : null}
+            {paletteButton}
             <StoreSwitcher />
             {avatarMenu}
           </HStack>
@@ -172,6 +192,7 @@ export function ShellHeader() {
               </Text>
             </View>
           ) : null}
+          {paletteButton}
           {!isPhone && store ? (
             <Badge variant="outline" className="rounded-sm border-transparent bg-muted">
               {store.code}
@@ -188,9 +209,14 @@ export function ShellHeader() {
  * Desktop store chip: `HN01 · Tạp hoá Cầu Giấy`, opening the branches this cashier is
  * assigned to. The address rides inside the menu item rather than in the header, because it
  * is only needed at the moment two branches have to be told apart.
+ *
+ * It has to read as a control, not as a caption: a 44 pt row, a chevron that says a menu is
+ * behind it, and a fill on hover and on press. Without those the chip was indistinguishable
+ * from the title beside it and nobody tried pressing it.
  */
 function StoreSwitcher() {
   const t = useT();
+  const [hovered, setHovered] = useState(false);
   const store = useSessionStore((state) => state.store);
   const storeOptions = useSessionStore((state) => state.storeOptions);
   const selectStore = useSessionStore((state) => state.selectStore);
@@ -199,7 +225,8 @@ function StoreSwitcher() {
 
   const chip = `${store.code} · ${store.name}`;
 
-  // One branch is not a choice: the chip stays as a plain label so it cannot be pressed.
+  // One branch is not a choice: the chip stays as a plain label so it cannot be pressed, and
+  // it carries no chevron, which would promise a menu that does not exist.
   if (storeOptions.length < 2) {
     return (
       <View className="h-9 justify-center rounded-md bg-muted px-2.5">
@@ -212,13 +239,29 @@ function StoreSwitcher() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        variant="ghost"
-        accessibilityLabel={t('common.shell.switchStore')}
-        className="h-9 px-2.5"
+      {/* Hover lives on a wrapper because the trigger is a BeeUI component and takes no
+          pointer callbacks of its own; `active:` on the trigger covers the pressed state. */}
+      <View
+        className={`rounded-md ${hovered ? 'bg-muted' : ''}`}
+        onPointerEnter={() => setHovered(true)}
+        onPointerLeave={() => setHovered(false)}
       >
-        {chip}
-      </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          variant="ghost"
+          accessibilityLabel={`${t('common.shell.switchStore')} · ${chip}`}
+          className="h-11 flex-row items-center gap-1.5 px-2.5 active:bg-muted"
+        >
+          <Text variant="label" className="font-medium text-foreground" numberOfLines={1}>
+            {chip}
+          </Text>
+          {/* lucide's chevron-down is not in the app's icon set (`src/components/icons.tsx`,
+              owned elsewhere this phase), and a quarter turn of chevron-right is the same
+              glyph. Replace with `chevron-down` once the icon list gains it. */}
+          <View style={{ transform: [{ rotate: '90deg' }] }}>
+            <AppIcon name="chevron-right" size={16} tone="muted-foreground" />
+          </View>
+        </DropdownMenuTrigger>
+      </View>
       <DropdownMenuContent>
         <DropdownMenuLabel>{t('common.shell.switchStore')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
