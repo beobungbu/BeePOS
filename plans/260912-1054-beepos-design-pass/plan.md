@@ -1,6 +1,6 @@
 # BeePOS design pass
 
-Status: phases 1 and 2 DONE, phase 3 backlog · 2026-09-12 · owner: Ambrose
+Status: phases 1 to 3 DONE · live at https://beepos.beemvp.com · 2026-09-12 · owner: Ambrose
 
 Why: day-one build skipped visual design (spec had one line on layout). Result works but looks unfinished on phone, tablet and desktop: emoji icons, left-pinned forms, truncated product names, category chips eating half the phone screen, no hierarchy.
 
@@ -9,7 +9,7 @@ Why: day-one build skipped visual design (spec had one line on layout). Result w
 |---|---|---|---|
 | 1 | Research + design direction + wireframes for 5 key screens x 3 breakpoints, user review gate | ui-ux-designer agent | DONE (approved 2026-09-12 13:24) |
 | 2 | Restyle all 31 screens per approved direction: 2A foundation, 2B three parallel screen workers, gates green, deployed | fullstack workers | DONE 2026-09-12 (commit 851276b, live) |
-| 3 | Polish backlog + native verification + BeeUI findings batch 11 | TBD | PENDING |
+| 3 | Polish (8 items), type-scale sweep, native verification iOS + Android, native fix wave (9/11, 2 proven external), BeeUI batches 11 to 13 | fullstack workers | DONE 2026-09-12 |
 
 ## Acceptance (phase 1)
 - `docs/design/research.md`, `docs/design/design-direction.md`, `docs/design/mockups/index.html` exist and follow the phase file.

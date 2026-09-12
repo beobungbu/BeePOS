@@ -134,3 +134,4 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 | [#601](https://github.com/beobungbu/BeeUI/issues/601) | 15N-02 | minor | Field required injects untranslated "required" |
 | [#589](https://github.com/beobungbu/BeeUI/issues/589) (comment) | 15N-03 | evidence | fixed heights still clip |
 | [#599](https://github.com/beobungbu/BeeUI/issues/599) (comment) | sweep | evidence | Avatar uses dead text-caption class |
+| [#602](https://github.com/beobungbu/BeeUI/issues/602) | 16N-01 | major | ButtonLabel clamps to one line, ignores numberOfLines at large text |
