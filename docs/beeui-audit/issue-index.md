@@ -165,3 +165,4 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 |---|---|---|---|
 | [#608](https://github.com/beobungbu/BeeUI/issues/608) | 20N-01 | major | DialogContent does not clip children on iOS |
 | [#607](https://github.com/beobungbu/BeeUI/issues/607) (comment) | 20N-02 | minor | autoFocus inert inside DialogContent on iOS |
+| [#609](https://github.com/beobungbu/BeeUI/issues/609) | 21F-01 | major | Uniwind.setTheme(system) does not resume OS following |
