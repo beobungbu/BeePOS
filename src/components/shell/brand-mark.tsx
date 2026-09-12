@@ -26,7 +26,7 @@ export function BrandBlock() {
   return (
     <View className="flex-row items-center gap-2.5">
       <BrandMark />
-      <Text className="text-body font-bold text-foreground">BeePOS</Text>
+      <Text variant="body" className="font-bold text-foreground">BeePOS</Text>
     </View>
   );
 }

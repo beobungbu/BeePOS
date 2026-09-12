@@ -25,14 +25,14 @@ export function OrderLinesList({ lines, products }: { lines: CartLine[]; product
               name={name}
             />
             <View className="min-w-0 flex-1">
-              <Text className="text-label font-semibold text-foreground" numberOfLines={1}>
+              <Text variant="label" className="font-semibold text-foreground" numberOfLines={1}>
                 {name}
               </Text>
-              <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+              <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
                 {product?.unit ? `${product.unit} x${line.qty}` : `x${line.qty}`}
               </Text>
             </View>
-            <Text className="text-label font-bold text-foreground" numeric="tabular">
+            <Text variant="label" className="font-bold text-foreground" numeric="tabular">
               {formatVND(lineNetAmount(line))}
             </Text>
           </View>

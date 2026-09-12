@@ -27,7 +27,7 @@ export function QuickCashChips({ remaining, onPick }: QuickCashChipsProps) {
         accessibilityLabel={t('pos.checkout.exact')}
         className="h-11 flex-1 items-center justify-center rounded-md bg-secondary px-3"
       >
-        <Text className="text-label font-semibold text-secondary-foreground">{t('pos.checkout.exact')}</Text>
+        <Text variant="label" className="font-semibold text-secondary-foreground">{t('pos.checkout.exact')}</Text>
       </Pressable>
       {DENOMINATIONS.map((amount) => (
         <Pressable
@@ -37,7 +37,7 @@ export function QuickCashChips({ remaining, onPick }: QuickCashChipsProps) {
           accessibilityLabel={PLAIN_NUMBER.format(amount)}
           className="h-11 flex-1 items-center justify-center rounded-md border border-border bg-surface px-3"
         >
-          <Text className="text-label font-medium tabular-nums text-foreground">
+          <Text variant="label" className="font-medium tabular-nums text-foreground">
             {PLAIN_NUMBER.format(amount)}
           </Text>
         </Pressable>

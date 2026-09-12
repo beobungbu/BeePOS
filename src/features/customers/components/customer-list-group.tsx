@@ -35,12 +35,12 @@ export function CustomerListGroup({
             accessibilityLabel={`${customer.name}. ${meta}. ${orderLine}. ${t(`customers.tier.${customer.tier}`)}. ${formatVND(customer.totalSpent)}`}
             description={
               <View className="gap-1">
-                <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+                <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
                   {meta}
                 </Text>
                 <View className="flex-row items-center gap-2">
                   <TierBadge tier={customer.tier} />
-                  <Text className="min-w-0 shrink text-caption text-muted-foreground" numberOfLines={1}>
+                  <Text variant="caption" className="min-w-0 shrink text-muted-foreground" numberOfLines={1}>
                     {orderLine}
                   </Text>
                 </View>
@@ -51,10 +51,10 @@ export function CustomerListGroup({
             onPress={() => router.push(`/customers/${customer.id}`)}
             title={
               <View className="flex-row items-center gap-3">
-                <Text className="min-w-0 flex-1 text-label font-semibold text-foreground" numberOfLines={1}>
+                <Text variant="label" className="min-w-0 flex-1 font-semibold text-foreground" numberOfLines={1}>
                   {customer.name}
                 </Text>
-                <Text className="text-label font-bold text-foreground" numeric="tabular">
+                <Text variant="label" className="font-bold text-foreground" numeric="tabular">
                   {formatVND(customer.totalSpent)}
                 </Text>
               </View>

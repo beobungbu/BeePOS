@@ -89,7 +89,7 @@ export default function ShiftScreen() {
             </View>
 
             <View className="w-full max-w-[480px] gap-4 rounded-lg border border-border bg-surface p-4">
-              <Text className="text-heading font-semibold text-foreground">{t('pos.shift.closeTitle')}</Text>
+              <Text variant="heading" className="font-semibold text-foreground">{t('pos.shift.closeTitle')}</Text>
               <Field label={t('pos.shift.countedCash')}>
                 <Input
                   value={countedCashText}
@@ -120,8 +120,8 @@ export default function ShiftScreen() {
           </>
         ) : (
           <View className="w-full max-w-[480px] gap-4 rounded-lg border border-border bg-surface p-4">
-            <Text className="text-heading font-semibold text-foreground">{t('pos.shift.openTitle')}</Text>
-            <Text className="text-label text-muted-foreground">{t('pos.shift.noOpenShift')}</Text>
+            <Text variant="heading" className="font-semibold text-foreground">{t('pos.shift.openTitle')}</Text>
+            <Text variant="label" className="font-normal text-muted-foreground">{t('pos.shift.noOpenShift')}</Text>
             <Field label={t('pos.shift.openingCash')}>
               <Input
                 value={openingCashText}
@@ -137,7 +137,7 @@ export default function ShiftScreen() {
           </View>
         )}
 
-        <Text className="text-heading font-semibold text-foreground">{t('pos.shift.history')}</Text>
+        <Text variant="heading" className="font-semibold text-foreground">{t('pos.shift.history')}</Text>
 
         {isTable ? (
           <View className="overflow-hidden rounded-lg border border-border bg-surface">
@@ -182,15 +182,15 @@ export default function ShiftScreen() {
               return (
                 <View key={shift.id} className="gap-1 border-b border-border p-3">
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-label font-semibold text-foreground">
+                    <Text variant="label" className="font-semibold text-foreground">
                       {new Date(shift.openedAt).toLocaleString('vi-VN')}
                     </Text>
-                    <Text className="text-label font-bold tabular-nums text-foreground">
+                    <Text variant="label" className="font-bold tabular-nums text-foreground">
                       {formatVND(shiftStat.revenue)}
                     </Text>
                   </View>
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-caption text-muted-foreground">
+                    <Text variant="caption" className="text-muted-foreground">
                       {`${t('pos.shift.variance')}: ${
                         shiftStat.variance != null ? formatVND(shiftStat.variance) : NO_VALUE
                       }`}
@@ -212,8 +212,8 @@ export default function ShiftScreen() {
 function ShiftStat({ label, value }: { label: string; value: string }) {
   return (
     <View className="min-w-[140px] flex-1 gap-1 rounded-lg border border-border bg-surface p-4">
-      <Text className="text-caption text-muted-foreground">{label}</Text>
-      <Text className="text-title font-bold tabular-nums text-foreground">{value}</Text>
+      <Text variant="caption" className="text-muted-foreground">{label}</Text>
+      <Text variant="title" className="font-bold tabular-nums text-foreground">{value}</Text>
     </View>
   );
 }

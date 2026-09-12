@@ -59,12 +59,12 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
     <View className="flex-1 bg-surface">
       {showHeader ? (
       <View className="h-14 flex-row items-center gap-2 border-b border-border px-4">
-        <Text className="flex-1 text-heading font-semibold text-foreground">
+        <Text variant="heading" className="flex-1 font-semibold text-foreground">
           {orderLabel(t, cart.ordinal)}
         </Text>
         {isEmpty ? null : (
           <View className="rounded-full bg-muted px-2 py-0.5">
-            <Text className="text-caption tabular-nums text-muted-foreground">
+            <Text variant="caption" className="tabular-nums text-muted-foreground">
               {countLabel(t, cartUnitCount(cart), 'pos.cart.items')}
             </Text>
           </View>
@@ -108,7 +108,7 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
           <ButtonLabel>{`${t('pos.cart.checkout')} · ${formatVND(totals.total)}`}</ButtonLabel>
           {desktop ? (
             <View className="ml-2 rounded-sm border border-primary-foreground px-1.5">
-              <Text className="text-caption text-primary-foreground">F9</Text>
+              <Text variant="caption" className="text-primary-foreground">F9</Text>
             </View>
           ) : null}
         </Button>

@@ -80,7 +80,7 @@ export function CustomerDetailScreen() {
           variant="ghost"
         >
           <AppIcon name="chevron-left" size={20} tone="muted-foreground" />
-          <Text className="text-label font-semibold text-foreground">{t('customers.detail.back')}</Text>
+          <Text variant="label" className="font-semibold text-foreground">{t('customers.detail.back')}</Text>
         </Button>
       </View>
 
@@ -90,12 +90,12 @@ export function CustomerDetailScreen() {
             <Avatar fallback={initials(customer.name)} size="xl" />
             <View className="min-w-0 gap-1">
               <View className="flex-row flex-wrap items-center gap-2">
-                <Text className="text-title font-bold text-foreground" numberOfLines={1}>
+                <Text variant="title" className="font-bold text-foreground" numberOfLines={1}>
                   {customer.name}
                 </Text>
                 <TierBadge tier={customer.tier} />
               </View>
-              <Text className="text-caption text-muted-foreground" numeric="tabular">
+              <Text variant="caption" className="text-muted-foreground" numeric="tabular">
                 {customer.phone}
               </Text>
             </View>

@@ -258,19 +258,21 @@ function OrderTab({ cart, products, active, onSwitch, onClose, onMeasure }: Orde
       >
         {active ? <View className="h-4 w-[3px] rounded-full bg-primary" /> : null}
         <Text
-          className={`text-label font-semibold ${active ? 'text-foreground' : 'text-muted-foreground'}`}
+          variant="label"
+          className={`font-semibold ${active ? 'text-foreground' : 'text-muted-foreground'}`}
         >
           {label}
         </Text>
         {lineCount === 0 ? (
-          <Text className="text-caption text-subtle-foreground">{t('pos.order.empty')}</Text>
+          <Text variant="caption" className="text-subtle-foreground">{t('pos.order.empty')}</Text>
         ) : (
           <>
             <View className="min-w-5 items-center rounded-full bg-muted px-1.5 py-0.5">
-              <Text className="text-caption font-semibold tabular-nums text-foreground">{lineCount}</Text>
+              <Text variant="caption" className="font-semibold tabular-nums text-foreground">{lineCount}</Text>
             </View>
             <Text
-              className={`text-label font-bold tabular-nums ${
+              variant="label"
+              className={`font-bold tabular-nums ${
                 active ? 'text-foreground' : 'text-muted-foreground'
               }`}
             >

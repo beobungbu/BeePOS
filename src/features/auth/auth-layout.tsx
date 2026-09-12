@@ -44,8 +44,8 @@ export function AuthBrand({ title, subtitle }: { title: string; subtitle: string
   return (
     <View className="mb-2 items-center gap-0.5">
       <BrandMark size="lg" />
-      <Text className="mt-3.5 text-title font-bold text-foreground">{title}</Text>
-      <Text className="text-label text-muted-foreground">{subtitle}</Text>
+      <Text variant="title" className="mt-3.5 font-bold text-foreground">{title}</Text>
+      <Text variant="label" className="font-normal text-muted-foreground">{subtitle}</Text>
     </View>
   );
 }
@@ -53,7 +53,7 @@ export function AuthBrand({ title, subtitle }: { title: string; subtitle: string
 /** `BeePOS 0.1.0 · BeeUI 0.86.2-rc.1` under the card. */
 export function AuthFooter() {
   return (
-    <Text className="text-caption text-subtle-foreground">
+    <Text variant="caption" className="text-subtle-foreground">
       {`BeePOS ${APP_VERSION} · BeeUI ${BEEUI_VERSION}`}
     </Text>
   );

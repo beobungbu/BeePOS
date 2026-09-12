@@ -46,8 +46,8 @@ export function OrderPreviewPane({
       <View className="w-80 border-l border-border bg-surface p-6">
         <View className="items-center gap-2 pt-8">
           <AppIcon name="receipt-text" size={40} tone="subtle-foreground" />
-          <Text className="text-center text-body font-semibold text-foreground">{t('orders.preview.empty')}</Text>
-          <Text className="text-center text-label text-muted-foreground">{t('orders.preview.emptyHint')}</Text>
+          <Text variant="body" className="text-center font-semibold text-foreground">{t('orders.preview.empty')}</Text>
+          <Text variant="label" className="font-normal text-center text-muted-foreground">{t('orders.preview.emptyHint')}</Text>
         </View>
       </View>
     );
@@ -55,27 +55,31 @@ export function OrderPreviewPane({
 
   return (
     <View className="w-80 border-l border-border bg-surface">
-      <View className="flex-row items-start gap-3 border-b border-border px-5 py-4">
-        <View className="min-w-0 flex-1">
-          <Text className="text-heading font-semibold text-foreground" numberOfLines={1}>
+      {/* The code takes the full pane width: at the heading step it no longer fits beside a
+          long status badge, so the badge sits on its own row under the meta line. */}
+      <View className="gap-2 border-b border-border px-5 py-4">
+        <View className="min-w-0">
+          <Text variant="heading" className="font-semibold text-foreground" numberOfLines={1}>
             {order.code}
           </Text>
-          <Text className="text-caption text-muted-foreground" numberOfLines={2}>
+          <Text variant="caption" className="text-muted-foreground" numberOfLines={2}>
             {`${formatDateTime(order.createdAt)} · ${cashier?.name ?? staffName}`}
           </Text>
         </View>
-        <OrderStatusBadge status={order.status} />
+        <View className="flex-row">
+          <OrderStatusBadge status={order.status} />
+        </View>
       </View>
 
       <ScrollView className="flex-1" contentContainerClassName="gap-4 px-5 py-4">
         <View className="flex-row items-center gap-2.5">
           <AppIcon name="users-round" size={20} tone="muted-foreground" />
           <View className="min-w-0 flex-1">
-            <Text className="text-label font-semibold text-foreground" numberOfLines={1}>
+            <Text variant="label" className="font-semibold text-foreground" numberOfLines={1}>
               {customer?.name ?? t('orders.table.noCustomer')}
             </Text>
             {customer ? (
-              <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+              <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
                 {`${customer.phone} · ${t(`customers.tier.${customer.tier}`)}`}
               </Text>
             ) : null}

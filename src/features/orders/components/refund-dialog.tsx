@@ -121,7 +121,7 @@ export function RefundDialog({
                 const qty = mode === 'full' ? remaining : (qtyByProduct[line.productId] ?? 0);
                 return (
                   <HStack className="items-center justify-between gap-2" key={line.productId}>
-                    <Text className="flex-1 text-label" numberOfLines={2}>
+                    <Text variant="label" className="font-normal flex-1" numberOfLines={2}>
                       {productName(line.productId)}
                     </Text>
                     <HStack className="items-center gap-2">
@@ -133,7 +133,7 @@ export function RefundDialog({
                       >
                         <AppIcon name="minus" size={18} tone="foreground" />
                       </IconButton>
-                      <Text className="min-w-10 text-center text-label font-semibold" numeric="tabular">
+                      <Text variant="label" className="min-w-10 text-center font-semibold" numeric="tabular">
                         {qty}/{remaining}
                       </Text>
                       <IconButton

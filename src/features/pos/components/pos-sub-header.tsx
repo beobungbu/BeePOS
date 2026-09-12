@@ -32,11 +32,11 @@ export function PosSubHeader({ title, subtitle, trailing, backTo = '/pos' }: Pos
         <AppIcon name="chevron-left" />
       </Pressable>
       <View className="min-w-0 flex-1">
-        <Text className="text-body font-semibold text-foreground" numberOfLines={1}>
+        <Text variant="body" className="font-semibold text-foreground" numberOfLines={1}>
           {title}
         </Text>
         {subtitle ? (
-          <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+          <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
             {subtitle}
           </Text>
         ) : null}

@@ -26,8 +26,8 @@ interface ProductCardProps {
  * The name box is a fixed two lines high so a one-line name and a two-line name produce the
  * same tile height and the grid never staggers.
  *
- * `compact` is the 3 column phone grid of the polish pass: the name drops to `text-caption`
- * and the price to `text-label`, one step down the scale of section 4, which is what keeps
+ * `compact` is the 3 column phone grid of the polish pass: the name drops to the caption
+ * variant and the price to the label variant, one step down the scale of section 4, which keeps
  * the name on two full lines at a 109 pt tile instead of clamping it.
  */
 export function ProductCard({

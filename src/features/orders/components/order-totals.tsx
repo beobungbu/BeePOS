@@ -25,8 +25,8 @@ export function OrderTotals({ order, compact = false }: { order: Order; compact?
       {order.taxTotal > 0 ? <Row label={t('orders.detail.tax')} value={formatVND(order.taxTotal)} /> : null}
       <View className="my-1 h-px bg-border-strong" />
       <View className="flex-row items-baseline justify-between gap-3">
-        <Text className="text-label uppercase text-muted-foreground">{t('orders.detail.total')}</Text>
-        <Text className={`font-bold text-foreground ${compact ? 'text-heading' : 'text-title'}`} numeric="tabular">
+        <Text variant="label" className="font-normal uppercase text-muted-foreground">{t('orders.detail.total')}</Text>
+        <Text variant={compact ? 'heading' : 'title'} className="font-bold text-foreground" numeric="tabular">
           {formatVND(order.total)}
         </Text>
       </View>
@@ -37,8 +37,8 @@ export function OrderTotals({ order, compact = false }: { order: Order; compact?
 function Row({ label, value, tone = 'text-foreground' }: { label: string; value: string; tone?: string }) {
   return (
     <View className="flex-row items-center justify-between gap-3">
-      <Text className="text-label text-muted-foreground">{label}</Text>
-      <Text className={`text-label font-semibold ${tone}`} numeric="tabular">
+      <Text variant="label" className="font-normal text-muted-foreground">{label}</Text>
+      <Text variant="label" className={`font-semibold ${tone}`} numeric="tabular">
         {value}
       </Text>
     </View>

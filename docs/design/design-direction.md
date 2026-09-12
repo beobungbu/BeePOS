@@ -85,17 +85,27 @@ inherited from the text token. Icons are always inside a 44 pt hit area.
 
 ## 4. Type, spacing, radius, elevation, tap targets
 
-Five type steps, all BeeUI tokens:
+Five type steps, all BeeUI tokens, reached through the `variant` prop of BeeUI `Text`:
 
-| Step | class | size / line | use |
+| Step | how to write it | size / line | use |
 |---|---|---|---|
-| caption | `text-caption` | 12 / 16 | unit, SKU, stock badge, table meta |
-| label | `text-label` | 14 / 20 | product name, cart line, buttons, tabs |
-| body | `text-body` | 16 / 24 | inputs, paragraphs, list primary text |
-| heading | `text-heading` | 18 / 24 | tile price, section titles, cart subtotal |
-| title | `text-title` | 24 / 32 | screen title, grand total (weight 700) |
+| caption | `variant="caption"` | 12 / 16 | unit, SKU, stock badge, table meta |
+| label | `variant="label"` | 14 / 20 | product name, cart line, buttons, tabs |
+| body | `variant="body"` (the default) | 16 / 24 | inputs, paragraphs, list primary text |
+| heading | `variant="heading"` | 18 / 24 | tile price, section titles, cart subtotal |
+| title | `variant="title"` | 24 / 32 | screen title, grand total (weight 700) |
+
+The named utilities `text-caption`, `text-label`, `text-heading` and `text-title` are dead in
+this toolchain: they generate no CSS, and `cn()` drops them as a colour when the element also
+carries a colour class, so anything written that way silently rendered at body size
+(`docs/beeui-audit/findings-15-polish.md`, 15-02). Where the target is not a BeeUI `Text` and
+takes only a class string (`ListItem` `titleClassName`, `StatValue`), write the step the way
+BeeUI writes it internally: `text-[length:var(--text-label)]` with
+`leading-[var(--text-label--line-height)]`.
 
 Weights: 400 body, 500 secondary emphasis, 600 names and section titles, 700 money.
+`variant="label"` ships weight 600 of its own, so a label row that should read regular (table
+cells, totals rows) states `font-normal`; the other four variants carry no weight.
 All money uses tabular figures (`font-variant-numeric: tabular-nums`) so columns align.
 
 Spacing is the 4 pt scale from the tokens page: 0, 4, 8, 10, 12, 16, 20, 24, 32, 40, 48, 64.
@@ -113,8 +123,8 @@ Chips are 36 high inside a 44 pt row so the row stays thumb safe.
 
 **POS grid density rule.** The image slot is reserved at a fixed aspect before load, so the
 grid never jumps. The name gets exactly 2 lines and is never clamped shorter; if 2 lines of
-`text-label` do not fit at the current column count, drop a column. Price is the loudest
-element (`text-heading`, weight 700) and stock is a `text-caption` badge, never a bare
+`variant="label"` do not fit at the current column count, drop a column. Price is the loudest
+element (`variant="heading"`, weight 700) and stock is a `variant="caption"` badge, never a bare
 circled number. Columns: 2 at phone, 4 at 768, 4 in the desktop two-pane layout. Minimum
 tile width 150.
 
@@ -135,8 +145,8 @@ colour, inside the same slot at the same size, so the grid never reflows between
 that has a photo and one that does not. The fallback is a property of the slot, not a
 different tile.
 
-Below the slot: name at `text-label` weight 600 on exactly 2 lines, then variant and unit as
-one `text-caption` line (`330ml · chai`), then the price at `text-heading` weight 700.
+Below the slot: name at `variant="label"` weight 600 on exactly 2 lines, then variant and unit as
+one `variant="caption"` line (`330ml · chai`), then the price at `variant="heading"` weight 700.
 Pressed state fills `bg-muted`.
 
 Phase 2 loads images with `expo-image`: `contentFit="cover"`, `transition={150}`, and a
@@ -147,12 +157,12 @@ Consequence to accept: at 375 pt a 1:1 slot over 2 columns leaves about 3 tiles 
 fold, the same trade Square and Loyverse make. If that is too slow at the till the answer is
 a compact list mode with a 40 pt thumbnail, not a shrunken grid image.
 
-**Stock badge.** `text-caption`, radius `full`, padding 2 x 8. Normal: `bg-muted` +
+**Stock badge.** `variant="caption"`, radius `full`, padding 2 x 8. Normal: `bg-muted` +
 `text-muted-foreground`, text `Còn 23`. At or under `minLevel`: `bg-warning` tint +
 `text-warning` + `triangle-alert` 12 pt, text `Sắp hết · 4`. Zero: `destructive` tint,
 text `Hết hàng`.
 
-**Category chips.** Height 36, radius `full`, `text-label` weight 500. Selected is
+**Category chips.** Height 36, radius `full`, `variant="label"` weight 500. Selected is
 `bg-primary` + `text-primary-foreground`; unselected is `bg-muted` with no border. Phone:
 one horizontally scrolling row, `Tất cả` pinned first, 8 pt gaps, gutter bleed so a half chip
 shows at the right edge. Tablet and desktop wrap to at most 2 rows, remainder behind `+3`.
@@ -161,32 +171,32 @@ shows at the right edge. Tablet and desktop wrap to at most 2 rows, remainder be
 and a 44 pt `scan-barcode` icon button trailing. Placeholder `Tìm tên, SKU hoặc quét mã vạch`,
 shortened to `Tìm hoặc quét mã vạch` under 400 pt so it never wraps. Sticky at the top of the
 catalog on `bg-surface`, gaining a bottom border once the grid scrolls under it; desktop adds
-an `F3` key hint in `text-caption` `text-subtle-foreground`.
+an `F3` key hint in `variant="caption"` `text-subtle-foreground`.
 
 **Cart line.** Row min height 64. Leading: the 40 pt thumbnail, radius `sm`, accent tint at
 10 percent, same image and same monogram fallback as the tile. The orders preview pane uses
-the identical thumbnail. Then name weight 600 `text-label`, `330ml · chai · 9.000 đ` in
-`text-caption`, and the line total right aligned in `text-label` weight 700 tabular. The qty
+the identical thumbnail. Then name weight 600 `variant="label"`, `330ml · chai · 9.000 đ` in
+`variant="caption"`, and the line total right aligned in `variant="label"` weight 700 tabular. The qty
 stepper sits under the name: 44 pt buttons around a 40 pt numeric field, `minus` becoming
 `trash-2` at qty 1. Swipe left deletes on phone, desktop shows an `x` on hover. A line
 discount is a third caption line in `text-success`, `Giảm 2.000 đ`.
 
 **Checkout total block.** Bottom of the cart pane on desktop, above the bottom tab bar on
-phone. Rows in `text-label`: Tạm tính, Giảm giá (`text-success`, with a minus), Thuế VAT.
-Then a `border-border-strong` rule, `TỔNG CỘNG` in `text-label` `text-muted-foreground` and
-the amount in `text-title` weight 700, then a full width 52 pt `bg-primary` button reading
+phone. Rows in `variant="label"`: Tạm tính, Giảm giá (`text-success`, with a minus), Thuế VAT.
+Then a `border-border-strong` rule, `TỔNG CỘNG` in `variant="label"` `text-muted-foreground` and
+the amount in `variant="title"` weight 700, then a full width 52 pt `bg-primary` button reading
 `Thanh toán · 158.000 đ`. The total is always on the button, following Square.
 
 **Payment.** The method chooser is a 2x2 card grid with icons at every breakpoint, 64 pt rows
 and 56 pt on phone; the selected card takes a 2 pt `border-primary` and an 8 percent primary
 fill. `segmented-control` was built first and rejected: `Chuyển khoản` wraps at 375 pt and
 breaks the control height. Cash view: tendered field, quick chips `Đủ tiền`, `100.000`,
-`200.000`, `500.000`, then `Tiền thừa` in `text-title` `text-success`, or `text-destructive`
+`200.000`, `500.000`, then `Tiền thừa` in `variant="title"` `text-success`, or `text-destructive`
 with `Còn thiếu` when short. Split payment appends a `list-group` of applied payments each
 with a remove control, and the pay button reads `Còn lại 40.000 đ` until the balance is zero.
 
 **Empty states.** `state-message`: 40 pt lucide icon in `text-subtle-foreground`, a
-`text-body` weight 600 line, one `text-label` `text-muted-foreground` line, and a single
+`variant="body"` weight 600 line, one `variant="label"` `text-muted-foreground` line, and a single
 action where one exists. Cart empty: `shopping-cart`, `Giỏ hàng trống`, `Quét mã vạch hoặc
 chạm vào sản phẩm để thêm`. Cap the block at 280 pt and align it to the top third instead of
 centring it in a 600 pt void the way the current build does.
@@ -215,7 +225,7 @@ inside it and the new-order button is a 48 pt square pinned outside the scroller
 right, always reachable. Visible before scrolling: 2 on phone, 5 at 768, 8 at 1440. There is
 no overflow menu; scrolling is the only overflow mechanism.
 
-**Tab.** 36 pt tall, radius `md`, `text-label` weight 600, contents in order: a 3 pt primary
+**Tab.** 36 pt tall, radius `md`, `variant="label"` weight 600, contents in order: a 3 pt primary
 accent bar (active only), the label `Đơn 1`, a `badge` with the line count, the order total
 in weight 700 tabular figures, then the close control (active only). Active tab is
 `bg-surface` with `border-border-strong` and `text-foreground`; inactive is transparent with
@@ -262,7 +272,7 @@ tablet, 32 desktop; field gap 16, group gap 24 (`--spacing-density-form-gap` sca
 under compact density).
 
 Login and select-store centre vertically under a brand block: a 56 pt rounded `bg-primary`
-square with the bee mark, `BeePOS` in `text-title` weight 700, one `text-label`
+square with the bee mark, `BeePOS` in `variant="title"` weight 700, one `variant="label"`
 `text-muted-foreground` line. Login fields are `Mã cửa hàng` (autocapitalize characters) and
 `Mã PIN` (`otp-input`, 4 numeric cells); primary button full width 52 pt. Select-store is a
 `list-group` of 72 pt rows: code chip, name weight 600, address caption, `chevron-right`.

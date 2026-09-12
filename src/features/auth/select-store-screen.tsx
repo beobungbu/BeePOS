@@ -52,7 +52,7 @@ export default function SelectStoreScreen() {
         key={store.id}
         className="min-h-[72px]"
         title={store.name}
-        titleClassName="text-label font-semibold text-foreground"
+        titleClassName="text-[length:var(--text-label)] leading-[var(--text-label--line-height)] font-semibold text-foreground"
         description={`${store.address}${store.phone ? ` · ${store.phone}` : ''}`}
         leading={
           <Badge variant="outline" className="rounded-sm border-transparent bg-muted">
@@ -92,14 +92,14 @@ export default function SelectStoreScreen() {
               </IconButton>
             }
             title={
-              <Text className="text-body font-semibold text-foreground">{t('common.auth.selectStore')}</Text>
+              <Text variant="body" className="font-semibold text-foreground">{t('common.auth.selectStore')}</Text>
             }
             trailing={<Avatar fallback={initialsOf(staff?.name)} size="md" />}
           />
           <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
             <View className="gap-1 p-4">
-              <Text className="text-heading font-semibold text-foreground">{greeting}</Text>
-              <Text className="text-label text-muted-foreground">{t('common.auth.selectStorePrompt')}</Text>
+              <Text variant="heading" className="font-semibold text-foreground">{greeting}</Text>
+              <Text variant="label" className="font-normal text-muted-foreground">{t('common.auth.selectStorePrompt')}</Text>
             </View>
 
             {recentStore ? (
@@ -126,9 +126,10 @@ export default function SelectStoreScreen() {
       <AuthBrand title={greeting} subtitle={t('common.auth.selectStorePrompt')} />
       <ListGroup>{storeOptions.map((store) => storeRow(store, store.id === recentStore?.id))}</ListGroup>
       <Text
+        variant="label"
         accessibilityRole="button"
         onPress={handleSignOut}
-        className="min-h-touch-target p-2 text-center text-label font-semibold text-info"
+        className="min-h-touch-target p-2 text-center font-semibold text-info"
       >
         {t('common.auth.logout')}
       </Text>
@@ -138,7 +139,7 @@ export default function SelectStoreScreen() {
 
 function SectionLabel({ children }: { children: string }) {
   return (
-    <Text className="px-4 pb-2 pt-4 text-caption font-semibold uppercase tracking-wide text-muted-foreground">
+    <Text variant="caption" className="px-4 pb-2 pt-4 font-semibold uppercase tracking-wide text-muted-foreground">
       {children}
     </Text>
   );

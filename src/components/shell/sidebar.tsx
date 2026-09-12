@@ -35,10 +35,10 @@ export function Sidebar() {
         <View className="mt-2 flex-row items-center gap-2.5 border-t border-border px-2 pb-1 pt-3">
           <Avatar fallback={initialsOf(staff.name)} size="sm" />
           <View className="min-w-0 flex-1">
-            <Text className="text-label font-semibold text-foreground" numberOfLines={1}>
+            <Text variant="label" className="font-semibold text-foreground" numberOfLines={1}>
               {staff.name}
             </Text>
-            <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+            <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
               {store ? `${t(`staff.role.${staff.role}`)} · ${store.code}` : t(`staff.role.${staff.role}`)}
             </Text>
           </View>
@@ -65,12 +65,9 @@ function SidebarItem({ item, active }: { item: NavItem; active: boolean }) {
     >
       <AppIcon name={item.icon} tone={active ? 'primary-pressed' : 'muted-foreground'} />
       <Text
+        variant="label"
         numberOfLines={1}
-        className={
-          active
-            ? 'text-label font-semibold text-primary-pressed'
-            : 'text-label font-medium text-muted-foreground'
-        }
+        className={active ? 'font-semibold text-primary-pressed' : 'font-medium text-muted-foreground'}
       >
         {label}
       </Text>

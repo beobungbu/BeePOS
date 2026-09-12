@@ -36,12 +36,12 @@ export function OrderListGroup({
         accessibilityLabel={`${order.code}. ${meta}. ${t(`orders.status.${order.status}`)}. ${formatVND(order.total)}`}
         description={
           <View className="gap-1">
-            <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+            <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
               {meta}
             </Text>
             <View className="flex-row items-center gap-2">
               <OrderStatusBadge status={order.status} />
-              <Text className="min-w-0 shrink text-caption text-muted-foreground" numberOfLines={1}>
+              <Text variant="caption" className="min-w-0 shrink text-muted-foreground" numberOfLines={1}>
                 {payment}
               </Text>
             </View>
@@ -51,11 +51,12 @@ export function OrderListGroup({
         onPress={() => router.push(`/orders/${order.id}`)}
         title={
           <View className="flex-row items-center gap-3">
-            <Text className="min-w-0 flex-1 text-label font-semibold text-foreground" numberOfLines={1}>
+            <Text variant="label" className="min-w-0 flex-1 font-semibold text-foreground" numberOfLines={1}>
               {order.code}
             </Text>
             <Text
-              className={`text-label font-bold ${cancelled ? 'text-muted-foreground line-through' : 'text-foreground'}`}
+              variant="label"
+              className={`font-bold ${cancelled ? 'text-muted-foreground line-through' : 'text-foreground'}`}
               numeric="tabular"
             >
               {formatVND(order.total)}

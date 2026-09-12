@@ -27,7 +27,7 @@ export function NoShiftBanner({ gutter, verbose }: NoShiftBannerProps) {
       style={{ paddingHorizontal: gutter }}
     >
       <AppIcon name="triangle-alert" size={16} tone="warning" />
-      <Text className="flex-1 text-caption font-medium text-warning" numberOfLines={1}>
+      <Text variant="caption" className="flex-1 font-medium text-warning" numberOfLines={1}>
         {verbose ? `${t('pos.shiftBanner.title')}. ${t('pos.shiftBanner.description')}` : t('pos.shiftBanner.title')}
       </Text>
       <Pressable
@@ -36,7 +36,7 @@ export function NoShiftBanner({ gutter, verbose }: NoShiftBannerProps) {
         accessibilityLabel={t('pos.shiftBanner.action')}
         className="h-10 justify-center px-1"
       >
-        <Text className="text-label font-semibold text-warning">{t('pos.shiftBanner.action')}</Text>
+        <Text variant="label" className="font-semibold text-warning">{t('pos.shiftBanner.action')}</Text>
       </Pressable>
     </View>
   );

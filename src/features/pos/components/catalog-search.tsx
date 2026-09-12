@@ -53,7 +53,7 @@ export function CatalogSearch({ value, onChangeText, onSubmit, short, showKeyHin
       />
       {showKeyHint ? (
         <View className="rounded-sm border border-border px-1.5 py-0.5">
-          <Text className="text-caption text-subtle-foreground">F3</Text>
+          <Text variant="caption" className="text-subtle-foreground">F3</Text>
         </View>
       ) : null}
       {/*

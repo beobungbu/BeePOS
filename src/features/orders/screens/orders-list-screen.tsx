@@ -156,7 +156,7 @@ export function OrdersListScreen() {
   const footer =
     sorted.length === 0 ? null : (
       <View className={`flex-row flex-wrap items-center justify-between gap-3 border-t border-border bg-surface py-3 ${gutter}`}>
-        <Text className="text-label text-muted-foreground" numeric="tabular">
+        <Text variant="label" className="font-normal text-muted-foreground" numeric="tabular">
           {fill(t('orders.pagination.showing'), { from: range.from, to: range.to, total: sorted.length })}
         </Text>
         {pageCount > 1 ? (

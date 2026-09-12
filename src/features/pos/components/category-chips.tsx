@@ -86,7 +86,8 @@ function CategoryChip({ label, selected, onPress }: CategoryChipProps) {
       className={`h-9 justify-center rounded-full px-3.5 ${selected ? 'bg-primary' : 'bg-muted'}`}
     >
       <Text
-        className={`text-label font-medium ${selected ? 'text-primary-foreground' : 'text-foreground'}`}
+        variant="label"
+        className={`font-medium ${selected ? 'text-primary-foreground' : 'text-foreground'}`}
         numberOfLines={1}
       >
         {label}

@@ -53,7 +53,8 @@ export function ProductImageSlot({
         ) : (
           <View className="flex-1 items-center justify-center">
             <Text
-              className="text-heading font-bold"
+              variant="heading"
+              className="font-bold"
               style={accent.color ? { color: accent.color } : undefined}
             >
               {monogramOf(product.name)}

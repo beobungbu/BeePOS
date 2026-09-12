@@ -6,6 +6,10 @@ import { useT } from '../../../i18n';
 import type { Breakpoint } from '../../../hooks/use-breakpoint';
 import { averageOrderValue } from '../lib/order-presentation';
 
+/** The heading step (18 / 24) as the arbitrary-value utility BeeUI emits for its own variants. */
+const STAT_VALUE_CLASS =
+  'text-[length:var(--text-title)] leading-[var(--text-title--line-height)] font-bold';
+
 /**
  * The mockup's stat row: three compact figures in one strip on phone, four Stat cards from
  * tablet up (`docs/design/mockups/orders.html`). Money is tabular so the columns line up
@@ -28,6 +32,8 @@ export function OrderStatsStrip({ stats, breakpoint }: { stats: OrderStats; brea
   // Four cards fit one row at desktop; at tablet they wrap to 2 x 2 rather than clipping a
   // revenue figure that needs the full width of its card.
   // Class names are whole literals so the Uniwind extractor can see them in the source.
+  // StatValue takes no variant prop, so the heading step is written the way BeeUI writes it
+  // internally: the named utility generates no CSS in this toolchain.
   const cardClass =
     breakpoint === 'tablet'
       ? 'min-w-64 flex-1 rounded-lg border border-border bg-surface p-3.5'
@@ -37,19 +43,19 @@ export function OrderStatsStrip({ stats, breakpoint }: { stats: OrderStats; brea
     <View className="flex-row flex-wrap gap-3">
       <Stat className={cardClass}>
         <StatLabel>{t('orders.stats.orders')}</StatLabel>
-        <StatValue className="text-heading font-bold" numberOfLines={1} numeric="tabular">{stats.orderCount}</StatValue>
+        <StatValue className={STAT_VALUE_CLASS} numberOfLines={1} numeric="tabular">{stats.orderCount}</StatValue>
       </Stat>
       <Stat className={cardClass}>
         <StatLabel>{t('orders.stats.revenue')}</StatLabel>
-        <StatValue className="text-heading font-bold" numberOfLines={1} numeric="tabular">{formatVND(stats.revenue)}</StatValue>
+        <StatValue className={STAT_VALUE_CLASS} numberOfLines={1} numeric="tabular">{formatVND(stats.revenue)}</StatValue>
       </Stat>
       <Stat className={cardClass}>
         <StatLabel>{t('orders.stats.average')}</StatLabel>
-        <StatValue className="text-heading font-bold" numberOfLines={1} numeric="tabular">{average}</StatValue>
+        <StatValue className={STAT_VALUE_CLASS} numberOfLines={1} numeric="tabular">{average}</StatValue>
       </Stat>
       <Stat className={cardClass}>
         <StatLabel>{t('orders.stats.refundCount')}</StatLabel>
-        <StatValue className="text-heading font-bold" numberOfLines={1} numeric="tabular">{stats.refundCount}</StatValue>
+        <StatValue className={STAT_VALUE_CLASS} numberOfLines={1} numeric="tabular">{stats.refundCount}</StatValue>
       </Stat>
     </View>
   );
@@ -58,10 +64,10 @@ export function OrderStatsStrip({ stats, breakpoint }: { stats: OrderStats; brea
 function CompactStat({ label, value }: { label: string; value: string }) {
   return (
     <View className="min-w-0 flex-1 gap-0.5">
-      <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+      <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
         {label}
       </Text>
-      <Text className="text-body font-bold text-foreground" numberOfLines={1} numeric="tabular">
+      <Text variant="body" className="font-bold text-foreground" numberOfLines={1} numeric="tabular">
         {value}
       </Text>
     </View>

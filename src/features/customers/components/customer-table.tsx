@@ -55,13 +55,13 @@ export function CustomerTable({
                 onPress={() => router.push(`/customers/${customer.id}`)}
               >
                 <Avatar fallback={initials(customer.name)} size="sm" />
-                <Text className="min-w-0 flex-1 text-label font-semibold text-foreground" numberOfLines={1}>
+                <Text variant="label" className="min-w-0 flex-1 font-semibold text-foreground" numberOfLines={1}>
                   {customer.name}
                 </Text>
               </Pressable>
             </TableCell>
             <TableCell label={t('customers.table.phone')}>
-              <Text className="text-label text-foreground" numeric="tabular">
+              <Text variant="label" className="font-normal text-foreground" numeric="tabular">
                 {customer.phone}
               </Text>
             </TableCell>
@@ -71,18 +71,18 @@ export function CustomerTable({
               </View>
             </TableCell>
             <TableCell className="items-end text-right" label={t('customers.table.points')}>
-              <Text className="text-right text-label text-foreground" numeric="tabular">
+              <Text variant="label" className="font-normal text-right text-foreground" numeric="tabular">
                 {customer.points}
               </Text>
             </TableCell>
             <TableCell className="items-end text-right" label={t('customers.table.totalSpent')}>
-              <Text className="text-right text-label font-bold text-foreground" numeric="tabular">
+              <Text variant="label" className="text-right font-bold text-foreground" numeric="tabular">
                 {formatVND(customer.totalSpent)}
               </Text>
             </TableCell>
             {showLastOrder ? (
               <TableCell label={t('customers.table.lastOrder')}>
-                <Text className="text-label text-muted-foreground" numeric="tabular">
+                <Text variant="label" className="font-normal text-muted-foreground" numeric="tabular">
                   {lastOrderLabel(customer.id) ?? t('customers.table.never')}
                 </Text>
               </TableCell>

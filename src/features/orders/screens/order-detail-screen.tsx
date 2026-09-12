@@ -58,7 +58,7 @@ export function OrderDetailScreen() {
 
   const summaryCard = (
     <Card className="gap-3">
-      <Text className="text-label font-semibold text-foreground">{t('orders.detail.summary')}</Text>
+      <Text variant="label" className="font-semibold text-foreground">{t('orders.detail.summary')}</Text>
       <InfoRow label={t('orders.detail.customer')} value={customer?.name ?? t('orders.table.noCustomer')} />
       {customer ? <InfoRow label={t('customers.table.phone')} value={customer.phone} /> : null}
       <InfoRow label={t('orders.detail.store')} value={storeName} />
@@ -70,11 +70,11 @@ export function OrderDetailScreen() {
 
   const paymentsCard = (
     <Card className="gap-3">
-      <Text className="text-label font-semibold text-foreground">{t('orders.detail.payments')}</Text>
+      <Text variant="label" className="font-semibold text-foreground">{t('orders.detail.payments')}</Text>
       {order.payments.map((payment, index) => (
         <View className="flex-row items-center justify-between gap-3" key={`${payment.method}-${index}`}>
-          <Text className="text-label text-muted-foreground">{t(`orders.paymentMethod.${payment.method}`)}</Text>
-          <Text className="text-label font-semibold text-foreground" numeric="tabular">
+          <Text variant="label" className="font-normal text-muted-foreground">{t(`orders.paymentMethod.${payment.method}`)}</Text>
+          <Text variant="label" className="font-semibold text-foreground" numeric="tabular">
             {formatVND(payment.amount)}
           </Text>
         </View>
@@ -84,14 +84,14 @@ export function OrderDetailScreen() {
 
   const timelineCard = (
     <Card className="gap-3">
-      <Text className="text-label font-semibold text-foreground">{t('orders.detail.timeline')}</Text>
+      <Text variant="label" className="font-semibold text-foreground">{t('orders.detail.timeline')}</Text>
       <OrderTimeline cashierName={cashierName} order={order} refunds={actions.refunds} />
     </Card>
   );
 
   const linesCard = (
     <Card className="gap-4">
-      <Text className="text-label font-semibold text-foreground">
+      <Text variant="label" className="font-semibold text-foreground">
         {`${t('orders.detail.lines')} · ${fill(t('orders.detail.itemCount'), { count: itemCount(order) })}`}
       </Text>
       <OrderLinesList lines={order.lines} products={products} />
@@ -109,17 +109,17 @@ export function OrderDetailScreen() {
           variant="ghost"
         >
           <AppIcon name="chevron-left" size={20} tone="muted-foreground" />
-          <Text className="text-label font-semibold text-foreground">{t('orders.detail.back')}</Text>
+          <Text variant="label" className="font-semibold text-foreground">{t('orders.detail.back')}</Text>
         </Button>
       </View>
 
       <View className={isPhone ? 'gap-3' : 'flex-row flex-wrap items-start justify-between gap-3'}>
         <View className="min-w-0 gap-1">
           <View className="flex-row flex-wrap items-center gap-3">
-            <Text className="text-title font-bold text-foreground">{order.code}</Text>
+            <Text variant="title" className="font-bold text-foreground">{order.code}</Text>
             <OrderStatusBadge status={order.status} />
           </View>
-          <Text className="text-caption text-muted-foreground" numberOfLines={2}>
+          <Text variant="caption" className="text-muted-foreground" numberOfLines={2}>
             {`${formatDateTime(order.createdAt)} · ${cashierName} · ${storeName}`}
           </Text>
         </View>
@@ -184,8 +184,8 @@ export function OrderDetailScreen() {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row items-start justify-between gap-3">
-      <Text className="text-label text-muted-foreground">{label}</Text>
-      <Text className="flex-1 text-right text-label text-foreground">{value}</Text>
+      <Text variant="label" className="font-normal text-muted-foreground">{label}</Text>
+      <Text variant="label" className="font-normal flex-1 text-right text-foreground">{value}</Text>
     </View>
   );
 }

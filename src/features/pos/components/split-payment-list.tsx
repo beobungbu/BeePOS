@@ -22,15 +22,15 @@ export function SplitPaymentList({ payments, remaining, onRemove }: SplitPayment
 
   return (
     <View className="rounded-lg border border-border bg-surface p-4">
-      <Text className="text-label font-semibold text-foreground">{t('pos.checkout.paid')}</Text>
+      <Text variant="label" className="font-semibold text-foreground">{t('pos.checkout.paid')}</Text>
       {payments.map((payment, index) => (
         <View
           key={`${payment.method}-${index}`}
           className="min-h-12 flex-row items-center gap-2.5 border-b border-border py-2"
         >
           <AppIcon name={METHOD_ICON[payment.method]} size={18} tone="muted-foreground" />
-          <Text className="flex-1 text-label text-foreground">{t(METHOD_LABEL_KEY[payment.method])}</Text>
-          <Text className="text-label font-bold tabular-nums text-foreground">
+          <Text variant="label" className="font-normal flex-1 text-foreground">{t(METHOD_LABEL_KEY[payment.method])}</Text>
+          <Text variant="label" className="font-bold tabular-nums text-foreground">
             {formatVND(payment.amount)}
           </Text>
           <IconButton
@@ -43,11 +43,12 @@ export function SplitPaymentList({ payments, remaining, onRemove }: SplitPayment
         </View>
       ))}
       <View className="flex-row items-center justify-between pt-2.5">
-        <Text className={`text-label font-semibold ${remaining > 0 ? 'text-warning' : 'text-success'}`}>
+        <Text variant="label" className={`font-semibold ${remaining > 0 ? 'text-warning' : 'text-success'}`}>
           {remaining > 0 ? t('pos.checkout.balance') : t('pos.checkout.fullyPaid')}
         </Text>
         <Text
-          className={`text-heading font-bold tabular-nums ${
+          variant="heading"
+          className={`font-bold tabular-nums ${
             remaining > 0 ? 'text-warning' : 'text-success'
           }`}
         >

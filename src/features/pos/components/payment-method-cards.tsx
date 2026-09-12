@@ -55,7 +55,8 @@ export function PaymentMethodCards({ value, onChange, compact }: PaymentMethodCa
           >
             <AppIcon name={METHOD_ICON[method]} size={24} tone={selected ? 'foreground' : 'muted-foreground'} />
             <Text
-              className={`text-label ${selected ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}
+              variant="label"
+              className={`font-normal ${selected ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}
               numberOfLines={1}
             >
               {t(METHOD_LABEL_KEY[method])}

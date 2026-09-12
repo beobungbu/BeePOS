@@ -55,11 +55,11 @@ export default function LoginScreen() {
           signing into the wrong shop; it sits outside `Field` so the label stays bound to the
           input alone. */}
       {resolvedStore ? (
-        <Text className="-mt-2 text-caption font-medium text-success">
+        <Text variant="caption" className="-mt-2 font-medium text-success">
           {`${resolvedStore.name} · ${resolvedStore.address}`}
         </Text>
       ) : trimmedCode.length > 0 ? (
-        <Text className="-mt-2 text-caption text-muted-foreground">{t('common.auth.storeNotFound')}</Text>
+        <Text variant="caption" className="-mt-2 text-muted-foreground">{t('common.auth.storeNotFound')}</Text>
       ) : null}
 
       <Field label={t('common.auth.pin')}>
@@ -79,10 +79,10 @@ export default function LoginScreen() {
           onValueChange={setRemember}
           accessibilityLabel={t('common.auth.rememberStore')}
         />
-        <Text className="text-label text-foreground">{t('common.auth.rememberStore')}</Text>
+        <Text variant="label" className="font-normal text-foreground">{t('common.auth.rememberStore')}</Text>
       </View>
 
-      {error ? <Text className="text-label text-destructive">{error}</Text> : null}
+      {error ? <Text variant="label" className="font-normal text-destructive">{error}</Text> : null}
 
       <Button className="h-[52px] w-full" onPress={handleSubmit}>
         <ButtonLabel>{t('common.auth.login')}</ButtonLabel>

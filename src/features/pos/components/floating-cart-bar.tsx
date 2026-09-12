@@ -49,13 +49,13 @@ export function FloatingCartBar({
       >
         <View className="flex-row items-center gap-1">
           <AppIcon name="shopping-cart" tone="muted-foreground" />
-          <Text className="text-label font-bold tabular-nums text-foreground">{unitCount}</Text>
+          <Text variant="label" className="font-bold tabular-nums text-foreground">{unitCount}</Text>
         </View>
         <View className="flex-1">
-          <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+          <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
             {summary}
           </Text>
-          <Text className="text-heading font-bold tabular-nums text-foreground">{formatVND(total)}</Text>
+          <Text variant="heading" className="font-bold tabular-nums text-foreground">{formatVND(total)}</Text>
         </View>
       </Pressable>
 

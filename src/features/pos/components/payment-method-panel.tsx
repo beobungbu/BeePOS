@@ -56,11 +56,12 @@ export function PaymentMethodPanel({
               draft.settlesBalance ? 'bg-success/10' : 'bg-destructive/10'
             }`}
           >
-            <Text className="text-label text-muted-foreground">
+            <Text variant="label" className="font-normal text-muted-foreground">
               {draft.settlesBalance ? t('pos.checkout.changeDue') : t('pos.checkout.remaining')}
             </Text>
             <Text
-              className={`text-title font-bold tabular-nums ${
+              variant="title"
+              className={`font-bold tabular-nums ${
                 draft.settlesBalance ? 'text-success' : 'text-destructive'
               }`}
             >
@@ -82,13 +83,13 @@ export function PaymentMethodPanel({
           <View className="h-28 w-28 items-center justify-center rounded-md bg-muted">
             <AppIcon name="qr-code" size={72} tone="muted-foreground" />
           </View>
-          <Text className="text-label font-semibold text-foreground">
+          <Text variant="label" className="font-semibold text-foreground">
             {`${t('pos.checkout.qrTitle')} ${formatVND(draft.payment?.amount ?? remaining)}`}
           </Text>
-          <Text className="text-caption text-muted-foreground">
+          <Text variant="caption" className="text-muted-foreground">
             {`${t('pos.checkout.bankName')}: Vietcombank · 0011 0023 4567`}
           </Text>
-          <Text className="text-caption text-muted-foreground">
+          <Text variant="caption" className="text-muted-foreground">
             {`${t('pos.checkout.accountHolder')}: ${storeName ?? 'BeePOS'}`}
           </Text>
         </View>
@@ -105,7 +106,7 @@ export function PaymentMethodPanel({
         <Field label={t('pos.checkout.cardRef')}>
           <Input value={refText} onChangeText={onRefChange} placeholder="0000" />
         </Field>
-        <Text className="text-caption text-muted-foreground">{t('pos.checkout.cardNote')}</Text>
+        <Text variant="caption" className="text-muted-foreground">{t('pos.checkout.cardNote')}</Text>
       </View>
     );
   }
@@ -113,7 +114,7 @@ export function PaymentMethodPanel({
   if (!customer) {
     return (
       <View className="rounded-md bg-destructive/10 px-4 py-3">
-        <Text className="text-label text-destructive">{t('pos.checkout.needCustomerForPoints')}</Text>
+        <Text variant="label" className="font-normal text-destructive">{t('pos.checkout.needCustomerForPoints')}</Text>
       </View>
     );
   }
@@ -130,11 +131,11 @@ export function PaymentMethodPanel({
         />
       </Field>
       <View className="flex-row items-center justify-between">
-        <Text className="text-caption text-muted-foreground">{t('pos.checkout.pointsAvailable')}</Text>
-        <Text className="text-caption font-semibold tabular-nums text-foreground">{customer.points}</Text>
+        <Text variant="caption" className="text-muted-foreground">{t('pos.checkout.pointsAvailable')}</Text>
+        <Text variant="caption" className="font-semibold tabular-nums text-foreground">{customer.points}</Text>
       </View>
       {draft.exceedsPoints ? (
-        <Text className="text-caption text-destructive">{t('pos.checkout.pointsInsufficient')}</Text>
+        <Text variant="caption" className="text-destructive">{t('pos.checkout.pointsInsufficient')}</Text>
       ) : null}
     </View>
   );

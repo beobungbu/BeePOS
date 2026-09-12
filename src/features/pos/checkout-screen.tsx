@@ -152,7 +152,7 @@ export default function CheckoutScreen() {
   if (isEmpty) {
     return (
       <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-body text-muted-foreground">{t('pos.checkout.emptyCartError')}</Text>
+        <Text variant="body" className="text-muted-foreground">{t('pos.checkout.emptyCartError')}</Text>
       </View>
     );
   }
@@ -161,7 +161,7 @@ export default function CheckoutScreen() {
     <>
       <OrderTotalsPanel totals={totals} collapsible={layout.breakpoint === 'phone'} />
       <View className="gap-2">
-        <Text className="text-label font-semibold text-foreground">{t('pos.checkout.method')}</Text>
+        <Text variant="label" className="font-semibold text-foreground">{t('pos.checkout.method')}</Text>
         <PaymentMethodCards value={method} onChange={chooseMethod} compact={layout.breakpoint === 'phone'} />
       </View>
       <PaymentMethodPanel
@@ -207,7 +207,7 @@ export default function CheckoutScreen() {
         </ButtonLabel>
       </Button>
       {otherOpenOrders > 0 ? (
-        <Text className="text-center text-caption text-subtle-foreground">
+        <Text variant="caption" className="text-center text-subtle-foreground">
           {`${t('pos.checkout.nextOrderHint')} ${orderLabel(
             t,
             carts.find((item) => item.id !== cart.id)?.ordinal ?? cart.ordinal,
@@ -222,7 +222,7 @@ export default function CheckoutScreen() {
       <View className="flex-1">
         <View className="min-h-0 flex-1 flex-row">
           <ScrollView className="flex-1 bg-surface-muted" contentContainerStyle={{ padding: 24, gap: 16 }}>
-            <Text className="text-heading font-semibold text-foreground">{t('pos.checkout.review')}</Text>
+            <Text variant="heading" className="font-semibold text-foreground">{t('pos.checkout.review')}</Text>
             <View className="overflow-hidden rounded-lg border border-border bg-surface">
               <Table>
                 <TableHeader>
@@ -230,21 +230,21 @@ export default function CheckoutScreen() {
                     <TableHead>{t('pos.checkout.reviewProduct')}</TableHead>
                     <TableHead>
                       <View className="w-full items-end">
-                        <Text className="text-caption text-muted-foreground">
+                        <Text variant="caption" className="text-muted-foreground">
                           {t('pos.checkout.reviewUnitPrice')}
                         </Text>
                       </View>
                     </TableHead>
                     <TableHead>
                       <View className="w-full items-center">
-                        <Text className="text-caption text-muted-foreground">
+                        <Text variant="caption" className="text-muted-foreground">
                           {t('pos.checkout.reviewQty')}
                         </Text>
                       </View>
                     </TableHead>
                     <TableHead>
                       <View className="w-full items-end">
-                        <Text className="text-caption text-muted-foreground">
+                        <Text variant="caption" className="text-muted-foreground">
                           {t('pos.checkout.reviewLineTotal')}
                         </Text>
                       </View>
@@ -258,29 +258,29 @@ export default function CheckoutScreen() {
                       <TableRow key={line.productId}>
                         <TableCell>
                           <View className="gap-0.5">
-                            <Text className="text-label font-semibold text-foreground">
+                            <Text variant="label" className="font-semibold text-foreground">
                               {product?.name ?? line.productId}
                             </Text>
-                            <Text className="text-caption text-muted-foreground">
+                            <Text variant="caption" className="text-muted-foreground">
                               {product?.unit ?? ''}
                             </Text>
                           </View>
                         </TableCell>
                         <TableCell>
                           <View className="w-full items-end">
-                            <Text className="text-label tabular-nums text-foreground">
+                            <Text variant="label" className="font-normal tabular-nums text-foreground">
                               {formatVND(line.unitPrice)}
                             </Text>
                           </View>
                         </TableCell>
                         <TableCell>
                           <View className="w-full items-center">
-                            <Text className="text-label tabular-nums text-foreground">{line.qty}</Text>
+                            <Text variant="label" className="font-normal tabular-nums text-foreground">{line.qty}</Text>
                           </View>
                         </TableCell>
                         <TableCell>
                           <View className="w-full items-end">
-                            <Text className="text-label font-semibold tabular-nums text-foreground">
+                            <Text variant="label" className="font-semibold tabular-nums text-foreground">
                               {formatVND(line.unitPrice * line.qty)}
                             </Text>
                           </View>
@@ -294,7 +294,7 @@ export default function CheckoutScreen() {
             {customer ? (
               <View className="flex-row items-center gap-2.5">
                 <AppIcon name="users-round" size={18} tone="muted-foreground" />
-                <Text className="flex-1 text-label text-foreground">
+                <Text variant="label" className="font-normal flex-1 text-foreground">
                   {`${customer.name} · ${customer.phone} · ${customer.points} ${t('pos.customerDialog.points')}`}
                 </Text>
               </View>
@@ -328,8 +328,8 @@ export default function CheckoutScreen() {
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row items-center justify-between">
-      <Text className="text-caption text-subtle-foreground">{label}</Text>
-      <Text className="text-caption text-subtle-foreground">{value}</Text>
+      <Text variant="caption" className="text-subtle-foreground">{label}</Text>
+      <Text variant="caption" className="text-subtle-foreground">{value}</Text>
     </View>
   );
 }

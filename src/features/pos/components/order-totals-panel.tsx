@@ -17,7 +17,7 @@ interface OrderTotalsPanelProps {
   collapsible?: boolean;
 }
 
-/** Tạm tính, giảm giá, thuế, then the rule and the grand total in `text-title` weight 700. */
+/** Tạm tính, giảm giá, thuế, then the rule and the grand total in the title step, weight 700. */
 export function OrderTotalsPanel({ totals, bordered = true, collapsible = false }: OrderTotalsPanelProps) {
   const t = useT();
   const [expanded, setExpanded] = useState(!collapsible);
@@ -32,10 +32,10 @@ export function OrderTotalsPanel({ totals, bordered = true, collapsible = false 
           accessibilityState={{ expanded }}
           className="min-h-11 flex-row items-center gap-2"
         >
-          <Text className="flex-1 text-label font-semibold text-foreground">
+          <Text variant="label" className="flex-1 font-semibold text-foreground">
             {t('pos.checkout.orderDetails')}
           </Text>
-          <Text className="text-label tabular-nums text-muted-foreground">
+          <Text variant="label" className="font-normal tabular-nums text-muted-foreground">
             {formatVND(totals.subtotal)}
           </Text>
           <AppIcon name="chevron-right" size={18} tone="muted-foreground" />
@@ -45,13 +45,14 @@ export function OrderTotalsPanel({ totals, bordered = true, collapsible = false 
       {expanded ? (
         <>
           <View className="flex-row items-center justify-between">
-            <Text className="text-label text-muted-foreground">{t('pos.cart.subtotal')}</Text>
-            <Text className="text-label tabular-nums text-foreground">{formatVND(totals.subtotal)}</Text>
+            <Text variant="label" className="font-normal text-muted-foreground">{t('pos.cart.subtotal')}</Text>
+            <Text variant="label" className="font-normal tabular-nums text-foreground">{formatVND(totals.subtotal)}</Text>
           </View>
           <View className="flex-row items-center justify-between">
-            <Text className="text-label text-muted-foreground">{t('pos.cart.discount')}</Text>
+            <Text variant="label" className="font-normal text-muted-foreground">{t('pos.cart.discount')}</Text>
             <Text
-              className={`text-label tabular-nums ${
+              variant="label"
+              className={`font-normal tabular-nums ${
                 totals.discountTotal > 0 ? 'font-semibold text-success' : 'text-foreground'
               }`}
             >
@@ -59,8 +60,8 @@ export function OrderTotalsPanel({ totals, bordered = true, collapsible = false 
             </Text>
           </View>
           <View className="flex-row items-center justify-between">
-            <Text className="text-caption text-subtle-foreground">{t('pos.cart.taxIncluded')}</Text>
-            <Text className="text-caption tabular-nums text-subtle-foreground">
+            <Text variant="caption" className="text-subtle-foreground">{t('pos.cart.taxIncluded')}</Text>
+            <Text variant="caption" className="tabular-nums text-subtle-foreground">
               {formatVND(totals.taxTotal)}
             </Text>
           </View>
@@ -69,8 +70,8 @@ export function OrderTotalsPanel({ totals, bordered = true, collapsible = false 
       ) : null}
 
       <View className="flex-row items-center justify-between">
-        <Text className="text-label text-muted-foreground">{t('pos.cart.grandTotal')}</Text>
-        <Text className="text-title font-bold tabular-nums text-foreground">{formatVND(totals.total)}</Text>
+        <Text variant="label" className="font-normal text-muted-foreground">{t('pos.cart.grandTotal')}</Text>
+        <Text variant="title" className="font-bold tabular-nums text-foreground">{formatVND(totals.total)}</Text>
       </View>
     </View>
   );

@@ -27,12 +27,12 @@ export function CustomerOrdersTab({ orders }: { orders: Order[] }) {
         return (
           <ListItem
             accessibilityLabel={`${order.code}. ${meta}. ${formatVND(order.total)}`}
-            description={<Text className="text-caption text-muted-foreground">{meta}</Text>}
+            description={<Text variant="caption" className="text-muted-foreground">{meta}</Text>}
             key={order.id}
             onPress={() => router.push(`/orders/${order.id}`)}
             title={
               <View className="flex-row items-center gap-2">
-                <Text className="text-label font-semibold text-foreground" numberOfLines={1}>
+                <Text variant="label" className="font-semibold text-foreground" numberOfLines={1}>
                   {order.code}
                 </Text>
                 <OrderStatusBadge status={order.status} />
@@ -41,7 +41,8 @@ export function CustomerOrdersTab({ orders }: { orders: Order[] }) {
             trailing={
               <View className="flex-row items-center gap-2">
                 <Text
-                  className={`text-label font-bold ${isCancelled(order) ? 'text-muted-foreground line-through' : 'text-foreground'}`}
+                  variant="label"
+                  className={`font-bold ${isCancelled(order) ? 'text-muted-foreground line-through' : 'text-foreground'}`}
                   numeric="tabular"
                 >
                   {formatVND(order.total)}

@@ -36,8 +36,8 @@ export function CustomerPointsTab({
     <View className="gap-4">
       <View className="flex-row flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface p-4">
         <View className="gap-0.5">
-          <Text className="text-caption text-muted-foreground">{t('customers.pointsTab.balance')}</Text>
-          <Text className="text-title font-bold text-foreground" numeric="tabular">
+          <Text variant="caption" className="text-muted-foreground">{t('customers.pointsTab.balance')}</Text>
+          <Text variant="title" className="font-bold text-foreground" numeric="tabular">
             {balance}
           </Text>
         </View>

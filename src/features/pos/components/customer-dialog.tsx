@@ -48,10 +48,10 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect }: Cust
         className="h-12 w-full justify-start rounded-none border-b border-border px-4"
       >
         <AppIcon name="users-round" size={18} tone="muted-foreground" />
-        <Text className="ml-2.5 flex-1 text-label text-foreground" numberOfLines={1}>
+        <Text variant="label" className="font-normal ml-2.5 flex-1 text-foreground" numberOfLines={1}>
           {selected ? `${selected.name} · ${selected.phone}` : t('pos.cart.customerDefault')}
         </Text>
-        <Text className="text-label font-semibold text-info">{t('pos.cart.attachCustomer')}</Text>
+        <Text variant="label" className="font-semibold text-info">{t('pos.cart.attachCustomer')}</Text>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle>{t('pos.customerDialog.title')}</DialogTitle>
@@ -89,12 +89,12 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect }: Cust
                   className="min-h-14 flex-row items-center justify-between rounded-md border border-border px-3 py-2"
                 >
                   <View className="gap-0.5">
-                    <Text className="text-label font-semibold text-foreground">{customer.name}</Text>
-                    <Text className="text-caption text-muted-foreground">{customer.phone}</Text>
+                    <Text variant="label" className="font-semibold text-foreground">{customer.name}</Text>
+                    <Text variant="caption" className="text-muted-foreground">{customer.phone}</Text>
                   </View>
                   {/* Tier lives in the `customers` dictionary, which POS does not own; the
                       points balance is what a cashier needs here anyway. */}
-                  <Text className="text-caption tabular-nums text-muted-foreground">
+                  <Text variant="caption" className="tabular-nums text-muted-foreground">
                     {`${customer.points} ${t('pos.customerDialog.points')}`}
                   </Text>
                 </Pressable>

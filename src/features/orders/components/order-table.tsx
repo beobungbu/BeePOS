@@ -90,17 +90,18 @@ export function OrderTable({
                   className="min-h-11 justify-center"
                   onPress={() => (onSelectOrder ? onSelectOrder(order) : router.push(`/orders/${order.id}`))}
                 >
-                  <Text className="text-label font-semibold text-foreground" numberOfLines={1}>
+                  <Text variant="label" className="font-semibold text-foreground" numberOfLines={1}>
                     {order.code}
                   </Text>
-                  <Text className="text-caption text-muted-foreground" numeric="tabular">
+                  <Text variant="caption" className="text-muted-foreground" numeric="tabular">
                     {formatTime(order.createdAt)}
                   </Text>
                 </Pressable>
               </TableCell>
               <TableCell label={t('orders.table.customer')}>
                 <Text
-                  className={`text-label ${order.customerId ? 'text-foreground' : 'text-muted-foreground'}`}
+                  variant="label"
+                  className={`font-normal ${order.customerId ? 'text-foreground' : 'text-muted-foreground'}`}
                   numberOfLines={1}
                 >
                   {customer}
@@ -108,13 +109,13 @@ export function OrderTable({
               </TableCell>
               {showCashier ? (
                 <TableCell label={t('orders.table.cashier')}>
-                  <Text className="text-label text-foreground" numberOfLines={1}>
+                  <Text variant="label" className="font-normal text-foreground" numberOfLines={1}>
                     {cashierName(order.cashierId)}
                   </Text>
                 </TableCell>
               ) : null}
               <TableCell label={t('orders.table.payment')}>
-                <Text className="text-label text-foreground" numberOfLines={1}>
+                <Text variant="label" className="font-normal text-foreground" numberOfLines={1}>
                   {paymentSummary(order, (method) => t(`orders.paymentMethod.${method}`))}
                 </Text>
               </TableCell>
@@ -125,7 +126,8 @@ export function OrderTable({
               </TableCell>
               <TableCell className="items-end text-right" label={t('orders.table.total')}>
                 <Text
-                  className={`text-right text-label font-bold ${cancelled ? 'text-muted-foreground line-through' : 'text-foreground'}`}
+                  variant="label"
+                  className={`text-right font-bold ${cancelled ? 'text-muted-foreground line-through' : 'text-foreground'}`}
                   numeric="tabular"
                 >
                   {formatVND(order.total)}

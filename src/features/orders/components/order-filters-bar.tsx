@@ -170,7 +170,7 @@ export function OrderFiltersBar({
       <View className="flex-row flex-wrap items-center gap-3">
         {isDesktop ? <View style={{ width: 300 }}>{search}</View> : search}
         {isDesktop ? (
-          <Text className="text-caption text-subtle-foreground" numberOfLines={1}>
+          <Text variant="caption" className="text-subtle-foreground" numberOfLines={1}>
             F3
           </Text>
         ) : null}
@@ -217,7 +217,7 @@ export function OrderFiltersBar({
           </View>
         ) : null}
         {isDesktop ? (
-          <Text className="ml-auto text-label text-muted-foreground" numberOfLines={1} numeric="tabular">
+          <Text variant="label" className="font-normal ml-auto text-muted-foreground" numberOfLines={1} numeric="tabular">
             {fill(t('orders.filters.results'), { count: resultCount })}
           </Text>
         ) : null}

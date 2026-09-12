@@ -47,7 +47,7 @@ export default function ReceiptScreen() {
   if (!order) {
     return (
       <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-body text-muted-foreground">{t('pos.receipt.notFound')}</Text>
+        <Text variant="body" className="text-muted-foreground">{t('pos.receipt.notFound')}</Text>
       </View>
     );
   }
@@ -66,10 +66,10 @@ export default function ReceiptScreen() {
       >
         <View className="w-full max-w-[480px] gap-3">
           <View className="items-center gap-1 rounded-lg bg-success/10 px-4 py-5">
-            <Text className="text-label font-semibold text-success">{t('pos.receipt.successTitle')}</Text>
-            <Text className="text-title font-bold tabular-nums text-success">{formatVND(order.total)}</Text>
+            <Text variant="label" className="font-semibold text-success">{t('pos.receipt.successTitle')}</Text>
+            <Text variant="title" className="font-bold tabular-nums text-success">{formatVND(order.total)}</Text>
             {totalChange > 0 ? (
-              <Text className="text-label text-muted-foreground">
+              <Text variant="label" className="font-normal text-muted-foreground">
                 {`${t('pos.receipt.change')}: ${formatVND(totalChange)}`}
               </Text>
             ) : null}
@@ -77,10 +77,10 @@ export default function ReceiptScreen() {
 
           <View className="gap-3 rounded-lg border border-border bg-surface p-4">
             <View className="items-center gap-0.5">
-              <Text className="text-body font-semibold text-foreground">
+              <Text variant="body" className="font-semibold text-foreground">
                 {store?.name ?? t('pos.receipt.title')}
               </Text>
-              <Text className="text-caption text-muted-foreground">{store?.address}</Text>
+              <Text variant="caption" className="text-muted-foreground">{store?.address}</Text>
             </View>
 
             <View className="h-px bg-border" />
@@ -103,14 +103,14 @@ export default function ReceiptScreen() {
               return (
                 <View key={line.productId} className="flex-row items-start justify-between gap-3">
                   <View className="flex-1">
-                    <Text className="text-label text-foreground" numberOfLines={2}>
+                    <Text variant="label" className="font-normal text-foreground" numberOfLines={2}>
                       {product?.name ?? line.productId}
                     </Text>
-                    <Text className="text-caption tabular-nums text-muted-foreground">
+                    <Text variant="caption" className="tabular-nums text-muted-foreground">
                       {`${line.qty} x ${formatVND(line.unitPrice)}`}
                     </Text>
                   </View>
-                  <Text className="text-label tabular-nums text-foreground">
+                  <Text variant="label" className="font-normal tabular-nums text-foreground">
                     {formatVND(line.unitPrice * line.qty)}
                   </Text>
                 </View>
@@ -129,8 +129,8 @@ export default function ReceiptScreen() {
             <View className="h-px bg-border-strong" />
 
             <View className="flex-row items-center justify-between">
-              <Text className="text-label text-muted-foreground">{t('pos.cart.grandTotal')}</Text>
-              <Text className="text-heading font-bold tabular-nums text-foreground">
+              <Text variant="label" className="font-normal text-muted-foreground">{t('pos.cart.grandTotal')}</Text>
+              <Text variant="heading" className="font-bold tabular-nums text-foreground">
                 {formatVND(order.total)}
               </Text>
             </View>
@@ -146,7 +146,7 @@ export default function ReceiptScreen() {
               <ReceiptRow label={t('pos.receipt.change')} value={formatVND(totalChange)} />
             ) : null}
 
-            <Text className="pt-1 text-center text-caption text-subtle-foreground">
+            <Text variant="caption" className="pt-1 text-center text-subtle-foreground">
               {t('pos.receipt.footer')}
             </Text>
           </View>
@@ -182,8 +182,8 @@ export default function ReceiptScreen() {
 function ReceiptRow({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row items-center justify-between gap-3">
-      <Text className="text-label text-muted-foreground">{label}</Text>
-      <Text className="text-label tabular-nums text-foreground">{value}</Text>
+      <Text variant="label" className="font-normal text-muted-foreground">{label}</Text>
+      <Text variant="label" className="font-normal tabular-nums text-foreground">{value}</Text>
     </View>
   );
 }
