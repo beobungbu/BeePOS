@@ -125,3 +125,12 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 |---|---|---|---|
 | [#598](https://github.com/beobungbu/BeeUI/issues/598) | 15-01 | major | SafeArea drops className padding |
 | [#599](https://github.com/beobungbu/BeeUI/issues/599) | 15-02, 15-03 | major | type scale not reachable as text-<step> classes |
+
+## Batch 13 (2026-09-12, native verification)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#600](https://github.com/beobungbu/BeeUI/issues/600) | 15N-01 | major | SegmentedControl truncates labels at accessibility-large |
+| [#601](https://github.com/beobungbu/BeeUI/issues/601) | 15N-02 | minor | Field required injects untranslated "required" |
+| [#589](https://github.com/beobungbu/BeeUI/issues/589) (comment) | 15N-03 | evidence | fixed heights still clip |
+| [#599](https://github.com/beobungbu/BeeUI/issues/599) (comment) | sweep | evidence | Avatar uses dead text-caption class |
