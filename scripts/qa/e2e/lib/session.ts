@@ -27,7 +27,9 @@ export async function login(page: Page, storeCode = 'HN01', pin = '1234'): Promi
   await page.getByLabel('Mã cửa hàng').fill(storeCode);
   await page.getByLabel('Mã PIN').fill(pin);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
-  await page.getByText('Chọn cửa hàng').waitFor();
+  // The phone select-store screen carries the phrase twice, in the header and in the prompt
+  // under the greeting, so match the first occurrence instead of tripping strict mode.
+  await page.getByText('Chọn cửa hàng').first().waitFor();
   await page.getByText('Tạp hoá Cầu Giấy').first().click();
   await page.waitForURL('**/pos');
   await expect(page.getByText('Tạp hoá Cầu Giấy').first()).toBeVisible();

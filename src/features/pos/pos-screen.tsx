@@ -5,7 +5,7 @@ import { Chip, ChipGroup, SearchInput, Sheet, SheetContent, SheetTitle, useToast
 import { calcCart, type PricedCartLine } from '../../domain/pos';
 import type { Product } from '../../domain/types';
 import { useT } from '../../i18n';
-import { useCartStore } from '../../data/cart-store';
+import { useActiveCart, useCartStore } from '../../data/cart-store';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useSessionStore } from '../../data/session-store';
@@ -29,7 +29,7 @@ export default function PosScreen() {
   const products = useCatalogStore((state) => state.products);
   const categories = useCatalogStore((state) => state.categories);
   const stockLevels = useInventoryStore((state) => state.stockLevels);
-  const cart = useCartStore((state) => state.cart);
+  const cart = useActiveCart();
   const ensureStore = useCartStore((state) => state.ensureStore);
   const addProduct = useCartStore((state) => state.addProduct);
 

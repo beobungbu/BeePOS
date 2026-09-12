@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import { Dialog, DialogContent, DialogTitle, ListGroup, ListItem, Sheet, SheetContent, SheetTitle } from '@beemvp/beeui-ui';
 import { useRouter } from 'expo-router';
 import { useT } from '../../i18n';
+import { AppIcon } from '../icons';
 import { SECONDARY_MOBILE_ITEMS } from './nav-items';
 
 interface MoreSheetProps {
@@ -26,16 +27,26 @@ export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
     router.navigate(href as never);
   }
 
+  const items = (
+    <ListGroup>
+      {SECONDARY_MOBILE_ITEMS.map((item) => (
+        <ListItem
+          key={item.id}
+          title={t(item.labelKey)}
+          leading={<AppIcon name={item.icon} tone="muted-foreground" />}
+          trailing={<AppIcon name="chevron-right" size={18} tone="subtle-foreground" />}
+          onPress={() => handleSelect(item.href)}
+        />
+      ))}
+    </ListGroup>
+  );
+
   if (Platform.OS !== 'web') {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogTitle>{t('common.nav.more')}</DialogTitle>
-          <ListGroup>
-            {SECONDARY_MOBILE_ITEMS.map((item) => (
-              <ListItem key={item.id} title={`${item.icon} ${t(item.labelKey)}`} onPress={() => handleSelect(item.href)} />
-            ))}
-          </ListGroup>
+          {items}
         </DialogContent>
       </Dialog>
     );
@@ -45,11 +56,7 @@ export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
         <SheetTitle>{t('common.nav.more')}</SheetTitle>
-        <ListGroup>
-          {SECONDARY_MOBILE_ITEMS.map((item) => (
-            <ListItem key={item.id} title={`${item.icon} ${t(item.labelKey)}`} onPress={() => handleSelect(item.href)} />
-          ))}
-        </ListGroup>
+        {items}
       </SheetContent>
     </Sheet>
   );

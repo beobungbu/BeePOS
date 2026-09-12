@@ -35,6 +35,13 @@ export const commonVi = {
     invalidCredentials: 'Mã cửa hàng hoặc mã PIN không đúng',
     welcome: 'Chào mừng đến với BeePOS',
     continueButton: 'Tiếp tục',
+    tagline: 'Hệ thống bán hàng chuỗi tạp hoá',
+    rememberStore: 'Ghi nhớ cửa hàng này',
+    storeNotFound: 'Không tìm thấy cửa hàng với mã này',
+    greeting: 'Xin chào, {name}',
+    selectStorePrompt: 'Chọn cửa hàng để bắt đầu ca làm việc',
+    recentStore: 'Gần đây',
+    allStores: 'Tất cả cửa hàng',
   },
   shell: {
     switchStore: 'Đổi cửa hàng',

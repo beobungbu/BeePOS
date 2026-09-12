@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { View, useWindowDimensions } from 'react-native';
+import { View } from 'react-native';
 import { Screen, SafeArea } from '@beemvp/beeui-ui';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { ShellHeader } from './shell-header';
+import { NavRail } from './nav-rail';
 import { Sidebar } from './sidebar';
 import { BottomTabBar } from './bottom-tab-bar';
 import { MoreSheet } from './more-sheet';
 
-const WIDE_BREAKPOINT = 768;
-
 /**
- * Responsive shell: persistent sidebar on wide screens, bottom tabs + more sheet on narrow.
+ * Responsive shell per `docs/design/design-direction.md` section 1: bottom tabs on phone,
+ * a 72 pt icon rail on tablet, a 240 pt sidebar on desktop. Rail and sidebar run the full
+ * height with the header inside the content column, matching the mockups.
  *
  * Uses a single outer `SafeArea` covering all four edges instead of per-section SafeArea
  * (one for the header's top edges, one for the tab bar's bottom edges) because that
@@ -18,21 +20,31 @@ const WIDE_BREAKPOINT = 768;
  * See docs/beeui-audit/findings-00-scaffold.md, finding scaffold-08.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { width } = useWindowDimensions();
-  const isWide = width >= WIDE_BREAKPOINT;
+  const breakpoint = useBreakpoint();
   const [moreOpen, setMoreOpen] = useState(false);
+
+  if (breakpoint === 'phone') {
+    return (
+      <Screen>
+        <SafeArea className="flex-1" edges={['top', 'bottom', 'left', 'right']}>
+          <ShellHeader />
+          <View className="flex-1">{children}</View>
+          <BottomTabBar onMorePress={() => setMoreOpen(true)} />
+        </SafeArea>
+        <MoreSheet open={moreOpen} onOpenChange={setMoreOpen} />
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
-      <SafeArea className="flex-1" edges={['top', 'bottom', 'left', 'right']}>
-        <ShellHeader />
-        <View className="flex-1 flex-row">
-          {isWide && <Sidebar />}
+      <SafeArea className="flex-1 flex-row" edges={['top', 'bottom', 'left', 'right']}>
+        {breakpoint === 'tablet' ? <NavRail /> : <Sidebar />}
+        <View className="min-w-0 flex-1">
+          <ShellHeader />
           <View className="flex-1">{children}</View>
         </View>
-        {!isWide && <BottomTabBar onMorePress={() => setMoreOpen(true)} />}
       </SafeArea>
-      {!isWide && <MoreSheet open={moreOpen} onOpenChange={setMoreOpen} />}
     </Screen>
   );
 }

@@ -13,7 +13,7 @@ import { calcCart, nextOrderCode, type PricedCartLine } from '../../domain/pos';
 import { formatVND, roundVND, sum } from '../../domain/money';
 import type { Order, Payment, PaymentMethod } from '../../domain/types';
 import { useT } from '../../i18n';
-import { useCartStore } from '../../data/cart-store';
+import { useActiveCart, useCartStore } from '../../data/cart-store';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useCustomerStore } from '../../data/customer-store';
 import { useOrderStore } from '../../data/order-store';
@@ -39,8 +39,8 @@ export default function CheckoutScreen() {
   const store = useSessionStore((state) => state.store);
   const staff = useSessionStore((state) => state.staff);
   const currentShift = useCurrentShift();
-  const cart = useCartStore((state) => state.cart);
-  const clearCart = useCartStore((state) => state.clearCart);
+  const cart = useActiveCart();
+  const closeCart = useCartStore((state) => state.closeCart);
   const products = useCatalogStore((state) => state.products);
   const customers = useCustomerStore((state) => state.customers);
   const orders = useOrderStore((state) => state.orders);
@@ -89,7 +89,9 @@ export default function CheckoutScreen() {
     };
 
     submitOrder(order, { shiftId: currentShift?.id });
-    clearCart();
+    // Paying an order retires it: the cashier lands back on the next open order, or on a
+    // fresh empty one when this was the last.
+    closeCart(cart.id);
     toast.show({ title: t('pos.checkout.successToast'), variant: 'success' });
     router.replace(`/pos/receipt/${order.id}`);
   }

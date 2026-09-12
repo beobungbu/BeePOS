@@ -1,14 +1,25 @@
 import {
+  activeCartOf,
   addOrIncrementLine,
   applyOrderDiscount,
   calcCart,
   calcChange,
   calcLine,
+  cartId,
+  closeCart,
+  initialCartSet,
+  makeCart,
+  MAX_OPEN_CARTS,
+  nextCartOrdinal,
   nextOrderCode,
+  openCart,
   pointsEarned,
   pointsToVnd,
   setLineQty,
   shiftSummary,
+  switchCart,
+  updateActiveCart,
+  type CartSet,
   type PricedCartLine,
 } from '../pos';
 import type { Order, Shift } from '../types';
@@ -244,5 +255,99 @@ describe('shiftSummary', () => {
   it('computes variance once the shift is closed', () => {
     const closed: Shift = { ...shift, closedAt: '2026-09-11T18:00:00.000Z', closingCash: 590000 };
     expect(shiftSummary(closed, orders).variance).toBe(-10000);
+  });
+});
+
+describe('open order set', () => {
+  const STORE = 'store-1';
+
+  function setWith(ordinals: number[], activeOrdinal = ordinals[0]): CartSet {
+    return {
+      carts: ordinals.map((ordinal) => makeCart(STORE, ordinal)),
+      activeCartId: cartId(STORE, activeOrdinal),
+    };
+  }
+
+  it('starts with a single empty active order', () => {
+    const state = initialCartSet(STORE);
+    expect(state.carts).toHaveLength(1);
+    expect(state.carts[0].ordinal).toBe(1);
+    expect(state.activeCartId).toBe(state.carts[0].id);
+  });
+
+  it('gives a new order the smallest unused ordinal', () => {
+    expect(nextCartOrdinal([])).toBe(1);
+    expect(nextCartOrdinal(setWith([1, 2, 3]).carts)).toBe(4);
+    expect(nextCartOrdinal(setWith([1, 3, 4]).carts)).toBe(2);
+  });
+
+  it('opens an order and activates it', () => {
+    const next = openCart(initialCartSet(STORE), STORE);
+    expect(next).not.toBeNull();
+    expect(next!.carts).toHaveLength(2);
+    expect(next!.carts[1].ordinal).toBe(2);
+    expect(next!.activeCartId).toBe(next!.carts[1].id);
+  });
+
+  it('refuses to open a ninth order', () => {
+    const full = setWith([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(full.carts).toHaveLength(MAX_OPEN_CARTS);
+    expect(openCart(full, STORE)).toBeNull();
+  });
+
+  it('switches to an open order and ignores an unknown id', () => {
+    const state = setWith([1, 2, 3]);
+    expect(switchCart(state, cartId(STORE, 3)).activeCartId).toBe(cartId(STORE, 3));
+    expect(switchCart(state, 'cart-missing')).toBe(state);
+  });
+
+  it('activates the next order when the active one closes', () => {
+    const state = setWith([1, 2, 3], 2);
+    const next = closeCart(state, cartId(STORE, 2));
+    expect(next.carts.map((cart) => cart.ordinal)).toEqual([1, 3]);
+    expect(next.activeCartId).toBe(cartId(STORE, 3));
+  });
+
+  it('activates the previous order when the last one closes', () => {
+    const state = setWith([1, 2, 3], 3);
+    const next = closeCart(state, cartId(STORE, 3));
+    expect(next.activeCartId).toBe(cartId(STORE, 2));
+  });
+
+  it('keeps the active order when another one closes', () => {
+    const state = setWith([1, 2, 3], 1);
+    const next = closeCart(state, cartId(STORE, 3));
+    expect(next.carts.map((cart) => cart.ordinal)).toEqual([1, 2]);
+    expect(next.activeCartId).toBe(cartId(STORE, 1));
+  });
+
+  it('leaves one empty order behind when the last order closes', () => {
+    const state = initialCartSet(STORE);
+    const withLines: CartSet = {
+      ...state,
+      carts: [{ ...state.carts[0], lines: [{ productId: 'p1', qty: 2, unitPrice: 9000 }] }],
+    };
+    const next = closeCart(withLines, state.activeCartId);
+    expect(next.carts).toHaveLength(1);
+    expect(next.carts[0].lines).toEqual([]);
+    expect(next.activeCartId).toBe(next.carts[0].id);
+  });
+
+  it('ignores closing an unknown order', () => {
+    const state = setWith([1, 2]);
+    expect(closeCart(state, 'cart-missing')).toBe(state);
+  });
+
+  it('updates only the active order', () => {
+    const state = setWith([1, 2], 2);
+    const next = updateActiveCart(state, (cart) => ({ ...cart, note: 'giao tận nơi' }));
+    expect(next.carts[0].note).toBeUndefined();
+    expect(next.carts[1].note).toBe('giao tận nơi');
+    expect(activeCartOf(next).note).toBe('giao tận nơi');
+  });
+
+  it('falls back to the first order when the active id is stale', () => {
+    const state: CartSet = { ...setWith([1, 2]), activeCartId: 'cart-missing' };
+    expect(activeCartOf(state).ordinal).toBe(1);
   });
 });

@@ -35,6 +35,13 @@ export const commonEn = {
     invalidCredentials: 'Store code or PIN is incorrect',
     welcome: 'Welcome to BeePOS',
     continueButton: 'Continue',
+    tagline: 'Point of sale for grocery chains',
+    rememberStore: 'Remember this store',
+    storeNotFound: 'No store matches this code',
+    greeting: 'Hello, {name}',
+    selectStorePrompt: 'Choose a store to start your shift',
+    recentStore: 'Recent',
+    allStores: 'All stores',
   },
   shell: {
     switchStore: 'Switch store',

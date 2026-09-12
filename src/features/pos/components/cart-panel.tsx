@@ -20,7 +20,7 @@ import { calcCart, type PricedCartLine } from '../../../domain/pos';
 import { formatVND } from '../../../domain/money';
 import type { Product } from '../../../domain/types';
 import { useT } from '../../../i18n';
-import { useCartStore } from '../../../data/cart-store';
+import { useActiveCart, useCartStore } from '../../../data/cart-store';
 import { useCustomerStore } from '../../../data/customer-store';
 import { CartLineItem } from './cart-line-item';
 import { CustomerDialog } from './customer-dialog';
@@ -33,7 +33,7 @@ interface CartPanelProps {
 export function CartPanel({ products }: CartPanelProps) {
   const t = useT();
   const router = useRouter();
-  const cart = useCartStore((state) => state.cart);
+  const cart = useActiveCart();
   const setQty = useCartStore((state) => state.setQty);
   const setLineDiscount = useCartStore((state) => state.setLineDiscount);
   const removeLine = useCartStore((state) => state.removeLine);

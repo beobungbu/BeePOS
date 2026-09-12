@@ -43,7 +43,11 @@ export interface Product {
   costPrice: number;
   salePrice: number;
   taxRate: number;
-  imageUrl?: string;
+  /**
+   * Remote URL, or the number a bundler `require()` returns for a bundled asset. Seed data
+   * ships bundled photos; a real catalogue would carry URLs.
+   */
+  imageUrl?: string | number;
   isActive: boolean;
   variants?: ProductVariant[];
 }
@@ -83,6 +87,11 @@ export interface CartLine {
 
 export interface Cart {
   id: string;
+  /**
+   * 1-based number the cashier sees on the open-order tab ("Đơn 3"). Unique among the open
+   * carts, reused once a cart is closed, and always the smallest free number on open.
+   */
+  ordinal: number;
   storeId: string;
   lines: CartLine[];
   customerId?: string;

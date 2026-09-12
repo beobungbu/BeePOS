@@ -379,6 +379,71 @@ const TEMPLATES: ProductTemplate[] = [
   },
 ];
 
+/**
+ * Product photos bundled under `assets/products/`. Keyed by the template name so every
+ * size/pack variant of a base product shares one picture; sources and licences are listed in
+ * `docs/design/image-credits.md`.
+ */
+const TEMPLATE_IMAGES: Record<string, number> = {
+  'Nước ngọt Coca-Cola': require('../../../assets/products/coca-cola.jpg'),
+  'Bia Saigon': require('../../../assets/products/bia-saigon.jpg'),
+  'Cà phê hoà tan G7': require('../../../assets/products/ca-phe-g7.jpg'),
+  'Sữa tươi Vinamilk': require('../../../assets/products/sua-vinamilk.jpg'),
+  'Sữa đặc Ông Thọ': require('../../../assets/products/sua-dac-ong-tho.jpg'),
+  'Sữa chua Vinamilk': require('../../../assets/products/sua-chua-vinamilk.jpg'),
+  'Phô mai con bò cười': require('../../../assets/products/pho-mai-con-bo-cuoi.jpg'),
+  'Gạo Jasmine': require('../../../assets/products/gao-jasmine.jpg'),
+  'Yến mạch Quaker': require('../../../assets/products/yen-mach-quaker.jpg'),
+  'Nước mắm Phú Quốc': require('../../../assets/products/nuoc-mam-phu-quoc.jpg'),
+  'Nước tương Maggi': require('../../../assets/products/nuoc-tuong-maggi.jpg'),
+  'Bột ngọt Ajinomoto': require('../../../assets/products/bot-ngot-ajinomoto.jpg'),
+  'Bánh Oreo': require('../../../assets/products/banh-oreo.jpg'),
+  'Kẹo Alpenliebe': require('../../../assets/products/keo-alpenliebe.jpg'),
+  'Snack Oishi': require('../../../assets/products/snack-oishi.jpg'),
+  'Chocopie Orion': require('../../../assets/products/chocopie-orion.jpg'),
+  'Mì Hảo Hảo': require('../../../assets/products/mi-hao-hao.jpg'),
+  'Mì Omachi': require('../../../assets/products/mi-omachi.jpg'),
+  'Phở ăn liền Vifon': require('../../../assets/products/pho-vifon.jpg'),
+  'Nước rửa chén Sunlight': require('../../../assets/products/nuoc-rua-chen-sunlight.jpg'),
+  'Bột giặt Omo': require('../../../assets/products/bot-giat-omo.jpg'),
+  'Nước xả vải Comfort': require('../../../assets/products/nuoc-xa-comfort.jpg'),
+  'Dầu gội Clear': require('../../../assets/products/dau-goi-clear.jpg'),
+};
+
+/** One generic grocery photo per category, used when a template has no picture of its own. */
+const CATEGORY_IMAGES: Record<string, number> = {
+  'cat-1': require('../../../assets/products/category-do-uong.jpg'),
+  'cat-2': require('../../../assets/products/category-sua.jpg'),
+  'cat-3': require('../../../assets/products/category-gao.jpg'),
+  'cat-4': require('../../../assets/products/category-gia-vi.jpg'),
+  'cat-5': require('../../../assets/products/category-banh-keo.jpg'),
+  'cat-6': require('../../../assets/products/category-mi-an-lien.jpg'),
+  'cat-7': require('../../../assets/products/category-hoa-pham.jpg'),
+  'cat-8': require('../../../assets/products/category-ve-sinh.jpg'),
+};
+
+/**
+ * SKUs deliberately left without a photo so the tile's monogram fallback stays visible in the
+ * grid, in the cart line and in the orders preview. A real catalogue always has gaps.
+ */
+const SKUS_WITHOUT_IMAGE = new Set([
+  'DU-003',
+  'DU-011',
+  'SU-006',
+  'GO-005',
+  'GV-009',
+  'BK-004',
+  'MI-010',
+  'HP-002',
+  'VS-007',
+  'VS-003',
+]);
+
+function imageFor(templateName: string, categoryId: string, sku: string): number | undefined {
+  if (SKUS_WITHOUT_IMAGE.has(sku)) return undefined;
+  return TEMPLATE_IMAGES[templateName] ?? CATEGORY_IMAGES[categoryId];
+}
+
 const CATEGORY_PREFIX: Record<string, string> = {
   'cat-1': 'DU',
   'cat-2': 'SU',
@@ -411,6 +476,7 @@ function buildProducts(): Product[] {
         costPrice: variant.cost,
         salePrice: variant.sale,
         taxRate: template.taxRate,
+        imageUrl: imageFor(template.name, template.categoryId, sku),
         isActive: true,
       });
       sequence += 1;

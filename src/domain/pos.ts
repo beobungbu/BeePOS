@@ -4,7 +4,7 @@
  */
 
 import { roundVND, sum } from './money';
-import type { CartLine, Discount, Order, Shift } from './types';
+import type { Cart, CartLine, Discount, Order, Shift } from './types';
 
 /** A cart line combined with the tax rate its product carries. */
 export interface PricedCartLine extends CartLine {
@@ -145,4 +145,92 @@ export function addOrIncrementLine(lines: CartLine[], productId: string, unitPri
 export function setLineQty(lines: CartLine[], productId: string, qty: number): CartLine[] {
   if (qty <= 0) return lines.filter((line) => line.productId !== productId);
   return lines.map((line) => (line.productId === productId ? { ...line, qty } : line));
+}
+
+/* ---------------------------------------------------------------------------------------
+ * Several customers at once: the sell screen keeps a set of open carts, one of them active.
+ * Helpers below are pure so the store is a thin wrapper and the rules stay testable.
+ * ------------------------------------------------------------------------------------ */
+
+/** Hard ceiling on simultaneously open orders; the UI disables the new-order control here. */
+export const MAX_OPEN_CARTS = 8;
+
+/** The open carts plus which one the catalog and cart pane are currently acting on. */
+export interface CartSet {
+  carts: Cart[];
+  activeCartId: string;
+}
+
+/** Cart identity is the ordinal, so two stores never collide on a reused number. */
+export function cartId(storeId: string, ordinal: number): string {
+  return `cart-${storeId || 'none'}-${ordinal}`;
+}
+
+/** A new empty cart for a store. */
+export function makeCart(storeId: string, ordinal: number): Cart {
+  return { id: cartId(storeId, ordinal), ordinal, storeId, lines: [] };
+}
+
+/** A store's starting state: exactly one empty cart, active. */
+export function initialCartSet(storeId: string): CartSet {
+  const cart = makeCart(storeId, 1);
+  return { carts: [cart], activeCartId: cart.id };
+}
+
+/** Smallest positive ordinal no open cart is using. */
+export function nextCartOrdinal(carts: Cart[]): number {
+  const used = new Set(carts.map((cart) => cart.ordinal));
+  let ordinal = 1;
+  while (used.has(ordinal)) ordinal += 1;
+  return ordinal;
+}
+
+/**
+ * Opens an extra cart and makes it active. Returns `null` at {@link MAX_OPEN_CARTS} so the
+ * caller can tell the cashier why nothing happened instead of silently doing nothing.
+ */
+export function openCart(state: CartSet, storeId: string): CartSet | null {
+  if (state.carts.length >= MAX_OPEN_CARTS) return null;
+  const cart = makeCart(storeId, nextCartOrdinal(state.carts));
+  return { carts: [...state.carts, cart], activeCartId: cart.id };
+}
+
+/** Activates an open cart; an unknown id leaves the set untouched. */
+export function switchCart(state: CartSet, id: string): CartSet {
+  if (!state.carts.some((cart) => cart.id === id)) return state;
+  return { ...state, activeCartId: id };
+}
+
+/**
+ * Closes a cart. Closing the active one activates its neighbour (the next cart, or the
+ * previous one when it was last); closing the only cart leaves a fresh empty cart behind so
+ * the sell screen always has somewhere to put the next scan.
+ */
+export function closeCart(state: CartSet, id: string): CartSet {
+  const index = state.carts.findIndex((cart) => cart.id === id);
+  if (index === -1) return state;
+
+  const remaining = state.carts.filter((cart) => cart.id !== id);
+  if (remaining.length === 0) {
+    const storeId = state.carts[index].storeId;
+    return initialCartSet(storeId);
+  }
+
+  if (state.activeCartId !== id) return { ...state, carts: remaining };
+
+  const neighbour = remaining[Math.min(index, remaining.length - 1)];
+  return { carts: remaining, activeCartId: neighbour.id };
+}
+
+/** Replaces the active cart in the set, leaving the others alone. */
+export function updateActiveCart(state: CartSet, update: (cart: Cart) => Cart): CartSet {
+  return {
+    ...state,
+    carts: state.carts.map((cart) => (cart.id === state.activeCartId ? update(cart) : cart)),
+  };
+}
+
+/** The active cart, or the first one if the active id has gone stale. */
+export function activeCartOf(state: CartSet): Cart {
+  return state.carts.find((cart) => cart.id === state.activeCartId) ?? state.carts[0];
 }
