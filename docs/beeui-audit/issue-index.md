@@ -98,3 +98,11 @@ Reconfirmed in a real flow: #570 (05-02). Android pass (phase 12): no new BeeUI 
 | [#590](https://github.com/beobungbu/BeeUI/issues/590) | F-09-18..21, F-09-23, 08-01 | minor | umbrella 3: overlapping pages, sidebar order, Learn example types, Reference Core descriptions, Text.numeric robustness, site stalls |
 
 Coverage check (2026-09-11 20:05): 83 findings across `findings-*.md`; every BeeUI-attributable finding maps to an issue or a supplementary comment above. Not filed by design: BeePOS app bugs (fixed in this repo), positive confirmations (01-04, 01-05, 04-02, 04-07, F-09-22, 06-07), nits that are composition notes (04-06), and worker findings corrected by review notes (00-05 original claim, 04-01, 08-01 severity).
+
+## Batch 10 (2026-09-12, design pass)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#591](https://github.com/beobungbu/BeeUI/issues/591) | 14-01 | minor (gap) | No family composes a closable, scrollable tab strip (POS open orders) |
+
+Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card` / `bg-accent` (BeePOS worker error, fixed in phase 2).
