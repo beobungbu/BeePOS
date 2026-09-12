@@ -107,3 +107,14 @@ Coverage check (2026-09-11 20:05): 83 findings across `findings-*.md`; every Bee
 | [#592](https://github.com/beobungbu/BeeUI/issues/592) | 14-02..14-04 | minor | umbrella 4: OTPInput segmented appearance, Switch accent warning on web, DropdownMenuTrigger is a Button |
 
 Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card` / `bg-accent` (BeePOS worker error, fixed in phase 2).
+
+## Batch 11 (2026-09-12, restyle phase)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#593](https://github.com/beobungbu/BeeUI/issues/593) | 14-05 | major | DialogTrigger variant="outline" paints the primary label colour in dark |
+| [#594](https://github.com/beobungbu/BeeUI/issues/594) | 14-07, 14-20 | major | chart token path documented as `colors.chart-series-1`, real path `chart.series-1` |
+| [#595](https://github.com/beobungbu/BeeUI/issues/595) | 14-21, 14-22 | major | TableCell cannot right-align through className alone |
+| [#596](https://github.com/beobungbu/BeeUI/issues/596) | 14-30 | major | TableRow selected paints nothing |
+| [#597](https://github.com/beobungbu/BeeUI/issues/597) | 14-06, 14-08, 14-23, 14-32, 14-33 | minor | umbrella 5 |
+| [#572](https://github.com/beobungbu/BeeUI/issues/572) (comment) | 14-31 | dup | TableRow has no onPress |
