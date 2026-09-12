@@ -93,7 +93,7 @@
               <div class="tile__price">12.000 đ</div>
             </article>
           <article class="tile" style="--acc:var(--chart-series-1)">
-              <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-bottle"/></svg><span class="badge badge--warning tile__badge"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Sắp hết 4</span></div>
+              <div class="tile__img"><span class="tile__mono">CC</span><span class="badge badge--warning tile__badge"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Sắp hết 4</span></div>
               <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">1.5L · chai</div>
               <div class="tile__price">21.000 đ</div>
             </article>
@@ -243,7 +243,7 @@
               <div class="tile__price">12.000 đ</div>
             </article>
             <article class="tile" style="--acc:var(--chart-series-1)">
-              <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-bottle"/></svg><span class="badge badge--warning tile__badge"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>4</span></div>
+              <div class="tile__img"><span class="tile__mono">CC</span><span class="badge badge--warning tile__badge"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>4</span></div>
               <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">1.5L · chai</div>
               <div class="tile__price">21.000 đ</div>
             </article>
@@ -258,7 +258,7 @@
               <div class="tile__price">8.500 đ</div>
             </article>
             <article class="tile" style="--acc:var(--chart-series-1)">
-              <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-bottle"/></svg><span class="badge badge--warning tile__badge"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>3</span></div>
+              <div class="tile__img"><span class="tile__mono">TX</span><span class="badge badge--warning tile__badge"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>3</span></div>
               <div class="tile__name">Trà xanh Không Độ</div><div class="tile__meta">500ml · chai</div>
               <div class="tile__price">10.500 đ</div>
             </article>
@@ -338,43 +338,39 @@
 
   <!-- ============================ DESKTOP 1440 ============================ -->
   <div class="frame frame--desktop">
-    <div class="frame__label">DESKTOP <span>1440 x 900 · sidebar + hai pane</span></div>
+    <div class="frame__label">DESKTOP <span>1440 x 900 · rail + 5 cột + giỏ 380 pt</span></div>
     <div class="screen screen--desktop" style="flex-direction:row">
 
-      <nav class="sidebar" data-beeui="ListGroup + ListItem">
-        <div class="brand" style="padding:4px 8px 16px">
-          <span class="brand__mark"><svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
-          <span class="brand__word">BeePOS</span>
-        </div>
-        <a href="#" class="on"><svg class="svg" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
-        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
-        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
-        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
-        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-users"/></svg>Khách hàng</a>
-        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
-        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-store"/></svg>Cửa hàng</a>
-        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-idcard"/></svg>Nhân viên</a>
-        <span class="grow"></span>
-        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
-        <div class="row" style="gap:10px;padding:12px 8px 4px;border-top:1px solid var(--color-border);margin-top:8px">
-          <span class="avatar">VG</span>
-          <span class="grow">
-            <div class="t-label" style="font-weight:600">Vũ Thị Giang</div>
-            <div class="t-caption muted">Thu ngân · HN01</div>
-          </span>
-        </div>
+      <nav class="rail" data-beeui="Stack + Pressable">
+        <span class="brand__mark" style="margin-bottom:10px">
+          <svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg>
+        </span>
+        <a href="#" class="on"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-users"/></svg>Khách hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-store"/></svg>Cửa hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-idcard"/></svg>Nhân viên</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
+        <button class="navtoggle" type="button" aria-label="Mở rộng thanh điều hướng" title="Phím tắt [">
+          <svg class="svg" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+        </button>
       </nav>
 
       <div style="flex:1;display:flex;flex-direction:column;min-width:0">
-        <header class="appheader" style="padding:0 24px" data-beeui="AppHeader">
-          <span class="grow">
-            <div class="appheader__store">Tạp hoá Cầu Giấy</div>
-            <div class="appheader__sub">12 Xuân Thuỷ, Cầu Giấy, Hà Nội · 024 3767 1201</div>
-          </span>
-          <span class="badge badge--code">HN01</span>
+        <header class="appheader appheader--compact" data-beeui="AppHeader">
+          <span class="grow screentitle">Bán hàng <span>Ca chưa mở</span></span>
+          <button class="storechip" type="button" data-beeui="DropdownMenu">
+            <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-store"/></svg>
+            HN01 · Tạp hoá Cầu Giấy
+            <svg class="svg svg--16" viewBox="0 0 24 24" style="transform:rotate(90deg)"><use href="#i-chevron-right"/></svg>
+          </button>
+          <span class="avatar" style="width:32px;height:32px">VG</span>
         </header>
 
-<div class="ordertabs" data-beeui="Stack + Pressable + Badge + IconButton">
+        <div class="ordertabs" data-beeui="Stack + Pressable + Badge + IconButton">
           <div class="ordertabs__scroll">
             <button class="otab otab--on" type="button">
               <span>Đơn 1</span><span class="badge">4</span><span class="otab__sum">81.500 đ</span>
@@ -390,7 +386,7 @@
           <button class="ordertabs__add" type="button" aria-label="Mở đơn mới">
             <svg class="svg" viewBox="0 0 24 24"><use href="#i-plus"/></svg>
           </button>
-      </div>
+        </div>
 
         <div class="shiftstrip" style="padding:0 24px" data-beeui="AlertBanner">
           <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-alert"/></svg>
@@ -399,7 +395,7 @@
         </div>
 
         <div class="catalog">
-          <div class="catalog__top" style="padding:14px 24px 10px" data-beeui="SearchInput + Chip">
+          <div class="catalog__top" style="padding:12px 24px 8px;gap:8px" data-beeui="SearchInput + Chip">
             <div class="searchbar">
               <svg class="svg" viewBox="0 0 24 24"><use href="#i-search"/></svg>
               <span class="ph">Tìm tên, SKU hoặc quét mã vạch</span>
@@ -408,7 +404,7 @@
                 <svg class="svg" viewBox="0 0 24 24"><use href="#i-scan"/></svg>
               </button>
             </div>
-            <div class="chiprow chiprow--wrap">
+            <div class="chiprow chiprow--scroll">
               <span class="chip chip--on">Tất cả</span>
               <span class="chip">Đồ uống</span>
               <span class="chip">Sữa và chế phẩm</span>
@@ -421,7 +417,7 @@
             </div>
           </div>
 
-          <div class="grid grid--4 grid--wide" data-beeui="FlatList of Card">
+          <div class="grid grid--5 grid--wide" data-beeui="FlatList of Card">
             <article class="tile" style="--acc:var(--chart-series-1)">
               <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-bottle"/></svg><span class="tile__qty tile__badge">2</span></div>
               <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">330ml · chai</div>
@@ -433,7 +429,7 @@
               <div class="tile__price">12.000 đ</div>
             </article>
             <article class="tile" style="--acc:var(--chart-series-1)">
-              <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-bottle"/></svg><span class="badge badge--warning tile__badge"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Sắp hết 4</span></div>
+              <div class="tile__img"><span class="tile__mono">CC</span><span class="badge badge--warning tile__badge">Sắp hết 4</span></div>
               <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">1.5L · chai</div>
               <div class="tile__price">21.000 đ</div>
             </article>
@@ -448,7 +444,7 @@
               <div class="tile__price">8.500 đ</div>
             </article>
             <article class="tile" style="--acc:var(--chart-series-1)">
-              <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-bottle"/></svg><span class="badge badge--warning tile__badge"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Sắp hết 3</span></div>
+              <div class="tile__img"><span class="tile__mono">TX</span><span class="badge badge--warning tile__badge">Sắp hết 3</span></div>
               <div class="tile__name">Trà xanh Không Độ</div><div class="tile__meta">500ml · chai</div>
               <div class="tile__price">10.500 đ</div>
             </article>
@@ -473,12 +469,12 @@
               <div class="tile__price">24.000 đ</div>
             </article>
             <article class="tile" style="--acc:var(--chart-series-2)">
-              <div class="tile__img"><span class="tile__mono">PM</span><span class="badge badge--onimg tile__badge">Còn 37</span></div>
+              <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-box"/></svg><span class="badge badge--onimg tile__badge">Còn 37</span></div>
               <div class="tile__name">Phô mai con bò cười</div><div class="tile__meta">Hộp 8 miếng · hộp</div>
               <div class="tile__price">39.000 đ</div>
             </article>
             <article class="tile" style="--acc:var(--chart-series-3)">
-              <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-bag"/></svg><span class="badge badge--warning tile__badge"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Sắp hết 9</span></div>
+              <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-bag"/></svg><span class="badge badge--warning tile__badge">Sắp hết 9</span></div>
               <div class="tile__name">Gạo ST25 thơm dẻo</div><div class="tile__meta">Túi 5kg · túi</div>
               <div class="tile__price">185.000 đ</div>
             </article>
@@ -496,11 +492,6 @@
               <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-sachet"/></svg><span class="tile__qty tile__badge">1</span></div>
               <div class="tile__name">Bánh Oreo vani</div><div class="tile__meta">Gói 137g · gói</div>
               <div class="tile__price">18.000 đ</div>
-            </article>
-            <article class="tile" style="--acc:var(--chart-series-1)">
-              <div class="tile__img"><svg class="prod" viewBox="0 0 64 64"><use href="#p-sachet"/></svg><span class="tile__qty tile__badge">5</span></div>
-              <div class="tile__name">Mì Hảo Hảo tôm chua cay</div><div class="tile__meta">Gói 75g · gói</div>
-              <div class="tile__price">4.500 đ</div>
             </article>
           </div>
         </div>
@@ -600,14 +591,13 @@
       </aside>
     </div>
     <ul class="frame__notes">
-      <li>Thanh đơn chạy hết chiều ngang vùng làm việc chứ không nằm trong pane giỏ: 380 pt chỉ chứa được 2 tab, còn catalog thì giống nhau ở mọi đơn.</li>
-      <li>Hai pane: catalog 820 pt (4 cột x 186 pt) và giỏ hàng 380 pt luôn hiện, thu ngân không mất dấu tổng tiền.</li>
-      <li>Primary chỉ xuất hiện đúng một lần trên màn hình, ở nút thanh toán mang theo số tiền.</li>
-      <li>Ba phím tắt duy nhất: F3 tìm kiếm, F8 tiền khách đưa, F9 thanh toán.</li>
-      <li>Ở số lượng 1, nút trừ đổi thành thùng rác để xoá dòng bằng một chạm.</li>
+      <li><b>Chrome trước ô sản phẩm đầu tiên: 244 pt, 27 phần trăm của 900.</b> Trước đây 314 pt, 35 phần trăm.</li>
+      <li>Sidebar 240 pt thu về rail 72 pt: catalog lên 5 cột x 178 pt mà giỏ hàng vẫn giữ 380 pt.</li>
+      <li>Header còn một hàng 48 pt. Tên và địa chỉ cửa hàng rời khỏi header, vào chip chuyển cửa hàng bên phải; địa chỉ nằm trong menu.</li>
+      <li>Chip danh mục về một hàng cuộn ngang, mép phải mờ dần để báo còn chip phía sau.</li>
+      <li>Nút chevron cuối rail mở lại sidebar, phím tắt <b>[</b> trên web. Route /pos tự ép về rail và vẫn nhớ lựa chọn của người dùng cho màn hình khác.</li>
     </ul>
   </div>
-
 
   <!-- ============ DETAIL: trạng thái thanh đơn (không phải khung thiết bị) ============ -->
   <div class="frame frame--detail">

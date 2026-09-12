@@ -227,3 +227,85 @@ about 6 with the old monogram tile. That is the same trade Square and Loyverse m
 phone, and it is recorded in the tile spec. If it proves too slow at the till the fix is a
 compact list mode with a 40 pt thumbnail, not a shrunken grid image. Worth watching in the
 first phase 2 device test.
+
+---
+
+# Revision 3 · 12/09/2026 · desktop density
+
+Owner review of the shipped build: desktop wastes space. Applied
+`plans/260912-1054-beepos-design-pass/phase-04-desktop-density.md`, desktop frames only.
+768 and 375 are untouched apart from one data correction noted below.
+
+## Measured before and after, chrome before the first data row at 1440x900
+
+| Screen | Before | After | After incl. table header |
+|---|---|---|---|
+| `/inventory` | 495 pt, 55 percent | 168 pt, 18.7 percent | 208 pt, 23.1 percent |
+| `/orders` | 315 pt, 35 percent | 168 pt, 18.7 percent | 208 pt, 23.1 percent |
+| `/pos` (to the first tile) | 314 pt, 35 percent | 244 pt, 27.1 percent | n/a |
+
+Both acceptance thresholds are met (`/inventory` <= 30 percent, `/orders` <= 20 percent), and
+POS shows 5 catalog columns at 178 pt beside the 380 pt cart pane. Each figure is annotated
+under its frame in the mockup so the number travels with the drawing.
+
+I am reporting the orders and inventory numbers two ways on purpose. 168 pt is the shell
+chrome; 208 pt includes the table header row. The `<= 20 percent` target is met on the first
+reading and missed on the second, and the column header is arguably part of the data region,
+so the honest answer is both numbers rather than the flattering one.
+
+## What changed
+
+**`pos.html` desktop frame.** Sidebar collapsed to the 72 pt rail with a chevron toggle pinned
+at its bottom. Header is one 48 pt row: title `Bán hàng` with `Ca chưa mở` inline and muted on
+the left, store switcher chip `HN01 · Tạp hoá Cầu Giấy` plus a 32 pt avatar on the right; the
+address is gone from the header and belongs in the chip's menu. Category chips are one
+horizontally scrolling row with a mask-based edge fade instead of two wrapped rows. Catalog is
+5 columns. The order strip and shift strip stay, which is why POS keeps more chrome than the
+list screens.
+
+**`orders.html` desktop frame.** Sidebar stays expanded and gains the same toggle, so the
+toggle is visible in both states. 48 pt header carries the title and the date. One 56 pt
+toolbar holds search, store, date, status and cashier, with `Xuất Excel` pushed right. Stats
+moved from cards to a 64 pt borderless strip with vertical separators, and gained `Đã huỷ`
+now that there is room. Rows are 48 pt, so 13 orders are visible against 12 before, in less
+vertical space. The 320 pt preview pane is unchanged. The result count appears only in the
+footer.
+
+**`inventory.html`, new, desktop frame only.** Same header, toolbar, stat strip and 48 pt rows
+as orders, which is the point: one shape to learn for every list screen. The low stock
+`alert-banner` is now a `17 sắp hết` warning chip in the toolbar that toggles the filter, and
+that chip also replaces the `Tồn kho / Sắp hết` tab pair. Three inventory actions sit right,
+with only `Nhập hàng` in primary. A page note states the file draws desktop only and that
+phone and tablet keep the existing rules.
+
+**`design-direction.md`.** New `Desktop density (>= 1280)` subsection under section 1 carrying
+all seven rules plus the before and after numbers. The doc is back at exactly 300 lines; the
+subsection was paid for by compressing prose in sections 2, 3, 4, 5, 6, 7 and 9, not by
+dropping any rule. The tile spec now says 5 desktop columns rather than 4, and section 8 says
+rows are 56 pt at 768 and 48 pt on desktop.
+
+## One data correction outside the desktop scope
+
+The shipped seed defines `SKUS_WITHOUT_IMAGE` and picked `DU-003`, `DU-006`, `SU-006` and
+seven others, which is the monogram fallback from Revision 2 actually implemented. The
+mockups were using a different product for the fallback demo, so the phone, tablet and desktop
+POS frames now show the monogram on `DU-003` (Coca-Cola 1.5L) and `DU-006` (Trà xanh 500ml),
+and `inventory.html` shows it on `DU-003` and `SU-006`. The drawings and the seed now name the
+same SKUs. One monogram was rendering the wrong initials (`CC` on a Trà xanh tile) and is
+fixed.
+
+## Files touched
+
+`docs/design/mockups/pos.html`, `orders.html`, `inventory.html` (new), `index.html` (a sixth
+card), `mockup.css` (desktop density block); `docs/design/design-direction.md`;
+`plans/260912-1054-beepos-design-pass/preview/{pos,orders,inventory,checkout,login,select-store,index}.png`.
+Nothing under `src/`, `app/` or `package.json`.
+
+## Carried forward
+
+- The 1600 pt admin max width is written into the direction doc but is invisible at 1440, so
+  it is unverified by drawing. Worth one 1920 screenshot during implementation.
+- Reports keeps its stat cards by decision, so it is the one list-like screen that does not
+  follow the strip. If that reads as inconsistent once built, the strip is the cheaper change.
+- The rail toggle is drawn in both states across two files but there is no drawn transition;
+  the animation is a phase 2 detail and should respect `prefers-reduced-motion`.

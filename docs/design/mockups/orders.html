@@ -196,10 +196,10 @@
 
   <!-- DESKTOP -->
   <div class="frame frame--desktop">
-    <div class="frame__label">DESKTOP <span>1440 x 900 · Table + xem trước</span></div>
+    <div class="frame__label">DESKTOP <span>1440 x 900 · sidebar mở + toolbar một hàng</span></div>
     <div class="screen screen--desktop" style="flex-direction:row">
       <nav class="sidebar" data-beeui="ListGroup + ListItem">
-        <div class="brand" style="padding:4px 8px 16px">
+        <div class="brand" style="padding:4px 8px 12px">
           <span class="brand__mark"><svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
           <span class="brand__word">BeePOS</span>
         </div>
@@ -211,31 +211,54 @@
         <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
         <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-store"/></svg>Cửa hàng</a>
         <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-idcard"/></svg>Nhân viên</a>
-        <span class="grow"></span>
         <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
+        <span class="grow"></span>
+        <div class="row" style="gap:10px;padding:10px 8px">
+          <span class="avatar" style="width:32px;height:32px">VG</span>
+          <span class="grow">
+            <div class="t-label" style="font-weight:600">Vũ Thị Giang</div>
+            <div class="t-caption muted">Thu ngân</div>
+          </span>
+        </div>
+        <button class="navtoggle" type="button" title="Phím tắt [">
+          <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-chevron-left"/></svg>
+          Thu gọn
+        </button>
       </nav>
 
       <div style="flex:1;display:flex;flex-direction:column;min-width:0">
-        <header class="appheader" style="padding:0 24px" data-beeui="AppHeader">
-          <span class="grow"><div class="appheader__store">Đơn hàng</div>
-            <div class="appheader__sub">Tạp hoá Cầu Giấy · 12/09/2026 · 18 đơn</div></span>
-          <button class="btn btn--outline" type="button">Xuất Excel</button>
+        <header class="appheader appheader--compact" data-beeui="AppHeader">
+          <span class="grow screentitle">Đơn hàng <span>12/09/2026</span></span>
+          <button class="storechip" type="button" data-beeui="DropdownMenu">
+            <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-store"/></svg>
+            HN01 · Tạp hoá Cầu Giấy
+            <svg class="svg svg--16" viewBox="0 0 24 24" style="transform:rotate(90deg)"><use href="#i-chevron-right"/></svg>
+          </button>
+          <span class="avatar" style="width:32px;height:32px">VG</span>
         </header>
 
-        <div class="toolbar" style="padding:12px 24px" data-beeui="SearchInput + Select">
-          <div class="searchbar" style="width:360px"><svg class="svg" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+        <div class="toolbar toolbar--row" data-beeui="SearchInput + Select + Button">
+          <div class="searchbar" style="width:300px"><svg class="svg" viewBox="0 0 24 24"><use href="#i-search"/></svg>
             <span class="ph">Mã đơn hoặc số điện thoại</span><span class="kbd">F3</span></div>
-          <button class="btn btn--outline" type="button">Cửa hàng: HN01</button>
-          <button class="btn btn--outline" type="button">Hôm nay</button>
-          <button class="btn btn--outline" type="button">Trạng thái: Tất cả</button>
-          <button class="btn btn--outline" type="button">Thu ngân: Tất cả</button>
+          <button class="btn btn--outline" type="button" style="min-height:40px">Cửa hàng: HN01</button>
+          <button class="btn btn--outline" type="button" style="min-height:40px">Hôm nay</button>
+          <button class="btn btn--outline" type="button" style="min-height:40px">Trạng thái: Tất cả</button>
+          <button class="btn btn--outline" type="button" style="min-height:40px">Thu ngân: Tất cả</button>
           <span class="grow"></span>
-          <span class="t-label muted">18 kết quả</span>
+          <button class="btn btn--secondary" type="button" style="min-height:40px">Xuất Excel</button>
+        </div>
+
+        <div class="statstrip" data-beeui="Stat">
+          <div><div class="k">Số đơn</div><div class="v">18</div></div>
+          <div><div class="k">Doanh thu</div><div class="v">3.482.000 đ</div></div>
+          <div><div class="k">Trung bình mỗi đơn</div><div class="v">193.400 đ</div></div>
+          <div><div class="k">Hoàn trả</div><div class="v warn">1</div></div>
+          <div><div class="k">Đã huỷ</div><div class="v bad">1</div></div>
         </div>
 
         <div style="flex:1;display:flex;min-height:0">
           <div style="flex:1;min-width:0;overflow:hidden" data-beeui="Table">
-            <table class="table table--tight">
+            <table class="table table--tight table--48">
               <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Thu ngân</th><th>Thanh toán</th><th>Trạng thái</th><th class="r">Tổng tiền</th></tr></thead>
               <tbody>
                 <tr class="on"><td><b>HD20260912-0018</b><div class="t-caption muted num">14:32</div></td><td>Nguyễn Thị Mai</td><td>Vũ Thị Giang</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">81.500 đ</td></tr>
@@ -250,24 +273,25 @@
                 <tr><td><b>HD20260912-0009</b><div class="t-caption muted num">10:26</div></td><td class="muted">Khách lẻ</td><td>Đặng Văn Hải</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">64.000 đ</td></tr>
                 <tr><td><b>HD20260912-0008</b><div class="t-caption muted num">09:51</div></td><td>Vũ Minh Tuấn</td><td>Vũ Thị Giang</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">154.000 đ</td></tr>
                 <tr><td><b>HD20260912-0007</b><div class="t-caption muted num">09:14</div></td><td class="muted">Khách lẻ</td><td>Vũ Thị Giang</td><td>Chuyển khoản</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">72.000 đ</td></tr>
+                <tr><td><b>HD20260912-0006</b><div class="t-caption muted num">08:47</div></td><td>Ngô Thị Bích</td><td>Đặng Văn Hải</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">43.500 đ</td></tr>
               </tbody>
             </table>
           </div>
 
           <aside style="width:320px;flex:none;background:var(--color-surface);border-left:1px solid var(--color-border);display:flex;flex-direction:column"
                  data-beeui="Card + Timeline">
-            <div class="cartpane__head">
-              <span class="grow"><div class="t-heading">HD20260912-0018</div>
+            <div class="cartpane__head" style="height:48px;padding:0 16px 0 20px">
+              <span class="grow"><div class="t-label" style="font-weight:700">HD20260912-0018</div>
                 <div class="t-caption muted">12/09/2026 14:32 · Vũ Thị Giang</div></span>
               <span class="badge badge--success">Hoàn tất</span>
             </div>
-            <div style="flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+            <div style="flex:1;padding:14px 20px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
               <div class="row" style="gap:10px">
                 <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-user"/></svg>
                 <span class="grow"><div class="t-label" style="font-weight:600">Nguyễn Thị Mai</div>
                   <div class="t-caption muted">0912 345 678 · Hạng Bạc</div></span>
               </div>
-              <div class="panel" style="padding:0;border:none;gap:8px">
+              <div class="panel" style="padding:0;border:none;gap:10px">
                 <div class="row" style="gap:10px">
                   <span class="thumb" style="--acc:var(--chart-series-1)"><svg class="prod" viewBox="0 0 64 64"><use href="#p-bottle"/></svg></span>
                   <span class="grow" style="min-width:0">
@@ -314,24 +338,26 @@
                   <div><div class="t-label" style="font-weight:600">In hoá đơn</div><div class="t-caption muted">14:33</div></div></div>
               </div>
             </div>
-            <div style="padding:16px 20px;border-top:1px solid var(--color-border);display:flex;gap:10px">
-              <button class="btn btn--outline grow" type="button">In lại</button>
-              <button class="btn btn--outline grow" type="button" style="color:var(--color-destructive);border-color:var(--color-destructive)">Hoàn trả</button>
+            <div style="padding:14px 20px;border-top:1px solid var(--color-border);display:flex;gap:10px">
+              <button class="btn btn--outline grow" type="button" style="min-height:40px">In lại</button>
+              <button class="btn btn--outline grow" type="button" style="min-height:40px;color:var(--color-destructive);border-color:var(--color-destructive)">Hoàn trả</button>
             </div>
           </aside>
         </div>
 
-        <div class="pagination" style="padding:12px 24px" data-beeui="Pagination">Hiển thị 1 đến 12 trong 18 đơn
+        <div class="pagination" style="padding:10px 24px" data-beeui="Pagination">18 đơn · trang 1 / 2
           <button class="btn btn--outline" type="button" style="min-height:36px">Trước</button>
           <button class="btn btn--outline" type="button" style="min-height:36px">Sau</button>
         </div>
       </div>
     </div>
     <ul class="frame__notes">
-      <li>Pane xem trước rút xuống 320 pt và bảng còn 6 cột: ở 1440 pt mọi cột đều hiện đủ, cột Tổng tiền không bị cắt.</li>
-      <li>Giờ được gấp xuống dưới mã đơn, giống quy tắc đã dùng ở khung tablet.</li>
-      <li>Hoàn trả là hành động nguy hiểm nên dùng viền destructive và phải xác nhận qua AlertDialog có nêu mã đơn.</li>
-      <li>Hàng đang chọn tô nền primary 6 phần trăm, đủ thấy nhưng không tranh chấp với badge trạng thái.</li>
+      <li><b>Chrome trước dòng dữ liệu đầu tiên: 168 pt, 18,7 phần trăm của 900</b> (208 pt, 23,1 phần trăm nếu tính cả hàng tiêu đề bảng). Trước đây 315 pt, 35 phần trăm.</li>
+      <li>Header 48 pt mang luôn tiêu đề màn hình, khối tiêu đề trang riêng bị bỏ trên desktop.</li>
+      <li>Toolbar gộp tìm kiếm và bốn bộ lọc vào một hàng 56 pt, hành động chính đẩy về phải.</li>
+      <li>Stat đổi từ thẻ sang dải 64 pt không viền, ngăn nhau bằng vạch dọc.</li>
+      <li>Hàng bảng 48 pt trên desktop dùng chuột; 56 pt vẫn giữ cho cảm ứng ở 768 pt.</li>
+      <li>Số kết quả chỉ còn ở chân trang, không lặp lại trên toolbar.</li>
     </ul>
   </div>
 
