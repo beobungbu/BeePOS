@@ -39,3 +39,17 @@ Owns: `src/components/**` except `icons.tsx`, `src/components/shell/**`, `src/fe
 5. Settings: "Đặt lại dữ liệu mẫu" button in an AlertDialog calling `resetDemoData()` from `src/data/persistence-bootstrap.ts` (W-B ships it; if the file is not there yet when you reach this step, import it anyway and coordinate through the report; the integrator will wire it).
 6. Dark-mode sweep: screenshot every screen at 1440 in dark (`docs/design/after/dark/<screen>-1440.png`), fix contrast or missing-token issues in your owned files, list the rest.
 Report: `plans/260912-1054-beepos-design-pass/reports/phase-05-w-c-admin-shell-report.md`.
+
+## Wave 2 (after wave 1 lands)
+
+### W-R · Code review + fixes
+Read-only review of the whole `src/` and `app/` against `docs/product-spec.md` (non-functional section), `docs/design/design-direction.md`, and the shared rules. Look for: render-phase state updates, effects that set state (lint `set-state-in-effect`), unbounded lists without FlatList, missing keys, i18n strings hard-coded in components, a11y labels missing on Pressables, `Platform.OS` branches that break web keyboard handling, duplicated helpers across features, dead files. Produce a ranked list (severity, file:line, one-line fix) in `plans/260912-1054-beepos-design-pass/reports/phase-05-review-report.md`, then fix everything of severity major or higher and every lint error, keeping gates green. Do not restyle.
+
+### W-E · E2E extension + perf harness
+Owns `scripts/qa/e2e/**` (all files), `src/features/audit/**`, `docs/qa/**` (new).
+1. New specs: multi-order journey (open 3 orders, pay one, next order active, close an empty one), inventory receipt (create, add 2 lines, confirm, stock increases), stock count with variance and post, customer create from POS then find it in /customers, reports period switch and custom range, settings language switch (labels change to English and back), persistence (add lines, `page.reload()`, lines still there; reset demo data restores seed). Both wide and narrow projects where the flow exists on phone.
+2. Perf harness: `/audit/perf` route (existing audit feature folder) that seeds 1000 products into the catalog store in memory (not persisted) and renders the POS grid; Playwright measures time to first tile and scroll frame time via `page.evaluate(performance.now())` and `requestAnimationFrame` counts; assert first tile under 1500 ms and no frame over 100 ms while scrolling 20 screens. Write numbers to `docs/qa/perf-260913.md`.
+3. `npm run qa:e2e` stays the single entry; total runtime under 15 minutes (use `fullyParallel` and `workers: 2`).
+
+### W-N · Native smoke on iOS after wave 1 + review
+Fresh Metro (`--clear`), existing dev client on iPhone 16 Pro. Path: cold start with persisted data (from a previous session), scan-buffer via hardware keyboard (`xcrun simctl` cannot type into the app; use the Simulator MCP `text` action on the search field to prove the field still works, and note that wedge input needs a real scanner), quick-add customer, rename a tab, share receipt (Share sheet appears), reset demo data. Screenshots `docs/screenshots/ios-p5-*.png`. Report `plans/260912-1054-beepos-design-pass/reports/phase-05-native-smoke-report.md`.
