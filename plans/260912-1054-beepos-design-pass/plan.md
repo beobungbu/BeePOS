@@ -7,7 +7,7 @@ Why: day-one build skipped visual design (spec had one line on layout). Result w
 ## Phases
 | # | Phase | Owner | Status |
 |---|---|---|---|
-| 1 | Research + design direction + wireframes for 5 key screens x 3 breakpoints, user review gate | ui-ux-designer agent | IN PROGRESS |
+| 1 | Research + design direction + wireframes for 5 key screens x 3 breakpoints, user review gate | ui-ux-designer agent | DONE (approved 2026-09-12 13:24) |
 | 2 | Restyle all 31 screens per approved direction: 2A foundation, 2B three parallel screen workers, gates green, deployed | fullstack workers | DONE 2026-09-12 (commit 851276b, live) |
 | 3 | Polish backlog + native verification + BeeUI findings batch 11 | TBD | PENDING |
 
