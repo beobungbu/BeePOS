@@ -21,3 +21,21 @@ Measured on the 1440x900 "after" captures: chrome before the first data row is 5
 - /inventory chrome before first row <= 30% at 1440x900; /orders <= 20%; /pos with rail shows 5 catalog columns.
 - Sidebar preference survives reload; `[` toggles on web; POS auto-rails and restores.
 - No regressions at 768 and 375 (spot screenshots).
+
+## Status: done (2026-09-12)
+
+Decisions 1 to 7 implemented on desktop only; tablet and phone unchanged.
+Gates: `npx tsc --noEmit`, `npm test` (16 suites / 214), `npm run qa:e2e` 8/8,
+`npx expo export --platform all`, all green.
+
+Measured at 1440x900, `/inventory` 419 pt (46.6 %) -> 169 pt (18.8 %) and `/orders`
+308 pt (34.2 %) -> 169 pt (18.8 %) of shell chrome; 209 pt (23.2 %) on both once the table's own
+column-header row is counted. `/inventory <= 30 %` met on both readings. `/orders <= 20 %` met on
+shell chrome, missed by 3.2 points on the stricter reading: 48 + 56 + 64 is the arithmetic floor
+of decisions 2, 3 and 4, so the target needs one of the three bands dropped. Open for the owner.
+
+`/pos` with the rail shows 5 catalogue columns, 4 with the sidebar expanded. Preference survives
+a reload, `[` toggles on web and is ignored inside a text field, POS auto-rails and restores.
+
+Report: `reports/phase-04-desktop-density-report.md`.
+BeeUI findings: `docs/beeui-audit/findings-17-desktop-density.md`.

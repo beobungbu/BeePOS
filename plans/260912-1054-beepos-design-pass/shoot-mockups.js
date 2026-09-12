@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 const DIR = path.resolve(__dirname, '../../docs/design/mockups');
 const OUT = path.resolve(__dirname, 'preview');
 const pages = process.argv.slice(2).length ? process.argv.slice(2)
-  : ['index', 'login', 'select-store', 'pos', 'checkout', 'orders'];
+  : ['index', 'login', 'select-store', 'pos', 'checkout', 'orders', 'inventory'];
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });

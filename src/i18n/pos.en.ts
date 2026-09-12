@@ -3,6 +3,7 @@ import { registerDictionary } from './registry';
 export const posEn = {
   searchPlaceholder: 'Search by name, SKU, or scan a barcode',
   categoryAll: 'All',
+  categoryScrollNext: 'More categories',
   addedToCart: 'Added to cart',
   barcodeNotFound: 'No product found for this barcode',
   stockLow: 'Low stock',

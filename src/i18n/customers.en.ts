@@ -22,6 +22,11 @@ export const customersEn = {
     never: 'No orders yet',
     selectRow: 'View customer {name}',
   },
+  stats: {
+    customers: 'Customers',
+    points: 'Loyalty points',
+    totalSpent: 'Total spent',
+  },
   addButton: 'Add customer',
   addDialog: {
     title: 'Add customer',

@@ -22,6 +22,11 @@ export const customersVi = {
     never: 'Chưa có đơn',
     selectRow: 'Xem khách hàng {name}',
   },
+  stats: {
+    customers: 'Khách hàng',
+    points: 'Điểm tích luỹ',
+    totalSpent: 'Tổng chi tiêu',
+  },
   addButton: 'Thêm khách',
   addDialog: {
     title: 'Thêm khách hàng',

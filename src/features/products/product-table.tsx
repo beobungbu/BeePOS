@@ -17,6 +17,7 @@ import { formatVND } from '../../domain/money';
 import type { Category, Product } from '../../domain/types';
 import type { Breakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
+import { useTableRowClass } from '../../components/table-row-density';
 import { ProductThumb } from '../../components/product-thumb';
 import { StockBadge } from './components/stock-badge';
 import { totalMinLevel, totalStock } from './product-list-utils';
@@ -58,6 +59,7 @@ export function ProductTable({
 }: ProductTableProps) {
   const t = useT();
   const isDesktop = breakpoint === 'desktop';
+  const rowClass = useTableRowClass();
   const stockLevels = useInventoryStore((state) => state.stockLevels);
   const categoryName = (categoryId: string) =>
     categories.find((category) => category.id === categoryId)?.name ?? '';
@@ -116,7 +118,7 @@ export function ProductTable({
       </TableHeader>
       <TableBody>
         {products.map((product) => (
-          <TableRow key={product.id}>
+          <TableRow className={rowClass} key={product.id}>
             <TableCell label={t('products.columns.product')}>
               <Pressable
                 accessibilityRole="button"

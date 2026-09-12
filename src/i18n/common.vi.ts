@@ -51,6 +51,8 @@ export const commonVi = {
     themeLight: 'Sáng',
     themeDark: 'Tối',
     themeSystem: 'Theo hệ thống',
+    collapseMenu: 'Thu gọn menu',
+    expandMenu: 'Mở rộng menu',
   },
 };
 

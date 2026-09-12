@@ -104,7 +104,8 @@ export default function PosScreen() {
               categories={categories}
               value={category}
               onChange={setCategory}
-              scroll={layout.breakpoint === 'phone'}
+              scroll={layout.breakpoint !== 'tablet'}
+              showScrollControl={layout.breakpoint === 'desktop'}
               visibleLimit={layout.chipLimit}
               gutter={layout.gutter}
             />

@@ -4,6 +4,7 @@ import type { OrderStats } from '../../../domain/orders';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
 import type { Breakpoint } from '../../../hooks/use-breakpoint';
+import { StatStrip } from '../../../components/stat-strip';
 import { averageOrderValue } from '../lib/order-presentation';
 
 /** The heading step (18 / 24) as the arbitrary-value utility BeeUI emits for its own variants. */
@@ -29,15 +30,27 @@ export function OrderStatsStrip({ stats, breakpoint }: { stats: OrderStats; brea
     );
   }
 
+  // Desktop drops the cards for the 64 pt strip: four bordered boxes cost 96 pt plus gaps
+  // and say nothing the four figures do not (phase 4, decision 4).
+  if (breakpoint === 'desktop') {
+    return (
+      <StatStrip
+        items={[
+          { label: t('orders.stats.orders'), value: String(stats.orderCount) },
+          { label: t('orders.stats.revenue'), value: formatVND(stats.revenue) },
+          { label: t('orders.stats.average'), value: average },
+          { label: t('orders.stats.refundCount'), value: String(stats.refundCount) },
+        ]}
+      />
+    );
+  }
+
   // Four cards fit one row at desktop; at tablet they wrap to 2 x 2 rather than clipping a
   // revenue figure that needs the full width of its card.
   // Class names are whole literals so the Uniwind extractor can see them in the source.
   // StatValue takes no variant prop, so the heading step is written the way BeeUI writes it
   // internally: the named utility generates no CSS in this toolchain.
-  const cardClass =
-    breakpoint === 'tablet'
-      ? 'min-w-64 flex-1 rounded-lg border border-border bg-surface p-3.5'
-      : 'min-w-32 flex-1 rounded-lg border border-border bg-surface p-3.5';
+  const cardClass = 'min-w-64 flex-1 rounded-lg border border-border bg-surface p-3.5';
 
   return (
     <View className="flex-row flex-wrap gap-3">

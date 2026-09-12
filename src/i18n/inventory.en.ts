@@ -9,7 +9,10 @@ export const inventoryEn = {
     totalCost: 'Total stock value',
     lowCount: 'Low stock',
     outCount: 'Out of stock',
+    reserved: 'Reserved',
   },
+  lowStockChip: '{count} low stock',
+  searchPlaceholder: 'Search name or SKU',
   tabStock: 'Stock',
   tabLowStock: 'Low stock',
   columns: {

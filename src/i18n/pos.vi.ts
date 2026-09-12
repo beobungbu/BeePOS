@@ -3,6 +3,7 @@ import { registerDictionary } from './registry';
 export const posVi = {
   searchPlaceholder: 'Tìm theo tên, SKU hoặc quét mã vạch',
   categoryAll: 'Tất cả',
+  categoryScrollNext: 'Xem thêm danh mục',
   addedToCart: 'Đã thêm vào giỏ',
   barcodeNotFound: 'Không tìm thấy sản phẩm với mã vạch này',
   stockLow: 'Sắp hết',

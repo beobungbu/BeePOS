@@ -22,7 +22,9 @@ import {
 } from '@beemvp/beeui-ui';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useScreenHeader } from '../../components/shell/screen-header';
+import { Toolbar } from '../../components/toolbar';
 import { useT } from '../../i18n';
+import { useTableRowClass } from '../../components/table-row-density';
 import { staffCountForStore } from '../../domain/org';
 import { useOrgStore } from '../../data/org-store';
 
@@ -34,12 +36,20 @@ export function StoreListScreen() {
   const router = useRouter();
   const breakpoint = useBreakpoint();
   const isWide = breakpoint !== 'phone';
+  const isDesktop = breakpoint === 'desktop';
+  const rowClass = useTableRowClass();
 
   const stores = useOrgStore((state) => state.stores);
   const staff = useOrgStore((state) => state.staff);
   const setStoreActive = useOrgStore((state) => state.setStoreActive);
 
   useScreenHeader({ title: t('stores.title') });
+
+  const addButton = (
+    <Button size="sm" onPress={() => router.push('/stores/new')}>
+      <ButtonLabel>{t('stores.addStore')}</ButtonLabel>
+    </Button>
+  );
 
   function statusBadge(isActive: boolean) {
     return (
@@ -54,15 +64,15 @@ export function StoreListScreen() {
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
         {/* `Screen` owns no scroll behaviour, so the list needs one here. */}
         <ScrollView className="flex-1">
-          <VStack gap="lg" className={GUTTER[breakpoint]}>
+          {/* Desktop: the page action sits in the shared toolbar row under the app header. */}
+          {isDesktop ? (
+            <View className="border-b border-border bg-surface px-6">
+              <Toolbar actions={addButton} />
+            </View>
+          ) : null}
+          <VStack gap="lg" className={isDesktop ? 'px-6 py-4' : GUTTER[breakpoint]}>
             {/* The screen title is in the app header; the section keeps only its action. */}
-            <Section
-              action={
-                <Button size="sm" onPress={() => router.push('/stores/new')}>
-                  <ButtonLabel>{t('stores.addStore')}</ButtonLabel>
-                </Button>
-              }
-            >
+            <Section action={isDesktop ? undefined : addButton}>
               {stores.length === 0 ? (
                 <EmptyState title={t('stores.list.empty')} description="" />
               ) : isWide ? (
@@ -79,7 +89,7 @@ export function StoreListScreen() {
                   </TableHeader>
                   <TableBody>
                     {stores.map((store) => (
-                      <TableRow key={store.id}>
+                      <TableRow className={rowClass} key={store.id}>
                         <TableCell>
                           <Badge variant="outline">{store.code}</Badge>
                         </TableCell>

@@ -16,9 +16,9 @@ import {
 import type { OrderStatus, Staff, Store } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import type { Breakpoint } from '../../../hooks/use-breakpoint';
+import { Toolbar } from '../../../components/toolbar';
 import { calendarDateToIso, isoToCalendarDate } from '../lib/calendar-date';
 import { DATE_PRESETS, rangeForPreset, type DatePreset } from '../lib/order-presentation';
-import { fill } from '../lib/fill';
 
 const STATUS_OPTIONS: OrderStatus[] = ['paid', 'partial_refund', 'refunded', 'void'];
 
@@ -41,14 +41,12 @@ export function OrderFiltersBar({
   stores,
   cashiers,
   breakpoint,
-  resultCount,
 }: {
   value: OrdersFilterValue;
   onChange: (next: OrdersFilterValue) => void;
   stores: Store[];
   cashiers: Staff[];
   breakpoint: Breakpoint;
-  resultCount: number;
 }) {
   const t = useT();
   const isPhone = breakpoint === 'phone';
@@ -165,62 +163,74 @@ export function OrderFiltersBar({
     );
   }
 
-  return (
-    <View className={`gap-3 border-b border-border bg-surface py-3 ${isDesktop ? 'px-6' : 'px-5'}`}>
-      <View className="flex-row flex-wrap items-center gap-3">
-        {isDesktop ? <View style={{ width: 300 }}>{search}</View> : search}
-        {isDesktop ? (
+  const storeSelect = (
+    <View className="min-w-32">
+      <Select
+        onValueChange={(v) => onChange({ ...value, storeId: v === 'all' ? '' : v })}
+        value={value.storeId || 'all'}
+      >
+        <SelectTrigger accessibilityLabel={t('orders.filters.store')}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t('orders.filters.allStores')}</SelectItem>
+          {stores.map((store) => (
+            <SelectItem key={store.id} value={store.id}>
+              {store.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </View>
+  );
+
+  const cashierSelect = (
+    <View className="min-w-32">
+      <Select
+        onValueChange={(v) => onChange({ ...value, cashierId: v === 'all' ? '' : v })}
+        value={value.cashierId || 'all'}
+      >
+        <SelectTrigger accessibilityLabel={t('orders.filters.cashier')}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t('orders.filters.allCashiers')}</SelectItem>
+          {cashiers.map((member) => (
+            <SelectItem key={member.id} value={member.id}>
+              {member.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </View>
+  );
+
+  // Desktop is the shared 56 pt toolbar row. The result count has moved to the pagination
+  // footer, the one place it stays true after a page change, so it is not repeated here.
+  if (isDesktop) {
+    return (
+      <View className="border-b border-border bg-surface px-6">
+        <Toolbar>
+          <View style={{ width: 300 }}>{search}</View>
           <Text variant="caption" className="text-subtle-foreground" numberOfLines={1}>
             F3
           </Text>
-        ) : null}
-        {isDesktop ? (
-          <View className="min-w-32">
-            <Select
-              onValueChange={(v) => onChange({ ...value, storeId: v === 'all' ? '' : v })}
-              value={value.storeId || 'all'}
-            >
-              <SelectTrigger accessibilityLabel={t('orders.filters.store')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('orders.filters.allStores')}</SelectItem>
-                {stores.map((store) => (
-                  <SelectItem key={store.id} value={store.id}>
-                    {store.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </View>
-        ) : null}
+          {storeSelect}
+          <View className="min-w-32">{presetSelect}</View>
+          <View className="min-w-36">{statusSelect}</View>
+          {cashierSelect}
+        </Toolbar>
+        {customRange ? <View className="pb-3">{customRange}</View> : null}
+      </View>
+    );
+  }
+
+  return (
+    <View className="gap-3 border-b border-border bg-surface px-5 py-3">
+      <View className="flex-row flex-wrap items-center gap-3">
+        {search}
         <View className="min-w-32">{presetSelect}</View>
         <View className="min-w-36">{statusSelect}</View>
-        {isDesktop ? (
-          <View className="min-w-32">
-            <Select
-              onValueChange={(v) => onChange({ ...value, cashierId: v === 'all' ? '' : v })}
-              value={value.cashierId || 'all'}
-            >
-              <SelectTrigger accessibilityLabel={t('orders.filters.cashier')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('orders.filters.allCashiers')}</SelectItem>
-                {cashiers.map((member) => (
-                  <SelectItem key={member.id} value={member.id}>
-                    {member.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </View>
-        ) : null}
-        {isDesktop ? (
-          <Text variant="label" className="font-normal ml-auto text-muted-foreground" numberOfLines={1} numeric="tabular">
-            {fill(t('orders.filters.results'), { count: resultCount })}
-          </Text>
-        ) : null}
       </View>
       {customRange}
     </View>

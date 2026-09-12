@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
   const p = await b.newPage({ viewport: { width: 1600, height: 1000 } });
   const errs = [];
   p.on('pageerror', e => errs.push(e.message));
-  for (const n of ['index','login','select-store','pos','checkout','orders']) {
+  for (const n of ['index','login','select-store','pos','checkout','orders','inventory']) {
     await p.goto('file:///Users/textsoft/workspace/BeePOS/docs/design/mockups/' + n + '.html');
     await p.waitForTimeout(300);
     const cb = await p.$('#map');

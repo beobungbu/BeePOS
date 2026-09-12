@@ -1,4 +1,4 @@
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   Avatar,
@@ -15,6 +15,7 @@ import {
 } from '@beemvp/beeui-ui';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useScreenHeader } from '../../components/shell/screen-header';
+import { Toolbar } from '../../components/toolbar';
 import { useT } from '../../i18n';
 import { useOrgStore, isStaffActive } from '../../data/org-store';
 
@@ -36,22 +37,30 @@ export function StaffListScreen() {
   const staffActiveById = useOrgStore((state) => state.staffActiveById);
   const storeName = (storeId: string) => stores.find((store) => store.id === storeId)?.name ?? storeId;
 
+  const isDesktop = breakpoint === 'desktop';
+
   useScreenHeader({ title: t('staff.title') });
+
+  const addButton = (
+    <Button size="sm" onPress={() => router.push('/staff/new')}>
+      <ButtonLabel>{t('staff.addStaff')}</ButtonLabel>
+    </Button>
+  );
 
   return (
     <Screen>
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
         {/* `Screen` owns no scroll behaviour, so the list needs one here. */}
         <ScrollView className="flex-1">
-        <VStack gap="lg" className={GUTTER[breakpoint]}>
+        {/* Desktop: the page action sits in the shared toolbar row under the app header. */}
+        {isDesktop ? (
+          <View className="border-b border-border bg-surface px-6">
+            <Toolbar actions={addButton} />
+          </View>
+        ) : null}
+        <VStack gap="lg" className={isDesktop ? 'px-6 py-4' : GUTTER[breakpoint]}>
           {/* The screen title is in the app header; the section keeps only its action. */}
-          <Section
-            action={
-              <Button size="sm" onPress={() => router.push('/staff/new')}>
-                <ButtonLabel>{t('staff.addStaff')}</ButtonLabel>
-              </Button>
-            }
-          >
+          <Section action={isDesktop ? undefined : addButton}>
             {staff.length === 0 ? (
               <EmptyState title={t('staff.list.empty')} description="" />
             ) : (

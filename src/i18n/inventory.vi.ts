@@ -9,7 +9,10 @@ export const inventoryVi = {
     totalCost: 'Tổng tồn (giá vốn)',
     lowCount: 'Sắp hết',
     outCount: 'Hết hàng',
+    reserved: 'Đang đặt trước',
   },
+  lowStockChip: '{count} sắp hết',
+  searchPlaceholder: 'Tìm tên hoặc SKU',
   tabStock: 'Tồn kho',
   tabLowStock: 'Sắp hết',
   columns: {

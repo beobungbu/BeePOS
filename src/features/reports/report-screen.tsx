@@ -1,7 +1,8 @@
 import { Button, ButtonLabel, SafeArea, Screen, Stack, useToast, VStack } from '@beemvp/beeui-ui';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useScreenHeader } from '../../components/shell/screen-header';
+import { Toolbar } from '../../components/toolbar';
 import { useT } from '../../i18n';
 import { PeriodFilter } from './components/period-filter';
 import { StatCards } from './components/stat-cards';
@@ -22,6 +23,7 @@ export function ReportScreen() {
   const data = useReportData(filters);
   const breakpoint = useBreakpoint();
   const isWide = breakpoint !== 'phone';
+  const isDesktop = breakpoint === 'desktop';
   const tableLayout = isWide ? 'scroll' : 'stacked';
 
   useScreenHeader({ title: t('reports.title'), subtitle: t('reports.subtitle') });
@@ -39,13 +41,31 @@ export function ReportScreen() {
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
         {/* `Screen` owns no scroll behaviour, so the report sections need one here. */}
         <ScrollView className="flex-1">
+          {/* Desktop: period, store and export share the one 56 pt toolbar row under the
+              header. Reports keeps its stat cards, where a figure is the content of the
+              screen and not a caption on a table (phase 4, decision 4). */}
+          {isDesktop ? (
+            <View className="border-b border-border bg-surface px-6">
+              <Toolbar
+                actions={
+                  <Button variant="outline" size="sm" onPress={handleExport} accessibilityLabel={t('reports.export.button')}>
+                    <ButtonLabel>{t('reports.export.button')}</ButtonLabel>
+                  </Button>
+                }
+              >
+                <PeriodFilter filters={filters} stores={data.stores} inline />
+              </Toolbar>
+            </View>
+          ) : null}
           <VStack gap="lg" className={GUTTER[breakpoint]}>
-            <Stack direction={isWide ? 'horizontal' : 'vertical'} gap="md" wrap justify="between" align="start">
-              <PeriodFilter filters={filters} stores={data.stores} />
-              <Button variant="outline" size="sm" onPress={handleExport} accessibilityLabel={t('reports.export.button')}>
-                <ButtonLabel>{t('reports.export.button')}</ButtonLabel>
-              </Button>
-            </Stack>
+            {isDesktop ? null : (
+              <Stack direction={isWide ? 'horizontal' : 'vertical'} gap="md" wrap justify="between" align="start">
+                <PeriodFilter filters={filters} stores={data.stores} />
+                <Button variant="outline" size="sm" onPress={handleExport} accessibilityLabel={t('reports.export.button')}>
+                  <ButtonLabel>{t('reports.export.button')}</ButtonLabel>
+                </Button>
+              </Stack>
+            )}
 
             <StatCards stats={data.stats} />
 

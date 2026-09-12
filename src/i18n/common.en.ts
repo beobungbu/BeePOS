@@ -51,6 +51,8 @@ export const commonEn = {
     themeLight: 'Light',
     themeDark: 'Dark',
     themeSystem: 'System',
+    collapseMenu: 'Collapse menu',
+    expandMenu: 'Expand menu',
   },
 };
 

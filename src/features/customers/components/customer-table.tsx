@@ -4,6 +4,7 @@ import { Avatar, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, 
 import type { Customer } from '../../../domain/types';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
+import { useTableRowClass } from '../../../components/table-row-density';
 import { fill } from '../../orders/lib/fill';
 import { TierBadge } from './tier-badge';
 import { initials } from '../lib/initials';
@@ -25,6 +26,7 @@ export function CustomerTable({
 }) {
   const t = useT();
   const router = useRouter();
+  const rowClass = useTableRowClass();
 
   return (
     <Table>
@@ -46,7 +48,7 @@ export function CustomerTable({
       </TableHeader>
       <TableBody>
         {customers.map((customer) => (
-          <TableRow key={customer.id}>
+          <TableRow className={rowClass} key={customer.id}>
             <TableCell label={t('customers.table.name')}>
               <Pressable
                 accessibilityLabel={fill(t('customers.table.selectRow'), { name: customer.name })}

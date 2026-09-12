@@ -38,6 +38,8 @@ function formatShortDate(date: Date | null): string {
 interface PeriodFilterProps {
   filters: ReportFiltersState;
   stores: Store[];
+  /** Desktop: emit the controls bare so the shared 56 pt toolbar can lay them out in one row. */
+  inline?: boolean;
 }
 
 /** The four periods, in the order the mockup lists them. Values never change with the width. */
@@ -48,11 +50,77 @@ const PERIODS: { value: PeriodKey; labelKey: string }[] = [
   { value: 'custom', labelKey: 'reports.period.custom' },
 ];
 
-export function PeriodFilter({ filters, stores }: PeriodFilterProps) {
+export function PeriodFilter({ filters, stores, inline = false }: PeriodFilterProps) {
   const t = useT();
   // Hugging the content would squeeze the four labels at 1440; a min width below 768 would
   // push "Tuỳ chọn" off the screen, so the floor is a tablet-and-up rule.
   const isWide = useBreakpoint() !== 'phone';
+
+  const customRange = filters.periodKey === 'custom' && (
+    <>
+      <Popover>
+        <PopoverTrigger variant="outline" size="sm" accessibilityLabel={t('reports.period.from')}>
+          {`${t('reports.period.from')}: ${formatShortDate(filters.customStart)}`}
+        </PopoverTrigger>
+        <PopoverContent placement="bottom" align="start">
+          <Calendar
+            value={filters.customStart ? toCalendarDate(filters.customStart) : null}
+            onValueChange={(value) => filters.setCustomStart(fromCalendarDate(value))}
+          />
+        </PopoverContent>
+      </Popover>
+      <Popover>
+        <PopoverTrigger variant="outline" size="sm" accessibilityLabel={t('reports.period.to')}>
+          {`${t('reports.period.to')}: ${formatShortDate(filters.customEnd)}`}
+        </PopoverTrigger>
+        <PopoverContent placement="bottom" align="start">
+          <Calendar
+            value={filters.customEnd ? toCalendarDate(filters.customEnd) : null}
+            onValueChange={(value) => filters.setCustomEnd(fromCalendarDate(value))}
+          />
+        </PopoverContent>
+      </Popover>
+    </>
+  );
+
+  const storeSelect = filters.canViewAllStores && (
+    <Select
+      value={filters.storeId ?? 'all'}
+      onValueChange={(value) => filters.setStoreId(value === 'all' ? null : value)}
+    >
+      <SelectTrigger className="min-w-40" accessibilityLabel={t('reports.storeFilter.label')}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">{t('reports.storeFilter.all')}</SelectItem>
+        {stores.map((store) => (
+          <SelectItem key={store.id} value={store.id}>
+            {store.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+
+  if (inline) {
+    return (
+      <>
+        <SegmentedControl
+          className="min-w-96 shrink-0"
+          value={filters.periodKey}
+          onValueChange={(value) => filters.setPeriodKey(value as PeriodKey)}
+        >
+          {PERIODS.map((period) => (
+            <SegmentedControlItem key={period.value} value={period.value}>
+              {t(period.labelKey)}
+            </SegmentedControlItem>
+          ))}
+        </SegmentedControl>
+        {customRange}
+        {storeSelect}
+      </>
+    );
+  }
 
   return (
     <VStack gap="sm" className="min-w-64 flex-1">
@@ -103,51 +171,8 @@ export function PeriodFilter({ filters, stores }: PeriodFilterProps) {
       )}
 
       <HStack gap="sm" wrap>
-        {filters.periodKey === 'custom' && (
-          <>
-            <Popover>
-              <PopoverTrigger variant="outline" size="sm" accessibilityLabel={t('reports.period.from')}>
-                {`${t('reports.period.from')}: ${formatShortDate(filters.customStart)}`}
-              </PopoverTrigger>
-              <PopoverContent placement="bottom" align="start">
-                <Calendar
-                  value={filters.customStart ? toCalendarDate(filters.customStart) : null}
-                  onValueChange={(value) => filters.setCustomStart(fromCalendarDate(value))}
-                />
-              </PopoverContent>
-            </Popover>
-            <Popover>
-              <PopoverTrigger variant="outline" size="sm" accessibilityLabel={t('reports.period.to')}>
-                {`${t('reports.period.to')}: ${formatShortDate(filters.customEnd)}`}
-              </PopoverTrigger>
-              <PopoverContent placement="bottom" align="start">
-                <Calendar
-                  value={filters.customEnd ? toCalendarDate(filters.customEnd) : null}
-                  onValueChange={(value) => filters.setCustomEnd(fromCalendarDate(value))}
-                />
-              </PopoverContent>
-            </Popover>
-          </>
-        )}
-
-        {filters.canViewAllStores && (
-          <Select
-            value={filters.storeId ?? 'all'}
-            onValueChange={(value) => filters.setStoreId(value === 'all' ? null : value)}
-          >
-            <SelectTrigger className="min-w-40" accessibilityLabel={t('reports.storeFilter.label')}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('reports.storeFilter.all')}</SelectItem>
-              {stores.map((store) => (
-                <SelectItem key={store.id} value={store.id}>
-                  {store.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        {customRange}
+        {storeSelect}
       </HStack>
     </VStack>
   );

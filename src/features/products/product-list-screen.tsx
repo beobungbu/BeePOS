@@ -88,21 +88,26 @@ export function ProductListScreen() {
   const hasAnyProducts = products.length > 0;
   const showEmpty = sorted.length === 0;
 
-  return (
-    <ScrollView className="flex-1">
-      <View className={`flex-1 gap-4 ${GUTTER[breakpoint]}`}>
-        {/* Title and count live in the app header; this row keeps the two page actions. */}
-        <View className="flex-row items-center justify-end gap-3">
-          <View className="flex-row items-center gap-2">
-            <Button variant="outline" onPress={() => router.push('/products/categories')}>
-              {t('products.categories.title')}
-            </Button>
-            <Button onPress={() => router.push('/products/new')}>{t('products.addProduct')}</Button>
-          </View>
-        </View>
+  const actions = (
+    <>
+      <Button variant="outline" onPress={() => router.push('/products/categories')}>
+        {t('products.categories.title')}
+      </Button>
+      <Button onPress={() => router.push('/products/new')}>{t('products.addProduct')}</Button>
+    </>
+  );
 
-        <ProductToolbar filters={filters} categories={categories} onFiltersChange={handleFiltersChange} />
+  const toolbar = (
+    <ProductToolbar
+      actions={actions}
+      filters={filters}
+      categories={categories}
+      onFiltersChange={handleFiltersChange}
+    />
+  );
 
+  const list = (
+    <>
         {showEmpty ? (
           <EmptyState
             title={hasAnyProducts ? t('products.noResultsTitle') : t('products.emptyTitle')}
@@ -127,7 +132,24 @@ export function ProductListScreen() {
         {!showEmpty && pageCount > 1 && (
           <Pagination page={currentPage} pageCount={pageCount} onPageChange={setPage} />
         )}
-      </View>
+    </>
+  );
+
+  // Desktop puts the toolbar in its own full-bleed row directly under the app header, so the
+  // table starts as high as it can; below 1280 the page keeps one padded column.
+  return (
+    <ScrollView className="flex-1">
+      {breakpoint === 'desktop' ? (
+        <>
+          <View className="border-b border-border bg-surface px-6">{toolbar}</View>
+          <View className="flex-1 gap-4 px-6 py-4">{list}</View>
+        </>
+      ) : (
+        <View className={`flex-1 gap-4 ${GUTTER[breakpoint]}`}>
+          {toolbar}
+          {list}
+        </View>
+      )}
 
       <AlertDialog open={pendingDelete !== null} onOpenChange={(open) => !open && setPendingDelete(null)}>
         <AlertDialogContent>

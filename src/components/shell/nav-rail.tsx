@@ -5,13 +5,15 @@ import { useT } from '../../i18n';
 import { AppIcon } from '../icons';
 import { BrandMark } from './brand-mark';
 import { SETTINGS_NAV_ITEM, WIDE_NAV_ITEMS, type NavItem } from './nav-items';
+import { SidebarToggle } from './sidebar-toggle';
 
 /**
  * 72 pt icon rail for tablets (768 to 1279). A 240 pt sidebar at this width costs the
  * catalog a whole column and truncates product names, so the rail carries every area as an
- * icon with a 10 pt label and Cài đặt pinned to the bottom.
+ * icon with a 10 pt label and Cài đặt pinned to the bottom. Desktop reuses it as the
+ * collapsed sidebar, which is where the expand control at the bottom comes from.
  */
-export function NavRail() {
+export function NavRail({ showToggle = false }: { showToggle?: boolean } = {}) {
   const pathname = usePathname();
 
   return (
@@ -24,6 +26,8 @@ export function NavRail() {
       ))}
       <View className="flex-1" />
       <RailItem item={SETTINGS_NAV_ITEM} active={pathname.startsWith(SETTINGS_NAV_ITEM.href)} />
+      {/* Desktop only: the tablet rail has no sidebar to expand into. */}
+      {showToggle ? <SidebarToggle collapsed /> : null}
     </View>
   );
 }

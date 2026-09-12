@@ -5,11 +5,12 @@ import { useT } from '../../i18n';
 import { useSessionStore } from '../../data/session-store';
 import { AppIcon } from '../icons';
 import { BrandBlock, initialsOf } from './brand-mark';
+import { SidebarToggle } from './sidebar-toggle';
 import { SETTINGS_NAV_ITEM, WIDE_NAV_ITEMS, type NavItem } from './nav-items';
 
 /**
  * 240 pt sidebar for desktop (>= 1280): brand block on top, every area in the middle, then
- * Cài đặt and the signed-in cashier pinned to the bottom.
+ * Cài đặt, the collapse control and the signed-in cashier pinned to the bottom.
  */
 export function Sidebar() {
   const t = useT();
@@ -30,6 +31,12 @@ export function Sidebar() {
       <View className="flex-1" />
 
       <SidebarItem item={SETTINGS_NAV_ITEM} active={pathname.startsWith(SETTINGS_NAV_ITEM.href)} />
+
+      {/* Collapse control at the bottom, the same slot the rail puts it in, so the chevron
+          stays under the pointer across the swap. */}
+      <View className="flex-row justify-end px-1 pt-1">
+        <SidebarToggle collapsed={false} />
+      </View>
 
       {staff ? (
         <View className="mt-2 flex-row items-center gap-2.5 border-t border-border px-2 pb-1 pt-3">

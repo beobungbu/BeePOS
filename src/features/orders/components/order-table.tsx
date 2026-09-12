@@ -5,6 +5,7 @@ import type { Order, Staff } from '../../../domain/types';
 import type { OrderSortKey, SortDirection } from '../../../domain/orders';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
+import { useTableRowClass } from '../../../components/table-row-density';
 import type { Breakpoint } from '../../../hooks/use-breakpoint';
 import { formatTime, isCancelled, paymentSummary } from '../lib/order-presentation';
 import { fill } from '../lib/fill';
@@ -44,6 +45,7 @@ export function OrderTable({
 }) {
   const t = useT();
   const router = useRouter();
+  const rowClass = useTableRowClass();
   const showCashier = breakpoint === 'desktop';
   const cashierName = (id: string) => cashiers.find((member) => member.id === id)?.name ?? id;
 
@@ -79,7 +81,7 @@ export function OrderTable({
 
           return (
             <TableRow
-              className={order.id === selectedOrderId ? 'bg-primary/10' : undefined}
+              className={order.id === selectedOrderId ? `${rowClass} bg-primary/10` : rowClass}
               key={order.id}
               selected={order.id === selectedOrderId}
             >

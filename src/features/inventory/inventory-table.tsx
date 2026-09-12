@@ -13,8 +13,10 @@ import {
   Text,
 } from '@beemvp/beeui-ui';
 import { View } from 'react-native';
+import { ProductThumb } from '../../components/product-thumb';
 import type { StockStatus } from '../../domain/inventory';
 import { useT } from '../../i18n';
+import { useTableRowClass } from '../../components/table-row-density';
 import type { StockRow } from './inventory-list-utils';
 
 /**
@@ -36,6 +38,7 @@ interface InventoryTableProps {
 
 export function InventoryTable({ rows, showStore, onAdjust, onHistory }: InventoryTableProps) {
   const t = useT();
+  const rowClass = useTableRowClass();
 
   function statusLabel(status: StockStatus): string {
     if (status === 'out') return t('inventory.statusOut');
@@ -59,11 +62,21 @@ export function InventoryTable({ rows, showStore, onAdjust, onHistory }: Invento
       </TableHeader>
       <TableBody>
         {rows.map((row) => (
-          <TableRow key={`${row.level.productId}-${row.level.storeId}`}>
+          <TableRow className={rowClass} key={`${row.level.productId}-${row.level.storeId}`}>
             <TableCell label={t('inventory.columns.product')}>
-              <View className="min-w-0">
-                <Text variant="label" className="font-semibold" numberOfLines={2}>{row.product.name}</Text>
-                <Text variant="caption" tone="muted" numeric="tabular">{row.product.sku}</Text>
+              {/* The same 32 pt slot the sell screen and the product table use, so a row never
+                  reflows between a product that has a photo and one that does not. */}
+              <View className="min-w-0 flex-row items-center gap-2.5">
+                <ProductThumb
+                  categoryId={row.product.categoryId}
+                  imageUrl={row.product.imageUrl}
+                  name={row.product.name}
+                  size={32}
+                />
+                <View className="min-w-0 flex-1">
+                  <Text variant="label" className="font-semibold" numberOfLines={2}>{row.product.name}</Text>
+                  <Text variant="caption" tone="muted" numeric="tabular">{row.product.sku}</Text>
+                </View>
               </View>
             </TableCell>
             {showStore && (

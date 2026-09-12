@@ -128,7 +128,6 @@ export function OrdersListScreen() {
       breakpoint={breakpoint}
       cashiers={staff}
       onChange={setFilters}
-      resultCount={sorted.length}
       stores={stores}
       value={filters}
     />
@@ -192,7 +191,8 @@ export function OrdersListScreen() {
   return (
     <View className="flex-1 bg-background">
       {filtersBar}
-      <View className={`py-3 ${gutter}`}>
+      {/* The 64 pt strip is its own row on desktop and needs no padding of its own. */}
+      <View className={isDesktop ? gutter : `py-3 ${gutter}`}>
         <OrderStatsStrip breakpoint={breakpoint} stats={stats} />
       </View>
       <View className="min-h-0 flex-1 flex-row">

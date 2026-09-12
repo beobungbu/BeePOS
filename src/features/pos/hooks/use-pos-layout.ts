@@ -1,12 +1,16 @@
 import { useWindowDimensions } from 'react-native';
 import { useBreakpoint, type Breakpoint } from '../../../hooks/use-breakpoint';
+import { useShellRail } from '../../../components/shell/use-shell-rail';
 
 export interface PosLayout {
   breakpoint: Breakpoint;
   width: number;
   /** Desktop only: the cart is a permanent 380 pt pane instead of the `/pos/cart` route. */
   isCartPaneVisible: boolean;
-  /** 3 under 400, 2 from 400 to 767, 4 from 768 up and still 4 beside the cart pane. */
+  /**
+   * 3 under 400, 2 from 400 to 767, 4 from 768 up, and 5 on desktop while the shell shows the
+   * rail: the 168 pt the sidebar gives back is a whole column at 1440.
+   */
   gridColumns: number;
   /** The 3 column phone grid drops the tile one type step so 2 lines of name still fit. */
   compactTiles: boolean;
@@ -29,6 +33,7 @@ export interface PosLayout {
 export function usePosLayout(): PosLayout {
   const { width } = useWindowDimensions();
   const breakpoint = useBreakpoint();
+  const rail = useShellRail();
   const isDesktop = breakpoint === 'desktop';
   const isPhone = breakpoint === 'phone';
 
@@ -40,7 +45,7 @@ export function usePosLayout(): PosLayout {
     breakpoint,
     width,
     isCartPaneVisible: isDesktop,
-    gridColumns: isNarrowPhone ? 3 : isPhone ? 2 : 4,
+    gridColumns: isNarrowPhone ? 3 : isPhone ? 2 : isDesktop && rail ? 5 : 4,
     compactTiles: isNarrowPhone,
     imageAspectRatio: isDesktop ? 4 / 3 : 1,
     gutter: isPhone ? 16 : isDesktop ? 24 : 20,

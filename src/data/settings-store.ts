@@ -1,4 +1,8 @@
 import { create } from 'zustand';
+import { readBooleanPreference, writeBooleanPreference } from '../lib/preference-storage';
+
+/** Storage key for the desktop sidebar/rail preference. */
+const SIDEBAR_COLLAPSED_KEY = 'beepos.sidebar-collapsed';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type Locale = 'vi' | 'en';
@@ -22,6 +26,13 @@ interface SettingsState {
   currencyDisplay: 'symbol' | 'code';
   bankInfo: BankInfo;
   printerId: string | null;
+  /** Desktop only: the shell shows the 72 pt rail instead of the 240 pt sidebar. */
+  sidebarCollapsed: boolean;
+  /**
+   * Same thing for `/pos*`, which opens in rail mode whatever the preference says and is
+   * deliberately not persisted: leaving the sell screen restores the saved preference.
+   */
+  posSidebarCollapsed: boolean;
   setTheme: (theme: ThemeMode) => void;
   setLocale: (locale: Locale) => void;
   setDensity: (density: Density) => void;
@@ -33,6 +44,8 @@ interface SettingsState {
   setCurrencyDisplay: (mode: 'symbol' | 'code') => void;
   setBankInfo: (info: BankInfo) => void;
   setPrinterId: (printerId: string | null) => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  setPosSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -47,6 +60,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   currencyDisplay: 'symbol',
   bankInfo: { bankName: '', accountNumber: '', accountHolder: '' },
   printerId: null,
+  sidebarCollapsed: readBooleanPreference(SIDEBAR_COLLAPSED_KEY, false),
+  posSidebarCollapsed: true,
 
   setTheme: (theme) => set({ theme }),
   setLocale: (locale) => set({ locale }),
@@ -59,4 +74,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setCurrencyDisplay: (currencyDisplay) => set({ currencyDisplay }),
   setBankInfo: (bankInfo) => set({ bankInfo }),
   setPrinterId: (printerId) => set({ printerId }),
+
+  setSidebarCollapsed: (sidebarCollapsed) => {
+    writeBooleanPreference(SIDEBAR_COLLAPSED_KEY, sidebarCollapsed);
+    set({ sidebarCollapsed });
+  },
+  setPosSidebarCollapsed: (posSidebarCollapsed) => set({ posSidebarCollapsed }),
 }));

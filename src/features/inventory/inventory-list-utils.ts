@@ -14,6 +14,8 @@ export interface StoreScopeStats {
   totalCostValue: number;
   lowCount: number;
   outCount: number;
+  /** Units already promised to an open order, the figure the strip calls "Đang đặt trước". */
+  reservedCount: number;
 }
 
 /** Builds display rows for the given scope (a single store id, or 'all' stores). */
@@ -43,7 +45,7 @@ export function buildStockRows(
     .filter((row): row is StockRow => row !== null);
 }
 
-/** Aggregate stats for the alert banner and Stat row. */
+/** Aggregate stats for the low-stock chip and the Stat row. */
 export function computeScopeStats(rows: readonly StockRow[]): StoreScopeStats {
   return rows.reduce<StoreScopeStats>(
     (stats, row) => ({
@@ -51,7 +53,8 @@ export function computeScopeStats(rows: readonly StockRow[]): StoreScopeStats {
       totalCostValue: stats.totalCostValue + row.level.onHand * row.product.costPrice,
       lowCount: stats.lowCount + (row.status === 'low' ? 1 : 0),
       outCount: stats.outCount + (row.status === 'out' ? 1 : 0),
+      reservedCount: stats.reservedCount + row.level.reserved,
     }),
-    { skuCount: 0, totalCostValue: 0, lowCount: 0, outCount: 0 },
+    { skuCount: 0, totalCostValue: 0, lowCount: 0, outCount: 0, reservedCount: 0 },
   );
 }

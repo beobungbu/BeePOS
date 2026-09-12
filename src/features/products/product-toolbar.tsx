@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from '@beemvp/beeui-ui';
 import { View } from 'react-native';
+import { Toolbar } from '../../components/toolbar';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import type { Category } from '../../domain/types';
 import { useT } from '../../i18n';
@@ -18,18 +19,20 @@ interface ProductToolbarProps {
   filters: ProductFilters;
   categories: Category[];
   onFiltersChange: (filters: ProductFilters) => void;
+  /** Primary actions; desktop pins them to the right of the same row. */
+  actions?: React.ReactNode;
 }
 
-/** Filter row only; the page actions live in the screen header, as the mockups show. */
-export function ProductToolbar({ filters, categories, onFiltersChange }: ProductToolbarProps) {
+/** Filters on the left, the two page actions on the right, one row from 1280 up. */
+export function ProductToolbar({ filters, categories, onFiltersChange, actions }: ProductToolbarProps) {
   const t = useT();
   // One row only on desktop: at 768 the search field, the category select and the three
   // status segments together leave the search box too narrow to read its own placeholder.
   const isDesktop = useBreakpoint() === 'desktop';
 
-  return (
-    <View className={isDesktop ? 'flex-row items-center gap-3' : 'gap-3'}>
-      <View className={isDesktop ? 'flex-1' : ''}>
+  const fields = (
+    <>
+      <View className={isDesktop ? 'min-w-64 flex-1' : ''}>
         <SearchInput
           placeholder={t('products.searchPlaceholder')}
           defaultValue={filters.search}
@@ -67,6 +70,17 @@ export function ProductToolbar({ filters, categories, onFiltersChange }: Product
         <SegmentedControlItem value="active">{t('products.statusActive')}</SegmentedControlItem>
         <SegmentedControlItem value="inactive">{t('products.statusInactive')}</SegmentedControlItem>
       </SegmentedControl>
+    </>
+  );
+
+  if (isDesktop) {
+    return <Toolbar actions={actions}>{fields}</Toolbar>;
+  }
+
+  return (
+    <View className="gap-3">
+      {fields}
+      {actions ? <View className="flex-row flex-wrap items-center gap-2">{actions}</View> : null}
     </View>
   );
 }
