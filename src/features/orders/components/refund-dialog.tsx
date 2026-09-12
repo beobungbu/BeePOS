@@ -31,6 +31,7 @@ import type { Order, PaymentMethod, Product } from '../../../domain/types';
 import { refundPlan, type Refund, type RefundPlanResult } from '../../../domain/orders';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
+import { AppIcon } from '../../../components/icons';
 
 const METHODS: PaymentMethod[] = ['cash', 'transfer', 'card', 'points'];
 
@@ -120,7 +121,9 @@ export function RefundDialog({
                 const qty = mode === 'full' ? remaining : (qtyByProduct[line.productId] ?? 0);
                 return (
                   <HStack className="items-center justify-between gap-2" key={line.productId}>
-                    <Text className="flex-1">{productName(line.productId)}</Text>
+                    <Text className="flex-1 text-label" numberOfLines={2}>
+                      {productName(line.productId)}
+                    </Text>
                     <HStack className="items-center gap-2">
                       <IconButton
                         accessibilityLabel={t('orders.refundDialog.decreaseQty')}
@@ -128,9 +131,9 @@ export function RefundDialog({
                         onPress={() => adjustQty(line.productId, -1)}
                         variant="outline"
                       >
-                        <Text>-</Text>
+                        <AppIcon name="minus" size={18} tone="foreground" />
                       </IconButton>
-                      <Text>
+                      <Text className="min-w-10 text-center text-label font-semibold" numeric="tabular">
                         {qty}/{remaining}
                       </Text>
                       <IconButton
@@ -139,7 +142,7 @@ export function RefundDialog({
                         onPress={() => adjustQty(line.productId, 1)}
                         variant="outline"
                       >
-                        <Text>+</Text>
+                        <AppIcon name="plus" size={18} tone="foreground" />
                       </IconButton>
                     </HStack>
                   </HStack>

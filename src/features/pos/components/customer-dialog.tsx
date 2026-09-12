@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import {
-  Badge,
   Button,
   ButtonLabel,
   Dialog,
@@ -12,7 +11,9 @@ import {
   SearchInput,
   Text,
 } from '@beemvp/beeui-ui';
+import { AppIcon } from '../../../components/icons';
 import type { Customer } from '../../../domain/types';
+import { SecondaryButtonLabel } from './secondary-button-label';
 import { useT } from '../../../i18n';
 
 interface CustomerDialogProps {
@@ -21,6 +22,10 @@ interface CustomerDialogProps {
   onSelect: (customerId: string | undefined) => void;
 }
 
+/**
+ * The customer row at the top of the cart: the whole row is the trigger, so attaching a
+ * customer is one press anywhere along it rather than a small button at the end.
+ */
 export function CustomerDialog({ customers, selectedCustomerId, onSelect }: CustomerDialogProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
@@ -38,8 +43,15 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect }: Cust
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger variant="outline" size="sm">
-        <ButtonLabel>{selected ? selected.name : t('pos.cart.customerDefault')}</ButtonLabel>
+      <DialogTrigger
+        variant="ghost"
+        className="h-12 w-full justify-start rounded-none border-b border-border px-4"
+      >
+        <AppIcon name="users-round" size={18} tone="muted-foreground" />
+        <Text className="ml-2.5 flex-1 text-label text-foreground" numberOfLines={1}>
+          {selected ? `${selected.name} · ${selected.phone}` : t('pos.cart.customerDefault')}
+        </Text>
+        <Text className="text-label font-semibold text-info">{t('pos.cart.attachCustomer')}</Text>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle>{t('pos.customerDialog.title')}</DialogTitle>
@@ -58,7 +70,7 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect }: Cust
               setOpen(false);
             }}
           >
-            <ButtonLabel>{t('pos.customerDialog.detach')}</ButtonLabel>
+            <SecondaryButtonLabel>{t('pos.customerDialog.detach')}</SecondaryButtonLabel>
           </Button>
 
           {results.length === 0 ? (
@@ -72,18 +84,19 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect }: Cust
                     onSelect(customer.id);
                     setOpen(false);
                   }}
-                  className="flex-row items-center justify-between rounded-lg border border-border p-3"
+                  accessibilityRole="button"
+                  accessibilityLabel={customer.name}
+                  className="min-h-14 flex-row items-center justify-between rounded-md border border-border px-3 py-2"
                 >
                   <View className="gap-0.5">
-                    <Text className="text-sm font-medium text-foreground">{customer.name}</Text>
-                    <Text className="text-xs text-muted-foreground">{customer.phone}</Text>
+                    <Text className="text-label font-semibold text-foreground">{customer.name}</Text>
+                    <Text className="text-caption text-muted-foreground">{customer.phone}</Text>
                   </View>
-                  <View className="items-end gap-1">
-                    <Badge variant="secondary">{customer.tier}</Badge>
-                    <Text className="text-xs text-muted-foreground">
-                      {customer.points} {t('pos.customerDialog.points')}
-                    </Text>
-                  </View>
+                  {/* Tier lives in the `customers` dictionary, which POS does not own; the
+                      points balance is what a cashier needs here anyway. */}
+                  <Text className="text-caption tabular-nums text-muted-foreground">
+                    {`${customer.points} ${t('pos.customerDialog.points')}`}
+                  </Text>
                 </Pressable>
               ))}
             </View>

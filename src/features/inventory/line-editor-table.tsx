@@ -1,4 +1,5 @@
 import { IconButton, Input, Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow, Text } from '@beemvp/beeui-ui';
+import { AppIcon } from '../../components/icons';
 import { formatVND } from '../../domain/money';
 import { receiptTotals } from '../../domain/inventory';
 import type { GoodsReceiptLine, Product } from '../../domain/types';
@@ -41,7 +42,7 @@ export function LineEditorTable({ lines, products, editable, onChange }: LineEdi
         {lines.map((line, index) => (
           <TableRow key={`${line.productId}-${index}`}>
             <TableCell label={t('products.columns.product')}>
-              <Text>{products.get(line.productId)?.name ?? line.productId}</Text>
+              <Text variant="label" className="font-semibold">{products.get(line.productId)?.name ?? line.productId}</Text>
             </TableCell>
             <TableCell label={t('inventory.receipts.lineQty')}>
               {editable ? (
@@ -51,7 +52,7 @@ export function LineEditorTable({ lines, products, editable, onChange }: LineEdi
                   keyboardType="numeric"
                 />
               ) : (
-                <Text>{line.qty}</Text>
+                <Text variant="label" numeric="tabular" className="w-full text-right">{line.qty}</Text>
               )}
             </TableCell>
             <TableCell label={t('inventory.receipts.lineUnitCost')}>
@@ -62,16 +63,16 @@ export function LineEditorTable({ lines, products, editable, onChange }: LineEdi
                   keyboardType="numeric"
                 />
               ) : (
-                <Text>{formatVND(line.unitCost)}</Text>
+                <Text variant="label" numeric="tabular" className="w-full text-right">{formatVND(line.unitCost)}</Text>
               )}
             </TableCell>
             <TableCell label={t('inventory.receipts.totalCost')}>
-              <Text>{formatVND(line.qty * line.unitCost)}</Text>
+              <Text variant="label" numeric="tabular" className="w-full text-right font-bold">{formatVND(line.qty * line.unitCost)}</Text>
             </TableCell>
             {editable && (
               <TableCell label={t('products.columns.actions')}>
                 <IconButton accessibilityLabel={t('products.actionsDelete')} variant="ghost" onPress={() => removeLine(index)}>
-                  <Text>x</Text>
+                  <AppIcon name="trash-2" tone="destructive" />
                 </IconButton>
               </TableCell>
             )}

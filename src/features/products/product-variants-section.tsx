@@ -8,6 +8,7 @@ import {
   Text,
 } from '@beemvp/beeui-ui';
 import { View } from 'react-native';
+import { AppIcon } from '../../components/icons';
 import type { ProductVariant } from '../../domain/types';
 import { useT } from '../../i18n';
 
@@ -73,7 +74,7 @@ export function ProductVariantsSection({ variants, onChange }: ProductVariantsSe
               variant="ghost"
               onPress={() => removeVariant(variant.id)}
             >
-              <Text>x</Text>
+              <AppIcon name="trash-2" tone="destructive" />
             </IconButton>
           </View>
         ))}

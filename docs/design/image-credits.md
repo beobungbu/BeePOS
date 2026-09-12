@@ -49,7 +49,6 @@ own photo the catalogue does not carry.
 
 | File | KB | Category it backs | Photographer | Photo page |
 |---|---|---|---|---|
-| `category-do-uong.jpg` | 19 | Đồ uống | Alleksana | <https://www.pexels.com/photo/4113633/> |
 | `category-sua.jpg` | 29 | Sữa và chế phẩm | Polina Tankilevitch | <https://www.pexels.com/photo/3735217/> |
 | `category-gao.jpg` | 45 | Gạo và ngũ cốc | Alesia Kozik | <https://www.pexels.com/photo/6544376/> |
 | `category-gia-vi.jpg` | 18 | Gia vị | Tima Miroshnichenko | <https://www.pexels.com/photo/5793770/> |

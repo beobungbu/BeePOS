@@ -14,6 +14,7 @@ import {
   VStack,
   type CalendarVisibleMonth,
 } from '@beemvp/beeui-ui';
+import { useBreakpoint } from '../../../hooks/use-breakpoint';
 import { useT } from '../../../i18n';
 import type { PeriodKey } from '../../../domain/reports';
 import type { Store } from '../../../domain/types';
@@ -39,10 +40,14 @@ interface PeriodFilterProps {
 
 export function PeriodFilter({ filters, stores }: PeriodFilterProps) {
   const t = useT();
+  // Hugging the content would squeeze the four labels at 1440; a min width below 768 would
+  // push "Tuỳ chọn" off the screen, so the floor is a tablet-and-up rule.
+  const isWide = useBreakpoint() !== 'phone';
 
   return (
-    <VStack gap="sm" className="w-full">
+    <VStack gap="sm" className="min-w-64 flex-1">
       <SegmentedControl
+        className={isWide ? 'min-w-96 self-start' : 'w-full'}
         value={filters.periodKey}
         onValueChange={(value) => filters.setPeriodKey(value as PeriodKey)}
       >

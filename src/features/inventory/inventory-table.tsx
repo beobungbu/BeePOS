@@ -17,8 +17,12 @@ import type { StockStatus } from '../../domain/inventory';
 import { useT } from '../../i18n';
 import type { StockRow } from './inventory-list-utils';
 
-const STATUS_VARIANT: Record<StockStatus, 'success' | 'warning' | 'destructive'> = {
-  ok: 'success',
+/**
+ * `ok` is neutral on purpose: a solid green badge on every healthy row is noise that hides
+ * the two rows that need attention (direction doc section 5, the muted normal state).
+ */
+const STATUS_VARIANT: Record<StockStatus, 'outline' | 'warning' | 'destructive'> = {
+  ok: 'outline',
   low: 'warning',
   out: 'destructive',
 };
@@ -45,10 +49,10 @@ export function InventoryTable({ rows, showStore, onAdjust, onHistory }: Invento
         <TableRow>
           <TableHead label={t('inventory.columns.product')}>{t('inventory.columns.product')}</TableHead>
           {showStore && <TableHead label={t('products.form.stockColumns.store')}>{t('products.form.stockColumns.store')}</TableHead>}
-          <TableHead label={t('inventory.columns.onHand')}>{t('inventory.columns.onHand')}</TableHead>
-          <TableHead label={t('inventory.columns.reserved')}>{t('inventory.columns.reserved')}</TableHead>
-          <TableHead label={t('inventory.columns.available')}>{t('inventory.columns.available')}</TableHead>
-          <TableHead label={t('inventory.columns.minLevel')}>{t('inventory.columns.minLevel')}</TableHead>
+          <TableHead label={t('inventory.columns.onHand')} className="items-end text-right">{t('inventory.columns.onHand')}</TableHead>
+          <TableHead label={t('inventory.columns.reserved')} className="items-end text-right">{t('inventory.columns.reserved')}</TableHead>
+          <TableHead label={t('inventory.columns.available')} className="items-end text-right">{t('inventory.columns.available')}</TableHead>
+          <TableHead label={t('inventory.columns.minLevel')} className="items-end text-right">{t('inventory.columns.minLevel')}</TableHead>
           <TableHead label={t('inventory.columns.status')}>{t('inventory.columns.status')}</TableHead>
           <TableHead label={t('products.columns.actions')}>{t('products.columns.actions')}</TableHead>
         </TableRow>
@@ -57,30 +61,33 @@ export function InventoryTable({ rows, showStore, onAdjust, onHistory }: Invento
         {rows.map((row) => (
           <TableRow key={`${row.level.productId}-${row.level.storeId}`}>
             <TableCell label={t('inventory.columns.product')}>
-              <View>
-                <Text>{row.product.name}</Text>
-                <Text tone="muted">{row.product.sku}</Text>
+              <View className="min-w-0">
+                <Text variant="label" className="font-semibold" numberOfLines={2}>{row.product.name}</Text>
+                <Text variant="caption" tone="muted" numeric="tabular">{row.product.sku}</Text>
               </View>
             </TableCell>
             {showStore && (
               <TableCell label={t('products.form.stockColumns.store')}>
-                <Text tone="muted">{row.store.name}</Text>
+                <Text variant="label" tone="muted">{row.store.name}</Text>
               </TableCell>
             )}
-            <TableCell label={t('inventory.columns.onHand')}>
-              <Text>{row.level.onHand}</Text>
+            <TableCell label={t('inventory.columns.onHand')} className="items-end text-right">
+              <Text variant="label" numeric="tabular" className="w-full text-right">{row.level.onHand}</Text>
             </TableCell>
-            <TableCell label={t('inventory.columns.reserved')}>
-              <Text>{row.level.reserved}</Text>
+            <TableCell label={t('inventory.columns.reserved')} className="items-end text-right">
+              <Text variant="label" tone="muted" numeric="tabular" className="w-full text-right">{row.level.reserved}</Text>
             </TableCell>
-            <TableCell label={t('inventory.columns.available')}>
-              <Text>{row.available}</Text>
+            <TableCell label={t('inventory.columns.available')} className="items-end text-right">
+              <Text variant="label" numeric="tabular" className="w-full text-right font-bold">{row.available}</Text>
             </TableCell>
-            <TableCell label={t('inventory.columns.minLevel')}>
-              <Text tone="muted">{row.level.minLevel}</Text>
+            <TableCell label={t('inventory.columns.minLevel')} className="items-end text-right">
+              <Text variant="caption" tone="muted" numeric="tabular" className="w-full text-right">{row.level.minLevel}</Text>
             </TableCell>
             <TableCell label={t('inventory.columns.status')}>
-              <Badge variant={STATUS_VARIANT[row.status]}>{statusLabel(row.status)}</Badge>
+              {/* A row makes the badge hug its text; a bare cell child stretches to the column. */}
+              <View className="flex-row">
+                <Badge variant={STATUS_VARIANT[row.status]}>{statusLabel(row.status)}</Badge>
+              </View>
             </TableCell>
             <TableCell label={t('products.columns.actions')}>
               <DropdownMenu>

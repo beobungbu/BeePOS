@@ -1,130 +1,140 @@
-import { Link } from 'expo-router';
-import {
-  Pagination,
-  PaginationItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Text,
-  VStack,
-} from '@beemvp/beeui-ui';
-import type { Order, Staff, Store } from '../../../domain/types';
+import { Pressable, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Text } from '@beemvp/beeui-ui';
+import type { Order, Staff } from '../../../domain/types';
 import type { OrderSortKey, SortDirection } from '../../../domain/orders';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
+import type { Breakpoint } from '../../../hooks/use-breakpoint';
+import { formatTime, isCancelled, paymentSummary } from '../lib/order-presentation';
+import { fill } from '../lib/fill';
 import { OrderStatusBadge } from './order-status-badge';
 
-function lineQtyTotal(order: Order): number {
-  return order.lines.reduce((total, line) => total + line.qty, 0);
-}
-
-function paymentSummary(order: Order): string {
-  return order.payments.map((payment) => payment.method).join(' + ');
-}
-
+/**
+ * The orders table of `docs/design/mockups/orders.html`: six columns at desktop, five at
+ * tablet (Thu ngân is the one that goes), the time folded under the order code, money right
+ * aligned and tabular, and a cancelled order's total struck through.
+ *
+ * The press target is the code cell rather than the whole row: BeeUI's `TableRow` takes no
+ * press handler ("Table owns no selection state", it only mirrors a `selected` boolean), so a
+ * full-row target would mean one Pressable per cell and one accessible name per cell.
+ */
 export function OrderTable({
   orders,
-  stores,
   cashiers,
   customerLabel,
   sortKey,
   sortDirection,
   onSortChange,
-  page,
-  pageCount,
-  onPageChange,
+  breakpoint,
+  selectedOrderId,
+  onSelectOrder,
 }: {
   orders: Order[];
-  stores: Store[];
   cashiers: Staff[];
   customerLabel: (order: Order) => string;
   sortKey: OrderSortKey;
   sortDirection: SortDirection;
   onSortChange: (key: OrderSortKey) => void;
-  page: number;
-  pageCount: number;
-  onPageChange: (page: number) => void;
+  breakpoint: Breakpoint;
+  /** Desktop only: the row mirrored in the preview pane. */
+  selectedOrderId?: string;
+  /** Desktop only. When absent, pressing a row opens the detail route instead. */
+  onSelectOrder?: (order: Order) => void;
 }) {
   const t = useT();
-  const storeName = (id: string) => stores.find((store) => store.id === id)?.name ?? id;
+  const router = useRouter();
+  const showCashier = breakpoint === 'desktop';
   const cashierName = (id: string) => cashiers.find((member) => member.id === id)?.name ?? id;
 
   return (
-    <VStack className="gap-3">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead label={t('orders.table.code')}>{t('orders.table.code')}</TableHead>
-            <TableHead
-              label={t('orders.table.time')}
-              onSortChange={() => onSortChange('time')}
-              sortDirection={sortKey === 'time' ? sortDirection : 'none'}
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead
+            label={t('orders.table.code')}
+            onSortChange={() => onSortChange('time')}
+            sortDirection={sortKey === 'time' ? sortDirection : 'none'}
+          >
+            {t('orders.table.code')}
+          </TableHead>
+          <TableHead label={t('orders.table.customer')}>{t('orders.table.customer')}</TableHead>
+          {showCashier ? <TableHead label={t('orders.table.cashier')}>{t('orders.table.cashier')}</TableHead> : null}
+          <TableHead label={t('orders.table.payment')}>{t('orders.table.payment')}</TableHead>
+          <TableHead label={t('orders.table.status')}>{t('orders.table.status')}</TableHead>
+          <TableHead
+            className="items-end text-right"
+            label={t('orders.table.total')}
+            onSortChange={() => onSortChange('total')}
+            sortDirection={sortKey === 'total' ? sortDirection : 'none'}
+          >
+            {t('orders.table.total')}
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {orders.map((order) => {
+          const cancelled = isCancelled(order);
+          const customer = customerLabel(order);
+
+          return (
+            <TableRow
+              className={order.id === selectedOrderId ? 'bg-primary/10' : undefined}
+              key={order.id}
+              selected={order.id === selectedOrderId}
             >
-              {t('orders.table.time')}
-            </TableHead>
-            <TableHead label={t('orders.table.store')}>{t('orders.table.store')}</TableHead>
-            <TableHead label={t('orders.table.cashier')}>{t('orders.table.cashier')}</TableHead>
-            <TableHead label={t('orders.table.customer')}>{t('orders.table.customer')}</TableHead>
-            <TableHead label={t('orders.table.items')}>{t('orders.table.items')}</TableHead>
-            <TableHead
-              label={t('orders.table.total')}
-              onSortChange={() => onSortChange('total')}
-              sortDirection={sortKey === 'total' ? sortDirection : 'none'}
-            >
-              {t('orders.table.total')}
-            </TableHead>
-            <TableHead label={t('orders.table.payment')}>{t('orders.table.payment')}</TableHead>
-            <TableHead label={t('orders.table.status')}>{t('orders.table.status')}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order.id}>
               <TableCell label={t('orders.table.code')}>
-                <Link href={`/orders/${order.id}`}>
-                  <Text className="font-medium text-primary">{order.code}</Text>
-                </Link>
-              </TableCell>
-              <TableCell label={t('orders.table.time')}>
-                <Text>{new Date(order.createdAt).toLocaleString('vi-VN')}</Text>
-              </TableCell>
-              <TableCell label={t('orders.table.store')}>
-                <Text>{storeName(order.storeId)}</Text>
-              </TableCell>
-              <TableCell label={t('orders.table.cashier')}>
-                <Text>{cashierName(order.cashierId)}</Text>
+                <Pressable
+                  accessibilityLabel={fill(t('orders.table.selectRow'), { code: order.code })}
+                  accessibilityRole="button"
+                  className="min-h-11 justify-center"
+                  onPress={() => (onSelectOrder ? onSelectOrder(order) : router.push(`/orders/${order.id}`))}
+                >
+                  <Text className="text-label font-semibold text-foreground" numberOfLines={1}>
+                    {order.code}
+                  </Text>
+                  <Text className="text-caption text-muted-foreground" numeric="tabular">
+                    {formatTime(order.createdAt)}
+                  </Text>
+                </Pressable>
               </TableCell>
               <TableCell label={t('orders.table.customer')}>
-                <Text>{customerLabel(order)}</Text>
+                <Text
+                  className={`text-label ${order.customerId ? 'text-foreground' : 'text-muted-foreground'}`}
+                  numberOfLines={1}
+                >
+                  {customer}
+                </Text>
               </TableCell>
-              <TableCell label={t('orders.table.items')}>
-                <Text>{lineQtyTotal(order)}</Text>
-              </TableCell>
-              <TableCell label={t('orders.table.total')}>
-                <Text className="font-medium">{formatVND(order.total)}</Text>
-              </TableCell>
+              {showCashier ? (
+                <TableCell label={t('orders.table.cashier')}>
+                  <Text className="text-label text-foreground" numberOfLines={1}>
+                    {cashierName(order.cashierId)}
+                  </Text>
+                </TableCell>
+              ) : null}
               <TableCell label={t('orders.table.payment')}>
-                <Text tone="muted">{paymentSummary(order)}</Text>
+                <Text className="text-label text-foreground" numberOfLines={1}>
+                  {paymentSummary(order, (method) => t(`orders.paymentMethod.${method}`))}
+                </Text>
               </TableCell>
               <TableCell label={t('orders.table.status')}>
-                <OrderStatusBadge status={order.status} />
+                <View className="flex-row">
+                  <OrderStatusBadge status={order.status} />
+                </View>
+              </TableCell>
+              <TableCell className="items-end text-right" label={t('orders.table.total')}>
+                <Text
+                  className={`text-right text-label font-bold ${cancelled ? 'text-muted-foreground line-through' : 'text-foreground'}`}
+                  numeric="tabular"
+                >
+                  {formatVND(order.total)}
+                </Text>
               </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      {pageCount > 1 && (
-        <Pagination onPageChange={onPageChange} page={page} pageCount={pageCount}>
-          <PaginationItem type="previous" />
-          {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
-            <PaginationItem key={pageNumber} page={pageNumber} />
-          ))}
-          <PaginationItem type="next" />
-        </Pagination>
-      )}
-    </VStack>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 }

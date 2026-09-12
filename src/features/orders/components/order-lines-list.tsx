@@ -1,0 +1,43 @@
+import { View } from 'react-native';
+import { Text } from '@beemvp/beeui-ui';
+import type { CartLine, Product } from '../../../domain/types';
+import { formatVND } from '../../../domain/money';
+import { lineNetAmount } from '../../../domain/orders';
+import { OrderLineThumb } from './order-line-thumb';
+
+/**
+ * The order's items as cart-line rows (`docs/design/design-direction.md` section 5): the 40 pt
+ * thumbnail, the product name, a caption carrying the unit and the quantity, and the line
+ * total right aligned in tabular figures.
+ */
+export function OrderLinesList({ lines, products }: { lines: CartLine[]; products: Product[] }) {
+  return (
+    <View className="gap-2">
+      {lines.map((line) => {
+        const product = products.find((item) => item.id === line.productId);
+        const name = product?.name ?? line.productId;
+
+        return (
+          <View className="flex-row items-center gap-2.5" key={line.productId}>
+            <OrderLineThumb
+              categoryId={product?.categoryId ?? line.productId}
+              imageUrl={product?.imageUrl}
+              name={name}
+            />
+            <View className="min-w-0 flex-1">
+              <Text className="text-label font-semibold text-foreground" numberOfLines={1}>
+                {name}
+              </Text>
+              <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+                {product?.unit ? `${product.unit} x${line.qty}` : `x${line.qty}`}
+              </Text>
+            </View>
+            <Text className="text-label font-bold text-foreground" numeric="tabular">
+              {formatVND(lineNetAmount(line))}
+            </Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}

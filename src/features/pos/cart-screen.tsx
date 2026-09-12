@@ -1,34 +1,33 @@
 import { useMemo } from 'react';
 import { View } from 'react-native';
-import { Button, ButtonLabel, SafeArea, Screen, Text } from '@beemvp/beeui-ui';
 import { useCatalogStore } from '../../data/catalog-store';
+import { useActiveCart } from '../../data/cart-store';
 import { useT } from '../../i18n';
-import { goBackOr } from '../../lib/navigation';
+import { CartClearButton } from './components/cart-clear-button';
 import { CartPanel } from './components/cart-panel';
+import { PosSubHeader } from './components/pos-sub-header';
+import { cartUnitCount } from './lib/cart-totals';
+import { countLabel, orderLabel } from './lib/order-label';
 
 /**
- * Full-screen native fallback for the cart `Sheet` (BeeUI #584: `Sheet` never presents on
- * iOS). Reuses the same `CartPanel` used by the wide-layout cart pane and the web `Sheet`,
- * behind a simple back header instead of a bottom sheet. Remove this route (and the
- * `Platform.OS` branch in `pos-screen.tsx` that navigates here) once #584 lands.
+ * The cart as a pushed route, which is what phone and tablet get instead of the desktop
+ * pane. Not a `Sheet`: BeeUI's `Sheet` never presents on iOS (BeeUI #584), and the direction
+ * doc bans sheets on native outright.
  */
 export default function CartScreen() {
   const t = useT();
+  const cart = useActiveCart();
   const products = useCatalogStore((state) => state.products);
   const activeProducts = useMemo(() => products.filter((product) => product.isActive), [products]);
 
   return (
-    <Screen>
-      <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
-        <View className="flex-row items-center justify-between border-b border-border px-2 py-2">
-          <Button variant="ghost" size="sm" onPress={() => goBackOr('/pos')}>
-            <ButtonLabel>{`< ${t('common.actions.back')}`}</ButtonLabel>
-          </Button>
-          <Text className="text-base font-semibold text-foreground">{t('pos.cart.title')}</Text>
-          <View className="w-16" />
-        </View>
-        <CartPanel products={activeProducts} />
-      </SafeArea>
-    </Screen>
+    <View className="flex-1">
+      <PosSubHeader
+        title={orderLabel(t, cart.ordinal)}
+        subtitle={countLabel(t, cartUnitCount(cart), 'pos.cart.items')}
+        trailing={<CartClearButton disabled={cart.lines.length === 0} />}
+      />
+      <CartPanel products={activeProducts} desktop={false} showHeader={false} />
+    </View>
   );
 }

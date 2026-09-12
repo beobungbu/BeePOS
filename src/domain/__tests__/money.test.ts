@@ -30,7 +30,7 @@ describe('formatVND', () => {
   it('formats a whole amount using vi-VN currency conventions', () => {
     const formatted = formatVND(1500000);
     expect(formatted).toContain('1.500.000');
-    expect(formatted).toMatch(/₫/);
+    expect(formatted).toBe('1.500.000 đ');
   });
 
   it('formats zero', () => {

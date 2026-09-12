@@ -12,6 +12,7 @@ import {
   HelperText,
   Input,
   KeyboardAwareScreen,
+  Section,
   Select,
   SelectContent,
   SelectItem,
@@ -29,10 +30,17 @@ import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
 import { isValidEan13, marginPercent, nextSku } from '../../domain/catalog';
 import type { Product, ProductVariant } from '../../domain/types';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
+import { ProductThumb } from './components/product-thumb';
 import { ProductStockTable } from './product-stock-table';
 import { ProductVariantsSection } from './product-variants-section';
 import { useUnsavedChangesGuard } from './hooks/use-unsaved-changes-guard';
+
+/** Form content is capped at 480 and centred at every breakpoint (direction doc section 7). */
+const FORM_MAX_WIDTH = 480;
+/** Page padding per band: 16 phone, 24 tablet, 32 desktop (direction doc section 7). */
+const FORM_PADDING = { phone: 'p-4', tablet: 'p-6', desktop: 'p-8' } as const;
 
 const UNITS = ['cái', 'kg', 'lốc', 'thùng', 'chai', 'gói'];
 const TAX_RATES = [0, 0.05, 0.08, 0.1];
@@ -74,6 +82,7 @@ interface ProductFormScreenProps {
 export function ProductFormScreen({ productId }: ProductFormScreenProps) {
   const t = useT();
   const toast = useToast();
+  const breakpoint = useBreakpoint();
   const products = useCatalogStore((state) => state.products);
   const categories = useCatalogStore((state) => state.categories);
   const upsertProduct = useCatalogStore((state) => state.upsertProduct);
@@ -166,106 +175,144 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
 
   return (
     <KeyboardAwareScreen contentWidth="md">
-      <View className="gap-4 p-4">
-        <Text variant="title">{existing ? t('products.form.editTitle') : t('products.form.newTitle')}</Text>
-
-        <Field label={t('products.form.fieldName')} required invalid={Boolean(nameError)} error={nameError}>
-          <Input value={values.name} onChangeText={(value) => update('name', value)} />
-        </Field>
-
-        <View className="flex-row items-end gap-2">
-          <View className="flex-1">
-            <Field label={t('products.form.fieldSku')} required invalid={Boolean(skuError)} error={skuError}>
-              <Input value={values.sku} onChangeText={(value) => update('sku', value)} />
-            </Field>
-          </View>
-          <Button variant="outline" onPress={handleSuggestSku}>
-            {t('products.form.fieldSkuSuggest')}
-          </Button>
+      <View
+        className={`w-full self-center gap-6 ${FORM_PADDING[breakpoint]}`}
+        style={{ maxWidth: FORM_MAX_WIDTH }}
+      >
+        <View className="gap-1">
+          <Text variant="title">{existing ? t('products.form.editTitle') : t('products.form.newTitle')}</Text>
+          {existing && (
+            <Text variant="caption" tone="muted" numeric="tabular">
+              {existing.sku}
+            </Text>
+          )}
         </View>
 
-        <Field label={t('products.form.fieldBarcode')} invalid={Boolean(barcodeError)} error={barcodeError}>
-          <Input value={values.barcode} onChangeText={(value) => update('barcode', value)} keyboardType="numeric" />
-        </Field>
+        <Section title={t('products.form.sectionBasics')}>
+          <View className="gap-4">
+            <View className="flex-row items-center gap-3">
+              <ProductThumb
+                name={values.name || t('products.form.fieldName')}
+                categoryId={values.categoryId}
+                imageUrl={existing?.imageUrl}
+                size={72}
+              />
+              <View className="min-w-0 flex-1">
+                <Text variant="label" className="font-semibold">
+                  {t('products.form.imageLabel')}
+                </Text>
+                <Text variant="caption" tone="muted">
+                  {t('products.form.imageHint')}
+                </Text>
+              </View>
+            </View>
 
-        <Field label={t('products.form.fieldCategory')} required invalid={Boolean(categoryError)} error={categoryError}>
-          <Select value={values.categoryId} onValueChange={(value) => update('categoryId', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('products.form.fieldCategory')} />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id} textValue={category.name}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
+            <Field label={t('products.form.fieldName')} required invalid={Boolean(nameError)} error={nameError}>
+              <Input value={values.name} onChangeText={(value) => update('name', value)} />
+            </Field>
 
-        <Field label={t('products.form.fieldUnit')} required>
-          <Select value={values.unit} onValueChange={(value) => update('unit', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('products.form.fieldUnit')} />
-            </SelectTrigger>
-            <SelectContent>
-              {UNITS.map((unit) => (
-                <SelectItem key={unit} value={unit} textValue={unit}>
-                  {unit}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
+            <View className="flex-row items-end gap-2">
+              <View className="flex-1">
+                <Field label={t('products.form.fieldSku')} required invalid={Boolean(skuError)} error={skuError}>
+                  <Input value={values.sku} onChangeText={(value) => update('sku', value)} />
+                </Field>
+              </View>
+              <Button variant="outline" onPress={handleSuggestSku}>
+                {t('products.form.fieldSkuSuggest')}
+              </Button>
+            </View>
 
-        <View className="flex-row gap-2">
-          <View className="flex-1">
-            <Field label={t('products.form.fieldCostPrice')} required invalid={Boolean(costError)} error={costError}>
-              <Input value={values.costPrice} onChangeText={(value) => update('costPrice', value)} keyboardType="numeric" />
+            <Field label={t('products.form.fieldBarcode')} invalid={Boolean(barcodeError)} error={barcodeError}>
+              <Input value={values.barcode} onChangeText={(value) => update('barcode', value)} keyboardType="numeric" />
+            </Field>
+
+            <Field label={t('products.form.fieldCategory')} required invalid={Boolean(categoryError)} error={categoryError}>
+              <Select value={values.categoryId} onValueChange={(value) => update('categoryId', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('products.form.fieldCategory')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id} textValue={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field label={t('products.form.fieldUnit')} required>
+              <Select value={values.unit} onValueChange={(value) => update('unit', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('products.form.fieldUnit')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {UNITS.map((unit) => (
+                    <SelectItem key={unit} value={unit} textValue={unit}>
+                      {unit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
           </View>
-          <View className="flex-1">
-            <Field label={t('products.form.fieldSalePrice')} required invalid={Boolean(saleError)} error={saleError}>
-              <Input value={values.salePrice} onChangeText={(value) => update('salePrice', value)} keyboardType="numeric" />
+        </Section>
+
+        <Section title={t('products.form.sectionPricing')}>
+          <View className="gap-4">
+            <View className="flex-row gap-2">
+              <View className="flex-1">
+                <Field label={t('products.form.fieldCostPrice')} required invalid={Boolean(costError)} error={costError}>
+                  <Input value={values.costPrice} onChangeText={(value) => update('costPrice', value)} keyboardType="numeric" />
+                </Field>
+              </View>
+              <View className="flex-1">
+                <Field label={t('products.form.fieldSalePrice')} required invalid={Boolean(saleError)} error={saleError}>
+                  <Input value={values.salePrice} onChangeText={(value) => update('salePrice', value)} keyboardType="numeric" />
+                </Field>
+                <HelperText>{`${t('products.form.fieldMargin')}: ${margin}%`}</HelperText>
+              </View>
+            </View>
+
+            <Field label={t('products.form.fieldTax')} required>
+              <Select value={String(values.taxRate)} onValueChange={(value) => update('taxRate', Number(value))}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('products.form.fieldTax')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {TAX_RATES.map((rate) => (
+                    <SelectItem key={rate} value={String(rate)} textValue={`${rate * 100}%`}>
+                      {`${rate * 100}%`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
-            <HelperText>{`${t('products.form.fieldMargin')}: ${margin}%`}</HelperText>
           </View>
-        </View>
+        </Section>
 
-        <Field label={t('products.form.fieldTax')} required>
-          <Select value={String(values.taxRate)} onValueChange={(value) => update('taxRate', Number(value))}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('products.form.fieldTax')} />
-            </SelectTrigger>
-            <SelectContent>
-              {TAX_RATES.map((rate) => (
-                <SelectItem key={rate} value={String(rate)} textValue={`${rate * 100}%`}>
-                  {`${rate * 100}%`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
+        <Section title={t('products.form.sectionDetails')}>
+          <View className="gap-4">
+            <View className="min-h-11 flex-row items-center justify-between">
+              <Text variant="label">{t('products.form.fieldStatus')}</Text>
+              <Switch value={values.isActive} onValueChange={(value) => update('isActive', value)} accessibilityLabel={t('products.form.fieldStatus')} />
+            </View>
 
-        <View className="flex-row items-center justify-between">
-          <Text variant="label">{t('products.form.fieldStatus')}</Text>
-          <Switch value={values.isActive} onValueChange={(value) => update('isActive', value)} accessibilityLabel={t('products.form.fieldStatus')} />
-        </View>
+            <Field label={t('products.form.fieldDescription')}>
+              <Textarea value={values.description} onChangeText={(value) => update('description', value)} />
+            </Field>
 
-        <Field label={t('products.form.fieldDescription')}>
-          <Textarea value={values.description} onChangeText={(value) => update('description', value)} />
-        </Field>
-
-        <ProductVariantsSection variants={values.variants} onChange={(variants) => update('variants', variants)} />
+            <ProductVariantsSection variants={values.variants} onChange={(variants) => update('variants', variants)} />
+          </View>
+        </Section>
 
         {existing && (
-          <View className="gap-2">
-            <Text variant="label">{t('products.form.stockTitle')}</Text>
-            <ProductStockTable productId={existing.id} />
-          </View>
+          <Section title={t('products.form.stockTitle')}>
+            <ProductStockTable productId={existing.id} layout={breakpoint === 'phone' ? 'stacked' : 'scroll'} />
+          </Section>
         )}
 
-        <View className="flex-row justify-between gap-2">
+        <View className="flex-row flex-wrap justify-between gap-2">
           {existing ? (
             <Button variant="destructive" onPress={() => setDeleteOpen(true)}>
               {t('products.form.deleteButton')}

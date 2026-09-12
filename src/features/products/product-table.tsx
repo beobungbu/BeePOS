@@ -4,7 +4,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  Switch,
   Table,
   TableBody,
   TableCell,
@@ -13,17 +12,27 @@ import {
   TableRow,
   Text,
 } from '@beemvp/beeui-ui';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { formatVND } from '../../domain/money';
 import type { Category, Product } from '../../domain/types';
+import type { Breakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
-import { totalStock } from './product-list-utils';
+import { ProductThumb } from './components/product-thumb';
+import { StockBadge } from './components/stock-badge';
+import { totalMinLevel, totalStock } from './product-list-utils';
 import type { ProductSortField, SortDirection } from './product-list-utils';
 import { useInventoryStore } from '../../data/inventory-store';
 
 interface ProductTableProps {
   products: Product[];
   categories: Category[];
+  /**
+   * Column set by band: desktop shows all eight; at 768 the SKU, category and cost columns
+   * are dropped and the SKU folds under the product name, because eight columns there means
+   * a three-line product name and a wrapped SKU (direction doc section 8: fold or drop,
+   * never clip).
+   */
+  breakpoint: Breakpoint;
   sortField: ProductSortField;
   sortDirection: SortDirection;
   onSortChange: (field: ProductSortField) => void;
@@ -39,6 +48,7 @@ function directionFor(field: ProductSortField, current: ProductSortField, direct
 export function ProductTable({
   products,
   categories,
+  breakpoint,
   sortField,
   sortDirection,
   onSortChange,
@@ -47,6 +57,7 @@ export function ProductTable({
   onDelete,
 }: ProductTableProps) {
   const t = useT();
+  const isDesktop = breakpoint === 'desktop';
   const stockLevels = useInventoryStore((state) => state.stockLevels);
   const categoryName = (categoryId: string) =>
     categories.find((category) => category.id === categoryId)?.name ?? '';
@@ -62,23 +73,30 @@ export function ProductTable({
           >
             {t('products.columns.product')}
           </TableHead>
+          {isDesktop && (
+            <TableHead
+              label={t('products.columns.sku')}
+              sortDirection={directionFor('sku', sortField, sortDirection)}
+              onSortChange={() => onSortChange('sku')}
+            >
+              {t('products.columns.sku')}
+            </TableHead>
+          )}
+          {isDesktop && (
+            <TableHead label={t('products.columns.category')}>{t('products.columns.category')}</TableHead>
+          )}
+          {isDesktop && (
+            <TableHead
+              className="items-end text-right"
+              label={t('products.columns.cost')}
+              sortDirection={directionFor('cost', sortField, sortDirection)}
+              onSortChange={() => onSortChange('cost')}
+            >
+              {t('products.columns.cost')}
+            </TableHead>
+          )}
           <TableHead
-            label={t('products.columns.sku')}
-            sortDirection={directionFor('sku', sortField, sortDirection)}
-            onSortChange={() => onSortChange('sku')}
-          >
-            {t('products.columns.sku')}
-          </TableHead>
-          <TableHead label={t('products.columns.category')}>{t('products.columns.category')}</TableHead>
-          <TableHead label={t('products.columns.unit')}>{t('products.columns.unit')}</TableHead>
-          <TableHead
-            label={t('products.columns.cost')}
-            sortDirection={directionFor('cost', sortField, sortDirection)}
-            onSortChange={() => onSortChange('cost')}
-          >
-            {t('products.columns.cost')}
-          </TableHead>
-          <TableHead
+            className="items-end text-right"
             label={t('products.columns.sale')}
             sortDirection={directionFor('sale', sortField, sortDirection)}
             onSortChange={() => onSortChange('sale')}
@@ -100,32 +118,66 @@ export function ProductTable({
         {products.map((product) => (
           <TableRow key={product.id}>
             <TableCell label={t('products.columns.product')}>
-              <Text>{product.name}</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={product.name}
+                onPress={() => onEdit(product)}
+                className="min-h-11 flex-row items-center gap-3"
+              >
+                <ProductThumb name={product.name} categoryId={product.categoryId} imageUrl={product.imageUrl} />
+                <View className="min-w-0 flex-1">
+                  <Text variant="label" className="font-semibold" numberOfLines={2}>
+                    {product.name}
+                  </Text>
+                  <Text variant="caption" tone="muted" numeric="tabular">
+                    {isDesktop ? product.unit : `${product.sku} · ${categoryName(product.categoryId)} · ${product.unit}`}
+                  </Text>
+                </View>
+              </Pressable>
             </TableCell>
-            <TableCell label={t('products.columns.sku')}>
-              <Text tone="muted">{product.sku}</Text>
-            </TableCell>
-            <TableCell label={t('products.columns.category')}>
-              <Text tone="muted">{categoryName(product.categoryId)}</Text>
-            </TableCell>
-            <TableCell label={t('products.columns.unit')}>
-              <Text tone="muted">{product.unit}</Text>
-            </TableCell>
-            <TableCell label={t('products.columns.cost')}>
-              <Text>{formatVND(product.costPrice)}</Text>
-            </TableCell>
-            <TableCell label={t('products.columns.sale')}>
-              <Text>{formatVND(product.salePrice)}</Text>
+            {isDesktop && (
+              <TableCell label={t('products.columns.sku')}>
+                <Text variant="caption" tone="muted" numeric="tabular">
+                  {product.sku}
+                </Text>
+              </TableCell>
+            )}
+            {isDesktop && (
+              <TableCell label={t('products.columns.category')}>
+                <Text tone="muted" variant="label">
+                  {categoryName(product.categoryId)}
+                </Text>
+              </TableCell>
+            )}
+            {isDesktop && (
+              <TableCell label={t('products.columns.cost')} className="items-end text-right">
+                <Text variant="label" tone="muted" numeric="tabular" className="w-full text-right">
+                  {formatVND(product.costPrice)}
+                </Text>
+              </TableCell>
+            )}
+            <TableCell label={t('products.columns.sale')} className="items-end text-right">
+              <Text variant="label" numeric="tabular" className="w-full text-right font-bold">
+                {formatVND(product.salePrice)}
+              </Text>
             </TableCell>
             <TableCell label={t('products.columns.stock')}>
-              <Text>{totalStock(product.id, stockLevels)}</Text>
+              {/* A row makes the badge hug its text; a bare cell child stretches to the column. */}
+              <View className="flex-row">
+                <StockBadge
+                  quantity={totalStock(product.id, stockLevels)}
+                  minLevel={totalMinLevel(product.id, stockLevels)}
+                />
+              </View>
             </TableCell>
             <TableCell label={t('products.columns.status')}>
-              <Switch
-                value={product.isActive}
-                onValueChange={(value) => onToggleActive(product, value)}
-                accessibilityLabel={product.name}
-              />
+              <View className="flex-row">
+                <StatusBadge
+                  isActive={product.isActive}
+                  activeLabel={t('products.statusActive')}
+                  inactiveLabel={t('products.statusInactive')}
+                />
+              </View>
             </TableCell>
             <TableCell label={t('products.columns.actions')}>
               <View>

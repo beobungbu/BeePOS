@@ -1,6 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 import { L, type Locale } from '../lib/labels';
 import { collectErrors, go, login } from '../lib/session';
+import { ean13 } from '../../../../src/data/seed/prng';
+
+// Barcode of seed product 3 ("Nước ngọt Coca-Cola 1.5L"): the catalogue builds every barcode
+// as ean13(893000000000 + sequence), so the scan step needs no on-screen source for it.
+const SCAN_BARCODE = ean13(String(893_000_000_000 + 3).slice(0, 12));
 
 // Full product journey on the merged app. Runs per project (wide/narrow) x locale x theme.
 const SHOT_DIR = 'docs/screenshots';
@@ -16,11 +21,11 @@ async function shot(page: Page, on: boolean, name: string) {
   if (on) await page.screenshot({ path: `${SHOT_DIR}/e2e-${name}.png`, fullPage: false });
 }
 
-/** Open the cart: side pane on wide, Sheet from the floating bar on narrow. */
+/** Open the cart: permanent pane on wide, the pushed /pos/cart route on narrow. */
 async function openCart(page: Page, t: (typeof L)[Locale], narrow: boolean) {
   if (narrow) {
-    await page.getByRole('button', { name: t.viewCart }).click();
-    await expect(page.getByRole('dialog').getByText(t.cartTitle).first()).toBeVisible();
+    await page.getByRole('button', { name: t.viewCart }).first().click();
+    await page.waitForURL('**/pos/cart');
   }
 }
 
@@ -64,18 +69,14 @@ for (const locale of ['vi', 'en'] as Locale[]) {
         // first two product tiles: tap the tile (adds 1 unit)
         await page.getByRole('button', { name: 'Nước ngọt Coca-Cola 330ml' }).click();
         await page.getByRole('button', { name: 'Nước ngọt Coca-Cola 500ml' }).click();
-        // read a barcode from the third product's details popover/dialog
-        await page.getByRole('button', { name: t.customerDetails }).nth(2).click();
-        const dlg = page.getByRole('dialog').last();
-        const bcText = await dlg.getByText(/\d{13}/).first().textContent();
-        barcode = (bcText ?? '').match(/\d{13}/)?.[0] ?? '';
+        // scan: a barcode scanner types the digits into the catalogue search and sends Enter
+        barcode = SCAN_BARCODE;
         expect(barcode).toHaveLength(13);
-        await page.keyboard.press('Escape');
-        const search = page.getByPlaceholder(/SKU/);
+        const search = page.getByPlaceholder(/mã vạch|barcode/i);
         await search.fill(barcode);
         await search.press('Enter');
         await openCart(page, t, narrow);
-        const cart = narrow ? page.getByRole('dialog') : page;
+        const cart = page;
         await cart.getByRole('button', { name: t.increaseQty }).first().click();
         await cart.getByRole('button', { name: t.lineDiscount }).first().click();
         await pick(page, t.percent).click();
@@ -89,7 +90,7 @@ for (const locale of ['vi', 'en'] as Locale[]) {
         await page.getByPlaceholder(t.customerSearch).fill('Vũ Minh Nga');
         await page.getByRole('dialog').last().getByText('Vũ Minh Nga').first().click();
         await shot(page, on, `${testInfo.project.name}-03-cart`);
-        await cart.getByRole('button', { name: t.checkout, exact: true }).click();
+        await cart.getByRole('button', { name: t.checkout }).first().click();
         await page.waitForURL('**/pos/checkout');
       });
 
@@ -99,8 +100,9 @@ for (const locale of ['vi', 'en'] as Locale[]) {
         await page.getByRole('button', { name: t.addPayment }).click();
         await pick(page, t.methodCash).click();
         await page.getByRole('textbox', { name: t.amountReceived }).fill('500000');
-        await page.getByRole('button', { name: t.addPayment }).click();
         await shot(page, on, `${testInfo.project.name}-04-checkout`);
+        // Cash covers the rest, so the one primary button reads "Hoàn tất" and both records
+        // the payment and completes the order.
         await page.getByRole('button', { name: t.confirmPay }).click();
         await page.waitForURL('**/pos/receipt/**');
         await expect(page.getByText(t.change).first()).toBeVisible();
@@ -110,10 +112,12 @@ for (const locale of ['vi', 'en'] as Locale[]) {
       await test.step('orders: newest first, partial refund', async () => {
         await go(page, '/orders');
         const first = page.locator('a[href^="/orders/"], [role="button"]').filter({ hasText: /^HD/ }).first();
-        const code = ((await first.textContent()) ?? '').match(/HD[-A-Z0-9]*\d{8}-\d{3,4}/)?.[0] ?? '';
-        expect(code, 'newest order (created in this journey) must be listed first').toMatch(/^HD-HN01-/);
+        // A row's textContent runs the code straight into the next value, so the count can look
+        // like a fourth code digit; match the store prefix and the date instead of an exact code.
+        const rowText = (await first.textContent()) ?? '';
+        expect(rowText, 'newest order (created in this journey) must be listed first').toMatch(/HD-HN01-\d{8}-\d{3}/);
         await first.click();
-        await expect(page.getByText(code).first()).toBeVisible();
+        await expect(page.getByText(/HD-HN01-\d{8}-\d{3}/).first()).toBeVisible();
         await page.getByRole('button', { name: t.refund, exact: true }).click();
         const dlg = page.getByRole('dialog').last();
         await pick(dlg, t.refundByLine).click();
@@ -176,7 +180,7 @@ for (const locale of ['vi', 'en'] as Locale[]) {
 
       await test.step('reports: period switch', async () => {
         await go(page, '/reports');
-        const stat = page.locator('text=/\\d[\\d.,]*\\s*₫/').first();
+        const stat = page.locator('text=/\\d[\\d.,]*\\s*đ/').first();
         const before = await stat.textContent();
         await pick(page, t.days30).click();
         await expect.poll(async () => (await stat.textContent()) !== before, { timeout: 5000 }).toBeTruthy();

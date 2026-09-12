@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { ScrollView } from 'react-native';
-import { Button, Chip, ChipGroup, EmptyState, HStack, SearchInput, Text, VStack } from '@beemvp/beeui-ui';
+import { ScrollView, View } from 'react-native';
+import { Button, Chip, ChipGroup, EmptyState, SearchInput, Text } from '@beemvp/beeui-ui';
 import { useCustomerStore } from '../../../data/customer-store';
 import { useOrderStore } from '../../../data/order-store';
 import { filterCustomers } from '../../../domain/customers';
@@ -8,7 +8,9 @@ import type { Customer, CustomerTier } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import '../../../i18n/customers.vi';
 import '../../../i18n/customers.en';
-import { useIsWide } from '../hooks/use-is-wide';
+import { useBreakpoint } from '../../../hooks/use-breakpoint';
+import { formatDate } from '../../orders/lib/order-presentation';
+import { fill } from '../../orders/lib/fill';
 import { CustomerTable } from '../components/customer-table';
 import { CustomerListGroup } from '../components/customer-list-group';
 import { AddCustomerDialog, type NewCustomerInput } from '../components/add-customer-dialog';
@@ -17,7 +19,9 @@ const TIERS: CustomerTier[] = ['bronze', 'silver', 'gold', 'platinum'];
 
 export function CustomersListScreen() {
   const t = useT();
-  const isWide = useIsWide();
+  const breakpoint = useBreakpoint();
+  const isPhone = breakpoint === 'phone';
+
   const customers = useCustomerStore((state) => state.customers);
   const upsertCustomer = useCustomerStore((state) => state.upsertCustomer);
   const setProfileExtra = useCustomerStore((state) => state.setProfileExtra);
@@ -36,7 +40,7 @@ export function CustomersListScreen() {
     const customerOrders = orders.filter((order) => order.customerId === customerId);
     if (customerOrders.length === 0) return null;
     const latest = customerOrders.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
-    return new Date(latest.createdAt).toLocaleDateString('vi-VN');
+    return formatDate(latest.createdAt);
   };
 
   const handleCreate = (input: NewCustomerInput) => {
@@ -56,35 +60,56 @@ export function CustomersListScreen() {
     }
   };
 
+  const gutter = isPhone ? 'px-4' : breakpoint === 'tablet' ? 'px-5' : 'px-6';
+
   return (
-    <ScrollView className="flex-1" contentContainerClassName="gap-4 p-4">
-      <HStack className="flex-wrap items-center justify-between gap-3">
-        <Text variant="heading">{t('customers.title')}</Text>
+    <View className="flex-1 bg-background">
+      <View className={`flex-row items-start justify-between gap-3 bg-surface pb-2 pt-3 ${gutter}`}>
+        <View className="min-w-0 gap-0.5">
+          <Text className="text-title font-bold text-foreground">{t('customers.title')}</Text>
+          <Text className="text-caption text-muted-foreground">
+            {fill(t('customers.results'), { count: filtered.length })}
+          </Text>
+        </View>
         <Button onPress={() => setAddOpen(true)}>{t('customers.addButton')}</Button>
-      </HStack>
-      <SearchInput onSearch={setSearch} placeholder={t('customers.search')} />
-      <ChipGroup
-        onValueChange={(v) => setTier(v === 'all' ? '' : (v as CustomerTier))}
-        selectionMode="single"
-        value={tier || 'all'}
-      >
-        <Chip value="all">{t('customers.tier.all')}</Chip>
-        {TIERS.map((item) => (
-          <Chip key={item} value={item}>
-            {t(`customers.tier.${item}`)}
-          </Chip>
-        ))}
-      </ChipGroup>
-      {filtered.length === 0 ? (
-        <EmptyState description={t('customers.empty.description')} title={t('customers.empty.title')} />
-      ) : isWide ? (
-        <CustomerTable customers={filtered} lastOrderLabel={lastOrderLabel} />
-      ) : (
-        <VStack className="gap-3">
-          <CustomerListGroup customers={filtered} />
-        </VStack>
-      )}
+      </View>
+
+      <View className={`gap-3 border-b border-border bg-surface pb-3 pt-1 ${gutter}`}>
+        <SearchInput accessibilityLabel={t('customers.search')} onSearch={setSearch} placeholder={t('customers.search')} />
+        <ScrollView contentContainerClassName="flex-row items-center gap-2 pr-4" horizontal showsHorizontalScrollIndicator={false}>
+          <ChipGroup
+            className="flex-row flex-nowrap gap-2"
+            onValueChange={(v) => setTier(v === 'all' ? '' : (v as CustomerTier))}
+            selectionMode="single"
+            value={tier || 'all'}
+          >
+            <Chip value="all">{t('customers.tier.all')}</Chip>
+            {TIERS.map((item) => (
+              <Chip key={item} value={item}>
+                {t(`customers.tier.${item}`)}
+              </Chip>
+            ))}
+          </ChipGroup>
+        </ScrollView>
+      </View>
+
+      <ScrollView className="min-h-0 flex-1" contentContainerClassName="pb-6 pt-3">
+        {filtered.length === 0 ? (
+          <View className={`py-8 ${gutter}`}>
+            <EmptyState description={t('customers.empty.description')} title={t('customers.empty.title')} />
+          </View>
+        ) : isPhone ? (
+          <CustomerListGroup customers={filtered} lastOrderLabel={lastOrderLabel} />
+        ) : (
+          <CustomerTable
+            customers={filtered}
+            lastOrderLabel={lastOrderLabel}
+            showLastOrder={breakpoint === 'desktop'}
+          />
+        )}
+      </ScrollView>
+
       <AddCustomerDialog onCreate={handleCreate} onOpenChange={setAddOpen} open={addOpen} />
-    </ScrollView>
+    </View>
   );
 }

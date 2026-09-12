@@ -20,9 +20,10 @@ import {
   useToast,
 } from '@beemvp/beeui-ui';
 import { useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
 import type { Category } from '../../domain/types';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 
 type DialogMode = 'add' | 'addSub' | 'rename' | 'delete';
@@ -36,8 +37,12 @@ function makeCategoryId(): string {
   return `category-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+/** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
+const GUTTER = { phone: 'p-4', tablet: 'p-5', desktop: 'p-6' } as const;
+
 export function CategoriesScreen() {
   const t = useT();
+  const breakpoint = useBreakpoint();
   const toast = useToast();
   const categories = useCatalogStore((state) => state.categories);
   const products = useCatalogStore((state) => state.products);
@@ -112,8 +117,9 @@ export function CategoriesScreen() {
         : t('products.categories.dialogAddTitle');
 
   return (
-    <View className="flex-1 gap-4 p-4">
-      <View className="flex-row items-center justify-between">
+    <ScrollView className="flex-1">
+      <View className={`flex-1 gap-4 ${GUTTER[breakpoint]}`}>
+      <View className="flex-row flex-wrap items-center justify-between gap-2">
         <Text variant="title">{t('products.categories.title')}</Text>
         <Button onPress={() => openDialog('add')}>{t('products.categories.addCategory')}</Button>
       </View>
@@ -165,6 +171,7 @@ export function CategoriesScreen() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </View>
+      </View>
+    </ScrollView>
   );
 }

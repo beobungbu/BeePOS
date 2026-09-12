@@ -8,6 +8,12 @@ export const productsEn = {
   statusAll: 'All',
   statusActive: 'Active',
   statusInactive: 'Inactive',
+  countSuffix: 'products',
+  stock: {
+    on: 'In stock',
+    low: 'Low stock',
+    out: 'Out of stock',
+  },
   columns: {
     product: 'Product',
     sku: 'SKU',
@@ -36,6 +42,11 @@ export const productsEn = {
   form: {
     newTitle: 'Add product',
     editTitle: 'Edit product',
+    sectionBasics: 'Basic information',
+    sectionPricing: 'Price and tax',
+    sectionDetails: 'Description and status',
+    imageLabel: 'Product photo',
+    imageHint: 'Photo comes from the sample catalog; uploading is not supported yet.',
     fieldName: 'Product name',
     fieldSku: 'SKU',
     fieldSkuSuggest: 'Suggest SKU',

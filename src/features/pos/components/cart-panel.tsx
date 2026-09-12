@@ -1,36 +1,35 @@
-import { ScrollView, View } from 'react-native';
+import { useEffect } from 'react';
+import { Platform, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-  Button,
-  ButtonLabel,
-  EmptyState,
-  Field,
-  Textarea,
-  Text,
-} from '@beemvp/beeui-ui';
-import { calcCart, type PricedCartLine } from '../../../domain/pos';
+import { Button, ButtonLabel, EmptyState, Text } from '@beemvp/beeui-ui';
 import { formatVND } from '../../../domain/money';
 import type { Product } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import { useActiveCart, useCartStore } from '../../../data/cart-store';
 import { useCustomerStore } from '../../../data/customer-store';
+import { cartTotalsOf, cartUnitCount } from '../lib/cart-totals';
+import { countLabel, orderLabel } from '../lib/order-label';
+import { CartClearButton } from './cart-clear-button';
 import { CartLineItem } from './cart-line-item';
 import { CustomerDialog } from './customer-dialog';
 import { OrderDiscountDialog } from './order-discount-dialog';
+import { OrderNoteDialog } from './order-note-dialog';
+import { OrderTotalsPanel } from './order-totals-panel';
 
 interface CartPanelProps {
   products: Product[];
+  /** Desktop: the pane is permanent, shows the line remove control and binds F9. */
+  desktop: boolean;
+  /** The pushed `/pos/cart` route names the order in its own header, so it hides this one. */
+  showHeader?: boolean;
 }
 
-export function CartPanel({ products }: CartPanelProps) {
+/**
+ * The order being served: pane on desktop, the `/pos/cart` route on phone and tablet. The
+ * header names the order ("Đơn 1", never "Giỏ hàng") because several orders are open at
+ * once, and the total rides on the pay button, following Square.
+ */
+export function CartPanel({ products, desktop, showHeader = true }: CartPanelProps) {
   const t = useT();
   const router = useRouter();
   const cart = useActiveCart();
@@ -40,92 +39,83 @@ export function CartPanel({ products }: CartPanelProps) {
   const setOrderDiscount = useCartStore((state) => state.setOrderDiscount);
   const setCustomer = useCartStore((state) => state.setCustomer);
   const setNote = useCartStore((state) => state.setNote);
-  const clearCart = useCartStore((state) => state.clearCart);
   const customers = useCustomerStore((state) => state.customers);
 
-  const pricedLines: PricedCartLine[] = cart.lines.map((line) => ({
-    ...line,
-    taxRate: products.find((product) => product.id === line.productId)?.taxRate ?? 0,
-  }));
-  const totals = calcCart(pricedLines, cart.discount);
+  const totals = cartTotalsOf(cart, products);
+  const isEmpty = cart.lines.length === 0;
 
-  if (cart.lines.length === 0) {
-    return (
-      <View className="flex-1 items-center justify-center px-6">
-        <EmptyState title={t('pos.cart.emptyTitle')} description={t('pos.cart.emptyDescription')} />
-      </View>
-    );
-  }
+  useEffect(() => {
+    if (!desktop || Platform.OS !== 'web') return undefined;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.code !== 'F9' || isEmpty) return;
+      event.preventDefault();
+      router.push('/pos/checkout');
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [desktop, isEmpty, router]);
 
   return (
-    <View className="flex-1">
-      <ScrollView className="flex-1 px-4">
-        {cart.lines.map((line) => (
-          <CartLineItem
-            key={line.productId}
-            line={line}
-            product={products.find((product) => product.id === line.productId)}
-            onSetQty={(qty) => setQty(line.productId, qty)}
-            onSetDiscount={(discount) => setLineDiscount(line.productId, discount)}
-            onRemove={() => removeLine(line.productId)}
-          />
-        ))}
-      </ScrollView>
+    <View className="flex-1 bg-surface">
+      {showHeader ? (
+      <View className="h-14 flex-row items-center gap-2 border-b border-border px-4">
+        <Text className="flex-1 text-heading font-semibold text-foreground">
+          {orderLabel(t, cart.ordinal)}
+        </Text>
+        {isEmpty ? null : (
+          <View className="rounded-full bg-muted px-2 py-0.5">
+            <Text className="text-caption tabular-nums text-muted-foreground">
+              {countLabel(t, cartUnitCount(cart), 'pos.cart.items')}
+            </Text>
+          </View>
+        )}
+        <CartClearButton disabled={isEmpty} />
+      </View>
+      ) : null}
 
-      <View className="gap-3 border-t border-border p-4">
-        <View className="flex-row items-center justify-between">
-          <Text className="text-sm text-muted-foreground">{t('pos.cart.customer')}</Text>
-          <CustomerDialog customers={customers} selectedCustomerId={cart.customerId} onSelect={setCustomer} />
+      <CustomerDialog customers={customers} selectedCustomerId={cart.customerId} onSelect={setCustomer} />
+
+      {isEmpty ? (
+        <View className="flex-1 items-center px-6 pt-10">
+          <View className="w-full max-w-[280px]">
+            <EmptyState title={t('pos.cart.emptyTitle')} description={t('pos.cart.emptyDescription')} />
+          </View>
         </View>
+      ) : (
+        <ScrollView className="flex-1">
+          {cart.lines.map((line) => (
+            <CartLineItem
+              key={line.productId}
+              line={line}
+              product={products.find((product) => product.id === line.productId)}
+              showRemoveControl={desktop}
+              onSetQty={(qty) => setQty(line.productId, qty)}
+              onSetDiscount={(discount) => setLineDiscount(line.productId, discount)}
+              onRemove={() => removeLine(line.productId)}
+            />
+          ))}
+        </ScrollView>
+      )}
 
-        <Field label={t('pos.cart.note')}>
-          <Textarea
-            value={cart.note ?? ''}
-            onChangeText={setNote}
-            placeholder={t('pos.cart.notePlaceholder')}
-            numberOfLines={2}
-          />
-        </Field>
+      <View className="gap-2 border-t border-border p-4">
+        <OrderTotalsPanel totals={totals} bordered={false} />
 
-        <View className="flex-row items-center justify-between">
-          <Text className="text-sm text-muted-foreground">{t('pos.cart.subtotal')}</Text>
-          <Text className="text-sm text-foreground">{formatVND(totals.subtotal)}</Text>
-        </View>
-        <View className="flex-row items-center justify-between">
+        <Button
+          className="mt-1 min-h-[52px]"
+          disabled={isEmpty}
+          onPress={() => router.push('/pos/checkout')}
+        >
+          <ButtonLabel>{`${t('pos.cart.checkout')} · ${formatVND(totals.total)}`}</ButtonLabel>
+          {desktop ? (
+            <View className="ml-2 rounded-sm border border-primary-foreground px-1.5">
+              <Text className="text-caption text-primary-foreground">F9</Text>
+            </View>
+          ) : null}
+        </Button>
+
+        <View className="mt-1 flex-row gap-2">
           <OrderDiscountDialog discount={cart.discount} onApply={setOrderDiscount} />
-          <Text className="text-sm text-foreground">-{formatVND(totals.discountTotal)}</Text>
-        </View>
-        <View className="flex-row items-center justify-between">
-          <Text className="text-sm text-muted-foreground">{t('pos.cart.tax')}</Text>
-          <Text className="text-sm text-foreground">{formatVND(totals.taxTotal)}</Text>
-        </View>
-        <View className="flex-row items-center justify-between">
-          <Text className="text-base font-semibold text-foreground">{t('pos.cart.total')}</Text>
-          <Text className="text-lg font-semibold text-foreground">{formatVND(totals.total)}</Text>
-        </View>
-
-        <View className="flex-row gap-2">
-          <AlertDialog>
-            <AlertDialogTrigger variant="outline" className="flex-1">
-              <ButtonLabel>{t('pos.cart.clear')}</ButtonLabel>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogTitle>{t('pos.cart.clearConfirmTitle')}</AlertDialogTitle>
-              <AlertDialogDescription>{t('pos.cart.clearConfirmDescription')}</AlertDialogDescription>
-              <AlertDialogFooter>
-                <AlertDialogCancel>
-                  <ButtonLabel>{t('common.actions.cancel')}</ButtonLabel>
-                </AlertDialogCancel>
-                <AlertDialogAction onPress={clearCart}>
-                  <ButtonLabel>{t('pos.cart.clear')}</ButtonLabel>
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <Button className="flex-1" onPress={() => router.push('/pos/checkout')}>
-            <ButtonLabel>{t('pos.cart.checkout')}</ButtonLabel>
-          </Button>
+          <OrderNoteDialog note={cart.note} onApply={setNote} />
         </View>
       </View>
     </View>

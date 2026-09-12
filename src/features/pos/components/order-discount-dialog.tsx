@@ -16,6 +16,7 @@ import {
   Textarea,
 } from '@beemvp/beeui-ui';
 import type { Discount } from '../../../domain/types';
+import { SecondaryButtonLabel } from './secondary-button-label';
 import { useT } from '../../../i18n';
 
 interface OrderDiscountDialogProps {
@@ -51,8 +52,8 @@ export function OrderDiscountDialog({ discount, onApply }: OrderDiscountDialogPr
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger variant="outline" size="sm">
-        <ButtonLabel>{t('pos.orderDiscount.trigger')}</ButtonLabel>
+      <DialogTrigger variant="outline" className="flex-1">
+        <SecondaryButtonLabel>{t('pos.orderDiscount.trigger')}</SecondaryButtonLabel>
       </DialogTrigger>
       <DialogContent>
         <DialogTitle>{t('pos.orderDiscount.title')}</DialogTitle>
@@ -72,7 +73,7 @@ export function OrderDiscountDialog({ discount, onApply }: OrderDiscountDialogPr
         </View>
         <DialogFooter>
           <DialogClose variant="outline">
-            <ButtonLabel>{t('common.actions.cancel')}</ButtonLabel>
+            <SecondaryButtonLabel>{t('common.actions.cancel')}</SecondaryButtonLabel>
           </DialogClose>
           <Button onPress={apply}>
             <ButtonLabel>{t('common.actions.apply')}</ButtonLabel>

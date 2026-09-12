@@ -32,8 +32,8 @@ export function PaymentMixSection({ rows }: PaymentMixSectionProps) {
               }
               trailing={
                 <HStack gap="xs" align="center">
-                  <Text className="font-semibold text-foreground">{formatVND(row.amount)}</Text>
-                  <Text tone="muted" variant="caption">{`${row.sharePercent}%`}</Text>
+                  <Text variant="label" numeric="tabular" className="font-bold text-foreground">{formatVND(row.amount)}</Text>
+                  <Text tone="muted" variant="caption" numeric="tabular">{`${row.sharePercent}%`}</Text>
                 </HStack>
               }
             />

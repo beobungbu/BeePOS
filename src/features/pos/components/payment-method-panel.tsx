@@ -1,54 +1,78 @@
-import { useState } from 'react';
 import { View } from 'react-native';
-import { Box, Button, ButtonLabel, Card, Field, Input, Text } from '@beemvp/beeui-ui';
-import { calcChange, pointsToVnd } from '../../../domain/pos';
+import { Field, Input, Text } from '@beemvp/beeui-ui';
+import { AppIcon } from '../../../components/icons';
 import { formatVND } from '../../../domain/money';
-import type { Customer, Payment, PaymentMethod } from '../../../domain/types';
+import type { Customer, PaymentMethod } from '../../../domain/types';
 import { useT } from '../../../i18n';
+import type { PaymentDraft } from '../lib/payment-draft';
 import { QuickCashChips } from './quick-cash-chips';
 
 interface PaymentMethodPanelProps {
   method: PaymentMethod;
   remaining: number;
   customer: Customer | undefined;
-  onAddPayment: (payment: Payment) => void;
+  draft: PaymentDraft;
+  amountText: string;
+  onAmountChange: (value: string) => void;
+  refText: string;
+  onRefChange: (value: string) => void;
+  pointsText: string;
+  onPointsChange: (value: string) => void;
+  storeName?: string;
 }
 
 /**
- * Rendered with `key={method}` by the checkout screen so switching tabs remounts this
- * component and clears its per-method input state instead of leaking it across methods.
+ * The inputs for the selected method. The panel only edits text: the payment itself is
+ * derived by `draftPayment`, so the screen's one primary button can decide between adding a
+ * partial payment and completing the order without this component knowing about either.
  */
-export function PaymentMethodPanel({ method, remaining, customer, onAddPayment }: PaymentMethodPanelProps) {
+export function PaymentMethodPanel({
+  method,
+  remaining,
+  customer,
+  draft,
+  amountText,
+  onAmountChange,
+  refText,
+  onRefChange,
+  pointsText,
+  onPointsChange,
+  storeName,
+}: PaymentMethodPanelProps) {
   const t = useT();
-  const [amountText, setAmountText] = useState(method === 'cash' ? '' : String(remaining));
-  const [refText, setRefText] = useState('');
-  const [pointsText, setPointsText] = useState('');
-
-  const parsedAmount = Number.parseFloat(amountText) || 0;
-  const dueAmount = Math.max(0, Math.min(remaining, parsedAmount));
 
   if (method === 'cash') {
-    const change = calcChange(dueAmount, parsedAmount);
+    const tendered = Number.parseFloat(amountText) || 0;
     return (
       <View className="gap-3">
-        <QuickCashChips remaining={remaining} onPick={(amount) => setAmountText(String(amount))} />
-        <Field label={t('pos.checkout.amountReceived')}>
-          <Input value={amountText} onChangeText={setAmountText} keyboardType="numeric" placeholder="0" />
+        <Field label={t('pos.checkout.tendered')}>
+          <Input
+            value={amountText}
+            onChangeText={onAmountChange}
+            keyboardType="numeric"
+            placeholder="0"
+            className="text-right tabular-nums"
+          />
         </Field>
-        {parsedAmount > 0 && (
-          <Text className="text-sm text-muted-foreground">
-            {t('pos.checkout.changeDue')}: {formatVND(change)}
-          </Text>
-        )}
-        <Button
-          disabled={parsedAmount <= 0}
-          onPress={() => {
-            onAddPayment({ method: 'cash', amount: dueAmount, ref: `tendered=${parsedAmount}` });
-            setAmountText('');
-          }}
-        >
-          <ButtonLabel>{t('pos.checkout.addPayment')}</ButtonLabel>
-        </Button>
+        <QuickCashChips remaining={remaining} onPick={(amount) => onAmountChange(String(amount))} />
+        {tendered > 0 ? (
+          <View
+            className={`flex-row items-center justify-between rounded-md px-4 py-3 ${
+              draft.settlesBalance ? 'bg-success/10' : 'bg-destructive/10'
+            }`}
+          >
+            <Text className="text-label text-muted-foreground">
+              {draft.settlesBalance ? t('pos.checkout.changeDue') : t('pos.checkout.remaining')}
+            </Text>
+            <Text
+              className={`text-title font-bold tabular-nums ${
+                draft.settlesBalance ? 'text-success' : 'text-destructive'
+              }`}
+            >
+              {formatVND(draft.settlesBalance ? draft.change : remaining - tendered)}
+            </Text>
+          </View>
+        ) : null}
       </View>
     );
   }
@@ -56,30 +80,29 @@ export function PaymentMethodPanel({ method, remaining, customer, onAddPayment }
   if (method === 'transfer') {
     return (
       <View className="gap-3">
-        <Card padding="sm" className="gap-2">
-          <Text className="text-sm font-medium text-foreground">{t('pos.checkout.transferInfo')}</Text>
-          <Box className="h-32 w-32 flex-row flex-wrap self-center border border-border">
-            {Array.from({ length: 64 }).map((_, i) => (
-              <View key={i} className={`h-[12.5%] w-[12.5%] ${(i * 7) % 5 === 0 ? 'bg-foreground' : 'bg-background'}`} />
-            ))}
-          </Box>
-          <Text className="text-xs text-muted-foreground">
-            {t('pos.checkout.bankName')}: Vietcombank · {t('pos.checkout.accountNumber')}: 0123456789
-          </Text>
-          <Text className="text-xs text-muted-foreground">{t('pos.checkout.accountHolder')}: BeePOS Store</Text>
-        </Card>
         <Field label={t('pos.checkout.transferAmount')}>
-          <Input value={amountText} onChangeText={setAmountText} keyboardType="numeric" placeholder="0" />
+          <Input
+            value={amountText}
+            onChangeText={onAmountChange}
+            keyboardType="numeric"
+            placeholder="0"
+            className="text-right tabular-nums"
+          />
         </Field>
-        <Button
-          disabled={parsedAmount <= 0}
-          onPress={() => {
-            onAddPayment({ method: 'transfer', amount: dueAmount });
-            setAmountText('');
-          }}
-        >
-          <ButtonLabel>{t('pos.checkout.addPayment')}</ButtonLabel>
-        </Button>
+        <View className="items-center gap-3 rounded-lg border border-border bg-surface p-4">
+          <View className="h-28 w-28 items-center justify-center rounded-md bg-muted">
+            <AppIcon name="qr-code" size={72} tone="muted-foreground" />
+          </View>
+          <Text className="text-label font-semibold text-foreground">
+            {`${t('pos.checkout.qrTitle')} ${formatVND(draft.payment?.amount ?? remaining)}`}
+          </Text>
+          <Text className="text-caption text-muted-foreground">
+            {`${t('pos.checkout.bankName')}: Vietcombank · 0011 0023 4567`}
+          </Text>
+          <Text className="text-caption text-muted-foreground">
+            {`${t('pos.checkout.accountHolder')}: ${storeName ?? 'BeePOS'}`}
+          </Text>
+        </View>
       </View>
     );
   }
@@ -87,55 +110,49 @@ export function PaymentMethodPanel({ method, remaining, customer, onAddPayment }
   if (method === 'card') {
     return (
       <View className="gap-3">
-        <Text className="text-sm text-muted-foreground">{t('pos.checkout.cardNote')}</Text>
         <Field label={t('pos.checkout.cardAmount')}>
-          <Input value={amountText} onChangeText={setAmountText} keyboardType="numeric" placeholder="0" />
+          <Input
+            value={amountText}
+            onChangeText={onAmountChange}
+            keyboardType="numeric"
+            placeholder="0"
+            className="text-right tabular-nums"
+          />
         </Field>
         <Field label={t('pos.checkout.cardRef')}>
-          <Input value={refText} onChangeText={setRefText} placeholder="—" />
+          <Input value={refText} onChangeText={onRefChange} placeholder="0000" />
         </Field>
-        <Button
-          disabled={parsedAmount <= 0}
-          onPress={() => {
-            onAddPayment({ method: 'card', amount: dueAmount, ref: refText.trim() || undefined });
-            setAmountText('');
-            setRefText('');
-          }}
-        >
-          <ButtonLabel>{t('pos.checkout.addPayment')}</ButtonLabel>
-        </Button>
+        <Text className="text-caption text-muted-foreground">{t('pos.checkout.cardNote')}</Text>
       </View>
     );
   }
 
-  // method === 'points'
   if (!customer) {
-    return <Text className="text-sm text-destructive">{t('pos.checkout.needCustomerForPoints')}</Text>;
+    return (
+      <View className="rounded-md bg-destructive/10 px-4 py-3">
+        <Text className="text-label text-destructive">{t('pos.checkout.needCustomerForPoints')}</Text>
+      </View>
+    );
   }
-
-  const parsedPoints = Math.max(0, Math.floor(Number.parseFloat(pointsText) || 0));
-  const exceedsBalance = parsedPoints > customer.points;
-  const clampedPoints = Math.min(parsedPoints, customer.points);
-  const pointsDue = Math.max(0, Math.min(remaining, pointsToVnd(clampedPoints)));
 
   return (
     <View className="gap-3">
-      <Text className="text-sm text-muted-foreground">
-        {t('pos.checkout.pointsAvailable')}: {customer.points}
-      </Text>
       <Field label={t('pos.checkout.pointsAmount')}>
-        <Input value={pointsText} onChangeText={setPointsText} keyboardType="numeric" placeholder="0" />
+        <Input
+          value={pointsText}
+          onChangeText={onPointsChange}
+          keyboardType="numeric"
+          placeholder="0"
+          className="text-right tabular-nums"
+        />
       </Field>
-      {exceedsBalance && <Text className="text-sm text-destructive">{t('pos.checkout.pointsInsufficient')}</Text>}
-      <Button
-        disabled={clampedPoints <= 0}
-        onPress={() => {
-          onAddPayment({ method: 'points', amount: pointsDue, ref: `points=${clampedPoints}` });
-          setPointsText('');
-        }}
-      >
-        <ButtonLabel>{t('pos.checkout.addPayment')}</ButtonLabel>
-      </Button>
+      <View className="flex-row items-center justify-between">
+        <Text className="text-caption text-muted-foreground">{t('pos.checkout.pointsAvailable')}</Text>
+        <Text className="text-caption font-semibold tabular-nums text-foreground">{customer.points}</Text>
+      </View>
+      {draft.exceedsPoints ? (
+        <Text className="text-caption text-destructive">{t('pos.checkout.pointsInsufficient')}</Text>
+      ) : null}
     </View>
   );
 }

@@ -4,7 +4,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { useInventoryStore } from '../../data/inventory-store';
 import { stores as allStores } from '../../data/seed';
 import { useT } from '../../i18n';
-import { useIsWide } from './hooks/use-is-wide';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 
 function storeName(storeId: string): string {
   return allStores.find((store) => store.id === storeId)?.name ?? storeId;
@@ -16,9 +16,13 @@ function formatDate(iso: string): string {
 
 const STATUS_VARIANT = { draft: 'outline', sent: 'warning', received: 'success' } as const;
 
+/** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
+const GUTTER = { phone: 'p-4', tablet: 'p-5', desktop: 'p-6' } as const;
+
 export function TransfersListScreen() {
   const t = useT();
-  const isWide = useIsWide();
+  const breakpoint = useBreakpoint();
+  const isWide = breakpoint !== 'phone';
   const transfers = useInventoryStore((state) => state.stockTransfers);
 
   function statusLabel(status: 'draft' | 'sent' | 'received'): string {
@@ -29,7 +33,7 @@ export function TransfersListScreen() {
 
   return (
     <ScrollView className="flex-1">
-      <View className="flex-1 gap-4 p-4">
+      <View className={`flex-1 gap-4 ${GUTTER[breakpoint]}`}>
         <View className="flex-row items-center justify-between">
           <Text variant="title">{t('inventory.transfers.title')}</Text>
           <Button onPress={() => router.push('/inventory/transfers/new')}>{t('inventory.transfers.newTransfer')}</Button>
@@ -53,20 +57,20 @@ export function TransfersListScreen() {
                 <TableRow key={transfer.id}>
                   <TableCell label={t('inventory.transfers.columns.from')}>
                     <Pressable onPress={() => router.push(`/inventory/transfers/${transfer.id}`)}>
-                      <Text>{storeName(transfer.fromStoreId)}</Text>
+                      <Text variant="label" className="font-semibold">{storeName(transfer.fromStoreId)}</Text>
                     </Pressable>
                   </TableCell>
                   <TableCell label={t('inventory.transfers.columns.to')}>
-                    <Text tone="muted">{storeName(transfer.toStoreId)}</Text>
+                    <Text variant="label" tone="muted">{storeName(transfer.toStoreId)}</Text>
                   </TableCell>
                   <TableCell label={t('inventory.transfers.columns.lines')}>
-                    <Text>{transfer.lines.length}</Text>
+                    <Text variant="label" numeric="tabular" className="w-full text-right">{transfer.lines.length}</Text>
                   </TableCell>
                   <TableCell label={t('inventory.transfers.columns.status')}>
                     <Badge variant={STATUS_VARIANT[transfer.status]}>{statusLabel(transfer.status)}</Badge>
                   </TableCell>
                   <TableCell label={t('inventory.transfers.columns.date')}>
-                    <Text tone="muted">{formatDate(transfer.createdAt)}</Text>
+                    <Text variant="caption" tone="muted" numeric="tabular">{formatDate(transfer.createdAt)}</Text>
                   </TableCell>
                 </TableRow>
               ))}
@@ -77,7 +81,7 @@ export function TransfersListScreen() {
             {transfers.map((transfer) => (
               <ListItem
                 key={transfer.id}
-                title={`${storeName(transfer.fromStoreId)} -> ${storeName(transfer.toStoreId)}`}
+                title={`${storeName(transfer.fromStoreId)} → ${storeName(transfer.toStoreId)}`}
                 description={`${transfer.lines.length} dòng · ${formatDate(transfer.createdAt)}`}
                 onPress={() => router.push(`/inventory/transfers/${transfer.id}`)}
                 trailing={<Badge variant={STATUS_VARIANT[transfer.status]}>{statusLabel(transfer.status)}</Badge>}

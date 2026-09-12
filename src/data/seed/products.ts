@@ -410,9 +410,12 @@ const TEMPLATE_IMAGES: Record<string, number> = {
   'Dầu gội Clear': require('../../../assets/products/dau-goi-clear.jpg'),
 };
 
-/** One generic grocery photo per category, used when a template has no picture of its own. */
+/**
+ * One generic grocery photo per category, used when a template has no picture of its own.
+ * Drinks have no generic photo on purpose: every free stock shot of a soft drink shows a brand,
+ * and a Coca-Cola bottle on a green-tea tile misleads the cashier, so those fall back to the monogram.
+ */
 const CATEGORY_IMAGES: Record<string, number> = {
-  'cat-1': require('../../../assets/products/category-do-uong.jpg'),
   'cat-2': require('../../../assets/products/category-sua.jpg'),
   'cat-3': require('../../../assets/products/category-gao.jpg'),
   'cat-4': require('../../../assets/products/category-gia-vi.jpg'),

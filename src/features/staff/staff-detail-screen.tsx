@@ -1,11 +1,19 @@
+import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { goBackOr } from '../../lib/navigation';
 import { Button, ButtonLabel, HStack, SafeArea, Screen, Section, Text, useToast, VStack } from '@beemvp/beeui-ui';
+import { AppIcon } from '../../components/icons';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { useOrgStore, isStaffActive } from '../../data/org-store';
 import { StaffFormFields } from './components/staff-form-fields';
 import { ResetPinDialog } from './components/reset-pin-dialog';
 import { staffToForm, useStaffForm } from './staff-form-state';
+
+/** Form content is capped at 480 and centred at every breakpoint (direction doc section 7). */
+const FORM_MAX_WIDTH = 480;
+/** Page padding per band: 16 phone, 24 tablet, 32 desktop (direction doc section 7). */
+const FORM_PADDING = { phone: 'p-4', tablet: 'p-6', desktop: 'p-8' } as const;
 
 interface StaffDetailScreenProps {
   staffId: string;
@@ -15,6 +23,7 @@ export function StaffDetailScreen({ staffId }: StaffDetailScreenProps) {
   const t = useT();
   const router = useRouter();
   const toast = useToast();
+  const breakpoint = useBreakpoint();
 
   const staffList = useOrgStore((state) => state.staff);
   const stores = useOrgStore((state) => state.stores);
@@ -55,30 +64,41 @@ export function StaffDetailScreen({ staffId }: StaffDetailScreenProps) {
   return (
     <Screen>
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
-        <VStack gap="lg" className="flex-1 p-6">
-          <Button variant="ghost" size="sm" onPress={() => goBackOr('/staff')} className="self-start">
-            <ButtonLabel>{`< ${t('common.actions.back')}`}</ButtonLabel>
-          </Button>
+        {/* `Screen` owns no scroll behaviour, so the form needs one here. */}
+        <ScrollView className="flex-1">
+          <VStack
+            gap="lg"
+            className={`w-full self-center ${FORM_PADDING[breakpoint]}`}
+            style={{ maxWidth: FORM_MAX_WIDTH }}
+          >
+            <Button variant="ghost" size="sm" onPress={() => goBackOr('/staff')} className="self-start">
+              <AppIcon name="chevron-left" size={16} tone="foreground" />
+              <ButtonLabel>{t('common.actions.back')}</ButtonLabel>
+            </Button>
 
-          <Text className="text-xl font-semibold text-foreground">{member.name}</Text>
+            <VStack gap="xs">
+              <Text variant="title">{member.name}</Text>
+              <Text variant="caption" tone="muted">{t(`staff.role.${member.role}`)}</Text>
+            </VStack>
 
-          <Section title={t('staff.detail.info')}>
-            <StaffFormFields
-              values={form.values}
-              errors={form.errors}
-              stores={stores}
-              setField={form.setField}
-              toggleStore={form.toggleStore}
-            />
+            <Section title={t('staff.detail.info')}>
+              <StaffFormFields
+                values={form.values}
+                errors={form.errors}
+                stores={stores}
+                setField={form.setField}
+                toggleStore={form.toggleStore}
+              />
 
-            <HStack gap="sm" wrap className="mt-4">
-              <Button onPress={handleSave}>
-                <ButtonLabel>{t('staff.detail.save')}</ButtonLabel>
-              </Button>
-              <ResetPinDialog onConfirm={handleResetPin} />
-            </HStack>
-          </Section>
-        </VStack>
+              <HStack gap="sm" wrap className="mt-4">
+                <Button onPress={handleSave}>
+                  <ButtonLabel>{t('staff.detail.save')}</ButtonLabel>
+                </Button>
+                <ResetPinDialog onConfirm={handleResetPin} />
+              </HStack>
+            </Section>
+          </VStack>
+        </ScrollView>
       </SafeArea>
     </Screen>
   );

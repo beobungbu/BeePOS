@@ -1,41 +1,44 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Chip, ChipGroup, SearchInput, Sheet, SheetContent, SheetTitle, useToast } from '@beemvp/beeui-ui';
-import { calcCart, type PricedCartLine } from '../../domain/pos';
+import { useToast } from '@beemvp/beeui-ui';
 import type { Product } from '../../domain/types';
 import { useT } from '../../i18n';
 import { useActiveCart, useCartStore } from '../../data/cart-store';
 import { useCatalogStore } from '../../data/catalog-store';
+import { useCustomerStore } from '../../data/customer-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift } from '../../data/shift-store';
 import { CartPanel } from './components/cart-panel';
+import { CatalogSearch } from './components/catalog-search';
+import { ALL_CATEGORY, CategoryChips } from './components/category-chips';
 import { FloatingCartBar } from './components/floating-cart-bar';
 import { NoShiftBanner } from './components/no-shift-banner';
+import { OrderTabStrip } from './components/order-tab-strip';
 import { ProductGrid } from './components/product-grid';
 import { usePosLayout } from './hooks/use-pos-layout';
-
-const ALL_CATEGORY = 'all';
+import { cartTotalsOf, cartLineCount, cartUnitCount } from './lib/cart-totals';
+import { orderLabel } from './lib/order-label';
 
 export default function PosScreen() {
   const t = useT();
   const toast = useToast();
   const router = useRouter();
-  const { isCartPaneVisible, gridColumns } = usePosLayout();
+  const layout = usePosLayout();
 
   const store = useSessionStore((state) => state.store);
   const currentShift = useCurrentShift();
   const products = useCatalogStore((state) => state.products);
   const categories = useCatalogStore((state) => state.categories);
   const stockLevels = useInventoryStore((state) => state.stockLevels);
+  const customers = useCustomerStore((state) => state.customers);
   const cart = useActiveCart();
   const ensureStore = useCartStore((state) => state.ensureStore);
   const addProduct = useCartStore((state) => state.addProduct);
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState(ALL_CATEGORY);
-  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     if (store) ensureStore(store.id);
@@ -75,76 +78,70 @@ export default function PosScreen() {
     }
   }
 
-  /**
-   * BeeUI's native `Sheet` never presents on iOS (BeeUI #584): `present()` fires with no
-   * visible content and no error, while `Dialog`/`AlertDialog` (RN `Modal`-based) work fine.
-   * On native, open the cart as a full-screen route instead; keep the `Sheet` on web where
-   * it works. Remove this branch once #584 lands.
-   */
-  function handleOpenCart() {
-    if (Platform.OS === 'web') {
-      setSheetOpen(true);
-    } else {
-      router.push('/pos/cart');
-    }
-  }
-
-  const pricedLines: PricedCartLine[] = cart.lines.map((line) => ({
-    ...line,
-    taxRate: activeProducts.find((product) => product.id === line.productId)?.taxRate ?? 0,
-  }));
-  const totals = calcCart(pricedLines, cart.discount);
-  const itemCount = cart.lines.reduce((count, line) => count + line.qty, 0);
+  const totals = cartTotalsOf(cart, activeProducts);
+  const customerName = customers.find((item) => item.id === cart.customerId)?.name;
 
   return (
     <View className="flex-1 flex-row">
-      <View className="flex-1">
-        {!currentShift && <NoShiftBanner />}
+      <View className="min-w-0 flex-1">
+        <OrderTabStrip products={activeProducts} />
+        {currentShift ? null : (
+          <NoShiftBanner gutter={layout.gutter} verbose={layout.breakpoint !== 'phone'} />
+        )}
 
-        <View className="gap-3 p-3">
-          <SearchInput
-            value={query}
-            onChangeText={setQuery}
-            onSearch={handleBarcodeSubmit}
-            placeholder={t('pos.searchPlaceholder')}
-          />
-          <ChipGroup value={category} onValueChange={(value) => setCategory(value as string)}>
-            <Chip value={ALL_CATEGORY}>{t('pos.categoryAll')}</Chip>
-            {categories.map((cat) => (
-              <Chip key={cat.id} value={cat.id}>
-                {cat.name}
-              </Chip>
-            ))}
-          </ChipGroup>
+        <View className="gap-2.5 border-b border-border bg-surface pb-2.5 pt-3">
+          <View style={{ paddingHorizontal: layout.gutter }}>
+            <CatalogSearch
+              value={query}
+              onChangeText={setQuery}
+              onSubmit={handleBarcodeSubmit}
+              short={layout.shortSearchPlaceholder}
+              showKeyHint={layout.breakpoint === 'desktop'}
+            />
+          </View>
+          <View style={layout.breakpoint === 'phone' ? undefined : { paddingHorizontal: layout.gutter }}>
+            <CategoryChips
+              categories={categories}
+              value={category}
+              onChange={setCategory}
+              scroll={layout.breakpoint === 'phone'}
+              visibleLimit={layout.chipLimit}
+              gutter={layout.gutter}
+            />
+          </View>
         </View>
 
         <ProductGrid
           products={filteredProducts}
           stockLevels={stockLevels}
           storeId={store?.id ?? ''}
-          columns={gridColumns}
+          columns={layout.gridColumns}
+          gutter={layout.gutter}
+          gap={layout.gap}
+          imageAspectRatio={layout.imageAspectRatio}
+          lines={cart.lines}
           onAddProduct={handleAddProduct}
         />
 
-        {!isCartPaneVisible && (
-          <FloatingCartBar itemCount={itemCount} total={totals.total} onPress={handleOpenCart} />
+        {layout.isCartPaneVisible ? null : (
+          <FloatingCartBar
+            orderLabel={orderLabel(t, cart.ordinal)}
+            unitCount={cartUnitCount(cart)}
+            lineCount={cartLineCount(cart)}
+            total={totals.total}
+            customerName={customerName}
+            wide={layout.breakpoint === 'tablet'}
+            onOpenCart={() => router.push('/pos/cart')}
+            onCheckout={() => router.push('/pos/checkout')}
+          />
         )}
       </View>
 
-      {isCartPaneVisible && (
-        <View className="w-[360px] border-l border-border">
-          <CartPanel products={activeProducts} />
+      {layout.isCartPaneVisible ? (
+        <View className="w-[380px] border-l border-border">
+          <CartPanel products={activeProducts} desktop />
         </View>
-      )}
-
-      {!isCartPaneVisible && Platform.OS === 'web' && (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-          <SheetContent snapPoints={['85%']}>
-            <SheetTitle>{t('pos.cart.title')}</SheetTitle>
-            <CartPanel products={activeProducts} />
-          </SheetContent>
-        </Sheet>
-      )}
+      ) : null}
     </View>
   );
 }

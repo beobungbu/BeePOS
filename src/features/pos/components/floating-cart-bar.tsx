@@ -1,33 +1,75 @@
 import { Pressable, View } from 'react-native';
-import { Text } from '@beemvp/beeui-ui';
+import { Button, ButtonLabel, Text } from '@beemvp/beeui-ui';
+import { AppIcon } from '../../../components/icons';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
+import { SecondaryButtonLabel } from './secondary-button-label';
+import { countLabel } from '../lib/order-label';
 
 interface FloatingCartBarProps {
-  itemCount: number;
+  /** "Đơn 1", so the cashier never pays the wrong customer's order. */
+  orderLabel: string;
+  unitCount: number;
+  lineCount: number;
   total: number;
-  onPress: () => void;
+  customerName?: string;
+  /** Tablet has room for a separate "view cart" control and the total on the pay button. */
+  wide: boolean;
+  onOpenCart: () => void;
+  onCheckout: () => void;
 }
 
-/** Narrow-screen summary bar that opens the cart Sheet; hidden entirely when the cart is empty. */
-export function FloatingCartBar({ itemCount, total, onPress }: FloatingCartBarProps) {
+/**
+ * Docked order bar on phone and tablet: it always names the order and always carries the
+ * amount, so the cashier never opens the cart just to read the total.
+ */
+export function FloatingCartBar({
+  orderLabel,
+  unitCount,
+  lineCount,
+  total,
+  customerName,
+  wide,
+  onOpenCart,
+  onCheckout,
+}: FloatingCartBarProps) {
   const t = useT();
-  if (itemCount === 0) return null;
+  const isEmpty = lineCount === 0;
+  const summary = [orderLabel, countLabel(t, lineCount, 'pos.cart.lineItems'), customerName]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={t('pos.cart.viewCart')}
-      className="flex-row items-center justify-between border-t border-border bg-primary px-4 py-3"
-    >
-      <View>
-        <Text className="text-sm text-primary-foreground">
-          {itemCount} {t('pos.cart.items')}
-        </Text>
-        <Text className="text-base font-semibold text-primary-foreground">{formatVND(total)}</Text>
-      </View>
-      <Text className="text-sm font-medium text-primary-foreground">{t('pos.cart.viewCart')}</Text>
-    </Pressable>
+    <View className="flex-row items-center gap-3 border-t border-border bg-surface-raised px-4 py-2">
+      <Pressable
+        onPress={onOpenCart}
+        accessibilityRole="button"
+        accessibilityLabel={t('pos.cart.viewCart')}
+        className="min-h-11 flex-1 flex-row items-center gap-3"
+      >
+        <View className="flex-row items-center gap-1">
+          <AppIcon name="shopping-cart" tone="muted-foreground" />
+          <Text className="text-label font-bold tabular-nums text-foreground">{unitCount}</Text>
+        </View>
+        <View className="flex-1">
+          <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+            {summary}
+          </Text>
+          <Text className="text-heading font-bold tabular-nums text-foreground">{formatVND(total)}</Text>
+        </View>
+      </Pressable>
+
+      {wide ? (
+        <Button variant="outline" onPress={onOpenCart}>
+          <SecondaryButtonLabel>{t('pos.cart.viewCart')}</SecondaryButtonLabel>
+        </Button>
+      ) : null}
+
+      <Button disabled={isEmpty} onPress={onCheckout}>
+        <ButtonLabel>
+          {wide ? `${t('pos.cart.checkout')} · ${formatVND(total)}` : t('pos.cart.checkout')}
+        </ButtonLabel>
+      </Button>
+    </View>
   );
 }

@@ -1,11 +1,10 @@
+import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   Avatar,
   Badge,
   Button,
   ButtonLabel,
-  Chip,
-  ChipGroup,
   EmptyState,
   ListGroup,
   ListItem,
@@ -14,6 +13,7 @@ import {
   Section,
   VStack,
 } from '@beemvp/beeui-ui';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { useOrgStore, isStaffActive } from '../../data/org-store';
 
@@ -23,9 +23,13 @@ const ROLE_BADGE: Record<string, 'primary' | 'secondary' | 'outline'> = {
   cashier: 'outline',
 };
 
+/** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
+const GUTTER = { phone: 'p-4', tablet: 'p-5', desktop: 'p-6' } as const;
+
 export function StaffListScreen() {
   const t = useT();
   const router = useRouter();
+  const breakpoint = useBreakpoint();
   const staff = useOrgStore((state) => state.staff);
   const stores = useOrgStore((state) => state.stores);
   const staffActiveById = useOrgStore((state) => state.staffActiveById);
@@ -34,7 +38,9 @@ export function StaffListScreen() {
   return (
     <Screen>
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
-        <VStack gap="lg" className="flex-1 p-6">
+        {/* `Screen` owns no scroll behaviour, so the list needs one here. */}
+        <ScrollView className="flex-1">
+        <VStack gap="lg" className={GUTTER[breakpoint]}>
           <Section
             title={t('staff.title')}
             action={
@@ -56,15 +62,7 @@ export function StaffListScreen() {
                       onPress={() => router.push(`/staff/${member.id}`)}
                       leading={<Avatar accessibilityLabel={member.name} fallback={member.name.slice(0, 1)} />}
                       title={member.name}
-                      description={
-                        <ChipGroup selectionMode="multiple" value={member.storeIds} disabled>
-                          {member.storeIds.map((storeId) => (
-                            <Chip key={storeId} value={storeId}>
-                              {storeName(storeId)}
-                            </Chip>
-                          ))}
-                        </ChipGroup>
-                      }
+                      description={member.storeIds.map(storeName).join(' · ')}
                       trailing={
                         <VStack gap="xs" align="end">
                           <Badge variant={ROLE_BADGE[member.role]}>{t(`staff.role.${member.role}`)}</Badge>
@@ -80,6 +78,7 @@ export function StaffListScreen() {
             )}
           </Section>
         </VStack>
+        </ScrollView>
       </SafeArea>
     </Screen>
   );

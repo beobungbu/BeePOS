@@ -28,6 +28,7 @@ export const settingsEn = {
     showLogo: 'Show logo on receipt',
     preview: 'Receipt preview',
     previewSample: 'TH true MILK fresh milk x2',
+    previewTotal: 'Total',
   },
   tax: {
     label: 'Default tax rate',

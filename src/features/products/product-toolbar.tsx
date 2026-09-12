@@ -1,5 +1,4 @@
 import {
-  Button,
   SearchInput,
   SegmentedControl,
   SegmentedControlItem,
@@ -10,25 +9,27 @@ import {
   SelectValue,
 } from '@beemvp/beeui-ui';
 import { View } from 'react-native';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 import type { Category } from '../../domain/types';
 import { useT } from '../../i18n';
-import { useIsWide } from './hooks/use-is-wide';
 import type { ProductFilters, ProductStatusFilter } from './product-list-utils';
 
 interface ProductToolbarProps {
   filters: ProductFilters;
   categories: Category[];
   onFiltersChange: (filters: ProductFilters) => void;
-  onAddProduct: () => void;
 }
 
-export function ProductToolbar({ filters, categories, onFiltersChange, onAddProduct }: ProductToolbarProps) {
+/** Filter row only; the page actions live in the screen header, as the mockups show. */
+export function ProductToolbar({ filters, categories, onFiltersChange }: ProductToolbarProps) {
   const t = useT();
-  const isWide = useIsWide();
+  // One row only on desktop: at 768 the search field, the category select and the three
+  // status segments together leave the search box too narrow to read its own placeholder.
+  const isDesktop = useBreakpoint() === 'desktop';
 
   return (
-    <View className={isWide ? 'flex-row items-center gap-3' : 'gap-3'}>
-      <View className={isWide ? 'flex-1' : ''}>
+    <View className={isDesktop ? 'flex-row items-center gap-3' : 'gap-3'}>
+      <View className={isDesktop ? 'flex-1' : ''}>
         <SearchInput
           placeholder={t('products.searchPlaceholder')}
           defaultValue={filters.search}
@@ -36,12 +37,12 @@ export function ProductToolbar({ filters, categories, onFiltersChange, onAddProd
           onSearch={(value) => onFiltersChange({ ...filters, search: value })}
         />
       </View>
-      <View className={isWide ? 'w-56' : ''}>
+      <View className={isDesktop ? 'w-56' : ''}>
         <Select
           value={filters.categoryId}
           onValueChange={(value) => onFiltersChange({ ...filters, categoryId: value })}
         >
-          <SelectTrigger>
+          <SelectTrigger accessibilityLabel={t('products.columns.category')}>
             <SelectValue placeholder={t('products.categoryAll')} />
           </SelectTrigger>
           <SelectContent>
@@ -57,6 +58,8 @@ export function ProductToolbar({ filters, categories, onFiltersChange, onAddProd
         </Select>
       </View>
       <SegmentedControl
+        // Hugging the row squeezes "Đang bán" onto two lines; the floor keeps one line.
+        className={isDesktop ? 'min-w-80 shrink-0' : ''}
         value={filters.status}
         onValueChange={(value) => onFiltersChange({ ...filters, status: value as ProductStatusFilter })}
       >
@@ -64,7 +67,6 @@ export function ProductToolbar({ filters, categories, onFiltersChange, onAddProd
         <SegmentedControlItem value="active">{t('products.statusActive')}</SegmentedControlItem>
         <SegmentedControlItem value="inactive">{t('products.statusInactive')}</SegmentedControlItem>
       </SegmentedControl>
-      <Button onPress={onAddProduct}>{t('products.addProduct')}</Button>
     </View>
   );
 }

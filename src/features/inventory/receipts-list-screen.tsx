@@ -6,7 +6,7 @@ import { stores as allStores } from '../../data/seed';
 import { receiptTotals } from '../../domain/inventory';
 import { formatVND } from '../../domain/money';
 import { useT } from '../../i18n';
-import { useIsWide } from './hooks/use-is-wide';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 
 function storeName(storeId: string): string {
   return allStores.find((store) => store.id === storeId)?.name ?? storeId;
@@ -16,14 +16,18 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('vi-VN');
 }
 
+/** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
+const GUTTER = { phone: 'p-4', tablet: 'p-5', desktop: 'p-6' } as const;
+
 export function ReceiptsListScreen() {
   const t = useT();
-  const isWide = useIsWide();
+  const breakpoint = useBreakpoint();
+  const isWide = breakpoint !== 'phone';
   const receipts = useInventoryStore((state) => state.goodsReceipts);
 
   return (
     <ScrollView className="flex-1">
-      <View className="flex-1 gap-4 p-4">
+      <View className={`flex-1 gap-4 ${GUTTER[breakpoint]}`}>
         <View className="flex-row items-center justify-between">
           <Text variant="title">{t('inventory.receipts.title')}</Text>
           <Button onPress={() => router.push('/inventory/receipts/new')}>{t('inventory.receipts.newReceipt')}</Button>
@@ -47,15 +51,15 @@ export function ReceiptsListScreen() {
                 <TableRow key={receipt.id}>
                   <TableCell label={t('inventory.receipts.columns.supplier')}>
                     <Pressable onPress={() => router.push(`/inventory/receipts/${receipt.id}`)}>
-                      <Text>{receipt.supplierName}</Text>
-                      <Text tone="muted">{storeName(receipt.storeId)}</Text>
+                      <Text variant="label" className="font-semibold">{receipt.supplierName}</Text>
+                      <Text variant="caption" tone="muted">{storeName(receipt.storeId)}</Text>
                     </Pressable>
                   </TableCell>
                   <TableCell label={t('inventory.receipts.columns.lines')}>
-                    <Text>{receipt.lines.length}</Text>
+                    <Text variant="label" numeric="tabular" className="w-full text-right">{receipt.lines.length}</Text>
                   </TableCell>
                   <TableCell label={t('inventory.receipts.columns.total')}>
-                    <Text>{formatVND(receiptTotals(receipt.lines).totalCost)}</Text>
+                    <Text variant="label" numeric="tabular" className="w-full text-right font-bold">{formatVND(receiptTotals(receipt.lines).totalCost)}</Text>
                   </TableCell>
                   <TableCell label={t('inventory.receipts.columns.status')}>
                     <Badge variant={receipt.status === 'received' ? 'success' : 'outline'}>
@@ -63,7 +67,7 @@ export function ReceiptsListScreen() {
                     </Badge>
                   </TableCell>
                   <TableCell label={t('inventory.receipts.columns.date')}>
-                    <Text tone="muted">{formatDate(receipt.createdAt)}</Text>
+                    <Text variant="caption" tone="muted" numeric="tabular">{formatDate(receipt.createdAt)}</Text>
                   </TableCell>
                 </TableRow>
               ))}

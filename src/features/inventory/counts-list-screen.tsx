@@ -4,7 +4,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { useInventoryStore } from '../../data/inventory-store';
 import { stores as allStores } from '../../data/seed';
 import { useT } from '../../i18n';
-import { useIsWide } from './hooks/use-is-wide';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 
 function storeName(storeId: string): string {
   return allStores.find((store) => store.id === storeId)?.name ?? storeId;
@@ -14,14 +14,18 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('vi-VN');
 }
 
+/** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
+const GUTTER = { phone: 'p-4', tablet: 'p-5', desktop: 'p-6' } as const;
+
 export function CountsListScreen() {
   const t = useT();
-  const isWide = useIsWide();
+  const breakpoint = useBreakpoint();
+  const isWide = breakpoint !== 'phone';
   const counts = useInventoryStore((state) => state.stockCounts);
 
   return (
     <ScrollView className="flex-1">
-      <View className="flex-1 gap-4 p-4">
+      <View className={`flex-1 gap-4 ${GUTTER[breakpoint]}`}>
         <View className="flex-row items-center justify-between">
           <Text variant="title">{t('inventory.counts.title')}</Text>
           <Button onPress={() => router.push('/inventory/counts/new')}>{t('inventory.counts.newCount')}</Button>
@@ -44,11 +48,11 @@ export function CountsListScreen() {
                 <TableRow key={count.id}>
                   <TableCell label={t('inventory.counts.columns.store')}>
                     <Pressable onPress={() => router.push(`/inventory/counts/${count.id}`)}>
-                      <Text>{storeName(count.storeId)}</Text>
+                      <Text variant="label" className="font-semibold">{storeName(count.storeId)}</Text>
                     </Pressable>
                   </TableCell>
                   <TableCell label={t('inventory.counts.columns.lines')}>
-                    <Text>{count.lines.length}</Text>
+                    <Text variant="label" numeric="tabular" className="w-full text-right">{count.lines.length}</Text>
                   </TableCell>
                   <TableCell label={t('inventory.counts.columns.status')}>
                     <Badge variant={count.status === 'posted' ? 'success' : 'outline'}>
@@ -56,7 +60,7 @@ export function CountsListScreen() {
                     </Badge>
                   </TableCell>
                   <TableCell label={t('inventory.counts.columns.date')}>
-                    <Text tone="muted">{formatDate(count.createdAt)}</Text>
+                    <Text variant="caption" tone="muted" numeric="tabular">{formatDate(count.createdAt)}</Text>
                   </TableCell>
                 </TableRow>
               ))}

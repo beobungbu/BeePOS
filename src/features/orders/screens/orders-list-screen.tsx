@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView } from 'react-native';
-import { EmptyState, Skeleton, Text, VStack } from '@beemvp/beeui-ui';
+import { ScrollView, View } from 'react-native';
+import { EmptyState, Pagination, PaginationItem, Skeleton, Text } from '@beemvp/beeui-ui';
 import { useOrderStore } from '../../../data/order-store';
 import { useCustomerStore } from '../../../data/customer-store';
 import { staff, stores } from '../../../data/seed';
@@ -9,26 +9,29 @@ import type { Order } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import '../../../i18n/orders.vi';
 import '../../../i18n/orders.en';
-import { useIsWide } from '../hooks/use-is-wide';
+import { useBreakpoint, type Breakpoint } from '../../../hooks/use-breakpoint';
 import { OrderFiltersBar, type OrdersFilterValue } from '../components/order-filters-bar';
 import { OrderStatsStrip } from '../components/order-stats-strip';
 import { OrderTable } from '../components/order-table';
 import { OrderListGroup } from '../components/order-list-group';
+import { OrderPreviewPane } from '../components/order-preview-pane';
+import { fill } from '../lib/fill';
+import { pageRange, rangeForPreset } from '../lib/order-presentation';
 
-const PAGE_SIZE = 20;
 const FILTER_LOADING_DELAY_MS = 300;
 
-function defaultDateRange(): { fromDate: string; toDate: string } {
-  const today = new Date();
-  const from = new Date(today);
-  from.setDate(from.getDate() - 6);
-  const toIso = (date: Date) => date.toISOString().slice(0, 10);
-  return { fromDate: toIso(from), toDate: toIso(today) };
+/** Rows that fit the data area at each band; desktop matches the mockup's twelve. */
+function pageSizeFor(breakpoint: Breakpoint): number {
+  if (breakpoint === 'phone') return 20;
+  return breakpoint === 'tablet' ? 10 : 12;
 }
 
 export function OrdersListScreen() {
   const t = useT();
-  const isWide = useIsWide();
+  const breakpoint = useBreakpoint();
+  const isPhone = breakpoint === 'phone';
+  const isDesktop = breakpoint === 'desktop';
+
   const orders = useOrderStore((state) => state.orders);
   const refunds = useOrderStore((state) => state.refunds);
   const customers = useCustomerStore((state) => state.customers);
@@ -38,12 +41,14 @@ export function OrdersListScreen() {
     cashierId: '',
     status: '',
     search: '',
-    ...defaultDateRange(),
+    preset: 'days7',
+    ...rangeForPreset('days7', new Date()),
   }));
   const [sortKey, setSortKey] = useState<OrderSortKey>('time');
   const [sortDirection, setSortDirection] = useState<SortDirection>('descending');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
 
   // Simulated loading on every filter/sort change, to exercise the Skeleton state (there is
   // no real network round-trip in this prototype).
@@ -75,8 +80,16 @@ export function OrdersListScreen() {
   );
   const sorted = useMemo(() => sortOrders(filtered, sortKey, sortDirection), [filtered, sortKey, sortDirection]);
   const stats = useMemo(() => orderStats(filtered, refunds), [filtered, refunds]);
-  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const pageOrders = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const pageSize = pageSizeFor(breakpoint);
+  const pageCount = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pageOrders = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const range = pageRange(currentPage, pageSize, sorted.length);
+
+  // Derived rather than stored, so the pane always mirrors a row that is actually on screen
+  // after a filter, a sort or a page change, with no effect to keep the two in step.
+  const selectedOrder = pageOrders.find((order) => order.id === selectedId) ?? pageOrders[0];
 
   const customerLabel = (order: Order): string => {
     if (!order.customerId) return t('orders.table.noCustomer');
@@ -92,43 +105,105 @@ export function OrdersListScreen() {
     }
   };
 
+  const gutter = isPhone ? 'px-4' : isDesktop ? 'px-6' : 'px-5';
+
+  const header = (
+    <View className={`gap-0.5 bg-surface pb-2 pt-3 ${gutter}`}>
+      <Text className="text-title font-bold text-foreground">{t('orders.title')}</Text>
+      <Text className="text-caption text-muted-foreground">
+        {`${t(`orders.filters.${filters.preset}`)} · ${fill(t('orders.filters.results'), { count: sorted.length })}`}
+      </Text>
+    </View>
+  );
+
+  const filtersBar = (
+    <OrderFiltersBar
+      breakpoint={breakpoint}
+      cashiers={staff}
+      onChange={setFilters}
+      resultCount={sorted.length}
+      stores={stores}
+      value={filters}
+    />
+  );
+
+  const body = loading ? (
+    <View className={`gap-2 py-3 ${gutter}`}>
+      <Skeleton className="h-14 w-full" />
+      <Skeleton className="h-14 w-full" />
+      <Skeleton className="h-14 w-full" />
+    </View>
+  ) : pageOrders.length === 0 ? (
+    <View className={`py-8 ${gutter}`}>
+      <EmptyState description={t('orders.empty.description')} title={t('orders.empty.title')} />
+    </View>
+  ) : isPhone ? (
+    <OrderListGroup customerLabel={customerLabel} orders={pageOrders} showDayHeaders={filters.preset !== 'today'} />
+  ) : (
+    <OrderTable
+      breakpoint={breakpoint}
+      cashiers={staff}
+      customerLabel={customerLabel}
+      onSelectOrder={isDesktop ? (order) => setSelectedId(order.id) : undefined}
+      onSortChange={handleSortChange}
+      orders={pageOrders}
+      selectedOrderId={isDesktop ? selectedOrder?.id : undefined}
+      sortDirection={sortDirection}
+      sortKey={sortKey}
+    />
+  );
+
+  const footer =
+    sorted.length === 0 ? null : (
+      <View className={`flex-row flex-wrap items-center justify-between gap-3 border-t border-border bg-surface py-3 ${gutter}`}>
+        <Text className="text-label text-muted-foreground" numeric="tabular">
+          {fill(t('orders.pagination.showing'), { from: range.from, to: range.to, total: sorted.length })}
+        </Text>
+        {pageCount > 1 ? (
+          <Pagination onPageChange={setPage} page={currentPage} pageCount={pageCount}>
+            <PaginationItem type="previous" />
+            {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
+              <PaginationItem key={pageNumber} page={pageNumber} />
+            ))}
+            <PaginationItem type="next" />
+          </Pagination>
+        ) : null}
+      </View>
+    );
+
+  if (isPhone) {
+    return (
+      <ScrollView className="flex-1 bg-background" contentContainerClassName="pb-4">
+        {header}
+        {filtersBar}
+        <OrderStatsStrip breakpoint={breakpoint} stats={stats} />
+        <View className="pt-3">{body}</View>
+        {footer}
+      </ScrollView>
+    );
+  }
+
   return (
-    <ScrollView className="flex-1" contentContainerClassName="gap-4 p-4">
-      <Text variant="heading">{t('orders.title')}</Text>
-      <OrderFiltersBar cashiers={staff} onChange={setFilters} stores={stores} value={filters} />
-      <OrderStatsStrip stats={stats} />
-      {loading ? (
-        <VStack className="gap-2">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </VStack>
-      ) : pageOrders.length === 0 ? (
-        <EmptyState description={t('orders.empty.description')} title={t('orders.empty.title')} />
-      ) : isWide ? (
-        <OrderTable
-          cashiers={staff}
-          customerLabel={customerLabel}
-          onPageChange={setPage}
-          onSortChange={handleSortChange}
-          orders={pageOrders}
-          page={page}
-          pageCount={pageCount}
-          sortDirection={sortDirection}
-          sortKey={sortKey}
-          stores={stores}
-        />
-      ) : (
-        <OrderListGroup
-          cashiers={staff}
-          customerLabel={customerLabel}
-          onPageChange={setPage}
-          orders={pageOrders}
-          page={page}
-          pageCount={pageCount}
-          stores={stores}
-        />
-      )}
-    </ScrollView>
+    <View className="flex-1 bg-background">
+      {header}
+      {filtersBar}
+      <View className={`py-3 ${gutter}`}>
+        <OrderStatsStrip breakpoint={breakpoint} stats={stats} />
+      </View>
+      <View className="min-h-0 flex-1 flex-row">
+        <ScrollView className="min-w-0 flex-1" contentContainerClassName="pb-2">
+          {body}
+        </ScrollView>
+        {isDesktop ? (
+          <OrderPreviewPane
+            cashier={staff.find((member) => member.id === selectedOrder?.cashierId)}
+            customer={customers.find((customer) => customer.id === selectedOrder?.customerId)}
+            order={selectedOrder}
+            staffName={selectedOrder?.cashierId ?? ''}
+          />
+        ) : null}
+      </View>
+      {footer}
+    </View>
   );
 }

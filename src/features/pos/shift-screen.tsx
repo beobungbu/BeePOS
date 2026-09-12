@@ -14,9 +14,6 @@ import {
   ButtonLabel,
   Field,
   Input,
-  Stat,
-  StatLabel,
-  StatValue,
   Table,
   TableBody,
   TableCell,
@@ -32,10 +29,17 @@ import { useT } from '../../i18n';
 import { useOrderStore } from '../../data/order-store';
 import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift, useShiftHistory, useShiftStore } from '../../data/shift-store';
+import { SecondaryButtonLabel } from './components/secondary-button-label';
+import { PosSubHeader } from './components/pos-sub-header';
+import { usePosLayout } from './hooks/use-pos-layout';
+
+/** Placeholder for a value a shift does not have yet; never an em dash, per the copy rules. */
+const NO_VALUE = '-';
 
 export default function ShiftScreen() {
   const t = useT();
   const toast = useToast();
+  const layout = usePosLayout();
   const store = useSessionStore((state) => state.store);
   const orders = useOrderStore((state) => state.orders);
   const currentShift = useCurrentShift();
@@ -47,6 +51,7 @@ export default function ShiftScreen() {
   const [countedCashText, setCountedCashText] = useState('');
 
   const summary = currentShift ? shiftSummary(currentShift, orders) : undefined;
+  const isTable = layout.breakpoint !== 'phone';
 
   function handleOpenShift() {
     const openingCash = Number.parseFloat(openingCashText) || 0;
@@ -64,96 +69,150 @@ export default function ShiftScreen() {
   }
 
   return (
-    <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 16 }}>
-      <Text className="text-xl font-semibold text-foreground">{t('pos.shift.title')}</Text>
+    <View className="flex-1">
+      <PosSubHeader
+        title={t('pos.shift.title')}
+        subtitle={currentShift ? t('pos.shift.statusOpen') : t('pos.shift.noOpenShift')}
+      />
 
-      {currentShift && summary ? (
-        <>
-          <View className="flex-row flex-wrap gap-3">
-            <Stat className="flex-1 min-w-[140px]">
-              <StatLabel>{t('pos.shift.orders')}</StatLabel>
-              <StatValue>{summary.orderCount}</StatValue>
-            </Stat>
-            <Stat className="flex-1 min-w-[140px]">
-              <StatLabel>{t('pos.shift.revenue')}</StatLabel>
-              <StatValue>{formatVND(summary.revenue)}</StatValue>
-            </Stat>
-            <Stat className="flex-1 min-w-[140px]">
-              <StatLabel>{t('pos.shift.expectedCash')}</StatLabel>
-              <StatValue>{formatVND(summary.expectedCash)}</StatValue>
-            </Stat>
-          </View>
+      <ScrollView
+        className="flex-1 bg-surface-muted"
+        contentContainerStyle={{ padding: layout.gutter, gap: 16 }}
+      >
+        {currentShift && summary ? (
+          <>
+            <View className="flex-row flex-wrap gap-3">
+              <ShiftStat label={t('pos.shift.orders')} value={String(summary.orderCount)} />
+              <ShiftStat label={t('pos.shift.revenue')} value={formatVND(summary.revenue)} />
+              <ShiftStat label={t('pos.shift.expectedCash')} value={formatVND(summary.expectedCash)} />
+            </View>
 
-          <View className="gap-3 rounded-lg border border-border p-4">
-            <Text className="text-sm font-medium text-foreground">{t('pos.shift.closeTitle')}</Text>
-            <Field label={t('pos.shift.countedCash')}>
-              <Input value={countedCashText} onChangeText={setCountedCashText} keyboardType="numeric" placeholder="0" />
+            <View className="w-full max-w-[480px] gap-4 rounded-lg border border-border bg-surface p-4">
+              <Text className="text-heading font-semibold text-foreground">{t('pos.shift.closeTitle')}</Text>
+              <Field label={t('pos.shift.countedCash')}>
+                <Input
+                  value={countedCashText}
+                  onChangeText={setCountedCashText}
+                  keyboardType="numeric"
+                  placeholder="0"
+                  className="text-right tabular-nums"
+                />
+              </Field>
+              <AlertDialog>
+                <AlertDialogTrigger className="min-h-[52px]">
+                  <ButtonLabel>{t('pos.shift.closeAction')}</ButtonLabel>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogTitle>{t('pos.shift.closeConfirmTitle')}</AlertDialogTitle>
+                  <AlertDialogDescription>{t('pos.shift.closeConfirmDescription')}</AlertDialogDescription>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>
+                      <SecondaryButtonLabel>{t('common.actions.cancel')}</SecondaryButtonLabel>
+                    </AlertDialogCancel>
+                    <AlertDialogAction onPress={handleCloseShift}>
+                      <ButtonLabel>{t('pos.shift.closeAction')}</ButtonLabel>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </View>
+          </>
+        ) : (
+          <View className="w-full max-w-[480px] gap-4 rounded-lg border border-border bg-surface p-4">
+            <Text className="text-heading font-semibold text-foreground">{t('pos.shift.openTitle')}</Text>
+            <Text className="text-label text-muted-foreground">{t('pos.shift.noOpenShift')}</Text>
+            <Field label={t('pos.shift.openingCash')}>
+              <Input
+                value={openingCashText}
+                onChangeText={setOpeningCashText}
+                keyboardType="numeric"
+                placeholder="0"
+                className="text-right tabular-nums"
+              />
             </Field>
-            <AlertDialog>
-              <AlertDialogTrigger>
-                <ButtonLabel>{t('pos.shift.closeAction')}</ButtonLabel>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogTitle>{t('pos.shift.closeConfirmTitle')}</AlertDialogTitle>
-                <AlertDialogDescription>{t('pos.shift.closeConfirmDescription')}</AlertDialogDescription>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>
-                    <ButtonLabel>{t('common.actions.cancel')}</ButtonLabel>
-                  </AlertDialogCancel>
-                  <AlertDialogAction onPress={handleCloseShift}>
-                    <ButtonLabel>{t('pos.shift.closeAction')}</ButtonLabel>
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Button className="min-h-[52px]" onPress={handleOpenShift}>
+              <ButtonLabel>{t('pos.shift.openAction')}</ButtonLabel>
+            </Button>
           </View>
-        </>
-      ) : (
-        <View className="gap-3 rounded-lg border border-border p-4">
-          <Text className="text-sm text-muted-foreground">{t('pos.shift.noOpenShift')}</Text>
-          <Field label={t('pos.shift.openingCash')}>
-            <Input value={openingCashText} onChangeText={setOpeningCashText} keyboardType="numeric" placeholder="0" />
-          </Field>
-          <Button onPress={handleOpenShift}>
-            <ButtonLabel>{t('pos.shift.openAction')}</ButtonLabel>
-          </Button>
-        </View>
-      )}
+        )}
 
-      <View className="gap-2">
-        <Text className="text-sm font-medium text-foreground">{t('pos.shift.history')}</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('pos.shift.openedAt')}</TableHead>
-                <TableHead>{t('pos.shift.closedAt')}</TableHead>
-                <TableHead>{t('pos.shift.revenue')}</TableHead>
-                <TableHead>{t('pos.shift.variance')}</TableHead>
-                <TableHead>{t('pos.shift.status')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {history.map((shift) => {
-                const shiftStat = shiftSummary(shift, orders);
-                return (
-                  <TableRow key={shift.id}>
-                    <TableCell>{new Date(shift.openedAt).toLocaleString('vi-VN')}</TableCell>
-                    <TableCell>{shift.closedAt ? new Date(shift.closedAt).toLocaleString('vi-VN') : '—'}</TableCell>
-                    <TableCell>{formatVND(shiftStat.revenue)}</TableCell>
-                    <TableCell>{shiftStat.variance != null ? formatVND(shiftStat.variance) : '—'}</TableCell>
-                    <TableCell>
-                      <Badge variant={shift.closedAt ? 'secondary' : 'success'}>
-                        {shift.closedAt ? t('pos.shift.statusClosed') : t('pos.shift.statusOpen')}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </ScrollView>
-      </View>
-    </ScrollView>
+        <Text className="text-heading font-semibold text-foreground">{t('pos.shift.history')}</Text>
+
+        {isTable ? (
+          <View className="overflow-hidden rounded-lg border border-border bg-surface">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('pos.shift.openedAt')}</TableHead>
+                  <TableHead>{t('pos.shift.closedAt')}</TableHead>
+                  <TableHead>{t('pos.shift.revenue')}</TableHead>
+                  <TableHead>{t('pos.shift.variance')}</TableHead>
+                  <TableHead>{t('pos.shift.status')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {history.map((shift) => {
+                  const shiftStat = shiftSummary(shift, orders);
+                  return (
+                    <TableRow key={shift.id}>
+                      <TableCell>{new Date(shift.openedAt).toLocaleString('vi-VN')}</TableCell>
+                      <TableCell>
+                        {shift.closedAt ? new Date(shift.closedAt).toLocaleString('vi-VN') : NO_VALUE}
+                      </TableCell>
+                      <TableCell>{formatVND(shiftStat.revenue)}</TableCell>
+                      <TableCell>
+                        {shiftStat.variance != null ? formatVND(shiftStat.variance) : NO_VALUE}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={shift.closedAt ? 'secondary' : 'success'}>
+                          {shift.closedAt ? t('pos.shift.statusClosed') : t('pos.shift.statusOpen')}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </View>
+        ) : (
+          <View className="overflow-hidden rounded-lg border border-border bg-surface">
+            {history.map((shift) => {
+              const shiftStat = shiftSummary(shift, orders);
+              return (
+                <View key={shift.id} className="gap-1 border-b border-border p-3">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-label font-semibold text-foreground">
+                      {new Date(shift.openedAt).toLocaleString('vi-VN')}
+                    </Text>
+                    <Text className="text-label font-bold tabular-nums text-foreground">
+                      {formatVND(shiftStat.revenue)}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-caption text-muted-foreground">
+                      {`${t('pos.shift.variance')}: ${
+                        shiftStat.variance != null ? formatVND(shiftStat.variance) : NO_VALUE
+                      }`}
+                    </Text>
+                    <Badge variant={shift.closedAt ? 'secondary' : 'success'}>
+                      {shift.closedAt ? t('pos.shift.statusClosed') : t('pos.shift.statusOpen')}
+                    </Badge>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+
+function ShiftStat({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="min-w-[140px] flex-1 gap-1 rounded-lg border border-border bg-surface p-4">
+      <Text className="text-caption text-muted-foreground">{label}</Text>
+      <Text className="text-title font-bold tabular-nums text-foreground">{value}</Text>
+    </View>
   );
 }

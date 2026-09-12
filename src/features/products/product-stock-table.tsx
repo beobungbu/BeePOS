@@ -6,10 +6,12 @@ import { useT } from '../../i18n';
 
 interface ProductStockTableProps {
   productId: string;
+  /** `stacked` below 768, where a horizontally scrolling table is never allowed. */
+  layout?: 'scroll' | 'stacked';
 }
 
 /** Read-only per-store stock table; `minLevel` is the only editable column (threshold policy, not a count). */
-export function ProductStockTable({ productId }: ProductStockTableProps) {
+export function ProductStockTable({ productId, layout = 'scroll' }: ProductStockTableProps) {
   const t = useT();
   const stockLevels = useInventoryStore((state) => state.stockLevels);
   const setMinLevel = useInventoryStore((state) => state.setMinLevel);
@@ -19,7 +21,7 @@ export function ProductStockTable({ productId }: ProductStockTableProps) {
   }));
 
   return (
-    <Table layout="scroll">
+    <Table layout={layout}>
       <TableHeader>
         <TableRow>
           <TableHead label={t('products.form.stockColumns.store')}>{t('products.form.stockColumns.store')}</TableHead>
@@ -36,13 +38,13 @@ export function ProductStockTable({ productId }: ProductStockTableProps) {
               <Text>{store.name}</Text>
             </TableCell>
             <TableCell label={t('products.form.stockColumns.onHand')}>
-              <Text>{level?.onHand ?? 0}</Text>
+              <Text numeric="tabular" className="w-full text-right">{level?.onHand ?? 0}</Text>
             </TableCell>
             <TableCell label={t('products.form.stockColumns.reserved')}>
-              <Text>{level?.reserved ?? 0}</Text>
+              <Text numeric="tabular" tone="muted" className="w-full text-right">{level?.reserved ?? 0}</Text>
             </TableCell>
             <TableCell label={t('products.form.stockColumns.available')}>
-              <Text>{level ? availableQty(level) : 0}</Text>
+              <Text numeric="tabular" className="w-full text-right font-semibold">{level ? availableQty(level) : 0}</Text>
             </TableCell>
             <TableCell label={t('products.form.stockColumns.minLevel')}>
               <Input

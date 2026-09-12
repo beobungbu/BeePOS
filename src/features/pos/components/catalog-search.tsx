@@ -1,0 +1,69 @@
+import { useEffect } from 'react';
+import { Platform, View } from 'react-native';
+import { SearchInput, Text } from '@beemvp/beeui-ui';
+import { AppIcon } from '../../../components/icons';
+import { useT } from '../../../i18n';
+
+interface CatalogSearchProps {
+  value: string;
+  onChangeText: (value: string) => void;
+  onSubmit: (value: string) => void;
+  /** Under 400 pt the long placeholder wraps, so the short one is used instead. */
+  short: boolean;
+  /** Desktop shows the F3 key hint and binds the key. */
+  showKeyHint: boolean;
+}
+
+/** Web only: F3 puts the caret in the catalog search field, per the direction doc. */
+function focusSearchField(placeholder: string): void {
+  if (Platform.OS !== 'web') return;
+  const field = document.querySelector<HTMLInputElement>(`input[placeholder="${placeholder}"]`);
+  field?.focus();
+}
+
+/**
+ * Catalog search: 44 pt field with the barcode control on the trailing edge, sticky at the
+ * top of the catalog. Scanning is the same path as typing, a scanner is a keyboard that ends
+ * its input with Enter, so the barcode button exists for the accessible name and for the
+ * hardware camera a later phase adds.
+ */
+export function CatalogSearch({ value, onChangeText, onSubmit, short, showKeyHint }: CatalogSearchProps) {
+  const t = useT();
+  const placeholder = short ? t('pos.searchPlaceholderShort') : t('pos.searchPlaceholder');
+
+  useEffect(() => {
+    if (!showKeyHint || Platform.OS !== 'web') return undefined;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.code !== 'F3') return;
+      event.preventDefault();
+      focusSearchField(placeholder);
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [placeholder, showKeyHint]);
+
+  return (
+    <View className="h-11 flex-row items-center gap-2 rounded-md border border-control-border bg-surface pr-1">
+      <SearchInput
+        value={value}
+        onChangeText={onChangeText}
+        onSearch={onSubmit}
+        placeholder={placeholder}
+        className="flex-1 border-0 bg-transparent"
+      />
+      {showKeyHint ? (
+        <View className="rounded-sm border border-border px-1.5 py-0.5">
+          <Text className="text-caption text-subtle-foreground">F3</Text>
+        </View>
+      ) : null}
+      {/*
+        Decorative, not a button: this prototype has no camera, and a control that does
+        nothing when pressed is a lie about the product. The glyph says the field accepts a
+        scanner, which it does, a scanner types the digits and sends Enter.
+      */}
+      <View className="h-10 w-10 items-center justify-center">
+        <AppIcon name="scan-barcode" tone="muted-foreground" />
+      </View>
+    </View>
+  );
+}

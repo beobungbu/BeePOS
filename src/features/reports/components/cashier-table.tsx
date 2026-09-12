@@ -20,18 +20,26 @@ export function CashierTable({ rows, layout }: CashierTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>{t('reports.table.cashier')}</TableHead>
-              <TableHead>{t('reports.table.orders')}</TableHead>
-              <TableHead>{t('reports.table.revenue')}</TableHead>
-              <TableHead>{t('reports.table.avg')}</TableHead>
+              <TableHead className="items-end text-right">{t('reports.table.orders')}</TableHead>
+              <TableHead className="items-end text-right">{t('reports.table.revenue')}</TableHead>
+              <TableHead className="items-end text-right">{t('reports.table.avg')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map((row) => (
               <TableRow key={row.cashierId}>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{String(row.orders)}</TableCell>
-                <TableCell>{formatVND(row.revenue)}</TableCell>
-                <TableCell>{formatVND(row.averageBasket)}</TableCell>
+                <TableCell>
+                  <Text variant="label" className="font-semibold">{row.name}</Text>
+                </TableCell>
+                <TableCell className="items-end text-right">
+                  <Text variant="label" numeric="tabular">{String(row.orders)}</Text>
+                </TableCell>
+                <TableCell className="items-end text-right">
+                  <Text variant="label" numeric="tabular" className="font-bold">{formatVND(row.revenue)}</Text>
+                </TableCell>
+                <TableCell className="items-end text-right">
+                  <Text variant="label" tone="muted" numeric="tabular">{formatVND(row.averageBasket)}</Text>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

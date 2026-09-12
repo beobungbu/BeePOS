@@ -20,6 +20,14 @@ export function totalStock(productId: string, stockLevels: readonly StockLevel[]
   );
 }
 
+/** Sum of the per-store reorder thresholds, the comparison point for the total on hand. */
+export function totalMinLevel(productId: string, stockLevels: readonly StockLevel[]): number {
+  return stockLevels.reduce(
+    (total, level) => (level.productId === productId ? total + level.minLevel : total),
+    0,
+  );
+}
+
 function normalize(value: string): string {
   return value.trim().toLowerCase();
 }

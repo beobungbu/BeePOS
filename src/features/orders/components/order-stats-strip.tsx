@@ -1,24 +1,69 @@
-import { HStack, Stat, StatLabel, StatValue } from '@beemvp/beeui-ui';
+import { View } from 'react-native';
+import { Stat, StatLabel, StatValue, Text } from '@beemvp/beeui-ui';
 import type { OrderStats } from '../../../domain/orders';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
+import type { Breakpoint } from '../../../hooks/use-breakpoint';
+import { averageOrderValue } from '../lib/order-presentation';
 
-export function OrderStatsStrip({ stats }: { stats: OrderStats }) {
+/**
+ * The mockup's stat row: three compact figures in one strip on phone, four Stat cards from
+ * tablet up (`docs/design/mockups/orders.html`). Money is tabular so the columns line up
+ * with the table underneath.
+ */
+export function OrderStatsStrip({ stats, breakpoint }: { stats: OrderStats; breakpoint: Breakpoint }) {
   const t = useT();
+  const average = formatVND(averageOrderValue(stats));
+
+  if (breakpoint === 'phone') {
+    return (
+      <View className="flex-row gap-2 border-b border-border bg-surface px-4 py-3">
+        <CompactStat label={t('orders.stats.ordersShort')} value={String(stats.orderCount)} />
+        <CompactStat label={t('orders.stats.revenue')} value={formatVND(stats.revenue)} />
+        <CompactStat label={t('orders.stats.averageShort')} value={average} />
+      </View>
+    );
+  }
+
+  // Four cards fit one row at desktop; at tablet they wrap to 2 x 2 rather than clipping a
+  // revenue figure that needs the full width of its card.
+  // Class names are whole literals so the Uniwind extractor can see them in the source.
+  const cardClass =
+    breakpoint === 'tablet'
+      ? 'min-w-64 flex-1 rounded-lg border border-border bg-surface p-3.5'
+      : 'min-w-32 flex-1 rounded-lg border border-border bg-surface p-3.5';
+
   return (
-    <HStack className="flex-wrap gap-3">
-      <Stat className="min-w-40 flex-1">
+    <View className="flex-row flex-wrap gap-3">
+      <Stat className={cardClass}>
         <StatLabel>{t('orders.stats.orders')}</StatLabel>
-        <StatValue>{stats.orderCount}</StatValue>
+        <StatValue className="text-heading font-bold" numberOfLines={1} numeric="tabular">{stats.orderCount}</StatValue>
       </Stat>
-      <Stat className="min-w-40 flex-1">
+      <Stat className={cardClass}>
         <StatLabel>{t('orders.stats.revenue')}</StatLabel>
-        <StatValue>{formatVND(stats.revenue)}</StatValue>
+        <StatValue className="text-heading font-bold" numberOfLines={1} numeric="tabular">{formatVND(stats.revenue)}</StatValue>
       </Stat>
-      <Stat className="min-w-40 flex-1">
-        <StatLabel>{t('orders.stats.refunds')}</StatLabel>
-        <StatValue>{formatVND(stats.refundAmount)}</StatValue>
+      <Stat className={cardClass}>
+        <StatLabel>{t('orders.stats.average')}</StatLabel>
+        <StatValue className="text-heading font-bold" numberOfLines={1} numeric="tabular">{average}</StatValue>
       </Stat>
-    </HStack>
+      <Stat className={cardClass}>
+        <StatLabel>{t('orders.stats.refundCount')}</StatLabel>
+        <StatValue className="text-heading font-bold" numberOfLines={1} numeric="tabular">{stats.refundCount}</StatValue>
+      </Stat>
+    </View>
+  );
+}
+
+function CompactStat({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="min-w-0 flex-1 gap-0.5">
+      <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+        {label}
+      </Text>
+      <Text className="text-body font-bold text-foreground" numberOfLines={1} numeric="tabular">
+        {value}
+      </Text>
+    </View>
   );
 }

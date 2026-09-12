@@ -20,16 +20,22 @@ export function TopProductsTable({ rows, layout }: TopProductsTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>{t('reports.table.product')}</TableHead>
-              <TableHead>{t('reports.table.qty')}</TableHead>
-              <TableHead>{t('reports.table.revenue')}</TableHead>
+              <TableHead className="items-end text-right">{t('reports.table.qty')}</TableHead>
+              <TableHead className="items-end text-right">{t('reports.table.revenue')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map((row) => (
               <TableRow key={row.productId}>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{String(row.qty)}</TableCell>
-                <TableCell>{formatVND(row.revenue)}</TableCell>
+                <TableCell>
+                  <Text variant="label" className="font-semibold" numberOfLines={2}>{row.name}</Text>
+                </TableCell>
+                <TableCell className="items-end text-right">
+                  <Text variant="label" numeric="tabular">{String(row.qty)}</Text>
+                </TableCell>
+                <TableCell className="items-end text-right">
+                  <Text variant="label" numeric="tabular" className="font-bold">{formatVND(row.revenue)}</Text>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

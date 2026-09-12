@@ -1,4 +1,4 @@
-import { Box, HStack, Section, Text, VStack } from '@beemvp/beeui-ui';
+import { Box, HStack, Section, Text, useBeeToken, VStack } from '@beemvp/beeui-ui';
 import { useT } from '../../../i18n';
 import { formatVND } from '../../../domain/money';
 import type { DayRevenue } from '../../../domain/reports';
@@ -14,9 +14,14 @@ interface RevenueBarChartProps {
   days: DayRevenue[];
 }
 
-/** Plain-View bar chart (no chart library): each bar's height is proportional to the max. */
+/**
+ * Plain-View bar chart (no chart library): each bar's height is proportional to the max.
+ * Bars take the chart series token, not `bg-primary`: primary is reserved for the one
+ * action per screen (direction doc section 2).
+ */
 export function RevenueBarChart({ days }: RevenueBarChartProps) {
   const t = useT();
+  const barColor = String(useBeeToken('chart.series-1'));
   const maxRevenue = Math.max(1, ...days.map((day) => day.revenue));
 
   return (
@@ -41,9 +46,9 @@ export function RevenueBarChart({ days }: RevenueBarChartProps) {
                   className="w-full justify-end"
                   style={{ height: CHART_HEIGHT }}
                 >
-                  <Box className="w-full rounded-t bg-primary" style={{ height: barHeight }} />
+                  <Box className="w-full rounded-t" style={{ height: barHeight, backgroundColor: barColor }} />
                 </Box>
-                <Text variant="caption" tone="muted">
+                <Text variant="caption" tone="muted" numeric="tabular">
                   {formatDayLabel(day.date)}
                 </Text>
               </VStack>

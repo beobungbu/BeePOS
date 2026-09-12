@@ -1,14 +1,13 @@
 /** Integer VND money helpers. All amounts are whole dong, no decimals. */
 
-const VND_FORMATTER = new Intl.NumberFormat('vi-VN', {
-  style: 'currency',
-  currency: 'VND',
-  maximumFractionDigits: 0,
-});
+const VND_FORMATTER = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 });
 
-/** Formats an integer VND amount using vi-VN currency conventions. */
+/**
+ * Formats an integer VND amount as `9.000 đ`: vi-VN grouping, a space, then the letter đ.
+ * Vietnamese retail copy writes the unit as the letter, not the dong sign (U+20AB).
+ */
 export function formatVND(amount: number): string {
-  return VND_FORMATTER.format(roundVND(amount));
+  return `${VND_FORMATTER.format(roundVND(amount))} đ`;
 }
 
 /** Rounds any numeric amount to the nearest whole dong (VND has no subunit). */

@@ -4,12 +4,17 @@ import { useRouter } from 'expo-router';
 import {
   Button,
   ButtonLabel,
-  SegmentedControl,
-  SegmentedControlItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Text,
   useToast,
 } from '@beemvp/beeui-ui';
-import { calcCart, nextOrderCode, type PricedCartLine } from '../../domain/pos';
+import { AppIcon } from '../../components/icons';
+import { nextOrderCode, pointsEarned } from '../../domain/pos';
 import { formatVND, roundVND, sum } from '../../domain/money';
 import type { Order, Payment, PaymentMethod } from '../../domain/types';
 import { useT } from '../../i18n';
@@ -20,26 +25,27 @@ import { useOrderStore } from '../../data/order-store';
 import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift } from '../../data/shift-store';
 import { submitOrder } from './adapters';
+import { OrderTotalsPanel } from './components/order-totals-panel';
+import { PaymentMethodCards } from './components/payment-method-cards';
 import { PaymentMethodPanel } from './components/payment-method-panel';
+import { PosSubHeader } from './components/pos-sub-header';
 import { SplitPaymentList } from './components/split-payment-list';
-
-const METHODS: PaymentMethod[] = ['cash', 'transfer', 'card', 'points'];
-const METHOD_LABEL_KEY: Record<PaymentMethod, string> = {
-  cash: 'pos.checkout.methodCash',
-  transfer: 'pos.checkout.methodTransfer',
-  card: 'pos.checkout.methodCard',
-  points: 'pos.checkout.methodPoints',
-};
+import { usePosLayout } from './hooks/use-pos-layout';
+import { cartLineCount, cartTotalsOf, cartUnitCount } from './lib/cart-totals';
+import { countLabel, openOrdersLabel, orderLabel } from './lib/order-label';
+import { draftPayment } from './lib/payment-draft';
 
 export default function CheckoutScreen() {
   const t = useT();
   const router = useRouter();
   const toast = useToast();
+  const layout = usePosLayout();
 
   const store = useSessionStore((state) => state.store);
   const staff = useSessionStore((state) => state.staff);
   const currentShift = useCurrentShift();
   const cart = useActiveCart();
+  const carts = useCartStore((state) => state.carts);
   const closeCart = useCartStore((state) => state.closeCart);
   const products = useCatalogStore((state) => state.products);
   const customers = useCustomerStore((state) => state.customers);
@@ -47,29 +53,39 @@ export default function CheckoutScreen() {
 
   const [method, setMethod] = useState<PaymentMethod>('cash');
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [amountText, setAmountText] = useState('');
+  const [refText, setRefText] = useState('');
+  const [pointsText, setPointsText] = useState('');
 
-  const customer = customers.find((c) => c.id === cart.customerId);
-
-  const pricedLines: PricedCartLine[] = cart.lines.map((line) => ({
-    ...line,
-    taxRate: products.find((product) => product.id === line.productId)?.taxRate ?? 0,
-  }));
-  const totals = calcCart(pricedLines, cart.discount);
+  const customer = customers.find((item) => item.id === cart.customerId);
+  const totals = cartTotalsOf(cart, products);
   const paidSoFar = sum(payments.map((payment) => payment.amount));
   const remaining = Math.max(0, roundVND(totals.total - paidSoFar));
-  const canConfirm = cart.lines.length > 0 && payments.length > 0 && remaining === 0;
 
-  function handleAddPayment(payment: Payment) {
-    if (payment.amount <= 0) return;
-    setPayments((prev) => [...prev, payment]);
+  const draft = draftPayment({
+    method,
+    remaining,
+    amountText,
+    refText,
+    pointsText,
+    customerPoints: customer?.points,
+  });
+
+  const isDesktop = layout.breakpoint === 'desktop';
+  const otherOpenOrders = carts.length - 1;
+  const canFinish = remaining === 0 || (draft.payment !== undefined && draft.settlesBalance);
+  const canAct = canFinish || draft.payment !== undefined;
+
+  /** Switching method clears the fields of the previous one instead of carrying them over. */
+  function chooseMethod(next: PaymentMethod) {
+    setMethod(next);
+    setAmountText('');
+    setRefText('');
+    setPointsText('');
   }
 
-  function handleRemovePayment(index: number) {
-    setPayments((prev) => prev.filter((_, i) => i !== index));
-  }
-
-  function handleConfirm() {
-    if (!store || !staff || !canConfirm) return;
+  function completeOrder(finalPayments: Payment[]) {
+    if (!store || !staff || finalPayments.length === 0) return;
 
     const existingCodes = orders.filter((order) => order.storeId === store.id).map((order) => order.code);
     const order: Order = {
@@ -83,73 +99,250 @@ export default function CheckoutScreen() {
       discountTotal: totals.discountTotal,
       taxTotal: totals.taxTotal,
       total: totals.total,
-      payments,
+      payments: finalPayments,
       status: 'paid',
       createdAt: new Date().toISOString(),
     };
 
     submitOrder(order, { shiftId: currentShift?.id });
-    // Paying an order retires it: the cashier lands back on the next open order, or on a
-    // fresh empty one when this was the last.
+    // Paying retires the order: the cashier lands on the next open one, or on a fresh empty
+    // order when this was the last.
     closeCart(cart.id);
     toast.show({ title: t('pos.checkout.successToast'), variant: 'success' });
     router.replace(`/pos/receipt/${order.id}`);
   }
 
+  function handlePrimaryPress() {
+    if (remaining === 0) {
+      completeOrder(payments);
+      return;
+    }
+    if (!draft.payment) return;
+    if (draft.settlesBalance) {
+      completeOrder([...payments, draft.payment]);
+      return;
+    }
+    setPayments((previous) => [...previous, draft.payment as Payment]);
+    setAmountText('');
+    setRefText('');
+    setPointsText('');
+  }
+
   if (cart.lines.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-sm text-muted-foreground">{t('pos.checkout.emptyCartError')}</Text>
+      <View className="flex-1">
+        <PosSubHeader title={t('pos.checkout.title')} />
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="text-body text-muted-foreground">{t('pos.checkout.emptyCartError')}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const header = (
+    <PosSubHeader
+      title={t('pos.checkout.title')}
+      subtitle={`${countLabel(t, cartLineCount(cart), 'pos.cart.lineItems')} · ${countLabel(
+        t,
+        cartUnitCount(cart),
+        'pos.cart.items',
+      )}`}
+      trailing={
+        <View className="flex-row items-center gap-2">
+          <View className="rounded-sm bg-muted px-2 py-1">
+            <Text className="text-caption font-semibold text-foreground">
+              {orderLabel(t, cart.ordinal)}
+            </Text>
+          </View>
+          {/* At 375 pt a second badge squeezes the title to "Thanh ..."; the same fact is on
+              the caption under the primary button on every width. */}
+          {otherOpenOrders > 0 && layout.breakpoint !== 'phone' ? (
+            <View className="rounded-sm bg-muted px-2 py-1">
+              <Text className="text-caption text-muted-foreground">
+                {openOrdersLabel(t, otherOpenOrders)}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+      }
+    />
+  );
+
+  const paymentColumn = (
+    <>
+      <OrderTotalsPanel totals={totals} collapsible={layout.breakpoint === 'phone'} />
+      <View className="gap-2">
+        <Text className="text-label font-semibold text-foreground">{t('pos.checkout.method')}</Text>
+        <PaymentMethodCards value={method} onChange={chooseMethod} compact={layout.breakpoint === 'phone'} />
+      </View>
+      <PaymentMethodPanel
+        method={method}
+        remaining={remaining}
+        customer={customer}
+        draft={draft}
+        amountText={amountText}
+        onAmountChange={setAmountText}
+        refText={refText}
+        onRefChange={setRefText}
+        pointsText={pointsText}
+        onPointsChange={setPointsText}
+        storeName={store?.name}
+      />
+      <SplitPaymentList
+        payments={payments}
+        remaining={remaining}
+        onRemove={(index) => setPayments((previous) => previous.filter((_, i) => i !== index))}
+      />
+      {isDesktop ? (
+        <View className="gap-1 rounded-md bg-surface-muted p-3">
+          <MetaRow label={t('pos.checkout.shiftLine')} value={currentShift ? t('pos.shift.statusOpen') : t('pos.checkout.noShift')} />
+          <MetaRow label={t('pos.checkout.cashier')} value={staff?.name ?? ''} />
+          {customer ? (
+            <MetaRow
+              label={t('pos.checkout.pointsEarned')}
+              value={`${pointsEarned(totals.total)} ${t('pos.checkout.pointsUnit')}`}
+            />
+          ) : null}
+        </View>
+      ) : null}
+    </>
+  );
+
+  const primaryAction = (
+    <View className="gap-1.5">
+      <Button className="min-h-[52px]" disabled={!canAct} onPress={handlePrimaryPress}>
+        <ButtonLabel>
+          {canFinish
+            ? `${t('pos.checkout.finish')} · ${formatVND(totals.total)}`
+            : `${t('pos.checkout.addPayment')} · ${formatVND(draft.payment?.amount ?? remaining)}`}
+        </ButtonLabel>
+      </Button>
+      {otherOpenOrders > 0 ? (
+        <Text className="text-center text-caption text-subtle-foreground">
+          {`${t('pos.checkout.nextOrderHint')} ${orderLabel(
+            t,
+            carts.find((item) => item.id !== cart.id)?.ordinal ?? cart.ordinal,
+          )}`}
+        </Text>
+      ) : null}
+    </View>
+  );
+
+  if (isDesktop) {
+    return (
+      <View className="flex-1">
+        {header}
+        <View className="min-h-0 flex-1 flex-row">
+          <ScrollView className="flex-1 bg-surface-muted" contentContainerStyle={{ padding: 24, gap: 16 }}>
+            <Text className="text-heading font-semibold text-foreground">{t('pos.checkout.review')}</Text>
+            <View className="overflow-hidden rounded-lg border border-border bg-surface">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('pos.checkout.reviewProduct')}</TableHead>
+                    <TableHead>
+                      <View className="w-full items-end">
+                        <Text className="text-caption text-muted-foreground">
+                          {t('pos.checkout.reviewUnitPrice')}
+                        </Text>
+                      </View>
+                    </TableHead>
+                    <TableHead>
+                      <View className="w-full items-center">
+                        <Text className="text-caption text-muted-foreground">
+                          {t('pos.checkout.reviewQty')}
+                        </Text>
+                      </View>
+                    </TableHead>
+                    <TableHead>
+                      <View className="w-full items-end">
+                        <Text className="text-caption text-muted-foreground">
+                          {t('pos.checkout.reviewLineTotal')}
+                        </Text>
+                      </View>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {cart.lines.map((line) => {
+                    const product = products.find((item) => item.id === line.productId);
+                    return (
+                      <TableRow key={line.productId}>
+                        <TableCell>
+                          <View className="gap-0.5">
+                            <Text className="text-label font-semibold text-foreground">
+                              {product?.name ?? line.productId}
+                            </Text>
+                            <Text className="text-caption text-muted-foreground">
+                              {product?.unit ?? ''}
+                            </Text>
+                          </View>
+                        </TableCell>
+                        <TableCell>
+                          <View className="w-full items-end">
+                            <Text className="text-label tabular-nums text-foreground">
+                              {formatVND(line.unitPrice)}
+                            </Text>
+                          </View>
+                        </TableCell>
+                        <TableCell>
+                          <View className="w-full items-center">
+                            <Text className="text-label tabular-nums text-foreground">{line.qty}</Text>
+                          </View>
+                        </TableCell>
+                        <TableCell>
+                          <View className="w-full items-end">
+                            <Text className="text-label font-semibold tabular-nums text-foreground">
+                              {formatVND(line.unitPrice * line.qty)}
+                            </Text>
+                          </View>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </View>
+            {customer ? (
+              <View className="flex-row items-center gap-2.5">
+                <AppIcon name="users-round" size={18} tone="muted-foreground" />
+                <Text className="flex-1 text-label text-foreground">
+                  {`${customer.name} · ${customer.phone} · ${customer.points} ${t('pos.customerDialog.points')}`}
+                </Text>
+              </View>
+            ) : null}
+          </ScrollView>
+
+          <View className="w-[480px] border-l border-border bg-surface">
+            <ScrollView className="flex-1" contentContainerStyle={{ padding: 24, gap: 16 }}>
+              {paymentColumn}
+            </ScrollView>
+            <View className="border-t border-border p-5">{primaryAction}</View>
+          </View>
+        </View>
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 16 }}>
-      <Text className="text-xl font-semibold text-foreground">{t('pos.checkout.title')}</Text>
+    <View className="flex-1">
+      {header}
+      <ScrollView
+        className="flex-1 bg-surface-muted"
+        contentContainerStyle={{ padding: layout.gutter, gap: 12 }}
+      >
+        {paymentColumn}
+      </ScrollView>
+      <View className="border-t border-border bg-surface-raised p-3">{primaryAction}</View>
+    </View>
+  );
+}
 
-      <View className="gap-2 rounded-lg border border-border p-4">
-        <Text className="text-sm font-medium text-foreground">{t('pos.checkout.summary')}</Text>
-        <View className="flex-row items-center justify-between">
-          <Text className="text-sm text-muted-foreground">{t('pos.cart.subtotal')}</Text>
-          <Text className="text-sm text-foreground">{formatVND(totals.subtotal)}</Text>
-        </View>
-        <View className="flex-row items-center justify-between">
-          <Text className="text-sm text-muted-foreground">{t('pos.cart.discount')}</Text>
-          <Text className="text-sm text-foreground">-{formatVND(totals.discountTotal)}</Text>
-        </View>
-        <View className="flex-row items-center justify-between">
-          <Text className="text-sm text-muted-foreground">{t('pos.cart.tax')}</Text>
-          <Text className="text-sm text-foreground">{formatVND(totals.taxTotal)}</Text>
-        </View>
-        <View className="flex-row items-center justify-between">
-          <Text className="text-base font-semibold text-foreground">{t('pos.cart.total')}</Text>
-          <Text className="text-lg font-semibold text-foreground">{formatVND(totals.total)}</Text>
-        </View>
-      </View>
-
-      <SegmentedControl value={method} onValueChange={(value) => setMethod(value as PaymentMethod)}>
-        {METHODS.map((item) => (
-          <SegmentedControlItem key={item} value={item}>
-            {t(METHOD_LABEL_KEY[item])}
-          </SegmentedControlItem>
-        ))}
-      </SegmentedControl>
-
-      <PaymentMethodPanel key={method} method={method} remaining={remaining} customer={customer} onAddPayment={handleAddPayment} />
-
-      <SplitPaymentList payments={payments} onRemove={handleRemovePayment} />
-
-      <View className="flex-row items-center justify-between rounded-lg border border-border p-4">
-        <Text className="text-sm text-muted-foreground">{t('pos.checkout.remaining')}</Text>
-        <Text className={`text-base font-semibold ${remaining === 0 ? 'text-success' : 'text-destructive'}`}>
-          {remaining === 0 ? t('pos.checkout.fullyPaid') : formatVND(remaining)}
-        </Text>
-      </View>
-
-      <Button disabled={!canConfirm} onPress={handleConfirm}>
-        <ButtonLabel>{t('pos.checkout.confirm')}</ButtonLabel>
-      </Button>
-    </ScrollView>
+function MetaRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="flex-row items-center justify-between">
+      <Text className="text-caption text-subtle-foreground">{label}</Text>
+      <Text className="text-caption text-subtle-foreground">{value}</Text>
+    </View>
   );
 }

@@ -8,6 +8,12 @@ export const productsVi = {
   statusAll: 'Tất cả',
   statusActive: 'Đang bán',
   statusInactive: 'Ngừng bán',
+  countSuffix: 'sản phẩm',
+  stock: {
+    on: 'Còn',
+    low: 'Sắp hết',
+    out: 'Hết hàng',
+  },
   columns: {
     product: 'Sản phẩm',
     sku: 'SKU',
@@ -36,6 +42,11 @@ export const productsVi = {
   form: {
     newTitle: 'Thêm sản phẩm',
     editTitle: 'Sửa sản phẩm',
+    sectionBasics: 'Thông tin cơ bản',
+    sectionPricing: 'Giá và thuế',
+    sectionDetails: 'Mô tả và trạng thái',
+    imageLabel: 'Ảnh sản phẩm',
+    imageHint: 'Ảnh lấy từ danh mục mẫu, chưa hỗ trợ tải ảnh lên.',
     fieldName: 'Tên sản phẩm',
     fieldSku: 'SKU',
     fieldSkuSuggest: 'Gợi ý SKU',

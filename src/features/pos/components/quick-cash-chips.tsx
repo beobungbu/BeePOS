@@ -1,27 +1,46 @@
-import { View } from 'react-native';
-import { Button, ButtonLabel } from '@beemvp/beeui-ui';
-import { formatVND } from '../../../domain/money';
+import { Pressable, View } from 'react-native';
+import { Text } from '@beemvp/beeui-ui';
 import { useT } from '../../../i18n';
 
-const DENOMINATIONS = [50000, 100000, 200000, 500000];
+/** The notes a Vietnamese customer actually hands over. */
+const DENOMINATIONS = [100_000, 200_000, 500_000];
+
+const PLAIN_NUMBER = new Intl.NumberFormat('vi-VN');
 
 interface QuickCashChipsProps {
   remaining: number;
   onPick: (amount: number) => void;
 }
 
-/** Quick-fill amount buttons for cash payment, plus an "exact remaining amount" shortcut. */
+/**
+ * "Đủ tiền" first and in the neutral strong fill, then the three notes, so the cashier never
+ * has to work the amount out (`docs/design/design-direction.md` section 5, payment).
+ */
 export function QuickCashChips({ remaining, onPick }: QuickCashChipsProps) {
   const t = useT();
+
   return (
     <View className="flex-row flex-wrap gap-2">
-      <Button variant="outline" size="sm" onPress={() => onPick(remaining)}>
-        <ButtonLabel>{t('pos.checkout.exact')}</ButtonLabel>
-      </Button>
+      <Pressable
+        onPress={() => onPick(remaining)}
+        accessibilityRole="button"
+        accessibilityLabel={t('pos.checkout.exact')}
+        className="h-11 flex-1 items-center justify-center rounded-md bg-secondary px-3"
+      >
+        <Text className="text-label font-semibold text-secondary-foreground">{t('pos.checkout.exact')}</Text>
+      </Pressable>
       {DENOMINATIONS.map((amount) => (
-        <Button key={amount} variant="outline" size="sm" onPress={() => onPick(amount)}>
-          <ButtonLabel>{formatVND(amount)}</ButtonLabel>
-        </Button>
+        <Pressable
+          key={amount}
+          onPress={() => onPick(amount)}
+          accessibilityRole="button"
+          accessibilityLabel={PLAIN_NUMBER.format(amount)}
+          className="h-11 flex-1 items-center justify-center rounded-md border border-border bg-surface px-3"
+        >
+          <Text className="text-label font-medium tabular-nums text-foreground">
+            {PLAIN_NUMBER.format(amount)}
+          </Text>
+        </Pressable>
       ))}
     </View>
   );

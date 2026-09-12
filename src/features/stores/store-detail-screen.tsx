@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { goBackOr } from '../../lib/navigation';
 import {
@@ -28,6 +29,8 @@ import {
   useToast,
   VStack,
 } from '@beemvp/beeui-ui';
+import { AppIcon } from '../../components/icons';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { formatVND } from '../../domain/money';
 import { staffForStore } from '../../domain/org';
@@ -37,6 +40,13 @@ import { useOrgStore } from '../../data/org-store';
 import { StoreFormFields } from './components/store-form-fields';
 import { storeToForm, useStoreForm } from './store-form-state';
 
+/** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
+const GUTTER = { phone: 'p-4', tablet: 'p-5', desktop: 'p-6' } as const;
+/** Form content is capped at 480 and centred at every breakpoint (direction doc section 7). */
+const FORM_MAX_WIDTH = 480;
+/** One card style for every Stat on the admin screens (direction doc section 5). */
+const STAT_CARD = 'min-w-40 grow gap-1 rounded-lg border border-border bg-surface p-4';
+
 interface StoreDetailScreenProps {
   storeId: string;
 }
@@ -45,6 +55,7 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
   const t = useT();
   const router = useRouter();
   const toast = useToast();
+  const breakpoint = useBreakpoint();
 
   const stores = useOrgStore((state) => state.stores);
   const staff = useOrgStore((state) => state.staff);
@@ -94,15 +105,21 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
   return (
     <Screen>
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
-        <VStack gap="lg" className="flex-1 p-6">
+        {/* `Screen` owns no scroll behaviour, so the detail sections need one here. */}
+        <ScrollView className="flex-1">
+        <VStack gap="lg" className={GUTTER[breakpoint]}>
           <Button variant="ghost" size="sm" onPress={() => goBackOr('/stores')} className="self-start">
-            <ButtonLabel>{`< ${t('common.actions.back')}`}</ButtonLabel>
+            <AppIcon name="chevron-left" size={16} tone="foreground" />
+            <ButtonLabel>{t('common.actions.back')}</ButtonLabel>
           </Button>
 
-          <Text className="text-xl font-semibold text-foreground">{store.name}</Text>
+          <VStack gap="xs">
+            <Text variant="title">{store.name}</Text>
+            <Text variant="caption" tone="muted">{`${store.code} · ${store.address}`}</Text>
+          </VStack>
 
           <Card variant="outlined" className="gap-3">
-            <Text className="font-medium text-foreground">{t('stores.detail.info')}</Text>
+            <Text variant="label" className="font-semibold text-foreground">{t('stores.detail.info')}</Text>
             <DescriptionList>
               <DescriptionItem label={t('stores.field.code')} value={store.code} />
               <DescriptionItem label={t('stores.field.address')} value={store.address} />
@@ -113,13 +130,13 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
 
           <Section title={t('stores.detail.todayStats')}>
             <HStack gap="md" wrap>
-              <Stat className="min-w-32 flex-1 gap-1 rounded-lg border border-border bg-card p-4">
+              <Stat className={STAT_CARD}>
                 <StatLabel>{t('stores.detail.todayOrders')}</StatLabel>
-                <StatValue className="text-xl font-semibold text-foreground">{String(todayStats.orders)}</StatValue>
+                <StatValue className="text-2xl font-bold text-foreground">{String(todayStats.orders)}</StatValue>
               </Stat>
-              <Stat className="min-w-32 flex-1 gap-1 rounded-lg border border-border bg-card p-4">
+              <Stat className={STAT_CARD}>
                 <StatLabel>{t('stores.detail.todayRevenue')}</StatLabel>
-                <StatValue className="text-xl font-semibold text-foreground">{formatVND(todayStats.revenue)}</StatValue>
+                <StatValue className="text-2xl font-bold text-foreground">{formatVND(todayStats.revenue)}</StatValue>
               </Stat>
             </HStack>
           </Section>
@@ -142,6 +159,7 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
           </Section>
 
           <Section title={t('stores.detail.edit')}>
+            <View className="w-full" style={{ maxWidth: FORM_MAX_WIDTH }}>
             <StoreFormFields values={form.values} errors={form.errors} setField={form.setField} />
             <HStack gap="sm" wrap className="mt-4">
               <Button onPress={handleSave}>
@@ -162,8 +180,10 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
                 </AlertDialogContent>
               </AlertDialog>
             </HStack>
+            </View>
           </Section>
         </VStack>
+        </ScrollView>
       </SafeArea>
     </Screen>
   );

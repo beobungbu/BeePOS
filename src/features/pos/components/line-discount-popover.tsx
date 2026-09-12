@@ -12,6 +12,7 @@ import {
   Text,
 } from '@beemvp/beeui-ui';
 import type { Discount } from '../../../domain/types';
+import { SecondaryButtonLabel } from './secondary-button-label';
 import { useT } from '../../../i18n';
 
 interface LineDiscountPopoverProps {
@@ -65,7 +66,7 @@ export function LineDiscountPopover({ discount, onApply }: LineDiscountPopoverPr
               setOpen(false);
             }}
           >
-            <ButtonLabel>{t('pos.lineDiscount.clear')}</ButtonLabel>
+            <SecondaryButtonLabel>{t('pos.lineDiscount.clear')}</SecondaryButtonLabel>
           </Button>
           <Button className="flex-1" onPress={apply}>
             <ButtonLabel>{t('pos.lineDiscount.apply')}</ButtonLabel>

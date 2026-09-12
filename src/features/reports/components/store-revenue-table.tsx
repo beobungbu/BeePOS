@@ -20,17 +20,23 @@ export function StoreRevenueTable({ rows, layout }: StoreRevenueTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>{t('reports.table.store')}</TableHead>
-              <TableHead>{t('reports.table.orders')}</TableHead>
-              <TableHead>{t('reports.table.revenue')}</TableHead>
+              <TableHead className="items-end text-right">{t('reports.table.orders')}</TableHead>
+              <TableHead className="items-end text-right">{t('reports.table.revenue')}</TableHead>
               <TableHead label={t('reports.table.share')}>{t('reports.table.share')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map((row) => (
               <TableRow key={row.storeId}>
-                <TableCell>{row.storeName}</TableCell>
-                <TableCell>{String(row.orders)}</TableCell>
-                <TableCell>{formatVND(row.revenue)}</TableCell>
+                <TableCell>
+                  <Text variant="label" className="font-semibold">{row.storeName}</Text>
+                </TableCell>
+                <TableCell className="items-end text-right">
+                  <Text variant="label" numeric="tabular">{String(row.orders)}</Text>
+                </TableCell>
+                <TableCell className="items-end text-right">
+                  <Text variant="label" numeric="tabular" className="font-bold">{formatVND(row.revenue)}</Text>
+                </TableCell>
                 <TableCell label={t('reports.table.share')}>
                   <Progress
                     accessibilityLabel={`${row.storeName}: ${row.sharePercent}%`}

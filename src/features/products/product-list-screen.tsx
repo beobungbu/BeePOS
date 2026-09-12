@@ -5,8 +5,8 @@ import { router } from 'expo-router';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import type { Product } from '../../domain/types';
+import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
-import { useIsWide } from './hooks/use-is-wide';
 import { ProductListCards } from './product-list-cards';
 import {
   PRODUCTS_PAGE_SIZE,
@@ -20,10 +20,14 @@ import {
 import { ProductTable } from './product-table';
 import { ProductToolbar } from './product-toolbar';
 
+/** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
+const GUTTER = { phone: 'p-4', tablet: 'p-5', desktop: 'p-6' } as const;
+
 export function ProductListScreen() {
   const t = useT();
   const toast = useToast();
-  const isWide = useIsWide();
+  const breakpoint = useBreakpoint();
+  const isWide = breakpoint !== 'phone';
   const products = useCatalogStore((state) => state.products);
   const categories = useCatalogStore((state) => state.categories);
   const setProductActive = useCatalogStore((state) => state.setProductActive);
@@ -80,20 +84,23 @@ export function ProductListScreen() {
 
   return (
     <ScrollView className="flex-1">
-      <View className="flex-1 gap-4 p-4">
-        <View className="flex-row items-center justify-between">
-          <Text variant="title">{t('products.title')}</Text>
-          <Button variant="outline" onPress={() => router.push('/products/categories')}>
-            {t('products.categories.title')}
-          </Button>
+      <View className={`flex-1 gap-4 ${GUTTER[breakpoint]}`}>
+        <View className={isWide ? 'flex-row items-start justify-between gap-3' : 'gap-3'}>
+          <View className={isWide ? 'min-w-0 flex-1' : 'min-w-0'}>
+            <Text variant="title">{t('products.title')}</Text>
+            <Text variant="caption" tone="muted">
+              {`${sorted.length} ${t('products.countSuffix')}`}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-2">
+            <Button variant="outline" onPress={() => router.push('/products/categories')}>
+              {t('products.categories.title')}
+            </Button>
+            <Button onPress={() => router.push('/products/new')}>{t('products.addProduct')}</Button>
+          </View>
         </View>
 
-        <ProductToolbar
-          filters={filters}
-          categories={categories}
-          onFiltersChange={handleFiltersChange}
-          onAddProduct={() => router.push('/products/new')}
-        />
+        <ProductToolbar filters={filters} categories={categories} onFiltersChange={handleFiltersChange} />
 
         {showEmpty ? (
           <EmptyState
@@ -104,6 +111,7 @@ export function ProductListScreen() {
           <ProductTable
             products={pageItems}
             categories={categories}
+            breakpoint={breakpoint}
             sortField={sortField}
             sortDirection={sortDirection}
             onSortChange={handleSortChange}

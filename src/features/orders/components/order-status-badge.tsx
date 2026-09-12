@@ -7,11 +7,16 @@ import { useT } from '../../../i18n';
 import '../../../i18n/orders.vi';
 import '../../../i18n/orders.en';
 
-const VARIANT_BY_STATUS: Record<OrderStatus, 'success' | 'warning' | 'destructive' | 'outline'> = {
+/**
+ * Status is always a badge carrying a word, never a bare colour dot
+ * (`docs/design/design-direction.md` section 8). Voided and refunded share the destructive
+ * tint because both mean the money left the till; the word tells them apart.
+ */
+const VARIANT_BY_STATUS: Record<OrderStatus, 'success' | 'warning' | 'destructive'> = {
   paid: 'success',
   partial_refund: 'warning',
   refunded: 'destructive',
-  void: 'outline',
+  void: 'destructive',
 };
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {

@@ -3,6 +3,8 @@ import { registerDictionary } from './registry';
 export const customersEn = {
   title: 'Customers',
   search: 'Search by name or phone number',
+  results: '{count} customers',
+  pointsLabel: '{count} points',
   tier: {
     all: 'All tiers',
     bronze: 'Regular',
@@ -18,6 +20,7 @@ export const customersEn = {
     totalSpent: 'Total spent',
     lastOrder: 'Last order',
     never: 'No orders yet',
+    selectRow: 'View customer {name}',
   },
   addButton: 'Add customer',
   addDialog: {
@@ -46,8 +49,8 @@ export const customersEn = {
     points: 'Loyalty points',
     totalSpent: 'Total spent',
     memberSince: 'Member since',
-    editButton: 'Edit info',
     deleteButton: 'Delete customer',
+    contact: 'Contact',
   },
   tabs: {
     orders: 'Orders',
@@ -83,6 +86,7 @@ export const customersEn = {
     saved: 'Customer info saved',
   },
   deleteDialog: {
+    confirmTitleWithName: 'Delete customer {name}?',
     confirmTitle: 'Delete customer',
     confirmDescription: 'The customer will be removed from the system. This cannot be undone.',
     cancel: 'Cancel',

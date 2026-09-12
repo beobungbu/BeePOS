@@ -3,6 +3,8 @@ import { registerDictionary } from './registry';
 export const customersVi = {
   title: 'Khách hàng',
   search: 'Tìm theo tên hoặc số điện thoại',
+  results: '{count} khách hàng',
+  pointsLabel: '{count} điểm',
   tier: {
     all: 'Tất cả hạng',
     bronze: 'Thường',
@@ -18,6 +20,7 @@ export const customersVi = {
     totalSpent: 'Tổng chi tiêu',
     lastOrder: 'Đơn gần nhất',
     never: 'Chưa có đơn',
+    selectRow: 'Xem khách hàng {name}',
   },
   addButton: 'Thêm khách',
   addDialog: {
@@ -46,8 +49,8 @@ export const customersVi = {
     points: 'Điểm tích luỹ',
     totalSpent: 'Tổng chi tiêu',
     memberSince: 'Thành viên từ',
-    editButton: 'Sửa thông tin',
     deleteButton: 'Xoá khách hàng',
+    contact: 'Liên hệ',
   },
   tabs: {
     orders: 'Đơn hàng',
@@ -83,6 +86,7 @@ export const customersVi = {
     saved: 'Đã lưu thông tin khách hàng',
   },
   deleteDialog: {
+    confirmTitleWithName: 'Xoá khách hàng {name}?',
     confirmTitle: 'Xoá khách hàng',
     confirmDescription: 'Khách hàng sẽ bị xoá khỏi hệ thống. Hành động này không thể hoàn tác.',
     cancel: 'Huỷ',

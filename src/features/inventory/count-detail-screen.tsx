@@ -187,10 +187,10 @@ export function CountDetailScreen({ countId }: CountDetailScreenProps) {
                 return (
                   <TableRow key={line.productId}>
                     <TableCell label={t('products.columns.product')}>
-                      <Text>{productById.get(line.productId)?.name ?? line.productId}</Text>
+                      <Text variant="label" className="font-semibold">{productById.get(line.productId)?.name ?? line.productId}</Text>
                     </TableCell>
                     <TableCell label={t('inventory.counts.expected')}>
-                      <Text tone="muted">{line.expected}</Text>
+                      <Text variant="label" tone="muted" numeric="tabular" className="w-full text-right">{line.expected}</Text>
                     </TableCell>
                     <TableCell label={t('inventory.counts.counted')}>
                       {isDraft ? (
@@ -200,7 +200,7 @@ export function CountDetailScreen({ countId }: CountDetailScreenProps) {
                           keyboardType="numeric"
                         />
                       ) : (
-                        <Text>{line.counted}</Text>
+                        <Text variant="label" numeric="tabular" className="w-full text-right font-bold">{line.counted}</Text>
                       )}
                     </TableCell>
                     <TableCell label={t('inventory.counts.variance')}>

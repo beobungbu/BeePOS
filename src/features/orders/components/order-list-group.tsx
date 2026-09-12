@@ -1,8 +1,87 @@
 import { useRouter } from 'expo-router';
-import { ListGroup, ListGroupHeader, ListItem, Pagination, PaginationItem, Text, VStack } from '@beemvp/beeui-ui';
-import type { Order, Staff, Store } from '../../../domain/types';
+import { View } from 'react-native';
+import { ListGroup, ListGroupHeader, ListItem, Text } from '@beemvp/beeui-ui';
+import type { Order } from '../../../domain/types';
 import { formatVND } from '../../../domain/money';
+import { useT } from '../../../i18n';
+import { AppIcon } from '../../../components/icons';
+import { formatDate, formatTime, isCancelled, paymentSummary } from '../lib/order-presentation';
 import { OrderStatusBadge } from './order-status-badge';
+
+/**
+ * Phone rows, the three-line format of `docs/design/mockups/orders.html`: code plus status
+ * badge, then time, customer and payment method as one caption, with the total and a chevron
+ * trailing. Never a horizontally scrolling table under 768 pt.
+ */
+export function OrderListGroup({
+  orders,
+  customerLabel,
+  showDayHeaders,
+}: {
+  orders: Order[];
+  customerLabel: (order: Order) => string;
+  /** Day headers only help when the active range spans more than one day. */
+  showDayHeaders: boolean;
+}) {
+  const router = useRouter();
+  const t = useT();
+
+  const rowFor = (order: Order) => {
+    const cancelled = isCancelled(order);
+    const payment = paymentSummary(order, (method) => t(`orders.paymentMethod.${method}`));
+    const meta = `${formatTime(order.createdAt)} · ${customerLabel(order)}`;
+
+    return (
+      <ListItem
+        accessibilityLabel={`${order.code}. ${meta}. ${t(`orders.status.${order.status}`)}. ${formatVND(order.total)}`}
+        description={
+          <View className="gap-1">
+            <Text className="text-caption text-muted-foreground" numberOfLines={1}>
+              {meta}
+            </Text>
+            <View className="flex-row items-center gap-2">
+              <OrderStatusBadge status={order.status} />
+              <Text className="min-w-0 shrink text-caption text-muted-foreground" numberOfLines={1}>
+                {payment}
+              </Text>
+            </View>
+          </View>
+        }
+        key={order.id}
+        onPress={() => router.push(`/orders/${order.id}`)}
+        title={
+          <View className="flex-row items-center gap-3">
+            <Text className="min-w-0 flex-1 text-label font-semibold text-foreground" numberOfLines={1}>
+              {order.code}
+            </Text>
+            <Text
+              className={`text-label font-bold ${cancelled ? 'text-muted-foreground line-through' : 'text-foreground'}`}
+              numeric="tabular"
+            >
+              {formatVND(order.total)}
+            </Text>
+          </View>
+        }
+        trailing={<AppIcon name="chevron-right" size={20} tone="subtle-foreground" />}
+      />
+    );
+  };
+
+  if (!showDayHeaders) {
+    return <ListGroup>{orders.map(rowFor)}</ListGroup>;
+  }
+
+  return (
+    <View className="gap-3">
+      {groupByDay(orders).map(([day, dayOrders]) => (
+        <ListGroup key={day}>
+          <ListGroupHeader title={formatDate(`${day}T00:00:00`)} />
+          {dayOrders.map(rowFor)}
+        </ListGroup>
+      ))}
+    </View>
+  );
+}
 
 function groupByDay(orders: Order[]): Array<[string, Order[]]> {
   const groups = new Map<string, Order[]>();
@@ -13,59 +92,4 @@ function groupByDay(orders: Order[]): Array<[string, Order[]]> {
     groups.set(day, bucket);
   });
   return Array.from(groups.entries());
-}
-
-export function OrderListGroup({
-  orders,
-  stores,
-  cashiers,
-  customerLabel,
-  page,
-  pageCount,
-  onPageChange,
-}: {
-  orders: Order[];
-  stores: Store[];
-  cashiers: Staff[];
-  customerLabel: (order: Order) => string;
-  page: number;
-  pageCount: number;
-  onPageChange: (page: number) => void;
-}) {
-  const router = useRouter();
-  const storeName = (id: string) => stores.find((store) => store.id === id)?.name ?? id;
-  const cashierName = (id: string) => cashiers.find((member) => member.id === id)?.name ?? id;
-
-  return (
-    <VStack className="gap-3">
-      {groupByDay(orders).map(([day, dayOrders]) => (
-        <ListGroup key={day}>
-          <ListGroupHeader title={new Date(`${day}T00:00:00`).toLocaleDateString('vi-VN')} />
-          {dayOrders.map((order) => (
-            <ListItem
-              description={`${storeName(order.storeId)} · ${cashierName(order.cashierId)} · ${customerLabel(order)}`}
-              key={order.id}
-              onPress={() => router.push(`/orders/${order.id}`)}
-              title={order.code}
-              trailing={
-                <VStack className="items-end gap-1">
-                  <Text className="font-medium">{formatVND(order.total)}</Text>
-                  <OrderStatusBadge status={order.status} />
-                </VStack>
-              }
-            />
-          ))}
-        </ListGroup>
-      ))}
-      {pageCount > 1 && (
-        <Pagination onPageChange={onPageChange} page={page} pageCount={pageCount}>
-          <PaginationItem type="previous" />
-          {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
-            <PaginationItem key={pageNumber} page={pageNumber} />
-          ))}
-          <PaginationItem type="next" />
-        </Pagination>
-      )}
-    </VStack>
-  );
 }

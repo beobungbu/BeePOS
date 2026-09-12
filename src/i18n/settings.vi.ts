@@ -28,6 +28,7 @@ export const settingsVi = {
     showLogo: 'Hiển thị logo trên hoá đơn',
     preview: 'Xem trước hoá đơn',
     previewSample: 'Sữa tươi TH true MILK x2',
+    previewTotal: 'Tổng cộng',
   },
   tax: {
     label: 'Thuế suất mặc định',
