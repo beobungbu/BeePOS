@@ -38,8 +38,8 @@ interface CartState extends CartSet {
 }
 
 /**
- * Open orders live here only: a reload discards them, which matches the prototype scope in
- * `docs/product-spec.md`. Nothing in the UI may imply a parked bill survives a reload.
+ * Open orders are persisted by `persistence-bootstrap.ts` (subscribed from outside this file),
+ * so a reload or an app restart restores them; a named order therefore behaves like a parked bill.
  */
 export const useCartStore = create<CartState>((set, get) => ({
   ...initialCartSet(''),

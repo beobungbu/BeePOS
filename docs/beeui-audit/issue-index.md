@@ -150,3 +150,11 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 | [#604](https://github.com/beobungbu/BeeUI/issues/604) | 18-01 | major | Table th text inherits document colour in dark |
 | [#605](https://github.com/beobungbu/BeeUI/issues/605) | 18-02 | major | Avatar fallback initials black in dark |
 | [#593](https://github.com/beobungbu/BeeUI/issues/593) (comment) | 18-03 | evidence | ButtonLabel child ignores variant colour |
+
+## Batch 16 (2026-09-13, code review)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#606](https://github.com/beobungbu/BeeUI/issues/606) | 19-01 | major | focused Input stops keydown bubbling |
+| [#607](https://github.com/beobungbu/BeeUI/issues/607) | 19-02, 18-04 | minor | umbrella 7: nested role=dialog, trigger hover |
+| [#597](https://github.com/beobungbu/BeeUI/issues/597) (comment) | 19-03 | evidence | SearchInput focus handle |
