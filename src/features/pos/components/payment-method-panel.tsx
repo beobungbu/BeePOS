@@ -5,6 +5,7 @@ import { formatVND } from '../../../domain/money';
 import type { Customer, PaymentMethod } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import type { PaymentDraft } from '../lib/payment-draft';
+import { MoneyInput } from './money-input';
 import { QuickCashChips } from './quick-cash-chips';
 
 interface PaymentMethodPanelProps {
@@ -46,13 +47,7 @@ export function PaymentMethodPanel({
     return (
       <View className="gap-3">
         <Field label={t('pos.checkout.tendered')}>
-          <Input
-            value={amountText}
-            onChangeText={onAmountChange}
-            keyboardType="numeric"
-            placeholder="0"
-            className="text-right tabular-nums"
-          />
+          <MoneyInput value={amountText} onChangeText={onAmountChange} />
         </Field>
         <QuickCashChips remaining={remaining} onPick={(amount) => onAmountChange(String(amount))} />
         {tendered > 0 ? (
@@ -81,13 +76,7 @@ export function PaymentMethodPanel({
     return (
       <View className="gap-3">
         <Field label={t('pos.checkout.transferAmount')}>
-          <Input
-            value={amountText}
-            onChangeText={onAmountChange}
-            keyboardType="numeric"
-            placeholder="0"
-            className="text-right tabular-nums"
-          />
+          <MoneyInput value={amountText} onChangeText={onAmountChange} />
         </Field>
         <View className="items-center gap-3 rounded-lg border border-border bg-surface p-4">
           <View className="h-28 w-28 items-center justify-center rounded-md bg-muted">
@@ -111,13 +100,7 @@ export function PaymentMethodPanel({
     return (
       <View className="gap-3">
         <Field label={t('pos.checkout.cardAmount')}>
-          <Input
-            value={amountText}
-            onChangeText={onAmountChange}
-            keyboardType="numeric"
-            placeholder="0"
-            className="text-right tabular-nums"
-          />
+          <MoneyInput value={amountText} onChangeText={onAmountChange} />
         </Field>
         <Field label={t('pos.checkout.cardRef')}>
           <Input value={refText} onChangeText={onRefChange} placeholder="0000" />

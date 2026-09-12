@@ -1,3 +1,4 @@
+import { Pressable, ScrollView } from 'react-native';
 import {
   Calendar,
   HStack,
@@ -11,6 +12,7 @@ import {
   SelectValue,
   SegmentedControl,
   SegmentedControlItem,
+  Text,
   VStack,
   type CalendarVisibleMonth,
 } from '@beemvp/beeui-ui';
@@ -38,6 +40,14 @@ interface PeriodFilterProps {
   stores: Store[];
 }
 
+/** The four periods, in the order the mockup lists them. Values never change with the width. */
+const PERIODS: { value: PeriodKey; labelKey: string }[] = [
+  { value: 'today', labelKey: 'reports.period.today' },
+  { value: '7d', labelKey: 'reports.period.last7' },
+  { value: '30d', labelKey: 'reports.period.last30' },
+  { value: 'custom', labelKey: 'reports.period.custom' },
+];
+
 export function PeriodFilter({ filters, stores }: PeriodFilterProps) {
   const t = useT();
   // Hugging the content would squeeze the four labels at 1440; a min width below 768 would
@@ -46,16 +56,51 @@ export function PeriodFilter({ filters, stores }: PeriodFilterProps) {
 
   return (
     <VStack gap="sm" className="min-w-64 flex-1">
-      <SegmentedControl
-        className={isWide ? 'min-w-96 self-start' : 'w-full'}
-        value={filters.periodKey}
-        onValueChange={(value) => filters.setPeriodKey(value as PeriodKey)}
-      >
-        <SegmentedControlItem value="today">{t('reports.period.today')}</SegmentedControlItem>
-        <SegmentedControlItem value="7d">{t('reports.period.last7')}</SegmentedControlItem>
-        <SegmentedControlItem value="30d">{t('reports.period.last30')}</SegmentedControlItem>
-        <SegmentedControlItem value="custom">{t('reports.period.custom')}</SegmentedControlItem>
-      </SegmentedControl>
+      {isWide ? (
+        <SegmentedControl
+          className="min-w-96 self-start"
+          value={filters.periodKey}
+          onValueChange={(value) => filters.setPeriodKey(value as PeriodKey)}
+        >
+          {PERIODS.map((period) => (
+            <SegmentedControlItem key={period.value} value={period.value}>
+              {t(period.labelKey)}
+            </SegmentedControlItem>
+          ))}
+        </SegmentedControl>
+      ) : (
+        // `SegmentedControl` gives every segment the same width, so at 375 pt "Hôm nay" and
+        // "Tuỳ chọn" each wrap to two lines and the control grows to 58 pt. The chip row of
+        // direction doc section 5 scrolls instead, and carries the same four values.
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8, paddingRight: 16 }}
+        >
+          {PERIODS.map((period) => {
+            const selected = filters.periodKey === period.value;
+            return (
+              <Pressable
+                key={period.value}
+                onPress={() => filters.setPeriodKey(period.value)}
+                accessibilityRole="radio"
+                accessibilityState={{ selected, checked: selected }}
+                accessibilityLabel={t(period.labelKey)}
+                className={`h-9 items-center justify-center rounded-full px-4 ${
+                  selected ? 'bg-primary' : 'bg-muted'
+                }`}
+              >
+                <Text
+                  variant="label"
+                  className={`font-medium ${selected ? 'text-primary-foreground' : 'text-foreground'}`}
+                >
+                  {t(period.labelKey)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      )}
 
       <HStack gap="sm" wrap>
         {filters.periodKey === 'custom' && (

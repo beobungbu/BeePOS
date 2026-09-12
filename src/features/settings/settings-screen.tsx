@@ -1,6 +1,7 @@
-import { SafeArea, Screen, Text, VStack } from '@beemvp/beeui-ui';
+import { SafeArea, Screen, VStack } from '@beemvp/beeui-ui';
 import { ScrollView } from 'react-native';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { useT } from '../../i18n';
 import { useDensitySync } from './hooks/use-density-sync';
 import { AppearanceSection } from './components/appearance-section';
@@ -27,6 +28,7 @@ export function SettingsScreen() {
   const t = useT();
   const breakpoint = useBreakpoint();
   useDensitySync();
+  useScreenHeader({ title: t('common.nav.settings') });
 
   return (
     <Screen>
@@ -38,8 +40,6 @@ export function SettingsScreen() {
             className={`w-full self-center ${FORM_PADDING[breakpoint]}`}
             style={{ maxWidth: FORM_MAX_WIDTH }}
           >
-            <Text variant="title">{t('common.nav.settings')}</Text>
-
             <AppearanceSection />
             <LanguageSection />
             <DefaultStoreSection />

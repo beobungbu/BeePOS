@@ -14,6 +14,7 @@ import {
   useToast,
 } from '@beemvp/beeui-ui';
 import { AppIcon } from '../../components/icons';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { nextOrderCode, pointsEarned } from '../../domain/pos';
 import { formatVND, roundVND, sum } from '../../domain/money';
 import type { Order, Payment, PaymentMethod } from '../../domain/types';
@@ -28,7 +29,6 @@ import { submitOrder } from './adapters';
 import { OrderTotalsPanel } from './components/order-totals-panel';
 import { PaymentMethodCards } from './components/payment-method-cards';
 import { PaymentMethodPanel } from './components/payment-method-panel';
-import { PosSubHeader } from './components/pos-sub-header';
 import { SplitPaymentList } from './components/split-payment-list';
 import { usePosLayout } from './hooks/use-pos-layout';
 import { cartLineCount, cartTotalsOf, cartUnitCount } from './lib/cart-totals';
@@ -73,6 +73,27 @@ export default function CheckoutScreen() {
 
   const isDesktop = layout.breakpoint === 'desktop';
   const otherOpenOrders = carts.length - 1;
+  const isEmpty = cart.lines.length === 0;
+
+  // The shell header carries the screen: `Thanh toán` over the store, the counts and, from
+  // tablet up, how many orders stay open, with the order being paid as the badge. Switching
+  // order mid payment is never correct, so there is no strip here, only the name.
+  useScreenHeader({
+    title: t('pos.checkout.title'),
+    subtitle: isEmpty
+      ? undefined
+      : [
+          countLabel(t, cartLineCount(cart), 'pos.cart.lineItems'),
+          countLabel(t, cartUnitCount(cart), 'pos.cart.items'),
+          otherOpenOrders > 0 && layout.breakpoint !== 'phone'
+            ? openOrdersLabel(t, otherOpenOrders)
+            : undefined,
+        ]
+          .filter(Boolean)
+          .join(' · '),
+    badge: orderLabel(t, cart.ordinal),
+    backTo: '/pos',
+  });
   const canFinish = remaining === 0 || (draft.payment !== undefined && draft.settlesBalance);
   const canAct = canFinish || draft.payment !== undefined;
 
@@ -128,45 +149,13 @@ export default function CheckoutScreen() {
     setPointsText('');
   }
 
-  if (cart.lines.length === 0) {
+  if (isEmpty) {
     return (
-      <View className="flex-1">
-        <PosSubHeader title={t('pos.checkout.title')} />
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-body text-muted-foreground">{t('pos.checkout.emptyCartError')}</Text>
-        </View>
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="text-body text-muted-foreground">{t('pos.checkout.emptyCartError')}</Text>
       </View>
     );
   }
-
-  const header = (
-    <PosSubHeader
-      title={t('pos.checkout.title')}
-      subtitle={`${countLabel(t, cartLineCount(cart), 'pos.cart.lineItems')} · ${countLabel(
-        t,
-        cartUnitCount(cart),
-        'pos.cart.items',
-      )}`}
-      trailing={
-        <View className="flex-row items-center gap-2">
-          <View className="rounded-sm bg-muted px-2 py-1">
-            <Text className="text-caption font-semibold text-foreground">
-              {orderLabel(t, cart.ordinal)}
-            </Text>
-          </View>
-          {/* At 375 pt a second badge squeezes the title to "Thanh ..."; the same fact is on
-              the caption under the primary button on every width. */}
-          {otherOpenOrders > 0 && layout.breakpoint !== 'phone' ? (
-            <View className="rounded-sm bg-muted px-2 py-1">
-              <Text className="text-caption text-muted-foreground">
-                {openOrdersLabel(t, otherOpenOrders)}
-              </Text>
-            </View>
-          ) : null}
-        </View>
-      }
-    />
-  );
 
   const paymentColumn = (
     <>
@@ -231,7 +220,6 @@ export default function CheckoutScreen() {
   if (isDesktop) {
     return (
       <View className="flex-1">
-        {header}
         <View className="min-h-0 flex-1 flex-row">
           <ScrollView className="flex-1 bg-surface-muted" contentContainerStyle={{ padding: 24, gap: 16 }}>
             <Text className="text-heading font-semibold text-foreground">{t('pos.checkout.review')}</Text>
@@ -326,7 +314,6 @@ export default function CheckoutScreen() {
 
   return (
     <View className="flex-1">
-      {header}
       <ScrollView
         className="flex-1 bg-surface-muted"
         contentContainerStyle={{ padding: layout.gutter, gap: 12 }}

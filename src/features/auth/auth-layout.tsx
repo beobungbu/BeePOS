@@ -18,19 +18,22 @@ export function AuthLayout({ children, footer }: { children: React.ReactNode; fo
   return (
     <Screen>
       <SafeArea
-        className={`flex-1 items-center justify-center gap-6 px-4 py-6 ${
-          boxed ? 'bg-surface-muted' : 'bg-background'
-        }`}
+        className={`flex-1 ${boxed ? 'bg-surface-muted' : 'bg-background'}`}
         edges={['top', 'bottom', 'left', 'right']}
       >
-        <View
-          className={`w-full max-w-[480px] gap-4 ${
-            boxed ? 'rounded-lg border border-border bg-surface p-8' : ''
-          }`}
-        >
-          {children}
+        {/* The page gutter sits on this View, not on `SafeArea`: `SafeArea` resolves its own
+            horizontal padding from the insets and drops the horizontal padding it is given, which is what
+            left the phone login flush against both edges (findings-15-polish, 15-01). */}
+        <View className="flex-1 items-center justify-center gap-6 px-4 py-6">
+          <View
+            className={`w-full max-w-[480px] gap-4 ${
+              boxed ? 'rounded-lg border border-border bg-surface p-8' : ''
+            }`}
+          >
+            {children}
+          </View>
+          {footer}
         </View>
-        {footer}
       </SafeArea>
     </Screen>
   );

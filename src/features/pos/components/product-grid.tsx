@@ -13,6 +13,8 @@ interface ProductGridProps {
   gutter: number;
   gap: number;
   imageAspectRatio: number;
+  /** Small type step for the 3 column phone grid. */
+  compactTiles?: boolean;
   lines: CartLine[];
   onAddProduct: (product: Product) => void;
 }
@@ -25,6 +27,7 @@ export function ProductGrid({
   gutter,
   gap,
   imageAspectRatio,
+  compactTiles = false,
   lines,
   onAddProduct,
 }: ProductGridProps) {
@@ -61,6 +64,7 @@ export function ProductGrid({
               stock={stock}
               inCart={inCart}
               imageAspectRatio={imageAspectRatio}
+              compact={compactTiles}
               onAdd={() => onAddProduct(item)}
             />
           </View>

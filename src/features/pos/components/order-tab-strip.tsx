@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, View } from 'react-native';
 import {
   AlertDialog,
@@ -26,6 +26,9 @@ interface OrderTabStripProps {
   products: Product[];
 }
 
+/** Horizontal padding inside the scroller, and the margin a revealed tab keeps from the edge. */
+const STRIP_PADDING = 8;
+
 /**
  * The open-order strip of `docs/design/design-direction.md` section 6. An app composite, not
  * `Tabs`: a tab trigger in BeeUI cannot carry its own press handler and pressing the active
@@ -46,6 +49,10 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
   const closeCart = useCartStore((state) => state.closeCart);
 
   const scrollRef = useRef<ScrollView>(null);
+  /** Where each tab sits inside the scroller, and what part of it is currently on screen. */
+  const tabLayouts = useRef<Record<string, { x: number; width: number }>>({});
+  const scrollOffset = useRef(0);
+  const viewportWidth = useRef(0);
   const [pendingCloseId, setPendingCloseId] = useState<string | undefined>(undefined);
   const pendingCart = carts.find((cart) => cart.id === pendingCloseId);
   const atLimit = carts.length >= MAX_OPEN_CARTS;
@@ -66,15 +73,40 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
   }
 
   /**
-   * A new order is appended, so at eight open orders it lands past the right edge of the
-   * strip. Scrolling to the end when the active order is the last one (or to the start when
-   * it is the first) keeps the order the cashier just switched to on screen.
+   * Six tabs fit the 1440 working width and eight are allowed, so the active one can be off
+   * screen in either direction: appended past the right edge by `Alt+N`, or scrolled out to
+   * the left before `Alt+3` selects it. Scroll by measured position rather than by index, so
+   * a tab that is already fully visible never moves and one that is not always comes into
+   * view with a whole tab of margin.
    */
+  const revealTab = useCallback((cartId: string) => {
+    const layout = tabLayouts.current[cartId];
+    const viewport = viewportWidth.current;
+    if (!layout || viewport <= 0) return;
+
+    const left = scrollOffset.current;
+    const right = left + viewport;
+    if (layout.x - STRIP_PADDING < left) {
+      scrollRef.current?.scrollTo({ x: Math.max(0, layout.x - STRIP_PADDING), animated: true });
+    } else if (layout.x + layout.width + STRIP_PADDING > right) {
+      scrollRef.current?.scrollTo({
+        x: layout.x + layout.width + STRIP_PADDING - viewport,
+        animated: true,
+      });
+    }
+  }, []);
+
   useEffect(() => {
-    const index = carts.findIndex((cart) => cart.id === activeCartId);
-    if (index === carts.length - 1) scrollRef.current?.scrollToEnd({ animated: true });
-    else if (index === 0) scrollRef.current?.scrollTo({ x: 0, animated: true });
-  }, [carts, activeCartId]);
+    revealTab(activeCartId);
+  }, [carts, activeCartId, revealTab]);
+
+  /** A tab that closes takes its measurement with it, so a stale x never drives a scroll. */
+  useEffect(() => {
+    const open = new Set(carts.map((cart) => cart.id));
+    for (const id of Object.keys(tabLayouts.current)) {
+      if (!open.has(id)) delete tabLayouts.current[id];
+    }
+  }, [carts]);
 
   /**
    * Web-only shortcuts (section 6): Alt+1..8 switch, Alt+N opens, Alt+W closes through the
@@ -121,8 +153,16 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
         ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={(event) => {
+          scrollOffset.current = event.nativeEvent.contentOffset.x;
+        }}
+        onLayout={(event) => {
+          viewportWidth.current = event.nativeEvent.layout.width;
+          revealTab(activeCartId);
+        }}
         className="flex-1"
-        contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 8, gap: 8 }}
+        contentContainerStyle={{ alignItems: 'center', paddingHorizontal: STRIP_PADDING, gap: 8 }}
       >
         {carts.map((cart) => (
           <OrderTab
@@ -132,6 +172,12 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
             active={cart.id === activeCartId}
             onSwitch={() => switchCart(cart.id)}
             onClose={() => requestClose(cart)}
+            onMeasure={(layout) => {
+              tabLayouts.current[cart.id] = layout;
+              // A tab opened by `Alt+N` is measured after the effect above has run, so the
+              // order that was just created reveals itself here.
+              if (cart.id === activeCartId) revealTab(cart.id);
+            }}
           />
         ))}
       </ScrollView>
@@ -186,9 +232,11 @@ interface OrderTabProps {
   active: boolean;
   onSwitch: () => void;
   onClose: () => void;
+  /** Where this tab sits inside the scroller, so the strip can bring it into view. */
+  onMeasure: (layout: { x: number; width: number }) => void;
 }
 
-function OrderTab({ cart, products, active, onSwitch, onClose }: OrderTabProps) {
+function OrderTab({ cart, products, active, onSwitch, onClose, onMeasure }: OrderTabProps) {
   const t = useT();
   const label = orderLabel(t, cart.ordinal);
   const lineCount = cartLineCount(cart);
@@ -196,6 +244,7 @@ function OrderTab({ cart, products, active, onSwitch, onClose }: OrderTabProps) 
 
   return (
     <View
+      onLayout={(event) => onMeasure({ x: event.nativeEvent.layout.x, width: event.nativeEvent.layout.width })}
       className={`h-9 flex-row items-center rounded-md ${
         active ? 'border border-border-strong bg-surface' : ''
       }`}

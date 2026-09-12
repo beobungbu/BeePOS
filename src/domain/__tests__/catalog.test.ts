@@ -1,4 +1,4 @@
-import { isValidEan13, marginPercent, nextSku } from '../catalog';
+import { isValidEan13, marginPercent, nextSku, variantAndUnit } from '../catalog';
 
 describe('isValidEan13', () => {
   it('accepts a valid checksum', () => {
@@ -42,5 +42,22 @@ describe('marginPercent', () => {
 
   it('returns a negative margin when cost exceeds sale price', () => {
     expect(marginPercent(12000, 9000)).toBeLessThan(0);
+  });
+});
+
+describe('variantAndUnit', () => {
+  it('joins the variant and the unit with a middle dot', () => {
+    expect(variantAndUnit('330ml', 'chai')).toBe('330ml · chai');
+    expect(variantAndUnit('Lốc 6 lon', 'chai')).toBe('Lốc 6 lon · chai');
+  });
+
+  it('falls back to the unit alone when the product carries no variant', () => {
+    expect(variantAndUnit(undefined, 'chai')).toBe('chai');
+    expect(variantAndUnit('   ', 'chai')).toBe('chai');
+  });
+
+  it('never leads with a separator when one side is missing', () => {
+    expect(variantAndUnit('330ml', '')).toBe('330ml');
+    expect(variantAndUnit(undefined, '')).toBe('');
   });
 });

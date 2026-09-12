@@ -1,12 +1,13 @@
 import { View } from 'react-native';
 import { IconButton, Text } from '@beemvp/beeui-ui';
 import { AppIcon } from '../../../components/icons';
+import { ProductThumb } from '../../../components/product-thumb';
+import { variantAndUnit } from '../../../domain/catalog';
 import { calcLine } from '../../../domain/pos';
 import { formatVND } from '../../../domain/money';
 import type { CartLine, Product } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import { LineDiscountPopover } from './line-discount-popover';
-import { ProductImageSlot } from './product-image-slot';
 import { QtyStepper } from './qty-stepper';
 
 interface CartLineItemProps {
@@ -39,20 +40,20 @@ export function CartLineItem({
   return (
     <View className="min-h-16 flex-row items-start gap-3 border-b border-border px-4 py-3">
       {product ? (
-        <View className="w-10">
-          <ProductImageSlot product={product} compact />
-        </View>
+        <ProductThumb name={product.name} categoryId={product.categoryId} imageUrl={product.imageUrl} />
       ) : null}
 
       <View className="flex-1 gap-0.5">
-        <Text className="text-label font-semibold text-foreground" numberOfLines={2}>
+        <Text variant="label" className="font-semibold text-foreground" numberOfLines={2}>
           {product?.name ?? line.productId}
         </Text>
-        <Text className="text-caption text-muted-foreground">
-          {`${product?.unit ?? t('pos.unit')} · ${formatVND(line.unitPrice)}`}
+        <Text variant="caption" className="text-muted-foreground">
+          {`${variantAndUnit(product?.variantLabel, product?.unit ?? t('pos.unit'))} · ${formatVND(
+            line.unitPrice,
+          )}`}
         </Text>
         {discounted ? (
-          <Text className="text-caption font-semibold text-success">
+          <Text variant="caption" className="font-semibold text-success">
             {`${t('pos.cart.lineDiscountApplied')} ${formatVND(totals.discount)}`}
           </Text>
         ) : null}
@@ -63,7 +64,9 @@ export function CartLineItem({
       </View>
 
       <View className="flex-row items-center gap-1">
-        <Text className="text-label font-bold tabular-nums text-foreground">{formatVND(totals.total)}</Text>
+        <Text variant="label" numeric="tabular" className="font-bold text-foreground">
+          {formatVND(totals.total)}
+        </Text>
         {showRemoveControl ? (
           <IconButton accessibilityLabel={t('pos.cart.removeLine')} variant="ghost" onPress={onRemove}>
             <AppIcon name="x" size={16} tone="muted-foreground" />

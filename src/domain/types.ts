@@ -39,6 +39,12 @@ export interface Product {
   name: string;
   description?: string;
   categoryId: string;
+  /**
+   * The size or pack this SKU is, when the product line has several (`330ml`, `Lốc 6 lon`).
+   * The tile and the cart line read it with the unit as one caption (`330ml · chai`); a
+   * product without one shows the unit alone.
+   */
+  variantLabel?: string;
   unit: string;
   costPrice: number;
   salePrice: number;

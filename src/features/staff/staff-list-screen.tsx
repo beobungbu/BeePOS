@@ -14,6 +14,7 @@ import {
   VStack,
 } from '@beemvp/beeui-ui';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { useT } from '../../i18n';
 import { useOrgStore, isStaffActive } from '../../data/org-store';
 
@@ -35,14 +36,16 @@ export function StaffListScreen() {
   const staffActiveById = useOrgStore((state) => state.staffActiveById);
   const storeName = (storeId: string) => stores.find((store) => store.id === storeId)?.name ?? storeId;
 
+  useScreenHeader({ title: t('staff.title') });
+
   return (
     <Screen>
       <SafeArea className="flex-1" edges={['bottom', 'left', 'right']}>
         {/* `Screen` owns no scroll behaviour, so the list needs one here. */}
         <ScrollView className="flex-1">
         <VStack gap="lg" className={GUTTER[breakpoint]}>
+          {/* The screen title is in the app header; the section keeps only its action. */}
           <Section
-            title={t('staff.title')}
             action={
               <Button size="sm" onPress={() => router.push('/staff/new')}>
                 <ButtonLabel>{t('staff.addStaff')}</ButtonLabel>

@@ -6,6 +6,7 @@ import { useCustomerStore } from '../../../data/customer-store';
 import { staff, stores } from '../../../data/seed';
 import { filterOrders, orderStats, sortOrders, type OrderSortKey, type SortDirection } from '../../../domain/orders';
 import type { Order } from '../../../domain/types';
+import { useScreenHeader } from '../../../components/shell/screen-header';
 import { useT } from '../../../i18n';
 import '../../../i18n/orders.vi';
 import '../../../i18n/orders.en';
@@ -107,14 +108,13 @@ export function OrdersListScreen() {
 
   const gutter = isPhone ? 'px-4' : isDesktop ? 'px-6' : 'px-5';
 
-  const header = (
-    <View className={`gap-0.5 bg-surface pb-2 pt-3 ${gutter}`}>
-      <Text className="text-title font-bold text-foreground">{t('orders.title')}</Text>
-      <Text className="text-caption text-muted-foreground">
-        {`${t(`orders.filters.${filters.preset}`)} · ${fill(t('orders.filters.results'), { count: sorted.length })}`}
-      </Text>
-    </View>
-  );
+  // The screen names itself in the app header, so no second title row is drawn here.
+  useScreenHeader({
+    title: t('orders.title'),
+    subtitle: `${t(`orders.filters.${filters.preset}`)} · ${fill(t('orders.filters.results'), {
+      count: sorted.length,
+    })}`,
+  });
 
   const filtersBar = (
     <OrderFiltersBar
@@ -174,7 +174,6 @@ export function OrdersListScreen() {
   if (isPhone) {
     return (
       <ScrollView className="flex-1 bg-background" contentContainerClassName="pb-4">
-        {header}
         {filtersBar}
         <OrderStatsStrip breakpoint={breakpoint} stats={stats} />
         <View className="pt-3">{body}</View>
@@ -185,7 +184,6 @@ export function OrdersListScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      {header}
       {filtersBar}
       <View className={`py-3 ${gutter}`}>
         <OrderStatsStrip breakpoint={breakpoint} stats={stats} />

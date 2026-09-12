@@ -3,7 +3,7 @@ import { formatVND } from '../../domain/money';
 import type { Category, Product } from '../../domain/types';
 import { useT } from '../../i18n';
 import { useInventoryStore } from '../../data/inventory-store';
-import { ProductThumb } from './components/product-thumb';
+import { ProductThumb } from '../../components/product-thumb';
 import { StockBadge } from './components/stock-badge';
 import { totalMinLevel, totalStock } from './product-list-utils';
 

@@ -3,7 +3,7 @@ import { Text } from '@beemvp/beeui-ui';
 import type { CartLine, Product } from '../../../domain/types';
 import { formatVND } from '../../../domain/money';
 import { lineNetAmount } from '../../../domain/orders';
-import { OrderLineThumb } from './order-line-thumb';
+import { ProductThumb } from '../../../components/product-thumb';
 
 /**
  * The order's items as cart-line rows (`docs/design/design-direction.md` section 5): the 40 pt
@@ -19,7 +19,7 @@ export function OrderLinesList({ lines, products }: { lines: CartLine[]; product
 
         return (
           <View className="flex-row items-center gap-2.5" key={line.productId}>
-            <OrderLineThumb
+            <ProductThumb
               categoryId={product?.categoryId ?? line.productId}
               imageUrl={product?.imageUrl}
               name={name}

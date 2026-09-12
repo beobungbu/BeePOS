@@ -119,6 +119,7 @@ export default function PosScreen() {
           gutter={layout.gutter}
           gap={layout.gap}
           imageAspectRatio={layout.imageAspectRatio}
+          compactTiles={layout.compactTiles}
           lines={cart.lines}
           onAddProduct={handleAddProduct}
         />

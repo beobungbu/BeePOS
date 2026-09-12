@@ -14,7 +14,6 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-  Text,
 } from '@beemvp/beeui-ui';
 import { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
@@ -24,6 +23,7 @@ import { useSessionStore } from '../../data/session-store';
 import { stores as allStores } from '../../data/seed';
 import { formatVND } from '../../domain/money';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { useT } from '../../i18n';
 import { AdjustStockDialog } from './adjust-stock-dialog';
 import { InventoryCards } from './inventory-cards';
@@ -68,6 +68,8 @@ export function InventoryScreen() {
     ? t('inventory.storeAll')
     : allStores.find((store) => store.id === scope)?.name ?? t('inventory.storeAll');
 
+  useScreenHeader({ title: t('inventory.title'), subtitle: `${scopeName} · ${stats.skuCount} SKU` });
+
   function handleAdjust(row: StockRow) {
     setAdjustTarget({ productId: row.level.productId, storeId: row.level.storeId, productName: row.product.name });
   }
@@ -79,13 +81,6 @@ export function InventoryScreen() {
   return (
     <ScrollView className="flex-1">
       <View className={`flex-1 gap-4 ${GUTTER[breakpoint]}`}>
-        <View className="gap-1">
-          <Text variant="title">{t('inventory.title')}</Text>
-          <Text variant="caption" tone="muted">
-            {`${scopeName} · ${stats.skuCount} SKU`}
-          </Text>
-        </View>
-
         {/* The one screen where a full alert banner is allowed, and only above the filters. */}
         {alertCount > 0 && (
           <AlertBanner variant="warning" title={`${alertCount} ${t('inventory.lowStockBanner')}`} />

@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Button, Chip, ChipGroup, EmptyState, SearchInput, Text } from '@beemvp/beeui-ui';
+import { Button, Chip, ChipGroup, EmptyState, SearchInput } from '@beemvp/beeui-ui';
 import { useCustomerStore } from '../../../data/customer-store';
 import { useOrderStore } from '../../../data/order-store';
 import { filterCustomers } from '../../../domain/customers';
 import type { Customer, CustomerTier } from '../../../domain/types';
+import { useScreenHeader } from '../../../components/shell/screen-header';
 import { useT } from '../../../i18n';
 import '../../../i18n/customers.vi';
 import '../../../i18n/customers.en';
@@ -62,15 +63,15 @@ export function CustomersListScreen() {
 
   const gutter = isPhone ? 'px-4' : breakpoint === 'tablet' ? 'px-5' : 'px-6';
 
+  useScreenHeader({
+    title: t('customers.title'),
+    subtitle: fill(t('customers.results'), { count: filtered.length }),
+  });
+
   return (
     <View className="flex-1 bg-background">
-      <View className={`flex-row items-start justify-between gap-3 bg-surface pb-2 pt-3 ${gutter}`}>
-        <View className="min-w-0 gap-0.5">
-          <Text className="text-title font-bold text-foreground">{t('customers.title')}</Text>
-          <Text className="text-caption text-muted-foreground">
-            {fill(t('customers.results'), { count: filtered.length })}
-          </Text>
-        </View>
+      {/* Title and result count live in the app header; this row keeps the page action. */}
+      <View className={`flex-row items-center justify-end bg-surface pb-2 pt-3 ${gutter}`}>
         <Button onPress={() => setAddOpen(true)}>{t('customers.addButton')}</Button>
       </View>
 

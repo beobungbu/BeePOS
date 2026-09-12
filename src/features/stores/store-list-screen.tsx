@@ -21,6 +21,7 @@ import {
   VStack,
 } from '@beemvp/beeui-ui';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { useT } from '../../i18n';
 import { staffCountForStore } from '../../domain/org';
 import { useOrgStore } from '../../data/org-store';
@@ -38,6 +39,8 @@ export function StoreListScreen() {
   const staff = useOrgStore((state) => state.staff);
   const setStoreActive = useOrgStore((state) => state.setStoreActive);
 
+  useScreenHeader({ title: t('stores.title') });
+
   function statusBadge(isActive: boolean) {
     return (
       <Badge variant={isActive ? 'success' : 'secondary'}>
@@ -52,8 +55,8 @@ export function StoreListScreen() {
         {/* `Screen` owns no scroll behaviour, so the list needs one here. */}
         <ScrollView className="flex-1">
           <VStack gap="lg" className={GUTTER[breakpoint]}>
+            {/* The screen title is in the app header; the section keeps only its action. */}
             <Section
-              title={t('stores.title')}
               action={
                 <Button size="sm" onPress={() => router.push('/stores/new')}>
                   <ButtonLabel>{t('stores.addStore')}</ButtonLabel>

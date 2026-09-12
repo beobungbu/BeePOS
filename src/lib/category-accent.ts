@@ -1,7 +1,10 @@
 /**
- * Category decoration for the product image slot and the cart thumbnail: the five chart
- * tokens of `docs/design/design-direction.md` section 2, read through BeeUI's runtime token
- * reader so both themes are covered without a conditional colour in app code.
+ * Category decoration for the product image slot and the 40 pt product thumbnail: the five
+ * chart tokens of `docs/design/design-direction.md` section 2, read through BeeUI's runtime
+ * token reader so both themes are covered without a conditional colour in app code.
+ *
+ * App-wide rather than POS-local: the catalogue tile, the cart line, the orders preview and
+ * the product table all tint the same slot, so one category reads as one colour everywhere.
  *
  * Accent is decoration only. It is always paired with the product name, never the sole
  * carrier of meaning, and every caller falls back to `bg-muted` when a token is unreadable.

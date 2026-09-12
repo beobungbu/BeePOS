@@ -28,6 +28,19 @@ export function nextSku(existingSkus: readonly string[], prefix: string): string
 }
 
 /**
+ * The tile and cart-line caption of `docs/design/design-direction.md` section 5: the variant
+ * and the unit as one line (`330ml · chai`). A product with no variant of its own falls back
+ * to the unit alone, so the caption is never empty and never leads with a separator.
+ */
+export function variantAndUnit(variantLabel: string | undefined, unit: string): string {
+  const variant = variantLabel?.trim();
+  const unitText = unit.trim();
+  if (!variant) return unitText;
+  if (!unitText) return variant;
+  return `${variant} · ${unitText}`;
+}
+
+/**
  * Gross margin as a percentage of the sale price, rounded to one decimal.
  * Returns 0 when the sale price is not positive (avoids division by zero/negative).
  */

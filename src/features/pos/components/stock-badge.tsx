@@ -8,20 +8,28 @@ interface StockBadgeProps {
   minLevel: number;
   /** Units of this product already in the active order; it takes the badge's corner. */
   inCart?: number;
+  /** 3 column phone grid: the pill drops the warning glyph so the word stays on one line. */
+  compact?: boolean;
 }
 
 /**
  * The tile's stock pill, per `docs/design/design-direction.md` section 5: a caption with a
  * word, never a bare circled number, and the in-cart counter takes the same corner so the
  * cashier sees "this one is already in the order" without opening the cart.
+ *
+ * The caption step comes from `variant`: a text size in `className` loses to the
+ * component's own variant and the pill rendered at body size, which took a third of a tile in
+ * the 3 column phone grid (docs/beeui-audit/findings-15-polish.md, 15-02).
  */
-export function StockBadge({ onHand, minLevel, inCart = 0 }: StockBadgeProps) {
+export function StockBadge({ onHand, minLevel, inCart = 0, compact = false }: StockBadgeProps) {
   const t = useT();
 
   if (inCart > 0) {
     return (
       <View className="absolute right-1.5 top-1.5 min-w-6 items-center rounded-full bg-primary px-2 py-0.5">
-        <Text className="text-caption font-bold tabular-nums text-primary-foreground">{inCart}</Text>
+        <Text variant="caption" numeric="tabular" className="font-bold text-primary-foreground">
+          {inCart}
+        </Text>
       </View>
     );
   }
@@ -29,7 +37,9 @@ export function StockBadge({ onHand, minLevel, inCart = 0 }: StockBadgeProps) {
   if (onHand <= 0) {
     return (
       <View className="absolute right-1.5 top-1.5 rounded-full bg-destructive px-2 py-0.5">
-        <Text className="text-caption font-semibold text-primary-foreground">{t('pos.stockOut')}</Text>
+        <Text variant="caption" numberOfLines={1} className="font-semibold text-primary-foreground">
+          {t('pos.stockOut')}
+        </Text>
       </View>
     );
   }
@@ -37,8 +47,13 @@ export function StockBadge({ onHand, minLevel, inCart = 0 }: StockBadgeProps) {
   if (onHand <= minLevel) {
     return (
       <View className="absolute right-1.5 top-1.5 flex-row items-center gap-1 rounded-full bg-warning px-2 py-0.5">
-        <AppIcon name="triangle-alert" size={12} tone="primary-foreground" />
-        <Text className="text-caption font-semibold tabular-nums text-primary-foreground">
+        {compact ? null : <AppIcon name="triangle-alert" size={12} tone="primary-foreground" />}
+        <Text
+          variant="caption"
+          numeric="tabular"
+          numberOfLines={1}
+          className="font-semibold text-primary-foreground"
+        >
           {`${t('pos.stockLow')} ${onHand}`}
         </Text>
       </View>
@@ -47,7 +62,7 @@ export function StockBadge({ onHand, minLevel, inCart = 0 }: StockBadgeProps) {
 
   return (
     <View className="absolute right-1.5 top-1.5 rounded-full bg-surface px-2 py-0.5">
-      <Text className="text-caption tabular-nums text-muted-foreground">
+      <Text variant="caption" numeric="tabular" numberOfLines={1} className="text-muted-foreground">
         {`${t('pos.stockOnHand')} ${onHand}`}
       </Text>
     </View>

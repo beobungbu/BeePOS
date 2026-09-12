@@ -32,7 +32,7 @@ import { isValidEan13, marginPercent, nextSku } from '../../domain/catalog';
 import type { Product, ProductVariant } from '../../domain/types';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
-import { ProductThumb } from './components/product-thumb';
+import { ProductThumb } from '../../components/product-thumb';
 import { ProductStockTable } from './product-stock-table';
 import { ProductVariantsSection } from './product-variants-section';
 import { useUnsavedChangesGuard } from './hooks/use-unsaved-changes-guard';

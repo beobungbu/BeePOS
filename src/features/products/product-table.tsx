@@ -17,7 +17,7 @@ import { formatVND } from '../../domain/money';
 import type { Category, Product } from '../../domain/types';
 import type { Breakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
-import { ProductThumb } from './components/product-thumb';
+import { ProductThumb } from '../../components/product-thumb';
 import { StockBadge } from './components/stock-badge';
 import { totalMinLevel, totalStock } from './product-list-utils';
 import type { ProductSortField, SortDirection } from './product-list-utils';

@@ -3,16 +3,14 @@ import { View } from 'react-native';
 import { Image } from 'expo-image';
 import { Text } from '@beemvp/beeui-ui';
 import type { Product } from '../../../domain/types';
-import { monogramOf, useCategoryAccent } from '../lib/category-accent';
+import { monogramOf, useCategoryAccent } from '../../../lib/category-accent';
 
 interface ProductImageSlotProps {
   product: Product;
-  /** Slot shape: 1 on phone and tablet tiles, 4 / 3 on desktop tiles, 1 for thumbnails. */
+  /** Slot shape: 1 on phone and tablet tiles, 4 / 3 on desktop tiles. */
   aspectRatio?: number;
   /** Out of stock: the picture greys out and dims, overlays stay at full strength. */
   dimmed?: boolean;
-  /** Monogram type size; thumbnails are too small for the tile's step. */
-  compact?: boolean;
   /** Badges and counters that sit on the picture's top right corner. */
   children?: ReactNode;
   className?: string;
@@ -22,8 +20,7 @@ interface ProductImageSlotProps {
 const OUT_OF_STOCK_STYLE = { opacity: 0.45, filter: [{ grayscale: 1 }] } as const;
 
 /**
- * The image slot of the product tile and of the 40 pt cart thumbnail, per
- * `docs/design/design-direction.md` section 5. The slot is reserved at a fixed aspect before
+ * The image slot of the product tile, per `docs/design/design-direction.md` section 5. The slot is reserved at a fixed aspect before
  * the picture resolves, so the grid never reflows, and the monogram fallback is a property of
  * the slot rather than a different tile: a product with a photo and one without occupy the
  * same box.
@@ -32,7 +29,6 @@ export function ProductImageSlot({
   product,
   aspectRatio = 1,
   dimmed = false,
-  compact = false,
   children,
   className = '',
 }: ProductImageSlotProps) {
@@ -57,7 +53,7 @@ export function ProductImageSlot({
         ) : (
           <View className="flex-1 items-center justify-center">
             <Text
-              className={`${compact ? 'text-caption' : 'text-heading'} font-bold`}
+              className="text-heading font-bold"
               style={accent.color ? { color: accent.color } : undefined}
             >
               {monogramOf(product.name)}

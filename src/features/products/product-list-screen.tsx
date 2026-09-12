@@ -1,4 +1,4 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogTitle, Button, EmptyState, Pagination, Text, useToast } from '@beemvp/beeui-ui';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogTitle, Button, EmptyState, Pagination, useToast } from '@beemvp/beeui-ui';
 import { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
@@ -6,6 +6,7 @@ import { useCatalogStore } from '../../data/catalog-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import type { Product } from '../../domain/types';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { useT } from '../../i18n';
 import { ProductListCards } from './product-list-cards';
 import {
@@ -79,19 +80,19 @@ export function ProductListScreen() {
     setPendingDelete(null);
   }
 
+  useScreenHeader({
+    title: t('products.title'),
+    subtitle: `${sorted.length} ${t('products.countSuffix')}`,
+  });
+
   const hasAnyProducts = products.length > 0;
   const showEmpty = sorted.length === 0;
 
   return (
     <ScrollView className="flex-1">
       <View className={`flex-1 gap-4 ${GUTTER[breakpoint]}`}>
-        <View className={isWide ? 'flex-row items-start justify-between gap-3' : 'gap-3'}>
-          <View className={isWide ? 'min-w-0 flex-1' : 'min-w-0'}>
-            <Text variant="title">{t('products.title')}</Text>
-            <Text variant="caption" tone="muted">
-              {`${sorted.length} ${t('products.countSuffix')}`}
-            </Text>
-          </View>
+        {/* Title and count live in the app header; this row keeps the two page actions. */}
+        <View className="flex-row items-center justify-end gap-3">
           <View className="flex-row items-center gap-2">
             <Button variant="outline" onPress={() => router.push('/products/categories')}>
               {t('products.categories.title')}

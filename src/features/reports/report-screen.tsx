@@ -1,6 +1,7 @@
-import { Button, ButtonLabel, SafeArea, Screen, Stack, Text, useToast, VStack } from '@beemvp/beeui-ui';
+import { Button, ButtonLabel, SafeArea, Screen, Stack, useToast, VStack } from '@beemvp/beeui-ui';
 import { ScrollView } from 'react-native';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { useT } from '../../i18n';
 import { PeriodFilter } from './components/period-filter';
 import { StatCards } from './components/stat-cards';
@@ -23,6 +24,8 @@ export function ReportScreen() {
   const isWide = breakpoint !== 'phone';
   const tableLayout = isWide ? 'scroll' : 'stacked';
 
+  useScreenHeader({ title: t('reports.title'), subtitle: t('reports.subtitle') });
+
   function handleExport() {
     toast.show({
       title: t('reports.export.toastTitle'),
@@ -37,11 +40,6 @@ export function ReportScreen() {
         {/* `Screen` owns no scroll behaviour, so the report sections need one here. */}
         <ScrollView className="flex-1">
           <VStack gap="lg" className={GUTTER[breakpoint]}>
-            <VStack gap="xs">
-              <Text variant="title">{t('reports.title')}</Text>
-              <Text variant="caption" tone="muted">{t('reports.subtitle')}</Text>
-            </VStack>
-
             <Stack direction={isWide ? 'horizontal' : 'vertical'} gap="md" wrap justify="between" align="start">
               <PeriodFilter filters={filters} stores={data.stores} />
               <Button variant="outline" size="sm" onPress={handleExport} accessibilityLabel={t('reports.export.button')}>

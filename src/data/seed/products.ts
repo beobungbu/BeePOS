@@ -475,6 +475,7 @@ function buildProducts(): Product[] {
         barcode: ean13(String(893000000000 + sequence).slice(0, 12)),
         name: `${template.name} ${variant.label}`,
         categoryId: template.categoryId,
+        variantLabel: variant.label,
         unit: template.unit,
         costPrice: variant.cost,
         salePrice: variant.sale,

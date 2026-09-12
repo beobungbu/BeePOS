@@ -23,6 +23,7 @@ import {
   Text,
   useToast,
 } from '@beemvp/beeui-ui';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { shiftSummary } from '../../domain/pos';
 import { formatVND } from '../../domain/money';
 import { useT } from '../../i18n';
@@ -30,7 +31,6 @@ import { useOrderStore } from '../../data/order-store';
 import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift, useShiftHistory, useShiftStore } from '../../data/shift-store';
 import { SecondaryButtonLabel } from './components/secondary-button-label';
-import { PosSubHeader } from './components/pos-sub-header';
 import { usePosLayout } from './hooks/use-pos-layout';
 
 /** Placeholder for a value a shift does not have yet; never an em dash, per the copy rules. */
@@ -53,6 +53,12 @@ export default function ShiftScreen() {
   const summary = currentShift ? shiftSummary(currentShift, orders) : undefined;
   const isTable = layout.breakpoint !== 'phone';
 
+  useScreenHeader({
+    title: t('pos.shift.title'),
+    subtitle: currentShift ? t('pos.shift.statusOpen') : t('pos.shift.noOpenShift'),
+    backTo: '/pos',
+  });
+
   function handleOpenShift() {
     const openingCash = Number.parseFloat(openingCashText) || 0;
     openShift(openingCash);
@@ -70,11 +76,6 @@ export default function ShiftScreen() {
 
   return (
     <View className="flex-1">
-      <PosSubHeader
-        title={t('pos.shift.title')}
-        subtitle={currentShift ? t('pos.shift.statusOpen') : t('pos.shift.noOpenShift')}
-      />
-
       <ScrollView
         className="flex-1 bg-surface-muted"
         contentContainerStyle={{ padding: layout.gutter, gap: 16 }}

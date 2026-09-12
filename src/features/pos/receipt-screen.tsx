@@ -1,6 +1,7 @@
 import { ScrollView, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button, ButtonLabel, Text, useToast } from '@beemvp/beeui-ui';
+import { useScreenHeader } from '../../components/shell/screen-header';
 import { calcChange } from '../../domain/pos';
 import { formatVND } from '../../domain/money';
 import type { Payment } from '../../domain/types';
@@ -12,7 +13,6 @@ import { useOrderStore } from '../../data/order-store';
 import { useSessionStore } from '../../data/session-store';
 import { METHOD_LABEL_KEY } from './components/payment-method-cards';
 import { SecondaryButtonLabel } from './components/secondary-button-label';
-import { PosSubHeader } from './components/pos-sub-header';
 import { usePosLayout } from './hooks/use-pos-layout';
 import { orderLabel } from './lib/order-label';
 
@@ -37,13 +37,17 @@ export default function ReceiptScreen() {
   const staff = useSessionStore((state) => state.staff);
   const nextCart = useActiveCart();
 
+  // The receipt names itself in the app header: the order code over the store and the time.
+  useScreenHeader({
+    title: order?.code ?? t('pos.receipt.title'),
+    subtitle: order ? new Date(order.createdAt).toLocaleString('vi-VN') : undefined,
+    backTo: '/pos',
+  });
+
   if (!order) {
     return (
-      <View className="flex-1">
-        <PosSubHeader title={t('pos.receipt.title')} />
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-body text-muted-foreground">{t('pos.receipt.notFound')}</Text>
-        </View>
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="text-body text-muted-foreground">{t('pos.receipt.notFound')}</Text>
       </View>
     );
   }
@@ -56,11 +60,6 @@ export default function ReceiptScreen() {
 
   return (
     <View className="flex-1">
-      <PosSubHeader
-        title={order.code}
-        subtitle={new Date(order.createdAt).toLocaleString('vi-VN')}
-      />
-
       <ScrollView
         className="flex-1 bg-surface-muted"
         contentContainerStyle={{ padding: layout.gutter, gap: 12, alignItems: 'center' }}
