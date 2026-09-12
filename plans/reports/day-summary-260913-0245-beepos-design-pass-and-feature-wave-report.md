@@ -18,7 +18,7 @@ Từ bản "chạy được nhưng xấu" sáng 12/09, BeePOS giờ có thiết 
 | Chỉ số | Giá trị |
 |---|---|
 | Unit test (jest) | 286 / 286 |
-| E2E Playwright | 23 kịch bản, 9 file, 4,2 phút local; 23 / 23 trên production (`85c96b6`), lượt cuối sau `333c423` đang chạy lúc viết |
+| E2E Playwright | 23 kịch bản, 9 file, 4,2 phút local; 23 / 23 trên production sau `333c423` (kết quả: 23 passed (4.0m)) |
 | Perf lưới sản phẩm 1000 SKU | thẻ đầu 59 ms, p95 frame 16,8 ms, 0 frame quá 100 ms (sau khi bật windowing FlatList) |
 | Thẻ trên màn hình đầu ở phone 375 | 2 → 6 |
 | Commit trong ngày | 36 |
