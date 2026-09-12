@@ -118,3 +118,10 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 | [#596](https://github.com/beobungbu/BeeUI/issues/596) | 14-30 | major | TableRow selected paints nothing |
 | [#597](https://github.com/beobungbu/BeeUI/issues/597) | 14-06, 14-08, 14-23, 14-32, 14-33 | minor | umbrella 5 |
 | [#572](https://github.com/beobungbu/BeeUI/issues/572) (comment) | 14-31 | dup | TableRow has no onPress |
+
+## Batch 12 (2026-09-12, polish)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#598](https://github.com/beobungbu/BeeUI/issues/598) | 15-01 | major | SafeArea drops className padding |
+| [#599](https://github.com/beobungbu/BeeUI/issues/599) | 15-02, 15-03 | major | type scale not reachable as text-<step> classes |
