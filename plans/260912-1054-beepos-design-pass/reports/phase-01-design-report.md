@@ -99,6 +99,9 @@ with HN01 / 1234. The five worst problems, in order of cost to a cashier:
 
 ## Open questions for the owner
 
+All six were answered by the owner on 12/09/2026; the decisions are recorded in Revision 2
+at the end of this report. Kept here for the record.
+
 1. **Is amber the brand, or the default?** The current theme primary is `#f59e0b`, which is
    also the low stock and warning hue family. The mockups keep amber but move low stock to
    `warning` and spend primary once per screen. If BeePOS should have its own brand colour,
@@ -123,3 +126,104 @@ with HN01 / 1234. The five worst problems, in order of cost to a cashier:
 3. Cart bar, cart pane, totals block, pay button carrying the total.
 4. Checkout payment cards, quick cash chips, split payment.
 5. Orders table and list, then the rest of the tables by the same rule.
+
+---
+
+# Revision 2 · 12/09/2026
+
+Two rounds of owner feedback applied after the first hand-off.
+
+## A. Several open orders at once
+
+The sell screen now keeps up to 8 orders open and the cashier switches between them, the
+KiotViet and Sapo `nhiều hoá đơn` pattern. Customer A wanders off for the fish sauce,
+customer B is rung up, A comes back.
+
+- `docs/design/mockups/pos.html`: an order tab strip at all three widths with 3 open orders
+  (`Đơn 1 · 4 · 81.500 đ` active, `Đơn 2 · 1 · 185.000 đ`, `Đơn 3 · Trống`), a pinned `+`,
+  and a close control on the active tab. A fourth column labelled CHI TIẾT draws the five
+  tab states at 1:1, including the disabled `+` at 8 orders and the confirmation dialog. It
+  is a component detail sheet, not a fourth device frame.
+- Placement: the strip is shell chrome, so it sits in the same slot at every width, directly
+  under the app header and above the shift strip. On desktop it spans the full working width
+  instead of sitting on the cart pane, because 380 pt holds only 2 tabs, because the catalog
+  is identical for every order, and because KiotViet places multi-bill tabs the same way.
+- The cart bar and the desktop cart pane header now name the order.
+- `checkout.html` carries a static `Đơn 1` badge and `Còn 2 đơn đang mở`, and states that
+  finishing returns the cashier to `Đơn 2`, not to an empty screen. There is deliberately no
+  tab strip on checkout: switching order mid payment is never correct.
+- `docs/design/design-direction.md` section 6 `Nhiều đơn cùng lúc`: strip and tab spec,
+  overflow by scrolling with no menu, 8 order cap with a toast, `Alt+1` to `Alt+8` plus
+  `Alt+N` and `Alt+W` on web, and in-memory-only persistence with no copy that implies a
+  save.
+- `docs/design/research.md`: a `Multiple open orders` line per vendor with URLs, Square and
+  Loyverse Open Tickets now cited; the pattern is adopted as items 13 and 14 and the
+  named-and-saved ticket model is added to the rejected list.
+
+**Component choice, and why it is not `Tabs`.** BeeUI `Tabs` documents that a trigger
+"cannot carry its own press handler" and that "pressing the active tab does nothing"
+(<https://beeui.beemvp.com/docs/components/tabs/>), which kills the close control precisely
+where it has to live. `Chip`/`ChipGroup` documents no remove affordance and no leading or
+trailing slot (<https://beeui.beemvp.com/docs/components/chip/>). `SegmentedControl` has
+equal width segments and does not scroll. The strip is therefore an app-owned composite:
+a horizontal `ScrollView` of `Pressable` rows using `Badge`, `Text` and `IconButton`. This
+is the second real gap found in BeeUI during this phase and belongs in the audit.
+
+**Accessibility exception, declared.** The close control is a 32 pt square, not 44 pt. On
+touch the tabs sit next to each other and a close on every tab produces mis-taps, so only
+the active tab carries one and closing a non-empty order always routes through an
+`alert-dialog` naming the order, its line count and its total.
+
+## B. Product images
+
+- Tile is now image led at all three widths: image slot on top (1:1 phone and tablet, 4:3
+  desktop, which is what keeps 4 columns at 1440), stock badge or in-cart counter overlaid
+  on the image corner, then name on 2 lines, unit line, price loudest. Out of stock
+  greyscales and dims the image and keeps the badge at full strength.
+- Fallback when `imageUrl` is missing is the category monogram inside the same slot at the
+  same size, so the grid never reflows. `Phô mai con bò cười` is drawn in the fallback state
+  on purpose so the owner can see both side by side.
+- Cart lines and the orders preview pane carry the same image as a 40 pt thumbnail with the
+  same fallback.
+- Phase 2 loading is specified: `expo-image`, `contentFit="cover"`, `transition={150}`, and
+  a `placeholder` (blurhash if the catalog ever carries one, otherwise the accent tint). The
+  slot is reserved before the image resolves; a tile is never sized from a loaded image.
+- Mockup images are 8 inline SVG illustrations tinted per category (bottle, can, carton,
+  sachet, bag, jar, box, multipack). No external image host, nothing to fetch.
+- `research.md` gained an `Images on tiles` line per vendor. Square and Loyverse both fall
+  back to a flat colour tile rather than an empty frame, which is what the monogram slot
+  does here.
+
+**Shared sprite.** All UI icons and the 8 product illustrations moved into
+`docs/design/mockups/sprite.js`, which inserts the symbol sheet next to its own script tag
+during parse. That keeps every `<use href="#...">` resolving under `file://`, where an
+external `.svg` sprite would not load. The five screen files lost about 3.9 KB each;
+`pos.html` is now 698 lines including the new tab strip and detail column.
+
+## C. Fixes and consequences
+
+- `orders.html` desktop: the preview pane was clipping the `Tổng tiền` column. The pane is
+  now 320 pt and the table is 6 columns with the time folded under the order code, the same
+  rule already used at 768. Every column is fully visible at 1440. The fold-or-drop rule is
+  now written into direction section 8 so it is not rediscovered per screen.
+- Payment method chooser became a 2x2 card grid at every width, including phone. A
+  `segmented-control` was built first and thrown away because `Chuyển khoản` wraps at 375 pt
+  and breaks the control height.
+- Preview PNGs regenerated for all six pages plus `pos-map.png`, which shows the component
+  map switched on.
+- `design-direction.md` is at the 300 line cap and `research.md` at 226 of 250, so both
+  absorbed the new sections by compressing existing prose rather than by growing.
+
+## D. Owner decisions now closed
+
+Brand stays BeeUI amber. Image slot is real and images are in. Shift strip stays a nudge.
+Orders preview pane stays and no longer clips. F keys stay web only. Dark render deferred
+to phase 2.
+
+## E. New consequence to watch
+
+A 1:1 image slot over 2 columns at 375 pt leaves roughly 3 tiles above the fold, down from
+about 6 with the old monogram tile. That is the same trade Square and Loyverse make on
+phone, and it is recorded in the tile spec. If it proves too slow at the till the fix is a
+compact list mode with a 40 pt thumbnail, not a shrunken grid image. Worth watching in the
+first phase 2 device test.

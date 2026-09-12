@@ -37,6 +37,14 @@ screen navigation control (tabs vs tree vs chips) is `unverified`.
 **Search/barcode.** One field at the top of the catalog accepts a scan, a product code or a
 name. Barcode is the primary input; tapping a tile is the fallback.
 
+**Multiple open orders.** The core pattern: bills are tabs across the top of the sell screen,
+`+` opens another, the previous bill keeps its lines with no explicit save step.
+<https://www.kiotviet.vn/cap-nhat-giao-dien-ban-hang/> A maximum bill count and what the
+close control does are `unverified`.
+
+**Images on tiles.** The visual grid mode leads with the product photo; the rapid-entry list
+mode has no images at all. What renders when a product has no photo is `unverified`.
+
 **Under time pressure.** Parked bills as tabs, F8/F9 muscle memory, automatic change,
 scanner-first entry, auto-print on completion. Clumsy: two very different catalog modes
 means two different mental models, and the F-key set is desktop-only.
@@ -66,6 +74,16 @@ total is reached (split payment). Cash, bank transfer, MoMo, ZaloPay, VNPay QR, 
 F1 pay, F2 tendered amount, F6 order discount, F7 change method, F11 fullscreen.
 <https://help.sapo.vn/huong-dan-su-dung-phim-tat-shortcut>
 <https://help.sapo.vn/he-thong-phim-chuc-nang-trong-giao-dien-ban-tai-quay-pos>
+
+**Multiple open orders.** Several orders run in parallel and `Alt+2` toggles between them,
+which puts order switching in the same hotkey tier as printing and closing.
+<https://help.sapo.vn/he-thong-phim-chuc-nang-trong-giao-dien-ban-tai-quay-pos> The on-screen
+control for switching is `unverified`.
+
+**Images on tiles.** Product rows and tiles carry an image field alongside name, type, brand
+and stock, and the visible columns are user configurable.
+<https://help.sapo.vn/quan-ly-danh-sach-san-pham-tren-phan-mem-sapo> Fallback for a product
+with no image is `unverified`.
 
 **Under time pressure.** Preset VND denominations remove mental arithmetic in a cash-heavy
 market. Deep hotkey map. Clumsy: the hotkey map is large enough to need a cheat sheet, and
@@ -98,6 +116,20 @@ supported Android. Scanning an unknown UPC can create the item.
 <https://squareup.com/help/us/en/article/5143-bar-code-scanners-with-square-point-of-sale>
 Keyboard shortcuts: `unverified`, Square publishes none.
 
+**Multiple open orders.** Open Tickets: an order is created, named with an optional note,
+saved, and completed later; in Square for Retail a saved cart is the same object as an open
+ticket, and any logged-in device in the account can pick it up. Tickets split and merge, and
+one ticket caps at 500 items.
+<https://squareup.com/help/us/en/article/5337-use-open-tickets-with-square>
+<https://squareup.com/help/us/en/article/8439-split-and-merge-open-tickets>
+This is a named-and-saved model rather than a tab strip: fast to park many, slower to flip
+between two.
+
+**Images on tiles.** Images are the default and the tile carries image, price and variation
+count; where there is no photo the store sets a flat colour tile instead, so the fallback is
+colour plus the name, never an empty frame.
+<https://squareup.com/au/en/the-bottom-line/inside-square/visual-browse>
+
 **Under time pressure.** One unmissable Charge button, image-first recognition, categories
 and discounts one tap away with no menu nesting, quantity pre-selection. Clumsy: on phone
 the grid mostly disappears and the cashier is pushed into search.
@@ -129,6 +161,16 @@ plus the receipt are pushed to a customer display.
 **Search/barcode.** Camera scanning toggled in Settings, external HID scanners on Android.
 <https://help.loyverse.com/help/barcodes-scanning-built-device>
 
+**Multiple open orders.** Open Tickets, off by default and enabled in Back Office under
+Settings then Features. Once on, several orders are edited and closed independently, tickets
+split and merge, and they synchronise across devices in the store in real time.
+<https://help.loyverse.com/help/open-tickets>
+<https://help.loyverse.com/help/tickets-synchronizations>
+
+**Images on tiles.** Grid tiles show either an image or a flat colour, chosen per item, so a
+catalog with no photography still gets a usable grid; list mode drops the visual entirely and
+shows name plus price. <https://help.loyverse.com/help/home-sale-screen-layouts>
+
 **Under time pressure.** Colour tiles give recognition without product photography, which
 matters for a catalog nobody has photographed. The grid/list toggle respects that scanning
 for a product and checking a price are different tasks. Clumsy: 30-favourite cap, no
@@ -140,8 +182,9 @@ categories on phone, and the locked alphabetical default page.
 
 1. **Two-pane on desktop, catalog left, cart right** (KiotViet, Square Register): the
    cashier never loses sight of the running total.
-2. **Colour-coded tiles instead of photos** (Loyverse): the seed catalog has no images and
-   colour still buys fast recognition.
+2. **Image-first tiles with a colour fallback** (Square, Loyverse): the photo leads, and an
+   item with no photo gets the category colour plus its initials in the same slot, so the
+   grid never reflows and never shows an empty frame.
 3. **Stock on the tile** (Sapo "Có thể bán"): a grocery cashier needs to know before the
    tap, not after.
 4. **Preset cash denominations 50k/100k/200k/500k** (Sapo): removes arithmetic in a
@@ -160,6 +203,11 @@ categories on phone, and the locked alphabetical default page.
     Coca-Cola exists four times and the size is what tells them apart.
 12. **Grid density that keeps the full product name readable** (Loyverse list mode
     reasoning): truncation is the single most expensive error source at the till.
+13. **Several open orders as a tab strip** (KiotViet): one cashier serves customers in
+    parallel, and tabs make switching one tap with the state of every order visible at once,
+    which naming and saving a ticket (Square, Loyverse) does not.
+14. **Open orders switchable from the keyboard on web** (Sapo puts order toggling in the
+    same hotkey tier as printing): `Alt+1` to `Alt+8` rather than a browser-owned combo.
 
 ## Patterns BeePOS rejects
 
@@ -171,5 +219,8 @@ categories on phone, and the locked alphabetical default page.
    tablet first where F-keys do not exist.
 4. **Favourites as a separate capped page** (Loyverse, 30 items): categories plus search
    already cover it and it adds a second navigation model.
-5. **Customer-facing second screen** (KiotViet D68, Square Register): out of scope for a
+5. **Named-and-saved tickets, split and merge** (Square, Loyverse): naming every parked bill
+   costs a keyboard trip a grocery cashier does not have time for, and split or merge is a
+   restaurant problem, not a tạp hoá one.
+6. **Customer-facing second screen** (KiotViet D68, Square Register): out of scope for a
    one-codebase prototype with no hardware layer.
