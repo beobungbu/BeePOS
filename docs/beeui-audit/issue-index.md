@@ -104,6 +104,6 @@ Coverage check (2026-09-11 20:05): 83 findings across `findings-*.md`; every Bee
 | BeeUI issue | Source | Severity | Title |
 |---|---|---|---|
 | [#591](https://github.com/beobungbu/BeeUI/issues/591) | 14-01 | minor (gap) | No family composes a closable, scrollable tab strip (POS open orders) |
+| [#592](https://github.com/beobungbu/BeeUI/issues/592) | 14-02..14-04 | minor | umbrella 4: OTPInput segmented appearance, Switch accent warning on web, DropdownMenuTrigger is a Button |
 
 Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card` / `bg-accent` (BeePOS worker error, fixed in phase 2).
-| [#592](https://github.com/beobungbu/BeeUI/issues/592) | 14-02..14-04 | minor | umbrella 4: OTPInput segmented appearance, Switch accent warning on web, DropdownMenuTrigger is a Button |
