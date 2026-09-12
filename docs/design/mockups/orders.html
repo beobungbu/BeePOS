@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeePOS · Đơn hàng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 7v10"/><path d="M12 7v10"/><path d="M17 7v10"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol>
+<symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></symbol>
+<symbol id="i-package" viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></symbol>
+<symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12"/><path d="M6 14h12"/><path d="M6 10h12v12H6z"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+<symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></symbol>
+<symbol id="i-idcard" viewBox="0 0 24 24"><path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/><rect x="2" y="5" width="20" height="14" rx="2"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-filter" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+<symbol id="i-hex" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></symbol>
+</defs></svg>
+
+<div class="page-bar">
+  <a href="index.html">&larr; Tất cả màn hình</a>
+  <span class="page-bar__title">Đơn hàng · /orders</span>
+  <label class="page-bar__toggle"><input type="checkbox" id="map"> Show component map</label>
+</div>
+
+<div class="frames">
+
+  <!-- PHONE -->
+  <div class="frame frame--phone">
+    <div class="frame__label">ĐIỆN THOẠI <span>375 x 812 · ListGroup</span></div>
+    <div class="screen screen--phone">
+      <div class="statusbar"><span>14:41</span><span class="statusbar__dots"><i></i><i></i><i></i></span></div>
+      <header class="appheader" data-beeui="AppHeader">
+        <span class="grow"><div class="appheader__store">Đơn hàng</div>
+          <div class="appheader__sub">Tạp hoá Cầu Giấy · Hôm nay</div></span>
+        <button class="icon-btn" type="button" aria-label="Bộ lọc">
+          <svg class="svg" viewBox="0 0 24 24"><use href="#i-filter"/></svg>
+        </button>
+      </header>
+
+      <div class="catalog__top" data-beeui="SearchInput + Chip">
+        <div class="searchbar">
+          <svg class="svg" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+          <span class="ph">Mã đơn hoặc số điện thoại</span>
+        </div>
+        <div class="chiprow">
+          <span class="chip chip--on">Hôm nay</span>
+          <span class="chip">7 ngày</span>
+          <span class="chip">Hoàn tất</span>
+          <span class="chip">Hoàn</span>
+        </div>
+      </div>
+
+      <div class="statbar" data-beeui="Stat">
+        <span><div class="t-caption muted">Đơn</div><div class="t-heading num">18</div></span>
+        <span><div class="t-caption muted">Doanh thu</div><div class="t-heading num">3.482.000 đ</div></span>
+        <span><div class="t-caption muted">TB/đơn</div><div class="t-heading num">193.400 đ</div></span>
+      </div>
+
+      <div style="flex:1;overflow:hidden;background:var(--color-surface)" data-beeui="ListGroup + ListItem">
+        <a class="listrow" href="#">
+          <span class="grow">
+            <div class="row" style="gap:8px"><span class="t-label" style="font-weight:600">HD20260912-0018</span>
+              <span class="badge badge--success">Hoàn tất</span></div>
+            <div class="t-caption muted">14:32 · Nguyễn Thị Mai · Tiền mặt</div>
+          </span>
+          <span class="t-label num" style="font-weight:700">81.500 đ</span>
+          <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+        </a>
+        <a class="listrow" href="#">
+          <span class="grow">
+            <div class="row" style="gap:8px"><span class="t-label" style="font-weight:600">HD20260912-0017</span>
+              <span class="badge badge--success">Hoàn tất</span></div>
+            <div class="t-caption muted">14:21 · Khách lẻ · Chuyển khoản</div>
+          </span>
+          <span class="t-label num" style="font-weight:700">245.000 đ</span>
+          <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+        </a>
+        <a class="listrow" href="#">
+          <span class="grow">
+            <div class="row" style="gap:8px"><span class="t-label" style="font-weight:600">HD20260912-0016</span>
+              <span class="badge badge--warning">Hoàn 1 phần</span></div>
+            <div class="t-caption muted">13:58 · Trần Văn Hùng · Tiền mặt</div>
+          </span>
+          <span class="t-label num" style="font-weight:700">42.000 đ</span>
+          <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+        </a>
+        <a class="listrow" href="#">
+          <span class="grow">
+            <div class="row" style="gap:8px"><span class="t-label" style="font-weight:600">HD20260912-0015</span>
+              <span class="badge badge--success">Hoàn tất</span></div>
+            <div class="t-caption muted">13:40 · Khách lẻ · Thẻ</div>
+          </span>
+          <span class="t-label num" style="font-weight:700">128.000 đ</span>
+          <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+        </a>
+        <a class="listrow" href="#">
+          <span class="grow">
+            <div class="row" style="gap:8px"><span class="t-label" style="font-weight:600">HD20260912-0014</span>
+              <span class="badge badge--success">Hoàn tất</span></div>
+            <div class="t-caption muted">13:12 · Lê Thị Hoa · Tiền mặt và chuyển khoản</div>
+          </span>
+          <span class="t-label num" style="font-weight:700">512.000 đ</span>
+          <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+        </a>
+        <a class="listrow" href="#">
+          <span class="grow">
+            <div class="row" style="gap:8px"><span class="t-label" style="font-weight:600">HD20260912-0013</span>
+              <span class="badge badge--danger">Đã huỷ</span></div>
+            <div class="t-caption muted">12:47 · Khách lẻ · Tiền mặt</div>
+          </span>
+          <span class="t-label num muted" style="font-weight:700;text-decoration:line-through">36.000 đ</span>
+          <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+        </a>
+      </div>
+
+      <nav class="tabbar" data-beeui="Tabs (expo-router)">
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#" class="on"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-ellipsis"/></svg>Thêm</a>
+      </nav>
+    </div>
+    <ul class="frame__notes">
+      <li>Dưới 768 pt không bao giờ dùng bảng cuộn ngang: mỗi đơn là một hàng ba tầng thông tin.</li>
+      <li>Trạng thái luôn là badge có chữ, không bao giờ chỉ là chấm màu.</li>
+      <li>Đơn đã huỷ gạch ngang số tiền để không bị cộng nhầm khi liếc nhanh.</li>
+    </ul>
+  </div>
+
+  <!-- TABLET -->
+  <div class="frame frame--tablet">
+    <div class="frame__label">MÁY TÍNH BẢNG <span>768 x 1024 · Table</span></div>
+    <div class="screen screen--tablet" style="flex-direction:row">
+      <nav class="rail" data-beeui="Stack + Pressable">
+        <span class="brand__mark" style="margin-bottom:10px"><svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#" class="on"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-users"/></svg>Khách hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
+        <span class="grow"></span>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
+      </nav>
+
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <header class="appheader" data-beeui="AppHeader">
+          <span class="grow"><div class="appheader__store">Đơn hàng</div>
+            <div class="appheader__sub">Tạp hoá Cầu Giấy · 12/09/2026</div></span>
+          <span class="badge badge--code">HN01</span>
+        </header>
+
+        <div class="toolbar" data-beeui="SearchInput + Select">
+          <div class="searchbar grow"><svg class="svg" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+            <span class="ph">Mã đơn hoặc số điện thoại</span></div>
+          <button class="btn btn--outline" type="button">Hôm nay
+            <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg></button>
+          <button class="btn btn--outline" type="button">Trạng thái</button>
+        </div>
+
+        <div class="statbar" data-beeui="Stat">
+          <span><div class="t-caption muted">Số đơn</div><div class="t-heading num">18</div></span>
+          <span><div class="t-caption muted">Doanh thu</div><div class="t-heading num">3.482.000 đ</div></span>
+          <span><div class="t-caption muted">Trung bình mỗi đơn</div><div class="t-heading num">193.400 đ</div></span>
+          <span><div class="t-caption muted">Hoàn trả</div><div class="t-heading num">1</div></span>
+        </div>
+
+        <div style="flex:1;overflow:hidden" data-beeui="Table">
+          <table class="table table--tight">
+            <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Thanh toán</th><th>Trạng thái</th><th class="r">Tổng tiền</th></tr></thead>
+            <tbody>
+              <tr><td><b>HD20260912-0018</b><div class="t-caption muted num">14:32</div></td><td>Nguyễn Thị Mai</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">81.500 đ</td></tr>
+              <tr><td><b>HD20260912-0017</b><div class="t-caption muted num">14:21</div></td><td class="muted">Khách lẻ</td><td>Chuyển khoản</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">245.000 đ</td></tr>
+              <tr><td><b>HD20260912-0016</b><div class="t-caption muted num">13:58</div></td><td>Trần Văn Hùng</td><td>Tiền mặt</td><td><span class="badge badge--warning">Hoàn 1 phần</span></td><td class="r">42.000 đ</td></tr>
+              <tr><td><b>HD20260912-0015</b><div class="t-caption muted num">13:40</div></td><td class="muted">Khách lẻ</td><td>Thẻ</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">128.000 đ</td></tr>
+              <tr><td><b>HD20260912-0014</b><div class="t-caption muted num">13:12</div></td><td>Lê Thị Hoa</td><td>Tiền mặt, CK</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">512.000 đ</td></tr>
+              <tr><td><b>HD20260912-0013</b><div class="t-caption muted num">12:47</div></td><td class="muted">Khách lẻ</td><td>Tiền mặt</td><td><span class="badge badge--danger">Đã huỷ</span></td><td class="r muted" style="text-decoration:line-through">36.000 đ</td></tr>
+              <tr><td><b>HD20260912-0012</b><div class="t-caption muted num">12:05</div></td><td>Phạm Minh Đức</td><td>Điểm</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">96.000 đ</td></tr>
+              <tr><td><b>HD20260912-0011</b><div class="t-caption muted num">11:38</div></td><td class="muted">Khách lẻ</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">27.500 đ</td></tr>
+              <tr><td><b>HD20260912-0010</b><div class="t-caption muted num">11:02</div></td><td>Đỗ Thị Lan</td><td>Chuyển khoản</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">318.000 đ</td></tr>
+              <tr><td><b>HD20260912-0009</b><div class="t-caption muted num">10:26</div></td><td class="muted">Khách lẻ</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">64.000 đ</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" data-beeui="Pagination">Hiển thị 1 đến 10 trong 18 đơn
+          <button class="btn btn--outline" type="button" style="min-height:36px">Trước</button>
+          <button class="btn btn--outline" type="button" style="min-height:36px">Sau</button>
+        </div>
+      </div>
+    </div>
+    <ul class="frame__notes">
+      <li>Từ 768 pt là bảng thật, hàng cao 56 pt theo token density-row-height.</li>
+      <li>Cột tiền căn phải và dùng chữ số đều cột, quét mắt theo chiều dọc là ra ngay đơn lớn.</li>
+      <li>Bốn ô Stat nằm trên bảng để quản lý cửa hàng có số tổng trước khi đọc chi tiết.</li>
+    </ul>
+  </div>
+
+  <!-- DESKTOP -->
+  <div class="frame frame--desktop">
+    <div class="frame__label">DESKTOP <span>1440 x 900 · Table + xem trước</span></div>
+    <div class="screen screen--desktop" style="flex-direction:row">
+      <nav class="sidebar" data-beeui="ListGroup + ListItem">
+        <div class="brand" style="padding:4px 8px 16px">
+          <span class="brand__mark"><svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
+          <span class="brand__word">BeePOS</span>
+        </div>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#" class="on"><svg class="svg" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-users"/></svg>Khách hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-store"/></svg>Cửa hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-idcard"/></svg>Nhân viên</a>
+        <span class="grow"></span>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
+      </nav>
+
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <header class="appheader" style="padding:0 24px" data-beeui="AppHeader">
+          <span class="grow"><div class="appheader__store">Đơn hàng</div>
+            <div class="appheader__sub">Tạp hoá Cầu Giấy · 12/09/2026 · 18 đơn</div></span>
+          <button class="btn btn--outline" type="button">Xuất Excel</button>
+        </header>
+
+        <div class="toolbar" style="padding:12px 24px" data-beeui="SearchInput + Select">
+          <div class="searchbar" style="width:360px"><svg class="svg" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+            <span class="ph">Mã đơn hoặc số điện thoại</span><span class="kbd">F3</span></div>
+          <button class="btn btn--outline" type="button">Cửa hàng: HN01</button>
+          <button class="btn btn--outline" type="button">Hôm nay</button>
+          <button class="btn btn--outline" type="button">Trạng thái: Tất cả</button>
+          <button class="btn btn--outline" type="button">Thu ngân: Tất cả</button>
+          <span class="grow"></span>
+          <span class="t-label muted">18 kết quả</span>
+        </div>
+
+        <div style="flex:1;display:flex;min-height:0">
+          <div style="flex:1;min-width:0;overflow:hidden" data-beeui="Table">
+            <table class="table">
+              <thead><tr><th>Mã đơn</th><th>Thời gian</th><th>Khách hàng</th><th>Thu ngân</th><th>Thanh toán</th><th>Trạng thái</th><th class="r">Tổng tiền</th></tr></thead>
+              <tbody>
+                <tr class="on"><td><b>HD20260912-0018</b></td><td class="num">12/09 14:32</td><td>Nguyễn Thị Mai</td><td>Vũ Thị Giang</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">81.500 đ</td></tr>
+                <tr><td><b>HD20260912-0017</b></td><td class="num">12/09 14:21</td><td class="muted">Khách lẻ</td><td>Vũ Thị Giang</td><td>Chuyển khoản</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">245.000 đ</td></tr>
+                <tr><td><b>HD20260912-0016</b></td><td class="num">12/09 13:58</td><td>Trần Văn Hùng</td><td>Đặng Văn Hải</td><td>Tiền mặt</td><td><span class="badge badge--warning">Hoàn 1 phần</span></td><td class="r">42.000 đ</td></tr>
+                <tr><td><b>HD20260912-0015</b></td><td class="num">12/09 13:40</td><td class="muted">Khách lẻ</td><td>Vũ Thị Giang</td><td>Thẻ</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">128.000 đ</td></tr>
+                <tr><td><b>HD20260912-0014</b></td><td class="num">12/09 13:12</td><td>Lê Thị Hoa</td><td>Đặng Văn Hải</td><td>Tiền mặt, CK</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">512.000 đ</td></tr>
+                <tr><td><b>HD20260912-0013</b></td><td class="num">12/09 12:47</td><td class="muted">Khách lẻ</td><td>Vũ Thị Giang</td><td>Tiền mặt</td><td><span class="badge badge--danger">Đã huỷ</span></td><td class="r muted" style="text-decoration:line-through">36.000 đ</td></tr>
+                <tr><td><b>HD20260912-0012</b></td><td class="num">12/09 12:05</td><td>Phạm Minh Đức</td><td>Vũ Thị Giang</td><td>Điểm</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">96.000 đ</td></tr>
+                <tr><td><b>HD20260912-0011</b></td><td class="num">12/09 11:38</td><td class="muted">Khách lẻ</td><td>Đặng Văn Hải</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">27.500 đ</td></tr>
+                <tr><td><b>HD20260912-0010</b></td><td class="num">12/09 11:02</td><td>Đỗ Thị Lan</td><td>Vũ Thị Giang</td><td>Chuyển khoản</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">318.000 đ</td></tr>
+                <tr><td><b>HD20260912-0009</b></td><td class="num">12/09 10:26</td><td class="muted">Khách lẻ</td><td>Đặng Văn Hải</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">64.000 đ</td></tr>
+                <tr><td><b>HD20260912-0008</b></td><td class="num">12/09 09:51</td><td>Vũ Minh Tuấn</td><td>Vũ Thị Giang</td><td>Tiền mặt</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">154.000 đ</td></tr>
+                <tr><td><b>HD20260912-0007</b></td><td class="num">12/09 09:14</td><td class="muted">Khách lẻ</td><td>Vũ Thị Giang</td><td>Chuyển khoản</td><td><span class="badge badge--success">Hoàn tất</span></td><td class="r">72.000 đ</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside style="width:380px;flex:none;background:var(--color-surface);border-left:1px solid var(--color-border);display:flex;flex-direction:column"
+                 data-beeui="Card + Timeline">
+            <div class="cartpane__head">
+              <span class="grow"><div class="t-heading">HD20260912-0018</div>
+                <div class="t-caption muted">12/09/2026 14:32 · Vũ Thị Giang</div></span>
+              <span class="badge badge--success">Hoàn tất</span>
+            </div>
+            <div style="flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+              <div class="row" style="gap:10px">
+                <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-user"/></svg>
+                <span class="grow"><div class="t-label" style="font-weight:600">Nguyễn Thị Mai</div>
+                  <div class="t-caption muted">0912 345 678 · Hạng Bạc</div></span>
+              </div>
+              <div class="panel" style="padding:0;border:none;gap:8px">
+                <div class="totals__row"><span>Nước ngọt Coca-Cola 330ml x2</span><span class="num">18.000 đ</span></div>
+                <div class="totals__row"><span>Mì Hảo Hảo 75g x5</span><span class="num">22.500 đ</span></div>
+                <div class="totals__row"><span>Sữa tươi Vinamilk 180ml x4</span><span class="num">28.000 đ</span></div>
+                <div class="totals__row"><span>Bánh Oreo vani 137g x1</span><span class="num">18.000 đ</span></div>
+                <div class="totals__rule"></div>
+                <div class="totals__row"><span class="muted">Giảm giá</span>
+                  <span style="color:var(--color-success);font-weight:600">-5.000 đ</span></div>
+                <div class="totals__grand"><span class="t-label muted">TỔNG CỘNG</span><span class="t-title num">81.500 đ</span></div>
+              </div>
+              <div class="timeline" data-beeui="Timeline">
+                <div class="timeline__item"><span class="timeline__dot"></span>
+                  <div><div class="t-label" style="font-weight:600">Tạo đơn</div><div class="t-caption muted">14:32 · Vũ Thị Giang</div></div></div>
+                <div class="timeline__item"><span class="timeline__dot timeline__dot--ok"></span>
+                  <div><div class="t-label" style="font-weight:600">Thanh toán tiền mặt 100.000 đ</div><div class="t-caption muted">14:32 · Tiền thừa 18.500 đ</div></div></div>
+                <div class="timeline__item"><span class="timeline__dot timeline__dot--ok"></span>
+                  <div><div class="t-label" style="font-weight:600">In hoá đơn</div><div class="t-caption muted">14:33</div></div></div>
+              </div>
+            </div>
+            <div style="padding:16px 20px;border-top:1px solid var(--color-border);display:flex;gap:10px">
+              <button class="btn btn--outline grow" type="button">In lại</button>
+              <button class="btn btn--outline grow" type="button" style="color:var(--color-destructive);border-color:var(--color-destructive)">Hoàn trả</button>
+            </div>
+          </aside>
+        </div>
+
+        <div class="pagination" style="padding:12px 24px" data-beeui="Pagination">Hiển thị 1 đến 12 trong 18 đơn
+          <button class="btn btn--outline" type="button" style="min-height:36px">Trước</button>
+          <button class="btn btn--outline" type="button" style="min-height:36px">Sau</button>
+        </div>
+      </div>
+    </div>
+    <ul class="frame__notes">
+      <li>Desktop thêm pane xem trước 380 pt: quản lý soi một đơn mà không rời danh sách.</li>
+      <li>Hoàn trả là hành động nguy hiểm nên dùng viền destructive và phải xác nhận qua AlertDialog có nêu mã đơn.</li>
+      <li>Hàng đang chọn tô nền primary 6 phần trăm, đủ thấy nhưng không tranh chấp với badge trạng thái.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('map').addEventListener('change', function (e) {
+    document.body.classList.toggle('map', e.target.checked);
+  });
+</script>
+</body>
+</html>

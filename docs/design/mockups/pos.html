@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeePOS · Bán hàng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 7v10"/><path d="M12 7v10"/><path d="M17 7v10"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol>
+<symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></symbol>
+<symbol id="i-package" viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></symbol>
+<symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12"/><path d="M6 14h12"/><path d="M6 10h12v12H6z"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+<symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></symbol>
+<symbol id="i-idcard" viewBox="0 0 24 24"><path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/><rect x="2" y="5" width="20" height="14" rx="2"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+<symbol id="i-hex" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></symbol>
+</defs></svg>
+
+<div class="page-bar">
+  <a href="index.html">&larr; Tất cả màn hình</a>
+  <span class="page-bar__title">Bán hàng · /pos</span>
+  <label class="page-bar__toggle"><input type="checkbox" id="map"> Show component map</label>
+</div>
+
+<div class="frames">
+
+  <!-- ============================ PHONE 375 ============================ -->
+  <div class="frame frame--phone">
+    <div class="frame__label">ĐIỆN THOẠI <span>375 x 812 · bottom tabs</span></div>
+    <div class="screen screen--phone">
+
+      <div class="statusbar"><span>14:32</span><span class="statusbar__dots"><i></i><i></i><i></i></span></div>
+
+      <header class="appheader" data-beeui="AppHeader">
+        <span class="brand__mark" style="width:32px;height:32px">
+          <svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg>
+        </span>
+        <span class="grow">
+          <div class="appheader__store">Tạp hoá Cầu Giấy</div>
+          <div class="appheader__sub">Vũ Thị Giang · Thu ngân</div>
+        </span>
+        <span class="avatar">VG</span>
+      </header>
+
+      <div class="shiftstrip" data-beeui="AlertBanner">
+        <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-alert"/></svg>
+        Chưa mở ca
+        <button type="button">Mở ca</button>
+      </div>
+
+      <div class="catalog">
+        <div class="catalog__top" data-beeui="SearchInput + Chip">
+          <div class="searchbar">
+            <svg class="svg" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+            <span class="ph">Tìm hoặc quét mã vạch</span>
+            <button class="icon-btn" type="button" aria-label="Quét mã vạch">
+              <svg class="svg" viewBox="0 0 24 24"><use href="#i-scan"/></svg>
+            </button>
+          </div>
+          <div class="chiprow">
+            <span class="chip chip--on">Tất cả</span>
+            <span class="chip">Đồ uống</span>
+            <span class="chip">Sữa và chế phẩm</span>
+            <span class="chip">Gạo</span>
+          </div>
+        </div>
+
+        <div class="grid grid--2" data-beeui="FlatList of Card">
+          <article class="tile" style="--acc:var(--chart-series-1)">
+            <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span><span class="tile__qty">2</span></div>
+            <div class="tile__name">Nước ngọt Coca-Cola</div>
+            <div class="tile__meta">330ml · chai</div>
+            <div class="tile__price">9.000 đ</div>
+          </article>
+          <article class="tile" style="--acc:var(--chart-series-1)">
+            <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span><span class="badge">Còn 20</span></div>
+            <div class="tile__name">Nước ngọt Coca-Cola</div>
+            <div class="tile__meta">500ml · chai</div>
+            <div class="tile__price">12.000 đ</div>
+          </article>
+          <article class="tile" style="--acc:var(--chart-series-1)">
+            <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span>
+              <span class="badge badge--warning"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Sắp hết 4</span></div>
+            <div class="tile__name">Nước ngọt Coca-Cola</div>
+            <div class="tile__meta">1.5L · chai</div>
+            <div class="tile__price">21.000 đ</div>
+          </article>
+          <article class="tile" style="--acc:var(--chart-series-1)">
+            <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span><span class="badge">Còn 44</span></div>
+            <div class="tile__name">Nước ngọt Coca-Cola</div>
+            <div class="tile__meta">Lốc 6 lon · lốc</div>
+            <div class="tile__price">58.000 đ</div>
+          </article>
+          <article class="tile" style="--acc:var(--chart-series-1)">
+            <div class="tile__top"><span class="tile__mark">TX</span><span class="grow"></span><span class="badge">Còn 16</span></div>
+            <div class="tile__name">Trà xanh Không Độ</div>
+            <div class="tile__meta">350ml · chai</div>
+            <div class="tile__price">8.500 đ</div>
+          </article>
+          <article class="tile" style="--acc:var(--chart-series-2)">
+            <div class="tile__top"><span class="tile__mark">VN</span><span class="grow"></span><span class="tile__qty">4</span></div>
+            <div class="tile__name">Sữa tươi Vinamilk</div>
+            <div class="tile__meta">180ml · hộp</div>
+            <div class="tile__price">7.000 đ</div>
+          </article>
+          <article class="tile" style="--acc:var(--chart-series-1)">
+            <div class="tile__top"><span class="tile__mark">BS</span><span class="grow"></span><span class="badge">Còn 11</span></div>
+            <div class="tile__name">Bia Saigon Lager</div>
+            <div class="tile__meta">Lon 330ml · lon</div>
+            <div class="tile__price">14.500 đ</div>
+          </article>
+          <article class="tile" style="--acc:var(--chart-series-1)">
+            <div class="tile__top"><span class="tile__mark">HH</span><span class="grow"></span><span class="tile__qty">5</span></div>
+            <div class="tile__name">Mì Hảo Hảo tôm chua cay</div>
+            <div class="tile__meta">Gói 75g · gói</div>
+            <div class="tile__price">4.500 đ</div>
+          </article>
+        </div>
+
+        <div class="cartbar" data-beeui="BottomActionBar">
+          <span class="cartbar__count">
+            <svg class="svg" viewBox="0 0 24 24"><use href="#i-cart"/></svg>
+            <b>12</b>
+          </span>
+          <span class="grow">
+            <div class="t-caption muted">4 mặt hàng</div>
+            <div class="t-heading num">81.500 đ</div>
+          </span>
+          <button class="btn btn--primary" type="button">Thanh toán</button>
+        </div>
+      </div>
+
+      <nav class="tabbar" data-beeui="Tabs (expo-router)">
+        <a href="#" class="on"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-ellipsis"/></svg>Thêm</a>
+      </nav>
+    </div>
+    <ul class="frame__notes">
+      <li>Giỏ hàng là route đẩy <code>/pos/cart</code>, không dùng Sheet: BeeUI Sheet không hiện trên iOS.</li>
+      <li>Thanh giỏ luôn hiển thị số tiền nên thu ngân không phải mở giỏ để biết tổng.</li>
+      <li>Chip danh mục cuộn ngang một hàng, chip cuối bị cắt một nửa để báo còn cuộn được.</li>
+      <li>Sản phẩm đã có trong giỏ đổi badge tồn kho thành số lượng màu primary.</li>
+    </ul>
+  </div>
+
+  <!-- ============================ TABLET 768 ============================ -->
+  <div class="frame frame--tablet">
+    <div class="frame__label">MÁY TÍNH BẢNG <span>768 x 1024 · rail 72 pt</span></div>
+    <div class="screen screen--tablet" style="flex-direction:row">
+
+      <nav class="rail" data-beeui="Stack + Pressable">
+        <span class="brand__mark" style="margin-bottom:10px">
+          <svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg>
+        </span>
+        <a href="#" class="on"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-users"/></svg>Khách hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-store"/></svg>Cửa hàng</a>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-idcard"/></svg>Nhân viên</a>
+        <span class="grow"></span>
+        <a href="#"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
+      </nav>
+
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <header class="appheader" data-beeui="AppHeader">
+          <span class="grow">
+            <div class="appheader__store">Tạp hoá Cầu Giấy</div>
+            <div class="appheader__sub">12 Xuân Thuỷ, Cầu Giấy, Hà Nội</div>
+          </span>
+          <span class="badge badge--code">HN01</span>
+          <span class="avatar">VG</span>
+        </header>
+
+        <div class="shiftstrip" data-beeui="AlertBanner">
+          <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-alert"/></svg>
+          Chưa mở ca. Doanh thu và tiền mặt trong ca sẽ không được ghi nhận.
+          <button type="button">Mở ca</button>
+        </div>
+
+        <div class="catalog">
+          <div class="catalog__top" style="padding:12px 20px 10px" data-beeui="SearchInput + Chip">
+            <div class="searchbar">
+              <svg class="svg" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+              <span class="ph">Tìm tên, SKU hoặc quét mã vạch</span>
+              <button class="icon-btn" type="button" aria-label="Quét mã vạch">
+                <svg class="svg" viewBox="0 0 24 24"><use href="#i-scan"/></svg>
+              </button>
+            </div>
+            <div class="chiprow chiprow--wrap">
+              <span class="chip chip--on">Tất cả</span>
+              <span class="chip">Đồ uống</span>
+              <span class="chip">Sữa và chế phẩm</span>
+              <span class="chip">Gạo và ngũ cốc</span>
+              <span class="chip">Gia vị</span>
+              <span class="chip">Bánh kẹo</span>
+              <span class="chip">Mì và thực phẩm ăn liền</span>
+              <span class="chip">+2</span>
+            </div>
+          </div>
+
+          <div class="grid grid--4" data-beeui="FlatList of Card">
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span><span class="tile__qty">2</span></div>
+              <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">330ml · chai</div>
+              <div class="tile__price">9.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span><span class="badge">Còn 20</span></div>
+              <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">500ml · chai</div>
+              <div class="tile__price">12.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span>
+                <span class="badge badge--warning"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>4</span></div>
+              <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">1.5L · chai</div>
+              <div class="tile__price">21.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span><span class="badge">Còn 44</span></div>
+              <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">Lốc 6 lon · lốc</div>
+              <div class="tile__price">58.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">TX</span><span class="grow"></span><span class="badge">Còn 16</span></div>
+              <div class="tile__name">Trà xanh Không Độ</div><div class="tile__meta">350ml · chai</div>
+              <div class="tile__price">8.500 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">TX</span><span class="grow"></span>
+                <span class="badge badge--warning"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>3</span></div>
+              <div class="tile__name">Trà xanh Không Độ</div><div class="tile__meta">500ml · chai</div>
+              <div class="tile__price">10.500 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">LV</span><span class="grow"></span><span class="badge">Còn 45</span></div>
+              <div class="tile__name">Nước suối Lavie</div><div class="tile__meta">500ml · chai</div>
+              <div class="tile__price">5.500 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">BS</span><span class="grow"></span><span class="badge">Còn 11</span></div>
+              <div class="tile__name">Bia Saigon Lager</div><div class="tile__meta">Lon 330ml · lon</div>
+              <div class="tile__price">14.500 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-2)">
+              <div class="tile__top"><span class="tile__mark">VN</span><span class="grow"></span><span class="tile__qty">4</span></div>
+              <div class="tile__name">Sữa tươi Vinamilk</div><div class="tile__meta">180ml · hộp</div>
+              <div class="tile__price">7.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-2)">
+              <div class="tile__top"><span class="tile__mark">ÔT</span><span class="grow"></span><span class="badge">Còn 18</span></div>
+              <div class="tile__name">Sữa đặc Ông Thọ</div><div class="tile__meta">Lon 380g · lon</div>
+              <div class="tile__price">24.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-3)">
+              <div class="tile__top"><span class="tile__mark">ST</span><span class="grow"></span>
+                <span class="badge badge--warning"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>9</span></div>
+              <div class="tile__name">Gạo ST25 thơm dẻo</div><div class="tile__meta">Túi 5kg · túi</div>
+              <div class="tile__price">185.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-4)">
+              <div class="tile__top"><span class="tile__mark">PQ</span><span class="grow"></span><span class="badge">Còn 14</span></div>
+              <div class="tile__name">Nước mắm Phú Quốc</div><div class="tile__meta">Chai 500ml · chai</div>
+              <div class="tile__price">68.000 đ</div>
+            </article>
+            <article class="tile tile--out" style="--acc:var(--chart-series-4)">
+              <div class="tile__top"><span class="tile__mark">NT</span><span class="grow"></span><span class="badge badge--danger">Hết hàng</span></div>
+              <div class="tile__name">Dầu ăn Neptune</div><div class="tile__meta">Chai 1L · chai</div>
+              <div class="tile__price">52.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-highlight)">
+              <div class="tile__top"><span class="tile__mark">OR</span><span class="grow"></span><span class="tile__qty">1</span></div>
+              <div class="tile__name">Bánh Oreo vani</div><div class="tile__meta">Gói 137g · gói</div>
+              <div class="tile__price">18.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-highlight)">
+              <div class="tile__top"><span class="tile__mark">CP</span><span class="grow"></span><span class="badge">Còn 21</span></div>
+              <div class="tile__name">Chocopie Orion</div><div class="tile__meta">Hộp 12 cái · hộp</div>
+              <div class="tile__price">62.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">HH</span><span class="grow"></span><span class="tile__qty">5</span></div>
+              <div class="tile__name">Mì Hảo Hảo tôm chua cay</div><div class="tile__meta">Gói 75g · gói</div>
+              <div class="tile__price">4.500 đ</div>
+            </article>
+          </div>
+
+          <div class="cartbar" data-beeui="BottomActionBar">
+            <span class="cartbar__count">
+              <svg class="svg" viewBox="0 0 24 24"><use href="#i-cart"/></svg><b>12</b>
+            </span>
+            <span class="grow">
+              <div class="t-caption muted">4 mặt hàng · Khách lẻ</div>
+              <div class="t-heading num">81.500 đ</div>
+            </span>
+            <button class="btn btn--outline" type="button">Xem giỏ</button>
+            <button class="btn btn--primary" type="button" style="min-width:180px">Thanh toán · 81.500 đ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class="frame__notes">
+      <li>Rail 72 pt thay cho sidebar 240 pt: catalog giữ được 4 cột với tên sản phẩm đủ 2 dòng.</li>
+      <li>Chips xuống tối đa 2 hàng rồi gom phần còn lại vào chip <b>+2</b>.</li>
+      <li>Sản phẩm hết hàng mờ 50 phần trăm, không bấm được, badge dùng màu destructive.</li>
+    </ul>
+  </div>
+
+  <!-- ============================ DESKTOP 1440 ============================ -->
+  <div class="frame frame--desktop">
+    <div class="frame__label">DESKTOP <span>1440 x 900 · sidebar + hai pane</span></div>
+    <div class="screen screen--desktop" style="flex-direction:row">
+
+      <nav class="sidebar" data-beeui="ListGroup + ListItem">
+        <div class="brand" style="padding:4px 8px 16px">
+          <span class="brand__mark"><svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
+          <span class="brand__word">BeePOS</span>
+        </div>
+        <a href="#" class="on"><svg class="svg" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-users"/></svg>Khách hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-store"/></svg>Cửa hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-idcard"/></svg>Nhân viên</a>
+        <span class="grow"></span>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
+        <div class="row" style="gap:10px;padding:12px 8px 4px;border-top:1px solid var(--color-border);margin-top:8px">
+          <span class="avatar">VG</span>
+          <span class="grow">
+            <div class="t-label" style="font-weight:600">Vũ Thị Giang</div>
+            <div class="t-caption muted">Thu ngân · HN01</div>
+          </span>
+        </div>
+      </nav>
+
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <header class="appheader" style="padding:0 24px" data-beeui="AppHeader">
+          <span class="grow">
+            <div class="appheader__store">Tạp hoá Cầu Giấy</div>
+            <div class="appheader__sub">12 Xuân Thuỷ, Cầu Giấy, Hà Nội · 024 3767 1201</div>
+          </span>
+          <span class="badge badge--code">HN01</span>
+        </header>
+
+        <div class="shiftstrip" style="padding:0 24px" data-beeui="AlertBanner">
+          <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-alert"/></svg>
+          Chưa mở ca. Doanh thu và tiền mặt trong ca sẽ không được ghi nhận.
+          <button type="button">Mở ca</button>
+        </div>
+
+        <div class="catalog">
+          <div class="catalog__top" style="padding:14px 24px 10px" data-beeui="SearchInput + Chip">
+            <div class="searchbar">
+              <svg class="svg" viewBox="0 0 24 24"><use href="#i-search"/></svg>
+              <span class="ph">Tìm tên, SKU hoặc quét mã vạch</span>
+              <span class="kbd">F3</span>
+              <button class="icon-btn" type="button" aria-label="Quét mã vạch">
+                <svg class="svg" viewBox="0 0 24 24"><use href="#i-scan"/></svg>
+              </button>
+            </div>
+            <div class="chiprow chiprow--wrap">
+              <span class="chip chip--on">Tất cả</span>
+              <span class="chip">Đồ uống</span>
+              <span class="chip">Sữa và chế phẩm</span>
+              <span class="chip">Gạo và ngũ cốc</span>
+              <span class="chip">Gia vị</span>
+              <span class="chip">Bánh kẹo</span>
+              <span class="chip">Mì và thực phẩm ăn liền</span>
+              <span class="chip">Hoá phẩm gia dụng</span>
+              <span class="chip">Đồ vệ sinh cá nhân</span>
+            </div>
+          </div>
+
+          <div class="grid grid--4" data-beeui="FlatList of Card">
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span><span class="tile__qty">2</span></div>
+              <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">330ml · chai</div>
+              <div class="tile__price">9.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span><span class="badge">Còn 20</span></div>
+              <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">500ml · chai</div>
+              <div class="tile__price">12.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span>
+                <span class="badge badge--warning"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Sắp hết 4</span></div>
+              <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">1.5L · chai</div>
+              <div class="tile__price">21.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">CC</span><span class="grow"></span><span class="badge">Còn 44</span></div>
+              <div class="tile__name">Nước ngọt Coca-Cola</div><div class="tile__meta">Lốc 6 lon · lốc</div>
+              <div class="tile__price">58.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">TX</span><span class="grow"></span><span class="badge">Còn 16</span></div>
+              <div class="tile__name">Trà xanh Không Độ</div><div class="tile__meta">350ml · chai</div>
+              <div class="tile__price">8.500 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">TX</span><span class="grow"></span>
+                <span class="badge badge--warning"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Sắp hết 3</span></div>
+              <div class="tile__name">Trà xanh Không Độ</div><div class="tile__meta">500ml · chai</div>
+              <div class="tile__price">10.500 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">LV</span><span class="grow"></span><span class="badge">Còn 45</span></div>
+              <div class="tile__name">Nước suối Lavie</div><div class="tile__meta">500ml · chai</div>
+              <div class="tile__price">5.500 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">BS</span><span class="grow"></span><span class="badge">Còn 11</span></div>
+              <div class="tile__name">Bia Saigon Lager</div><div class="tile__meta">Lon 330ml · lon</div>
+              <div class="tile__price">14.500 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-2)">
+              <div class="tile__top"><span class="tile__mark">VN</span><span class="grow"></span><span class="tile__qty">4</span></div>
+              <div class="tile__name">Sữa tươi Vinamilk</div><div class="tile__meta">180ml · hộp</div>
+              <div class="tile__price">7.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-2)">
+              <div class="tile__top"><span class="tile__mark">ÔT</span><span class="grow"></span><span class="badge">Còn 18</span></div>
+              <div class="tile__name">Sữa đặc Ông Thọ</div><div class="tile__meta">Lon 380g · lon</div>
+              <div class="tile__price">24.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-2)">
+              <div class="tile__top"><span class="tile__mark">PM</span><span class="grow"></span><span class="badge">Còn 37</span></div>
+              <div class="tile__name">Phô mai con bò cười</div><div class="tile__meta">Hộp 8 miếng · hộp</div>
+              <div class="tile__price">39.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-3)">
+              <div class="tile__top"><span class="tile__mark">ST</span><span class="grow"></span>
+                <span class="badge badge--warning"><svg class="svg" style="width:12px;height:12px" viewBox="0 0 24 24"><use href="#i-alert"/></svg>Sắp hết 9</span></div>
+              <div class="tile__name">Gạo ST25 thơm dẻo</div><div class="tile__meta">Túi 5kg · túi</div>
+              <div class="tile__price">185.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-4)">
+              <div class="tile__top"><span class="tile__mark">PQ</span><span class="grow"></span><span class="badge">Còn 14</span></div>
+              <div class="tile__name">Nước mắm Phú Quốc</div><div class="tile__meta">Chai 500ml · chai</div>
+              <div class="tile__price">68.000 đ</div>
+            </article>
+            <article class="tile tile--out" style="--acc:var(--chart-series-4)">
+              <div class="tile__top"><span class="tile__mark">NT</span><span class="grow"></span><span class="badge badge--danger">Hết hàng</span></div>
+              <div class="tile__name">Dầu ăn Neptune</div><div class="tile__meta">Chai 1L · chai</div>
+              <div class="tile__price">52.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-highlight)">
+              <div class="tile__top"><span class="tile__mark">OR</span><span class="grow"></span><span class="tile__qty">1</span></div>
+              <div class="tile__name">Bánh Oreo vani</div><div class="tile__meta">Gói 137g · gói</div>
+              <div class="tile__price">18.000 đ</div>
+            </article>
+            <article class="tile" style="--acc:var(--chart-series-1)">
+              <div class="tile__top"><span class="tile__mark">HH</span><span class="grow"></span><span class="tile__qty">5</span></div>
+              <div class="tile__name">Mì Hảo Hảo tôm chua cay</div><div class="tile__meta">Gói 75g · gói</div>
+              <div class="tile__price">4.500 đ</div>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <aside class="cartpane" data-beeui="Card + ListGroup">
+        <div class="cartpane__head">
+          <span class="t-heading grow">Giỏ hàng</span>
+          <span class="badge">12 sản phẩm</span>
+          <button class="icon-btn" type="button" aria-label="Xoá giỏ hàng">
+            <svg class="svg" viewBox="0 0 24 24"><use href="#i-trash"/></svg>
+          </button>
+        </div>
+
+        <div class="row" style="gap:10px;padding:10px 20px;border-bottom:1px solid var(--color-border)"
+             data-beeui="Button (ghost)">
+          <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-user"/></svg>
+          <span class="grow t-label">Khách lẻ</span>
+          <span class="t-label" style="color:var(--color-info);font-weight:600">Gắn khách hàng</span>
+        </div>
+
+        <div class="cartlines" data-beeui="ListGroup + Stepper">
+          <div class="cartline">
+            <span class="grow">
+              <div class="cartline__name">Nước ngọt Coca-Cola</div>
+              <div class="cartline__meta">330ml · chai · 9.000 đ</div>
+              <div class="stepper" style="margin-top:8px">
+                <button type="button" aria-label="Giảm"><svg class="svg" viewBox="0 0 24 24"><use href="#i-minus"/></svg></button>
+                <span>2</span>
+                <button type="button" aria-label="Tăng"><svg class="svg" viewBox="0 0 24 24"><use href="#i-plus"/></svg></button>
+              </div>
+            </span>
+            <span class="cartline__total">18.000 đ</span>
+          </div>
+          <div class="cartline">
+            <span class="grow">
+              <div class="cartline__name">Mì Hảo Hảo tôm chua cay</div>
+              <div class="cartline__meta">Gói 75g · gói · 4.500 đ</div>
+              <div class="stepper" style="margin-top:8px">
+                <button type="button" aria-label="Giảm"><svg class="svg" viewBox="0 0 24 24"><use href="#i-minus"/></svg></button>
+                <span>5</span>
+                <button type="button" aria-label="Tăng"><svg class="svg" viewBox="0 0 24 24"><use href="#i-plus"/></svg></button>
+              </div>
+            </span>
+            <span class="cartline__total">22.500 đ</span>
+          </div>
+          <div class="cartline">
+            <span class="grow">
+              <div class="cartline__name">Sữa tươi Vinamilk</div>
+              <div class="cartline__meta">180ml · hộp · 7.000 đ</div>
+              <div class="cartline__meta" style="color:var(--color-success);font-weight:600">Giảm 5.000 đ</div>
+              <div class="stepper" style="margin-top:8px">
+                <button type="button" aria-label="Giảm"><svg class="svg" viewBox="0 0 24 24"><use href="#i-minus"/></svg></button>
+                <span>4</span>
+                <button type="button" aria-label="Tăng"><svg class="svg" viewBox="0 0 24 24"><use href="#i-plus"/></svg></button>
+              </div>
+            </span>
+            <span class="cartline__total">28.000 đ</span>
+          </div>
+          <div class="cartline">
+            <span class="grow">
+              <div class="cartline__name">Bánh Oreo vani</div>
+              <div class="cartline__meta">Gói 137g · gói · 18.000 đ</div>
+              <div class="stepper" style="margin-top:8px">
+                <button type="button" aria-label="Xoá"><svg class="svg" viewBox="0 0 24 24"><use href="#i-trash"/></svg></button>
+                <span>1</span>
+                <button type="button" aria-label="Tăng"><svg class="svg" viewBox="0 0 24 24"><use href="#i-plus"/></svg></button>
+              </div>
+            </span>
+            <span class="cartline__total">18.000 đ</span>
+          </div>
+        </div>
+
+        <div class="totals" data-beeui="DescriptionList + Button">
+          <div class="totals__row"><span class="muted">Tạm tính</span><span>86.500 đ</span></div>
+          <div class="totals__row"><span class="muted">Giảm giá</span>
+            <span style="color:var(--color-success);font-weight:600">-5.000 đ</span></div>
+          <div class="totals__row t-caption"><span class="subtle">Thuế VAT 10% đã gồm</span>
+            <span class="subtle">7.409 đ</span></div>
+          <div class="totals__rule"></div>
+          <div class="totals__grand">
+            <span class="t-label muted">TỔNG CỘNG</span>
+            <span class="t-title num">81.500 đ</span>
+          </div>
+          <button class="btn btn--primary btn--pay" type="button" style="margin-top:8px">
+            Thanh toán · 81.500 đ <span class="kbd" style="border-color:currentColor;color:inherit">F9</span>
+          </button>
+          <div class="row" style="gap:8px;margin-top:8px">
+            <button class="btn btn--outline grow" type="button">Giảm giá đơn</button>
+            <button class="btn btn--outline grow" type="button">Ghi chú</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <ul class="frame__notes">
+      <li>Hai pane: catalog 820 pt (4 cột x 186 pt) và giỏ hàng 380 pt luôn hiện, thu ngân không mất dấu tổng tiền.</li>
+      <li>Primary chỉ xuất hiện đúng một lần trên màn hình, ở nút thanh toán mang theo số tiền.</li>
+      <li>Ba phím tắt duy nhất: F3 tìm kiếm, F8 tiền khách đưa, F9 thanh toán.</li>
+      <li>Ở số lượng 1, nút trừ đổi thành thùng rác để xoá dòng bằng một chạm.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('map').addEventListener('change', function (e) {
+    document.body.classList.toggle('map', e.target.checked);
+  });
+</script>
+</body>
+</html>

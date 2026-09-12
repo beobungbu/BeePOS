@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeePOS mockups · phase 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  .wrap { max-width: 940px; margin: 0 auto; padding: 40px 24px 80px; }
+  .hero { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  h1 { font-size: 28px; line-height: 36px; letter-spacing: -.02em; }
+  h2 { font-size: 18px; margin: 36px 0 12px; }
+  .lede { color: #475467; font-size: 16px; line-height: 26px; max-width: 640px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .card {
+    display: flex; align-items: center; gap: 12px; padding: 16px 18px;
+    background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    text-decoration: none; color: inherit;
+  }
+  .card:hover { border-color: var(--color-primary); }
+  .card b { display: block; font-size: 15px; }
+  .card span { font-size: 13px; color: var(--color-muted-foreground); }
+  ol.changed { counter-reset: c; list-style: none; max-width: 720px; }
+  ol.changed li {
+    position: relative; padding: 9px 0 9px 34px; font-size: 15px; line-height: 22px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  ol.changed li::before {
+    counter-increment: c; content: counter(c);
+    position: absolute; left: 0; top: 10px; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--color-muted); color: var(--color-muted-foreground);
+    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .meta { font-size: 13px; color: var(--color-subtle-foreground); margin-top: 40px; }
+  .meta a { color: var(--color-info); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <span class="brand__mark brand__mark--lg">
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" stroke="none" aria-hidden="true">
+        <path d="M12 2.2 20.2 7v10L12 21.8 3.8 17V7z" opacity=".18"/>
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zm-2-.15-7 4-7-4v-7.7l7-4 7 4z"/>
+      </svg>
+    </span>
+    <div>
+      <h1>BeePOS mockups</h1>
+      <div class="lede">Phase 1 design pass · 12/09/2026</div>
+    </div>
+  </div>
+  <p class="lede" style="margin-top:16px">
+    Five screens, each rendered at 375 x 812, 768 x 1024 and 1440 x 900 with the real seed
+    catalog. Tokens come from <a href="tokens.css">tokens.css</a>, which mirrors the
+    BeeUI theme the app already ships. Every region is tagged with the BeeUI component
+    that should build it; tick <b>Show component map</b> inside any screen to see the tags.
+  </p>
+
+  <h2>Screens</h2>
+  <div class="cards">
+    <a class="card" href="pos.html">
+      <svg class="svg svg--24" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+      <span><b>Bán hàng</b><span>Catalog, giỏ hàng, hai pane trên desktop</span></span>
+    </a>
+    <a class="card" href="checkout.html">
+      <svg class="svg svg--24" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+      <span><b>Thanh toán</b><span>Tiền mặt, chuyển khoản, thẻ, điểm, trả góp nhiều lần</span></span>
+    </a>
+    <a class="card" href="orders.html">
+      <svg class="svg svg--24" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></svg>
+      <span><b>Đơn hàng</b><span>Bảng trên tablet trở lên, danh sách trên điện thoại</span></span>
+    </a>
+    <a class="card" href="login.html">
+      <svg class="svg svg--24" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span><b>Đăng nhập</b><span>Mã cửa hàng và mã PIN</span></span>
+    </a>
+    <a class="card" href="select-store.html">
+      <svg class="svg svg--24" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M2 7h20"/></svg>
+      <span><b>Chọn cửa hàng</b><span>Danh sách chi nhánh của nhân viên</span></span>
+    </a>
+  </div>
+
+  <h2>Thay đổi so với bản hiện tại</h2>
+  <ol class="changed">
+    <li>Emoji trong sidebar và tab bar được thay bằng icon lucide đồng nhất, nét 2 pt.</li>
+    <li>Tên sản phẩm luôn hiển thị đủ 2 dòng; bản hiện tại cắt thành "Trà xan..." nên bốn biến thể Coca-Cola không phân biệt được.</li>
+    <li>Tablet đổi sidebar 490 pt thành rail 72 pt, trả lại một cột sản phẩm cho catalog.</li>
+    <li>Banner "Chưa mở ca" thu thành dải 40 pt ngay dưới header thay vì khối 150 pt đẩy lưới sản phẩm xuống dưới màn hình.</li>
+    <li>Chips danh mục cuộn ngang một hàng trên điện thoại thay vì xuống bốn hàng.</li>
+    <li>Ô tồn kho đổi từ con số trần trong vòng tròn thành badge có chữ: Còn 23, Sắp hết 4, Hết hàng.</li>
+    <li>Mỗi sản phẩm có ô màu theo danh mục kèm chữ viết tắt, nhận diện nhanh mà không cần ảnh.</li>
+    <li>Giỏ hàng luôn hiện tổng tiền: thanh giỏ cố định trên điện thoại và tablet, pane 380 pt trên desktop.</li>
+    <li>Nút thanh toán mang theo số tiền (Thanh toán · 81.500 đ) và là màu primary duy nhất trên màn hình.</li>
+    <li>Đơn hàng dùng bảng thật từ 768 pt trở lên, tiền căn phải và dùng chữ số đều cột.</li>
+  </ol>
+
+  <p class="meta">
+    Ảnh chụp bản hiện tại: <a href="../current/">docs/design/current/</a> ·
+    Định hướng: <a href="../design-direction.md">design-direction.md</a> ·
+    Khảo sát: <a href="../research.md">research.md</a>
+  </p>
+</div>
+</body>
+</html>

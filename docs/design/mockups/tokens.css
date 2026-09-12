@@ -1,0 +1,66 @@
+/* BeeUI semantic tokens, light theme.
+   Values copied verbatim from the compiled @beemvp/beeui-tokens theme.css that the
+   deployed app ships at https://beepos.beemvp.com/_expo/static/css/global-*.css
+   Names match the BeeUI token contract, see https://beeui.beemvp.com/docs/reference/tokens/
+   These custom properties exist so the mockup and the app speak the same vocabulary.
+   Application code must use the class name (bg-surface, text-muted-foreground), never hex. */
+
+:root {
+  /* colour */
+  --color-background: #fff;
+  --color-foreground: #101828;
+  --color-surface: #fff;
+  --color-surface-muted: #f9fafb;
+  --color-surface-raised: #fff;
+  --color-muted: #f2f4f7;
+  --color-muted-foreground: #667085;
+  --color-subtle-foreground: #98a2b3;
+  --color-primary: #f59e0b;
+  --color-primary-foreground: #1f2937;
+  --color-primary-hover: #e58a05;
+  --color-primary-pressed: #d97706;
+  --color-secondary: #111827;
+  --color-secondary-foreground: #fff;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #fff;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-info: #2563eb;
+  --color-border: #eaecf0;
+  --color-border-strong: #d0d5dd;
+  --color-control-border: #8590a2;
+  --color-input: #fff;
+  --color-focus-ring: #b45309;
+  --color-disabled: #f2f4f7;
+  --color-disabled-foreground: #98a2b3;
+  --color-overlay: #00000080;
+
+  /* category accents, reused from the chart token set */
+  --chart-series-1: #0072b2;
+  --chart-series-2: #009e73;
+  --chart-series-3: #5f7a00;
+  --chart-series-4: #be185d;
+  --chart-highlight: #7c3aed;
+
+  /* type */
+  --text-caption: 12px;  --line-caption: 16px;
+  --text-label: 14px;    --line-label: 20px;
+  --text-body: 16px;     --line-body: 24px;
+  --text-heading: 18px;  --line-heading: 24px;
+  --text-title: 24px;    --line-title: 32px;
+
+  /* spacing, 4pt scale */
+  --space-1: 4px;  --space-2: 8px;  --space-2-5: 10px; --space-3: 12px;
+  --space-4: 16px; --space-5: 20px; --space-6: 24px;   --space-8: 32px;
+  --space-10: 40px; --space-12: 48px; --space-16: 64px;
+
+  /* radius */
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-xl: 18px;
+  --radius-full: 9999px;
+
+  /* metrics */
+  --touch-target: 44px;
+  --row-height: 56px;
+  --elev-raised: 0 1px 2px rgb(16 24 40 / 6%), 0 -1px 12px rgb(16 24 40 / 8%);
+  --elev-overlay: 0 12px 32px rgb(16 24 40 / 14%);
+}

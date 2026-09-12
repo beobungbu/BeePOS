@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeePOS · Chọn cửa hàng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 7v10"/><path d="M12 7v10"/><path d="M17 7v10"/></symbol>
+<symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol>
+<symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M14 8H8"/><path d="M16 12H8"/><path d="M13 16H8"/></symbol>
+<symbol id="i-package" viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></symbol>
+<symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12"/><path d="M6 14h12"/><path d="M6 10h12v12H6z"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+<symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></symbol>
+<symbol id="i-idcard" viewBox="0 0 24 24"><path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/><rect x="2" y="5" width="20" height="14" rx="2"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+<symbol id="i-hex" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></symbol>
+</defs></svg>
+
+<div class="page-bar">
+  <a href="index.html">&larr; Tất cả màn hình</a>
+  <span class="page-bar__title">Chọn cửa hàng · /select-store</span>
+  <label class="page-bar__toggle"><input type="checkbox" id="map"> Show component map</label>
+</div>
+
+<div class="frames">
+
+  <div class="frame frame--phone">
+    <div class="frame__label">ĐIỆN THOẠI <span>375 x 812</span></div>
+    <div class="screen screen--phone">
+      <div class="statusbar"><span>14:29</span><span class="statusbar__dots"><i></i><i></i><i></i></span></div>
+      <header class="appheader" data-beeui="AppHeader">
+        <button class="icon-btn" type="button" aria-label="Quay lại" style="margin-left:-8px">
+          <svg class="svg" viewBox="0 0 24 24"><use href="#i-chevron-left"/></svg>
+        </button>
+        <span class="grow"><div class="appheader__store">Chọn cửa hàng</div></span>
+        <span class="avatar">NA</span>
+      </header>
+      <div style="flex:1;overflow:hidden;background:var(--color-surface-muted)">
+        <div style="padding:16px">
+          <div class="t-heading">Xin chào, Nguyễn Văn An</div>
+          <div class="t-label muted">Chọn cửa hàng để bắt đầu ca làm việc</div>
+        </div>
+        <div class="sectionlabel">Gần đây</div>
+        <div class="storecard" style="margin:0 16px" data-beeui="ListGroup + ListItem">
+          <a class="storerow on" href="#">
+            <span class="badge badge--code">HN01</span>
+            <span class="grow">
+              <div class="t-label" style="font-weight:600">Tạp hoá Cầu Giấy</div>
+              <div class="t-caption muted">12 Xuân Thuỷ, Cầu Giấy, Hà Nội</div>
+            </span>
+            <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+          </a>
+        </div>
+        <div class="sectionlabel">Tất cả cửa hàng · 4</div>
+        <div class="storecard" style="margin:0 16px" data-beeui="ListGroup + ListItem">
+          <a class="storerow" href="#">
+            <span class="badge badge--code">HN01</span>
+            <span class="grow">
+              <div class="t-label" style="font-weight:600">Tạp hoá Cầu Giấy</div>
+              <div class="t-caption muted">12 Xuân Thuỷ, Cầu Giấy, Hà Nội</div>
+            </span>
+            <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+          </a>
+          <a class="storerow" href="#">
+            <span class="badge badge--code">HN02</span>
+            <span class="grow">
+              <div class="t-label" style="font-weight:600">Tạp hoá Long Biên</div>
+              <div class="t-caption muted">88 Ngọc Lâm, Long Biên, Hà Nội</div>
+            </span>
+            <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+          </a>
+          <a class="storerow" href="#">
+            <span class="badge badge--code">HCM01</span>
+            <span class="grow">
+              <div class="t-label" style="font-weight:600">Tạp hoá Bình Thạnh</div>
+              <div class="t-caption muted">45 Xô Viết Nghệ Tĩnh, Bình Thạnh, TP.HCM</div>
+            </span>
+            <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+          </a>
+          <a class="storerow" href="#">
+            <span class="badge badge--code">DN01</span>
+            <span class="grow">
+              <div class="t-label" style="font-weight:600">Tạp hoá Hải Châu</div>
+              <div class="t-caption muted">20 Trần Phú, Hải Châu, Đà Nẵng</div>
+            </span>
+            <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <ul class="frame__notes">
+      <li>Hàng cao 72 pt, vùng chạm vượt xa mức tối thiểu 44 pt, chạm nhầm chi nhánh là lỗi đắt.</li>
+      <li>Mã cửa hàng là badge chứ không phải chữ thường, thu ngân đọc mã nhanh hơn đọc tên.</li>
+      <li>Cửa hàng dùng gần nhất luôn đứng đầu và được tô nền primary 8 phần trăm.</li>
+    </ul>
+  </div>
+
+  <div class="frame frame--tablet">
+    <div class="frame__label">MÁY TÍNH BẢNG <span>768 x 1024</span></div>
+    <div class="screen screen--tablet">
+      <div class="authwrap" data-beeui="Screen">
+        <div class="authcard">
+          <div class="authbrand">
+            <span class="brand__mark brand__mark--lg"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
+            <div class="t-title" style="margin-top:14px">Xin chào, Nguyễn Văn An</div>
+            <div class="t-label muted">Chọn cửa hàng để bắt đầu ca làm việc</div>
+          </div>
+          <div class="storecard" data-beeui="ListGroup + ListItem">
+            <a class="storerow on" href="#">
+              <span class="badge badge--code">HN01</span>
+              <span class="grow">
+                <div class="t-body" style="font-weight:600">Tạp hoá Cầu Giấy</div>
+                <div class="t-caption muted">12 Xuân Thuỷ, Cầu Giấy, Hà Nội · 024 3767 1201</div>
+              </span>
+              <span class="badge">Gần đây</span>
+              <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a class="storerow" href="#">
+              <span class="badge badge--code">HN02</span>
+              <span class="grow">
+                <div class="t-body" style="font-weight:600">Tạp hoá Long Biên</div>
+                <div class="t-caption muted">88 Ngọc Lâm, Long Biên, Hà Nội · 024 3872 5502</div>
+              </span>
+              <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a class="storerow" href="#">
+              <span class="badge badge--code">HCM01</span>
+              <span class="grow">
+                <div class="t-body" style="font-weight:600">Tạp hoá Bình Thạnh</div>
+                <div class="t-caption muted">45 Xô Viết Nghệ Tĩnh, Bình Thạnh, TP.HCM · 028 3899 4103</div>
+              </span>
+              <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a class="storerow" href="#">
+              <span class="badge badge--code">DN01</span>
+              <span class="grow">
+                <div class="t-body" style="font-weight:600">Tạp hoá Hải Châu</div>
+                <div class="t-caption muted">20 Trần Phú, Hải Châu, Đà Nẵng · 0236 3821 704</div>
+              </span>
+              <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+            </a>
+          </div>
+          <a class="authlink" href="#">Đăng xuất</a>
+        </div>
+      </div>
+    </div>
+    <ul class="frame__notes">
+      <li>Cùng một ListGroup, chỉ đổi khung chứa: full bleed trên điện thoại, card 480 pt từ 768 pt.</li>
+      <li>Số điện thoại chi nhánh được thêm vào dòng phụ vì đã đủ chỗ.</li>
+    </ul>
+  </div>
+
+  <div class="frame frame--desktop">
+    <div class="frame__label">DESKTOP <span>1440 x 900</span></div>
+    <div class="screen screen--desktop">
+      <div class="authwrap" data-beeui="Screen">
+        <div class="authcard">
+          <div class="authbrand">
+            <span class="brand__mark brand__mark--lg"><svg class="svg svg--24" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
+            <div class="t-title" style="margin-top:14px">Xin chào, Nguyễn Văn An</div>
+            <div class="t-label muted">Chủ chuỗi · 4 cửa hàng</div>
+          </div>
+          <div class="storecard" data-beeui="ListGroup + ListItem">
+            <a class="storerow on" href="#">
+              <span class="badge badge--code">HN01</span>
+              <span class="grow">
+                <div class="t-body" style="font-weight:600">Tạp hoá Cầu Giấy</div>
+                <div class="t-caption muted">12 Xuân Thuỷ, Cầu Giấy, Hà Nội</div>
+              </span>
+              <span class="badge">Gần đây</span>
+              <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a class="storerow" href="#">
+              <span class="badge badge--code">HN02</span>
+              <span class="grow">
+                <div class="t-body" style="font-weight:600">Tạp hoá Long Biên</div>
+                <div class="t-caption muted">88 Ngọc Lâm, Long Biên, Hà Nội</div>
+              </span>
+              <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a class="storerow" href="#">
+              <span class="badge badge--code">HCM01</span>
+              <span class="grow">
+                <div class="t-body" style="font-weight:600">Tạp hoá Bình Thạnh</div>
+                <div class="t-caption muted">45 Xô Viết Nghệ Tĩnh, Bình Thạnh, TP.HCM</div>
+              </span>
+              <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+            </a>
+            <a class="storerow" href="#">
+              <span class="badge badge--code">DN01</span>
+              <span class="grow">
+                <div class="t-body" style="font-weight:600">Tạp hoá Hải Châu</div>
+                <div class="t-caption muted">20 Trần Phú, Hải Châu, Đà Nẵng</div>
+              </span>
+              <svg class="svg muted" viewBox="0 0 24 24"><use href="#i-chevron-right"/></svg>
+            </a>
+          </div>
+          <a class="authlink" href="#">Đăng xuất</a>
+        </div>
+      </div>
+    </div>
+    <ul class="frame__notes">
+      <li>Chủ chuỗi thấy đủ 4 chi nhánh; thu ngân chỉ có một chi nhánh sẽ được chuyển thẳng tới /pos.</li>
+      <li>Toàn bộ hàng là link, điều hướng bằng bàn phím Tab và Enter hoạt động trên web.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('map').addEventListener('change', function (e) {
+    document.body.classList.toggle('map', e.target.checked);
+  });
+</script>
+</body>
+</html>
