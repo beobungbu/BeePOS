@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { Input } from '@beemvp/beeui-ui';
 import { AppIcon } from '../../../components/icons';
@@ -17,14 +17,16 @@ interface QtyStepperProps {
  */
 export function QtyStepper({ qty, onChange, onRemove }: QtyStepperProps) {
   const t = useT();
-  const [text, setText] = useState(String(qty));
-
-  // The quantity also changes from outside this component (tapping the tile again), so the
-  // field follows the store instead of keeping a stale local copy.
-  useEffect(() => setText(String(qty)), [qty]);
+  // Only what the cashier is part way through typing, `null` the rest of the time. The
+  // quantity also changes from outside this component (tapping the tile again, a scan), so
+  // with no draft in hand the field simply reads the store instead of holding a stale copy,
+  // and an entry that parsed to nothing does not stay on screen either.
+  const [draft, setDraft] = useState<string | null>(null);
+  const text = draft ?? String(qty);
 
   function commit(value: string) {
     const parsed = Number.parseInt(value, 10);
+    setDraft(null);
     onChange(Number.isFinite(parsed) ? parsed : 0);
   }
 
@@ -43,7 +45,7 @@ export function QtyStepper({ qty, onChange, onRemove }: QtyStepperProps) {
 
       <Input
         value={text}
-        onChangeText={setText}
+        onChangeText={setDraft}
         onBlur={() => commit(text)}
         onSubmitEditing={() => commit(text)}
         keyboardType="numeric"

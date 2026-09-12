@@ -5,7 +5,8 @@ import type { Order } from '../../../domain/types';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
 import { AppIcon } from '../../../components/icons';
-import { formatDateTime, isCancelled, paymentSummary } from '../../orders/lib/order-presentation';
+import { isCancelled, paymentSummary } from '../../orders/lib/order-presentation';
+import { formatDateTime } from '../../../lib/datetime';
 import { OrderStatusBadge } from '../../orders/components/order-status-badge';
 
 /** This customer's order history, in the same row shape as the orders list on phone. */

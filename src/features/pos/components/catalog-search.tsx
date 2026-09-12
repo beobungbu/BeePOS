@@ -14,11 +14,17 @@ interface CatalogSearchProps {
   showKeyHint: boolean;
 }
 
-/** Web only: F3 puts the caret in the catalog search field, per the direction doc. */
+/**
+ * Web only: F3 puts the caret in the catalog search field, per the direction doc.
+ *
+ * The field is found by comparing the `placeholder` property rather than by interpolating the
+ * translated text into an attribute selector: a dictionary entry holding a quote would make
+ * that selector a `SyntaxError` and take the shortcut down with it.
+ */
 function focusSearchField(placeholder: string): void {
-  if (Platform.OS !== 'web') return;
-  const field = document.querySelector<HTMLInputElement>(`input[placeholder="${placeholder}"]`);
-  field?.focus();
+  if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+  const fields = Array.from(document.querySelectorAll('input'));
+  fields.find((field) => field.placeholder === placeholder)?.focus();
 }
 
 /**
@@ -38,8 +44,11 @@ export function CatalogSearch({ value, onChangeText, onSubmit, short, showKeyHin
       event.preventDefault();
       focusSearchField(placeholder);
     }
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    // Capture: a BeeUI field stops keydown before it bubbles back to the window, so a
+    // bubble listener never sees F3 once the caret is in any text field (see
+    // `docs/beeui-audit/findings-19-review.md`).
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
   }, [placeholder, showKeyHint]);
 
   return (

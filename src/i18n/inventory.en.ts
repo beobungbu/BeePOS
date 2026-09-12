@@ -12,6 +12,8 @@ export const inventoryEn = {
     reserved: 'Reserved',
   },
   lowStockChip: '{count} low stock',
+  /** Row meta on the counts and transfers lists: "4 lines · 12/09/2026". */
+  lineCount: '{count} lines',
   searchPlaceholder: 'Search name or SKU',
   tabStock: 'Stock',
   tabLowStock: 'Low stock',

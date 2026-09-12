@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogTitle, Text, Timeline, TimelineItem } from '@beemvp/beeui-ui';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useT } from '../../i18n';
+import { formatDateTime } from '../../lib/datetime';
 
 interface HistoryTarget {
   productId: string;
@@ -11,10 +12,6 @@ interface HistoryTarget {
 interface MovementHistoryDialogProps {
   target: HistoryTarget | null;
   onClose: () => void;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('vi-VN');
 }
 
 export function MovementHistoryDialog({ target, onClose }: MovementHistoryDialogProps) {
@@ -37,7 +34,7 @@ export function MovementHistoryDialog({ target, onClose }: MovementHistoryDialog
                 key={movement.id}
                 title={`${movement.delta > 0 ? '+' : ''}${movement.delta}`}
                 description={movement.reason}
-                meta={formatDate(movement.createdAt)}
+                meta={formatDateTime(movement.createdAt)}
                 status={movement.delta >= 0 ? 'success' : 'destructive'}
               />
             ))}

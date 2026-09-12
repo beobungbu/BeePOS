@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, View } from 'react-native';
 import { Dialog, DialogContent, DialogTitle, SearchInput, Text } from '@beemvp/beeui-ui';
 import { useRouter } from 'expo-router';
@@ -35,9 +35,25 @@ const SEARCH_WRAPPER_ID = 'command-palette-search';
  */
 export function CommandPalette() {
   const t = useT();
-  const router = useRouter();
   const open = useShellOverlayStore((state) => state.overlay === 'palette');
   const closeOverlay = useShellOverlayStore((state) => state.closeOverlay);
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => !next && closeOverlay()}>
+      <DialogContent className="w-full max-w-[560px] gap-3">
+        <DialogTitle>{t('common.command.title')}</DialogTitle>
+        {/* Mounted only while open, so the query and the selected row are new every time the
+            palette is summoned. Resetting them on close instead meant two `setState` calls
+            inside an effect, and left yesterday's query in the field for one frame. */}
+        {open ? <CommandPaletteBody onClose={closeOverlay} /> : null}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CommandPaletteBody({ onClose }: { onClose: () => void }) {
+  const t = useT();
+  const router = useRouter();
 
   const products = useCatalogStore((state) => state.products);
   const orders = useOrderStore((state) => state.orders);
@@ -99,21 +115,21 @@ export function CommandPalette() {
   const sections = useMemo(() => groupCommands(rows), [rows]);
   const clampedIndex = rows.length === 0 ? 0 : Math.min(activeIndex, rows.length - 1);
 
-  rowsRef.current = rows;
-  activeRef.current = clampedIndex;
+  // Written after the commit, never during render: the keydown listener below is installed
+  // once per opening and only reads these from an event, which is always later.
+  useEffect(() => {
+    rowsRef.current = rows;
+    activeRef.current = clampedIndex;
+  });
 
   // A fresh query starts at the first row: keeping the old index would run the cashier's Enter
   // into whatever happens to sit at that position now.
-  useEffect(() => {
+  function handleQueryChange(next: string) {
+    setQuery(next);
     setActiveIndex(0);
-  }, [query]);
+  }
 
   useEffect(() => {
-    if (!open) {
-      setQuery('');
-      setActiveIndex(0);
-      return undefined;
-    }
     if (Platform.OS !== 'web' || typeof document === 'undefined') return undefined;
     // `SearchInput` exposes no imperative focus handle, so the field is reached through the
     // wrapper's DOM node, the same way the POS and orders F3 shortcuts reach theirs.
@@ -121,23 +137,26 @@ export function CommandPalette() {
       document.getElementById(SEARCH_WRAPPER_ID)?.querySelector('input')?.focus();
     }, 50);
     return () => clearTimeout(focusTimer);
-  }, [open]);
+  }, []);
 
-  function handleSelect(item: CommandItem) {
-    closeOverlay();
-    // The href is built here from a known route shape, but expo-router types `push` against
-    // its generated route union and a `string` does not narrow to it (same cast as
-    // `src/lib/navigation.ts`).
-    router.push(item.href as never);
-  }
+  const handleSelect = useCallback(
+    (item: CommandItem) => {
+      onClose();
+      // The href is built here from a known route shape, but expo-router types `push` against
+      // its generated route union and a `string` does not narrow to it (same cast as
+      // `src/lib/navigation.ts`).
+      router.push(item.href as never);
+    },
+    [onClose, router],
+  );
 
   useEffect(() => {
-    if (!open || Platform.OS !== 'web' || typeof document === 'undefined') return undefined;
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return undefined;
 
     const onKeyDown = (event: KeyboardEvent) => {
       const current = rowsRef.current;
       if (event.key === 'Escape') {
-        closeOverlay();
+        onClose();
         return;
       }
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -160,74 +179,66 @@ export function CommandPalette() {
     // would otherwise move the caret instead of the selection.
     document.addEventListener('keydown', onKeyDown, true);
     return () => document.removeEventListener('keydown', onKeyDown, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, closeOverlay]);
+  }, [onClose, handleSelect]);
 
   const groupLabel = (group: CommandGroup) => t(`common.command.group.${group}`);
 
   return (
-    <Dialog open={open} onOpenChange={(next) => !next && closeOverlay()}>
-      <DialogContent className="w-full max-w-[560px] gap-3">
-        <DialogTitle>{t('common.command.title')}</DialogTitle>
+    <>
+      <View nativeID={SEARCH_WRAPPER_ID}>
+        <SearchInput
+          accessibilityLabel={t('common.command.title')}
+          defaultValue=""
+          onChangeText={handleQueryChange}
+          onSearch={handleQueryChange}
+          placeholder={t('common.command.placeholder')}
+        />
+      </View>
 
-        <View nativeID={SEARCH_WRAPPER_ID}>
-          {/* Remounted per opening so yesterday's query is not sitting in the field, which is
-              what `defaultValue` alone would leave there if the dialog stays mounted. */}
-          <SearchInput
-            accessibilityLabel={t('common.command.title')}
-            defaultValue=""
-            key={open ? 'open' : 'closed'}
-            onChangeText={setQuery}
-            onSearch={setQuery}
-            placeholder={t('common.command.placeholder')}
-          />
+      {rows.length === 0 ? (
+        <View className="py-6">
+          <Text variant="label" className="text-center font-normal text-muted-foreground">
+            {t('common.command.empty')}
+          </Text>
         </View>
-
-        {rows.length === 0 ? (
-          <View className="py-6">
-            <Text variant="label" className="text-center font-normal text-muted-foreground">
-              {t('common.command.empty')}
-            </Text>
-          </View>
-        ) : (
-          <ScrollView className="max-h-80" contentContainerClassName="gap-3 pb-1">
-            {sections.map((section) => (
-              <View key={section.group} className="gap-1">
-                <Text variant="caption" className="px-2 text-muted-foreground">
-                  {groupLabel(section.group)}
-                </Text>
-                {section.items.map((item) => {
-                  const index = rows.indexOf(item);
-                  const active = index === clampedIndex;
-                  return (
-                    <Pressable
-                      accessibilityLabel={item.subtitle ? `${item.title} · ${item.subtitle}` : item.title}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected: active }}
-                      className={`min-h-11 justify-center rounded-md px-2 py-1.5 active:bg-muted ${active ? 'bg-muted' : ''}`}
-                      key={item.id}
-                      onPress={() => handleSelect(item)}
-                    >
-                      <Text variant="label" className="font-semibold text-foreground" numberOfLines={1}>
-                        {item.title}
+      ) : (
+        <ScrollView className="max-h-80" contentContainerClassName="gap-3 pb-1">
+          {sections.map((section) => (
+            <View key={section.group} className="gap-1">
+              <Text variant="caption" className="px-2 text-muted-foreground">
+                {groupLabel(section.group)}
+              </Text>
+              {section.items.map((item) => {
+                const index = rows.indexOf(item);
+                const active = index === clampedIndex;
+                return (
+                  <Pressable
+                    accessibilityLabel={item.subtitle ? `${item.title} · ${item.subtitle}` : item.title}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                    className={`min-h-11 justify-center rounded-md px-2 py-1.5 active:bg-muted ${active ? 'bg-muted' : ''}`}
+                    key={item.id}
+                    onPress={() => handleSelect(item)}
+                  >
+                    <Text variant="label" className="font-semibold text-foreground" numberOfLines={1}>
+                      {item.title}
+                    </Text>
+                    {item.subtitle ? (
+                      <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
+                        {item.subtitle}
                       </Text>
-                      {item.subtitle ? (
-                        <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
-                          {item.subtitle}
-                        </Text>
-                      ) : null}
-                    </Pressable>
-                  );
-                })}
-              </View>
-            ))}
-          </ScrollView>
-        )}
+                    ) : null}
+                  </Pressable>
+                );
+              })}
+            </View>
+          ))}
+        </ScrollView>
+      )}
 
-        <Text variant="caption" className="text-subtle-foreground">
-          {t('common.command.hint')}
-        </Text>
-      </DialogContent>
-    </Dialog>
+      <Text variant="caption" className="text-subtle-foreground">
+        {t('common.command.hint')}
+      </Text>
+    </>
   );
 }

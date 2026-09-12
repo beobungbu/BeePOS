@@ -13,7 +13,7 @@ import { useT } from '../../../i18n';
 import '../../../i18n/customers.vi';
 import '../../../i18n/customers.en';
 import { useBreakpoint } from '../../../hooks/use-breakpoint';
-import { formatDate } from '../../orders/lib/order-presentation';
+import { formatDate } from '../../../lib/datetime';
 import { fill } from '../../orders/lib/fill';
 import { CustomerTable } from '../components/customer-table';
 import { CustomerListGroup } from '../components/customer-list-group';

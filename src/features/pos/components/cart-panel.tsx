@@ -5,6 +5,7 @@ import { Button, ButtonLabel, EmptyState, Text } from '@beemvp/beeui-ui';
 import { formatVND } from '../../../domain/money';
 import type { Product } from '../../../domain/types';
 import { useT } from '../../../i18n';
+import { isOverlayOpen } from '../../../lib/keyboard';
 import { useActiveCart, useCartStore } from '../../../data/cart-store';
 import { useCustomerStore } from '../../../data/customer-store';
 import { cartTotalsOf, cartUnitCount } from '../lib/cart-totals';
@@ -49,11 +50,17 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
     if (!desktop || Platform.OS !== 'web') return undefined;
     function onKeyDown(event: KeyboardEvent) {
       if (event.code !== 'F9' || isEmpty) return;
+      // Not from behind a modal: the customer and discount dialogs are opened from this very
+      // panel, and F9 there would leave the till on the checkout screen with the dialog's
+      // half-finished answer discarded.
+      if (isOverlayOpen()) return;
       event.preventDefault();
       router.push('/pos/checkout');
     }
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    // Capture, for the reason given in `catalog-search.tsx`: a bubble listener is deaf while
+    // the caret is in a field, which is where it sits for most of a shift.
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
   }, [desktop, isEmpty, router]);
 
   return (

@@ -7,7 +7,7 @@ import { useT } from '../../../i18n';
 import { useTableRowClass } from '../../../components/table-row-density';
 import { fill } from '../../orders/lib/fill';
 import { TierBadge } from './tier-badge';
-import { initials } from '../lib/initials';
+import { initialsOf } from '../../../lib/initials';
 
 /**
  * Customers table from 768 pt up, same rules as the orders table: the name cell carries the
@@ -56,7 +56,7 @@ export function CustomerTable({
                 className="min-h-11 flex-row items-center gap-2.5"
                 onPress={() => router.push(`/customers/${customer.id}`)}
               >
-                <Avatar fallback={initials(customer.name)} fallbackClassName="text-foreground" size="sm" />
+                <Avatar fallback={initialsOf(customer.name)} fallbackClassName="text-foreground" size="sm" />
                 <Text variant="label" className="min-w-0 flex-1 font-semibold text-foreground" numberOfLines={1}>
                   {customer.name}
                 </Text>

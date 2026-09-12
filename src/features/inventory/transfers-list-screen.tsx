@@ -5,13 +5,11 @@ import { useInventoryStore } from '../../data/inventory-store';
 import { stores as allStores } from '../../data/seed';
 import { useT } from '../../i18n';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { formatDate } from '../../lib/datetime';
+import { fill } from '../orders/lib/fill';
 
 function storeName(storeId: string): string {
   return allStores.find((store) => store.id === storeId)?.name ?? storeId;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('vi-VN');
 }
 
 const STATUS_VARIANT = { draft: 'outline', sent: 'warning', received: 'success' } as const;
@@ -56,7 +54,11 @@ export function TransfersListScreen() {
               {transfers.map((transfer) => (
                 <TableRow key={transfer.id}>
                   <TableCell label={t('inventory.transfers.columns.from')}>
-                    <Pressable onPress={() => router.push(`/inventory/transfers/${transfer.id}`)}>
+                    <Pressable
+                      accessibilityLabel={`${t('inventory.transfers.detailTitle')} ${storeName(transfer.fromStoreId)}`}
+                      accessibilityRole="button"
+                      onPress={() => router.push(`/inventory/transfers/${transfer.id}`)}
+                    >
                       <Text variant="label" className="font-semibold">{storeName(transfer.fromStoreId)}</Text>
                     </Pressable>
                   </TableCell>
@@ -82,7 +84,7 @@ export function TransfersListScreen() {
               <ListItem
                 key={transfer.id}
                 title={`${storeName(transfer.fromStoreId)} → ${storeName(transfer.toStoreId)}`}
-                description={`${transfer.lines.length} dòng · ${formatDate(transfer.createdAt)}`}
+                description={`${fill(t('inventory.lineCount'), { count: transfer.lines.length })} · ${formatDate(transfer.createdAt)}`}
                 onPress={() => router.push(`/inventory/transfers/${transfer.id}`)}
                 trailing={<Badge variant={STATUS_VARIANT[transfer.status]}>{statusLabel(transfer.status)}</Badge>}
               />

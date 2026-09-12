@@ -36,6 +36,7 @@ import { InventoryCards } from './inventory-cards';
 import { buildStockRows, computeScopeStats, type StockRow } from './inventory-list-utils';
 import { InventoryTable } from './inventory-table';
 import { MovementHistoryDialog } from './movement-history-dialog';
+import { canViewAllStores } from '../../domain/org';
 
 type StoreScope = string | 'all';
 
@@ -55,7 +56,7 @@ export function InventoryScreen() {
   const products = useCatalogStore((state) => state.products);
   const stockLevels = useInventoryStore((state) => state.stockLevels);
 
-  const canViewAllStores = staff?.role === 'owner' || staff?.role === 'manager';
+  const canSeeAllStores = canViewAllStores(staff);
   const [scope, setScope] = useState<StoreScope>(currentStore?.id ?? allStores[0].id);
   // Desktop only, matching the 1440 frame of docs/design/mockups/inventory.html: the narrower
   // bands keep the tab pair and gain no search field in this phase.
@@ -105,7 +106,7 @@ export function InventoryScreen() {
           <SelectValue placeholder={t('inventory.storeAll')} />
         </SelectTrigger>
         <SelectContent>
-          {canViewAllStores && (
+          {canSeeAllStores && (
             <SelectItem value="all" textValue={t('inventory.storeAll')}>
               {t('inventory.storeAll')}
             </SelectItem>

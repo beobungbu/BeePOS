@@ -1,9 +1,13 @@
 import path from 'node:path';
 import { defineConfig } from '@playwright/test';
 
-// Integrated end-to-end Web QA for BeePOS (phase 05 step 2). One long user journey per
-// viewport/locale/theme combination; BeePOS keeps all state in memory, so a journey must
-// never hard-reload between steps (navigation goes through lib/session.ts).
+// Integrated end-to-end Web QA for BeePOS. One long user journey per viewport/locale/theme
+// combination, plus the phase-5 feature specs (multi-order till, inventory operations,
+// customer quick-add, reports and settings, persistence, POS features, perf harness).
+//
+// Every test starts from the login screen with storage wiped (lib/session.ts), so tests are
+// independent and run in parallel. Navigation inside a test goes through `go()` rather than a
+// reload, except where a spec is deliberately measuring what survives one.
 const projectRoot = path.resolve(__dirname, '../../..');
 const PORT = Number(process.env.BEEPOS_E2E_PORT ?? 8099);
 // Point the suite at a deployed build: BEEPOS_E2E_BASEURL=https://beepos.beemvp.com npm run qa:e2e
@@ -12,8 +16,10 @@ const BASE_URL = process.env.BEEPOS_E2E_BASEURL ?? `http://localhost:${PORT}`;
 export default defineConfig({
   testDir: './specs',
   testIgnore: process.env.E2E_DISCOVER ? [] : [/_discover/],
-  fullyParallel: false,
-  workers: 1,
+  // Two workers keeps the whole suite inside the 15 minute budget while leaving the machine
+  // enough headroom that the perf spec's frame timings stay meaningful.
+  fullyParallel: true,
+  workers: 2,
   retries: 0,
   reporter: [['list']],
   timeout: 300_000,

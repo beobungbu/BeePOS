@@ -9,7 +9,7 @@ import { useT } from '../../../i18n';
 import '../../../i18n/customers.vi';
 import '../../../i18n/customers.en';
 import { AppIcon } from '../../../components/icons';
-import { formatDateTime } from '../lib/order-presentation';
+import { formatDateTime } from '../../../lib/datetime';
 import { useOrderActions } from '../hooks/use-order-actions';
 import { OrderLinesList } from './order-lines-list';
 import { OrderStatusBadge } from './order-status-badge';

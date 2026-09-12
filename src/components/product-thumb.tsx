@@ -26,11 +26,12 @@ export function ProductThumb({ name, categoryId, imageUrl, size = 40 }: ProductT
 
   return (
     <View
-      className={`items-center justify-center overflow-hidden rounded-sm ${accent.color ? '' : 'bg-muted'}`}
+      className={`items-center justify-center overflow-hidden rounded-sm ${accent.tint ? '' : 'bg-muted'}`}
       style={[
         { width: size, height: size },
-        // Section 5 puts the thumbnail slot on the accent at 10 percent.
-        accent.color ? { backgroundColor: `${accent.color}1a` } : null,
+        // The accent tint the hook already resolves, not a second one mixed here: this slot
+        // and the tile's image slot are the same slot, and they were drifting apart.
+        accent.tint ? { backgroundColor: accent.tint } : null,
       ]}
     >
       {imageUrl !== undefined ? (

@@ -1,10 +1,8 @@
 import { DescriptionItem, DescriptionList, Section } from '@beemvp/beeui-ui';
 import { useT } from '../../../i18n';
-// eslint-disable-next-line @typescript-eslint/no-var-requires -- read at build time, no runtime fetch
+// Read at build time by the bundler, no runtime fetch.
 const appConfig = require('../../../../app.json') as { expo: { version: string } };
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const rootPackage = require('../../../../package.json') as { dependencies: Record<string, string> };
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const expoPackage = require('expo/package.json') as { version: string };
 
 export function AboutSection() {

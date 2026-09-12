@@ -10,6 +10,14 @@ export function formatVND(amount: number): string {
   return `${VND_FORMATTER.format(roundVND(amount))} đ`;
 }
 
+/**
+ * The same grouped number without the unit, for places where the unit is already in the
+ * surrounding copy or would not fit: the quick-cash chips read `200.000`, not `200.000 đ`.
+ */
+export function formatAmount(amount: number): string {
+  return VND_FORMATTER.format(roundVND(amount));
+}
+
 /** Rounds any numeric amount to the nearest whole dong (VND has no subunit). */
 export function roundVND(amount: number): number {
   if (!Number.isFinite(amount)) return 0;

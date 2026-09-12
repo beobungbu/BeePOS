@@ -5,13 +5,11 @@ import { useInventoryStore } from '../../data/inventory-store';
 import { stores as allStores } from '../../data/seed';
 import { useT } from '../../i18n';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { formatDate } from '../../lib/datetime';
+import { fill } from '../orders/lib/fill';
 
 function storeName(storeId: string): string {
   return allStores.find((store) => store.id === storeId)?.name ?? storeId;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('vi-VN');
 }
 
 /** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
@@ -47,7 +45,11 @@ export function CountsListScreen() {
               {counts.map((count) => (
                 <TableRow key={count.id}>
                   <TableCell label={t('inventory.counts.columns.store')}>
-                    <Pressable onPress={() => router.push(`/inventory/counts/${count.id}`)}>
+                    <Pressable
+                      accessibilityLabel={`${t('inventory.counts.detailTitle')} ${storeName(count.storeId)}`}
+                      accessibilityRole="button"
+                      onPress={() => router.push(`/inventory/counts/${count.id}`)}
+                    >
                       <Text variant="label" className="font-semibold">{storeName(count.storeId)}</Text>
                     </Pressable>
                   </TableCell>
@@ -72,7 +74,7 @@ export function CountsListScreen() {
               <ListItem
                 key={count.id}
                 title={storeName(count.storeId)}
-                description={`${count.lines.length} dòng · ${formatDate(count.createdAt)}`}
+                description={`${fill(t('inventory.lineCount'), { count: count.lines.length })} · ${formatDate(count.createdAt)}`}
                 onPress={() => router.push(`/inventory/counts/${count.id}`)}
                 trailing={
                   <Badge variant={count.status === 'posted' ? 'success' : 'outline'}>

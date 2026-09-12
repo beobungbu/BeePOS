@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Button, EmptyState, Text, Timeline, TimelineItem } from '@beemvp/beeui-ui';
 import type { PointMovement, PointMovementKind } from '../../../domain/customers';
 import { useT } from '../../../i18n';
-import { formatDateTime } from '../../orders/lib/order-presentation';
+import { formatDateTime } from '../../../lib/datetime';
 import { AdjustPointsDialog } from './adjust-points-dialog';
 
 const STATUS_BY_KIND: Record<PointMovementKind, 'success' | 'destructive' | 'default'> = {

@@ -28,6 +28,9 @@ function ThemedStack() {
         <View
           className="flex-1 items-center justify-center bg-background"
           accessibilityRole="progressbar"
+          // Not from the dictionary on purpose: this frame is what the saved language
+          // preference is still being read behind, so `useT` here would announce the default
+          // locale rather than the cashier's. Vietnamese is the product default.
           accessibilityLabel="Đang tải dữ liệu"
         >
           <ActivityIndicator size="large" />

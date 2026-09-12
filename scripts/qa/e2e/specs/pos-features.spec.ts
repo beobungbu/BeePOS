@@ -59,6 +59,8 @@ async function scan(page: Page, barcode: string): Promise<void> {
 }
 
 test.describe('pos features', () => {
+  // Playwright requires the fixtures argument to be a destructuring pattern, even here.
+  // eslint-disable-next-line no-empty-pattern
   test.beforeEach(({}, testInfo) => {
     test.skip(testInfo.project.name !== 'wide', 'desktop cart pane only');
   });

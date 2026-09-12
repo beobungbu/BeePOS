@@ -36,21 +36,26 @@ export function useOverlayShortcuts(): void {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return undefined;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (isTypingTarget(event.target)) return;
-
+      // `Cmd/Ctrl+K` is allowed from inside a field: the chord cannot be typed text, and the
+      // catalogue search is exactly where a cashier is standing when they reach for it.
       if (isCommandPaletteChord(event)) {
         event.preventDefault();
         useShellOverlayStore.getState().openOverlay('palette');
         return;
       }
-      // `?` is Shift+/ on most layouts, so the character is what identifies it, not the code.
+      // `?` is Shift+/ on most layouts, so the character is what identifies it, not the code,
+      // and a question mark in a note or a customer name has to stay a question mark.
+      if (isTypingTarget(event.target)) return;
       if (event.key === '?' && !event.metaKey && !event.ctrlKey && !event.altKey) {
         event.preventDefault();
         useShellOverlayStore.getState().openOverlay('shortcuts');
       }
     };
 
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    // Capture: a BeeUI field stops keydown before it bubbles back to the document, so a
+    // bubble listener never sees the chord once the caret is in a text field (see
+    // `docs/beeui-audit/findings-19-review.md`).
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => document.removeEventListener('keydown', onKeyDown, true);
   }, []);
 }

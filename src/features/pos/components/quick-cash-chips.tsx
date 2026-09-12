@@ -1,11 +1,10 @@
 import { Pressable, View } from 'react-native';
 import { Text } from '@beemvp/beeui-ui';
+import { formatAmount } from '../../../domain/money';
 import { useT } from '../../../i18n';
 
 /** The notes a Vietnamese customer actually hands over. */
 const DENOMINATIONS = [100_000, 200_000, 500_000];
-
-const PLAIN_NUMBER = new Intl.NumberFormat('vi-VN');
 
 interface QuickCashChipsProps {
   remaining: number;
@@ -39,11 +38,11 @@ export function QuickCashChips({ remaining, onPick }: QuickCashChipsProps) {
           key={amount}
           onPress={() => onPick(amount)}
           accessibilityRole="button"
-          accessibilityLabel={PLAIN_NUMBER.format(amount)}
+          accessibilityLabel={formatAmount(amount)}
           className="min-h-11 grow items-center justify-center rounded-md border border-border bg-surface px-3 py-2"
         >
           <Text variant="label" className="font-medium tabular-nums text-foreground">
-            {PLAIN_NUMBER.format(amount)}
+            {formatAmount(amount)}
           </Text>
         </Pressable>
       ))}

@@ -7,13 +7,10 @@ import { receiptTotals } from '../../domain/inventory';
 import { formatVND } from '../../domain/money';
 import { useT } from '../../i18n';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { formatDate } from '../../lib/datetime';
 
 function storeName(storeId: string): string {
   return allStores.find((store) => store.id === storeId)?.name ?? storeId;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('vi-VN');
 }
 
 /** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
@@ -50,7 +47,11 @@ export function ReceiptsListScreen() {
               {receipts.map((receipt) => (
                 <TableRow key={receipt.id}>
                   <TableCell label={t('inventory.receipts.columns.supplier')}>
-                    <Pressable onPress={() => router.push(`/inventory/receipts/${receipt.id}`)}>
+                    <Pressable
+                      accessibilityLabel={`${t('inventory.receipts.detailTitle')} ${receipt.supplierName}`}
+                      accessibilityRole="button"
+                      onPress={() => router.push(`/inventory/receipts/${receipt.id}`)}
+                    >
                       <Text variant="label" className="font-semibold">{receipt.supplierName}</Text>
                       <Text variant="caption" tone="muted">{storeName(receipt.storeId)}</Text>
                     </Pressable>

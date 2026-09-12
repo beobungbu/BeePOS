@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { emptyScanBuffer, scanBuffer, type ScanBuffer } from '../../../domain/pos';
+import { isOverlayOpen, isTypingTarget } from '../../../lib/keyboard';
 
 /**
  * A keyboard-wedge scanner is a keyboard: it types the digits of the code in a burst and
@@ -16,7 +17,11 @@ export function useBarcodeScan(onScan: (code: string) => void, enabled = true): 
   // Kept in a ref so a burst is not restarted by a re-render between two keystrokes.
   const buffer = useRef<ScanBuffer>(emptyScanBuffer);
   const handler = useRef(onScan);
-  handler.current = onScan;
+  // Written after the render that produced it, not during: the listener below only reads it
+  // from an event, which is always after the commit.
+  useEffect(() => {
+    handler.current = onScan;
+  });
 
   useEffect(() => {
     if (Platform.OS !== 'web' || !enabled) return undefined;
@@ -30,13 +35,13 @@ export function useBarcodeScan(onScan: (code: string) => void, enabled = true): 
       }
       // Someone typing in the search field, a dialog field or a note is not scanning: that
       // input has its own submit, and stealing Enter from it would break the form.
-      if (isTextEntry(event.target)) {
+      if (isTypingTarget(event.target)) {
         buffer.current = emptyScanBuffer;
         return;
       }
       // A modal is up, so the till is not selling. Without this a scan behind an open dialog
       // would quietly add a line the cashier cannot see.
-      if (document.querySelector('[role="dialog"],[role="alertdialog"]')) {
+      if (isOverlayOpen()) {
         buffer.current = emptyScanBuffer;
         return;
       }
@@ -57,13 +62,4 @@ export function useBarcodeScan(onScan: (code: string) => void, enabled = true): 
       buffer.current = emptyScanBuffer;
     };
   }, [enabled]);
-}
-
-/** True when the key went to something that edits text, so the burst is a person typing. */
-function isTextEntry(target: EventTarget | null): boolean {
-  const element = target as HTMLElement | null;
-  if (!element || typeof element.tagName !== 'string') return false;
-  if (element.isContentEditable) return true;
-  const tag = element.tagName.toUpperCase();
-  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
 }

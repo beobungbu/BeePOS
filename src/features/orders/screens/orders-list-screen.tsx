@@ -18,7 +18,8 @@ import { OrderTable } from '../components/order-table';
 import { OrderListGroup } from '../components/order-list-group';
 import { OrderPreviewPane } from '../components/order-preview-pane';
 import { fill } from '../lib/fill';
-import { formatDateTime, pageRange, paymentSummary, rangeForPreset } from '../lib/order-presentation';
+import { pageRange, paymentSummary, rangeForPreset } from '../lib/order-presentation';
+import { formatDateTime } from '../../../lib/datetime';
 
 const FILTER_LOADING_DELAY_MS = 300;
 
@@ -67,9 +68,13 @@ export function OrdersListScreen() {
     return () => clearTimeout(timeout);
   }, [filters, sortKey, sortDirection]);
 
-  useEffect(() => {
+  // A new filter always lands on page 1: keeping the old page would show the cashier an empty
+  // tail of a shorter result. Done here rather than in an effect so the first frame after the
+  // change is already the right page.
+  const handleFiltersChange = (next: OrdersFilterValue) => {
+    setFilters(next);
     setPage(1);
-  }, [filters]);
+  };
 
   const filtered = useMemo(
     () =>
@@ -156,7 +161,7 @@ export function OrdersListScreen() {
       actions={<CsvExportButton build={buildOrdersCsv} nameKey="orders" />}
       breakpoint={breakpoint}
       cashiers={staff}
-      onChange={setFilters}
+      onChange={handleFiltersChange}
       stores={stores}
       value={filters}
     />

@@ -25,6 +25,7 @@ import { formatVND } from '../../../domain/money';
 import { MAX_OPEN_CARTS } from '../../../domain/pos';
 import type { Cart, Product } from '../../../domain/types';
 import { useT } from '../../../i18n';
+import { isOverlayOpen } from '../../../lib/keyboard';
 import { useCartStore } from '../../../data/cart-store';
 import { cartLineCount, cartTotalsOf } from '../lib/cart-totals';
 import { SecondaryButtonLabel } from './secondary-button-label';
@@ -149,6 +150,12 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
 
     function onKeyDown(event: KeyboardEvent) {
       if (!event.altKey || event.ctrlKey || event.metaKey) return;
+      // None of these may move the till from behind a modal: `Alt+W` under the naming dialog
+      // used to stack a close-confirmation on top of it, and `Alt+1..8` switched the order the
+      // open dialog was about. No typing guard on purpose, unlike the scan listener: an Alt
+      // chord is not ambiguous with typing, the caret sits in the catalog search for most of a
+      // shift, and a cashier who has just pressed F3 still expects Alt+N to open an order.
+      if (isOverlayOpen()) return;
       if (event.code === 'KeyN') {
         event.preventDefault();
         handleNewOrder();
@@ -182,8 +189,9 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
       }
     }
 
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    // Capture, for the reason given in `catalog-search.tsx`.
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
     // Re-bound whenever the open orders change so the handler never switches to a closed one.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [carts, activeCartId]);

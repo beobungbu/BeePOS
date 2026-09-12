@@ -12,6 +12,8 @@ export const inventoryVi = {
     reserved: 'Đang đặt trước',
   },
   lowStockChip: '{count} sắp hết',
+  /** Row meta on the counts and transfers lists: "4 dòng · 12/09/2026". */
+  lineCount: '{count} dòng',
   searchPlaceholder: 'Tìm tên hoặc SKU',
   tabStock: 'Tồn kho',
   tabLowStock: 'Sắp hết',

@@ -24,13 +24,13 @@ import '../../../i18n/customers.vi';
 import '../../../i18n/customers.en';
 import { useBreakpoint } from '../../../hooks/use-breakpoint';
 import { useScreenHeader } from '../../../components/shell/screen-header';
-import { formatDate } from '../../orders/lib/order-presentation';
+import { formatDate } from '../../../lib/datetime';
 import { TierBadge } from '../components/tier-badge';
 import { CustomerOrdersTab } from '../components/customer-orders-tab';
 import { CustomerPointsTab } from '../components/customer-points-tab';
 import { CustomerInfoTab } from '../components/customer-info-tab';
 import { DeleteCustomerDialog } from '../components/delete-customer-dialog';
-import { initials } from '../lib/initials';
+import { initialsOf } from '../../../lib/initials';
 
 export function CustomerDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -78,7 +78,7 @@ export function CustomerDetailScreen() {
       <Card className="gap-4">
         <View className="flex-row flex-wrap items-center justify-between gap-4">
           <View className="min-w-0 flex-row items-center gap-3">
-            <Avatar fallback={initials(customer.name)} fallbackClassName="text-foreground" size="xl" />
+            <Avatar fallback={initialsOf(customer.name)} fallbackClassName="text-foreground" size="xl" />
             <View className="min-w-0 gap-1">
               <View className="flex-row flex-wrap items-center gap-2">
                 <Text variant="title" className="font-bold text-foreground" numberOfLines={1}>

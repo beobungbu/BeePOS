@@ -1,7 +1,8 @@
 /**
  * Pure presentation rules for the orders screens: the date presets behind the filter chips,
- * the derived stat the mockup shows next to revenue, the pagination footer range and the
- * `12/09/2026` / `14:32` formats of the copy rules. No React, no store, no BeeUI.
+ * the derived stat the mockup shows next to revenue and the
+ * pagination footer range. Dates and times are formatted by `src/lib/datetime.ts`,
+ * which every screen shares. No React, no store, no BeeUI.
  */
 
 import type { Order } from '../../../domain/types';
@@ -46,25 +47,6 @@ export function pageRange(page: number, pageSize: number, total: number): { from
   if (total === 0) return { from: 0, to: 0 };
   const from = (page - 1) * pageSize + 1;
   return { from, to: Math.min(page * pageSize, total) };
-}
-
-/** `14:32` in 24 hour form, the format the copy rules fix for times. */
-export function formatTime(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-}
-
-/** `12/09/2026`, the format the copy rules fix for dates. */
-export function formatDate(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
-}
-
-/** `12/09/2026 14:32`, used by the detail header and the preview pane header. */
-export function formatDateTime(iso: string): string {
-  return `${formatDate(iso)} ${formatTime(iso)}`;
 }
 
 /** Total number of units on an order, for `4 sản phẩm`. */

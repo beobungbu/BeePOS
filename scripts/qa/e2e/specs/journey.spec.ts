@@ -35,7 +35,9 @@ for (const locale of ['vi', 'en'] as Locale[]) {
       const narrow = testInfo.project.name === 'narrow';
       const on = shouldShoot(testInfo.project.name, locale, theme);
       const { errors, warnings } = collectErrors(page);
-      let t = L.vi;
+      // Annotated, not inferred: the locale step swaps in the English dictionary, whose
+      // string literal types differ from the Vietnamese one.
+      let t: (typeof L)[Locale] = L.vi;
 
       await test.step('login', async () => {
         await login(page);

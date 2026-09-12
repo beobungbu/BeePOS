@@ -7,7 +7,7 @@ import { useT } from '../../../i18n';
 import { fill } from '../../orders/lib/fill';
 import { AppIcon } from '../../../components/icons';
 import { TierBadge } from './tier-badge';
-import { initials } from '../lib/initials';
+import { initialsOf } from '../../../lib/initials';
 
 /**
  * Phone rows, the same three-line shape the orders list uses: name and total spent on the
@@ -47,7 +47,7 @@ export function CustomerListGroup({
               </View>
             }
             key={customer.id}
-            leading={<Avatar fallback={initials(customer.name)} fallbackClassName="text-foreground" size="md" />}
+            leading={<Avatar fallback={initialsOf(customer.name)} fallbackClassName="text-foreground" size="md" />}
             onPress={() => router.push(`/customers/${customer.id}`)}
             title={
               <View className="flex-row items-center gap-3">

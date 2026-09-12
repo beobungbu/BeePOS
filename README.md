@@ -8,8 +8,9 @@ cashier POS screen, orders and refunds, products and inventory, customers, chain
 reports, and store/staff/settings administration.
 
 It is UI plus client-side domain logic only. There is no backend, no auth server and no
-printer/scanner SDK; every screen reads and writes an in-memory, seeded mock dataset that
-resets on reload. It is built on `@beemvp/beeui-ui@0.86.2-rc.1` (+core, +tokens) installed
+printer/scanner SDK; every screen reads and writes a seeded mock dataset that is persisted
+on the device (localStorage on web, AsyncStorage on native) and can be reset from Settings.
+It is built on `@beemvp/beeui-ui@0.86.2-rc.1` (+core, +tokens) installed
 straight from npm, styled with Uniwind and Tailwind, and routed with expo-router.
 
 ## Second purpose: a BeeUI field audit
@@ -49,7 +50,24 @@ npm run android   # Expo Android emulator
 
 Log in with any store code from the seed data and PIN `1234`. Store codes are defined in
 [`src/data/seed/stores.ts`](src/data/seed/stores.ts) (`HN01`, `HN02`, `HCM01`, `DN01` as of
-this writing). All data is seeded fresh on every reload; nothing persists.
+this writing). Data persists on the device between reloads; Settings has "Đặt lại dữ liệu mẫu"
+to restore the seed.
+
+## Features
+
+- Sell screen with several open orders at once (tabs, max 8, rename by double-click or long press,
+  `Alt+1..8` / `Alt+N` / `Alt+W` / `Alt+R` on web), image tiles with stock badges, category chips,
+  search with `F3`, keyboard-wedge barcode scanning (fast digit burst + Enter adds the product).
+- Cart with line and order discounts (5 / 10 / 20 % presets), customer attach with quick-add,
+  notes, checkout with cash / transfer (VietQR placeholder) / card / points, split payments,
+  formatted tendered input with quick chips, receipt print (web) or share (native).
+- Shift open / close with cash count, orders list with filters, preview pane and refunds,
+  products and categories, inventory with receipts, transfers and stock counts, customers with
+  tiers and points, chain reports with period and custom range, stores, staff, settings
+  (theme, language vi / en, density, receipt text, reset demo data).
+- Desktop chrome: collapsible sidebar (`[`), 48 pt header with store switcher, one-row
+  toolbars, command palette (`Cmd/Ctrl+K`), shortcut help (`?`), CSV export on orders,
+  products and inventory.
 
 ## Scripts
 
@@ -59,7 +77,8 @@ this writing). All data is seeded fresh on every reload; nothing persists.
 | `npm run typecheck` | Regenerate Uniwind artifacts, then `tsc --noEmit` |
 | `npm test` | Run the `src/domain` unit test suite (jest-expo) |
 | `npm run export:all` | `expo export` for web, iOS and Android as a build gate |
-| `npm run lint` | `expo lint` |
+| `npm run qa:e2e` | Playwright journeys (wide + narrow); `BEEPOS_E2E_BASEURL=https://beepos.beemvp.com` targets production |
+| `npm run deploy:web` | Export web and deploy to Cloudflare Workers |
 
 ## Architecture map
 
@@ -123,7 +142,10 @@ during the field audit. Each is documented at its call site and filed upstream:
 
 ## Status
 
-Prototype. Mock data resets on every reload; there is no persistence and no backend.
+Prototype with on-device persistence and no backend. Design pass, restyle, native verification
+and the feature wave are recorded under `plans/260912-1054-beepos-design-pass/` and
+`docs/design/`. The BeeUI field audit lives in `docs/beeui-audit/` (issue map in
+`issue-index.md`).
 
 ## License
 

@@ -21,7 +21,8 @@ import { useT } from '../../i18n';
 import { useSessionStore } from '../../data/session-store';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { goBackOr } from '../../lib/navigation';
-import { BrandMark, initialsOf } from './brand-mark';
+import { BrandMark } from './brand-mark';
+import { initialsOf } from '../../lib/initials';
 import { NAV_ITEMS } from './nav-items';
 import { useCurrentScreenHeader } from './screen-header';
 

@@ -4,7 +4,8 @@ import { useRouter, usePathname } from 'expo-router';
 import { useT } from '../../i18n';
 import { useSessionStore } from '../../data/session-store';
 import { AppIcon } from '../icons';
-import { BrandBlock, initialsOf } from './brand-mark';
+import { BrandBlock } from './brand-mark';
+import { initialsOf } from '../../lib/initials';
 import { SidebarToggle } from './sidebar-toggle';
 import { SETTINGS_NAV_ITEM, WIDE_NAV_ITEMS, type NavItem } from './nav-items';
 

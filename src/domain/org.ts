@@ -16,6 +16,16 @@ export function canAssignRole(actorRole: StaffRole, targetRole: StaffRole): bool
   return false;
 }
 
+/**
+ * Whether this member may look past their own branch, on `/inventory` and `/reports`. One
+ * definition rather than the predicate spelled out at each screen: a permission written twice
+ * drifts the first time a role is added, and the two screens would then disagree about who
+ * sees another branch's stock.
+ */
+export function canViewAllStores(member: Staff | null | undefined): boolean {
+  return member?.role === 'owner' || member?.role === 'manager';
+}
+
 /** Whether `actorRole` outranks (or equals, for owner) `targetRole` in the role hierarchy. */
 export function roleOutranks(actorRole: StaffRole, targetRole: StaffRole): boolean {
   return ROLE_RANK[actorRole] >= ROLE_RANK[targetRole];

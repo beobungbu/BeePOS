@@ -3,6 +3,7 @@ import { useCatalogStore } from '../../data/catalog-store';
 import { useOrderStore } from '../../data/order-store';
 import { useOrgStore } from '../../data/org-store';
 import { useSessionStore } from '../../data/session-store';
+import { canViewAllStores } from '../../domain/org';
 import {
   averageBasket,
   cashierPerformance,
@@ -37,12 +38,12 @@ export interface ReportFiltersState {
 export function useReportFilters(): ReportFiltersState {
   const staff = useSessionStore((state) => state.staff);
   const session = useSessionStore((state) => state.store);
-  const canViewAllStores = staff?.role === 'owner' || staff?.role === 'manager';
+  const canSeeAllStores = canViewAllStores(staff);
 
   const [periodKey, setPeriodKey] = useState<PeriodKey>('today');
   const [customStart, setCustomStart] = useState<Date | null>(null);
   const [customEnd, setCustomEnd] = useState<Date | null>(null);
-  const [storeId, setStoreId] = useState<string | null>(canViewAllStores ? null : (session?.id ?? null));
+  const [storeId, setStoreId] = useState<string | null>(canSeeAllStores ? null : (session?.id ?? null));
 
   return {
     periodKey,
@@ -53,7 +54,7 @@ export function useReportFilters(): ReportFiltersState {
     setCustomEnd,
     storeId,
     setStoreId,
-    canViewAllStores,
+    canViewAllStores: canSeeAllStores,
   };
 }
 

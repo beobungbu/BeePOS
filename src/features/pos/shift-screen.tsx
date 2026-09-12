@@ -32,6 +32,7 @@ import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift, useShiftHistory, useShiftStore } from '../../data/shift-store';
 import { SecondaryButtonLabel } from './components/secondary-button-label';
 import { usePosLayout } from './hooks/use-pos-layout';
+import { formatDateTime } from '../../lib/datetime';
 
 /** Placeholder for a value a shift does not have yet; never an em dash, per the copy rules. */
 const NO_VALUE = '-';
@@ -156,9 +157,9 @@ export default function ShiftScreen() {
                   const shiftStat = shiftSummary(shift, orders);
                   return (
                     <TableRow key={shift.id}>
-                      <TableCell>{new Date(shift.openedAt).toLocaleString('vi-VN')}</TableCell>
+                      <TableCell>{formatDateTime(shift.openedAt)}</TableCell>
                       <TableCell>
-                        {shift.closedAt ? new Date(shift.closedAt).toLocaleString('vi-VN') : NO_VALUE}
+                        {shift.closedAt ? formatDateTime(shift.closedAt) : NO_VALUE}
                       </TableCell>
                       <TableCell>{formatVND(shiftStat.revenue)}</TableCell>
                       <TableCell>
@@ -183,7 +184,7 @@ export default function ShiftScreen() {
                 <View key={shift.id} className="gap-1 border-b border-border p-3">
                   <View className="flex-row items-center justify-between">
                     <Text variant="label" className="font-semibold text-foreground">
-                      {new Date(shift.openedAt).toLocaleString('vi-VN')}
+                      {formatDateTime(shift.openedAt)}
                     </Text>
                     <Text variant="label" className="font-bold tabular-nums text-foreground">
                       {formatVND(shiftStat.revenue)}

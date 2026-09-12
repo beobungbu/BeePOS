@@ -50,10 +50,17 @@ export const PERSISTED_KEYS = Object.values(KEY);
 
 const entries: PersistedStore[] = [
   // Active staff and store: a reload lands back on the sell screen instead of the login form.
+  // The signed-in member's PIN is blanked before the slice is written: nothing reads it back
+  // off the session (login checks the org store), so keeping it here only put a working till
+  // credential in `localStorage` where any devtools window can read it.
   persistStore(
     KEY.session,
     useSessionStore,
-    (state) => ({ staff: state.staff, store: state.store, storeOptions: state.storeOptions }),
+    (state) => ({
+      staff: state.staff ? { ...state.staff, pin: '' } : null,
+      store: state.store,
+      storeOptions: state.storeOptions,
+    }),
     VERSION.session,
   ),
   // `sidebarCollapsed` stays with preference-storage (stores read it while being created) and

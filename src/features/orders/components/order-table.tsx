@@ -7,7 +7,8 @@ import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
 import { useTableRowClass } from '../../../components/table-row-density';
 import type { Breakpoint } from '../../../hooks/use-breakpoint';
-import { formatTime, isCancelled, paymentSummary } from '../lib/order-presentation';
+import { isCancelled, paymentSummary } from '../lib/order-presentation';
+import { formatTime } from '../../../lib/datetime';
 import { fill } from '../lib/fill';
 import { OrderStatusBadge } from './order-status-badge';
 

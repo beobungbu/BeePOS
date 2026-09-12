@@ -6,10 +6,17 @@
 import { calcCart, type CartTotals, type PricedCartLine } from '../../../domain/pos';
 import type { Cart, Product } from '../../../domain/types';
 
+/**
+ * Indexed rather than scanned per line: the tab strip prices every open order on every render
+ * and the catalogue can hold a thousand products, so a `find` per line turned one keystroke
+ * into `tabs x lines x products` comparisons.
+ */
 export function pricedLinesOf(cart: Cart, products: Product[]): PricedCartLine[] {
+  if (cart.lines.length === 0) return [];
+  const taxRateById = new Map(products.map((product) => [product.id, product.taxRate]));
   return cart.lines.map((line) => ({
     ...line,
-    taxRate: products.find((product) => product.id === line.productId)?.taxRate ?? 0,
+    taxRate: taxRateById.get(line.productId) ?? 0,
   }));
 }
 

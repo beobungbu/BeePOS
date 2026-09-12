@@ -5,7 +5,8 @@ import type { Order } from '../../../domain/types';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
 import { AppIcon } from '../../../components/icons';
-import { formatDate, formatTime, isCancelled, paymentSummary } from '../lib/order-presentation';
+import { isCancelled, paymentSummary } from '../lib/order-presentation';
+import { formatDate, formatTime } from '../../../lib/datetime';
 import { OrderStatusBadge } from './order-status-badge';
 
 /**

@@ -3,7 +3,7 @@ import type { Order } from '../../../domain/types';
 import type { Refund } from '../../../domain/orders';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
-import { formatDateTime } from '../lib/order-presentation';
+import { formatDateTime } from '../../../lib/datetime';
 
 /**
  * Order history, oldest first: creation, the payments that settled it, every refund, and the

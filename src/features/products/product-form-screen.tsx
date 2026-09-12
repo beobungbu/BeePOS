@@ -23,7 +23,6 @@ import {
   Textarea,
   useToast,
 } from '@beemvp/beeui-ui';
-import { router } from 'expo-router';
 import { goBackOr } from '../../lib/navigation';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';

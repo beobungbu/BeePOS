@@ -259,7 +259,8 @@ function useSearchHotkey(enabled: boolean): void {
       input.focus();
     };
 
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    // Capture, for the reason given in `src/features/pos/components/catalog-search.tsx`.
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => document.removeEventListener('keydown', onKeyDown, true);
   }, [enabled]);
 }

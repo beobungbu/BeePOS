@@ -16,7 +16,7 @@ import { useT } from '../../i18n';
 import { useSessionStore } from '../../data/session-store';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { AppIcon } from '../../components/icons';
-import { initialsOf } from '../../components/shell/brand-mark';
+import { initialsOf } from '../../lib/initials';
 import type { Store } from '../../domain/types';
 import { AuthBrand, AuthLayout } from './auth-layout';
 import { getRememberedStoreCode } from './remembered-store';

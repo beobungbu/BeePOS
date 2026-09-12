@@ -5,7 +5,6 @@ import { Button, ButtonLabel, Text, useToast } from '@beemvp/beeui-ui';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { calcChange, formatReceiptText, type ReceiptTextInput } from '../../domain/pos';
 import { formatVND } from '../../domain/money';
-import type { Payment } from '../../domain/types';
 import { useT } from '../../i18n';
 import { useActiveCart } from '../../data/cart-store';
 import { useCatalogStore } from '../../data/catalog-store';
@@ -16,6 +15,7 @@ import { METHOD_LABEL_KEY } from './components/payment-method-cards';
 import { SecondaryButtonLabel } from './components/secondary-button-label';
 import { usePosLayout } from './hooks/use-pos-layout';
 import { cartLabel } from './lib/order-label';
+import { formatDateTime } from '../../lib/datetime';
 import {
   ensurePrintStylesheet,
   printReceipt,
@@ -47,7 +47,7 @@ export default function ReceiptScreen() {
   // The receipt names itself in the app header: the order code over the store and the time.
   useScreenHeader({
     title: order?.code ?? t('pos.receipt.title'),
-    subtitle: order ? new Date(order.createdAt).toLocaleString('vi-VN') : undefined,
+    subtitle: order ? formatDateTime(order.createdAt) : undefined,
     backTo: '/pos',
   });
 
@@ -70,7 +70,7 @@ export default function ReceiptScreen() {
     const tendered = tenderedFromRef(payment.ref);
     return tendered !== undefined ? accumulator + calcChange(payment.amount, tendered) : accumulator;
   }, 0);
-  const dateText = new Date(order.createdAt).toLocaleString('vi-VN');
+  const dateText = formatDateTime(order.createdAt);
   const customerName = customer?.name ?? t('pos.cart.customerDefault');
 
   // Bound once so the two callbacks below keep the narrowing the guard above established.

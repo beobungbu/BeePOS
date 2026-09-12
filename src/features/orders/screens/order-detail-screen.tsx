@@ -22,7 +22,8 @@ import { OrderTotals } from '../components/order-totals';
 import { RefundDialog } from '../components/refund-dialog';
 import { VoidAlertDialog } from '../components/void-alert-dialog';
 import { useOrderActions } from '../hooks/use-order-actions';
-import { formatDateTime, itemCount } from '../lib/order-presentation';
+import { itemCount } from '../lib/order-presentation';
+import { formatDateTime } from '../../../lib/datetime';
 import { fill } from '../lib/fill';
 
 export function OrderDetailScreen() {
