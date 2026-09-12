@@ -266,8 +266,8 @@ body.map [data-beeui]::after {
 
 .tile {
   background: var(--color-surface); border: 1px solid var(--color-border);
-  border-radius: var(--radius-md); padding: var(--space-3);
-  display: flex; flex-direction: column; gap: var(--space-2);
+  border-radius: var(--radius-md); padding: var(--space-2-5);
+  display: flex; flex-direction: column; gap: 6px;
 }
 .tile__top { display: flex; align-items: flex-start; gap: var(--space-2); }
 .tile__mark {
@@ -344,8 +344,11 @@ body.map [data-beeui]::after {
   flex: none; padding: var(--space-4); border-top: 1px solid var(--color-border);
   background: var(--color-surface); display: flex; flex-direction: column; gap: 6px;
 }
-.totals__row { display: flex; justify-content: space-between; font-size: var(--text-label);
-  line-height: var(--line-label); font-variant-numeric: tabular-nums; }
+.totals__row { display: flex; justify-content: space-between; gap: var(--space-3);
+  font-size: var(--text-label); line-height: var(--line-label);
+  font-variant-numeric: tabular-nums; }
+.totals__row > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.totals__row > span:last-child { flex: none; }
 .totals__rule { height: 1px; background: var(--color-border-strong); margin: var(--space-2) 0; }
 .totals__grand { display: flex; justify-content: space-between; align-items: baseline; }
 
@@ -502,3 +505,87 @@ body.map [data-beeui]::after {
   background: var(--color-border-strong); }
 .timeline__dot--ok { background: var(--color-success); }
 .table--tight th, .table--tight td { padding-left: var(--space-3); padding-right: var(--space-3); }
+
+/* ---------- open order tabs (app-owned composite, see design-direction.md) ---------- */
+.ordertabs {
+  display: flex; align-items: stretch; flex: none; height: 48px;
+  background: var(--color-surface-muted); border-bottom: 1px solid var(--color-border);
+}
+.ordertabs__scroll { display: flex; gap: 6px; padding: 6px 8px; flex: 1; min-width: 0; overflow: hidden; }
+.otab {
+  display: flex; align-items: center; gap: var(--space-2); flex: none;
+  height: 36px; padding: 0 var(--space-2-5); border-radius: var(--radius-md);
+  border: 1px solid transparent; background: transparent; cursor: pointer;
+  font-family: inherit; font-size: var(--text-label); font-weight: 600;
+  color: var(--color-muted-foreground); white-space: nowrap;
+}
+.otab--on {
+  background: var(--color-surface); border-color: var(--color-border-strong);
+  color: var(--color-foreground);
+}
+.otab--on::before {
+  content: ""; width: 3px; height: 18px; border-radius: 2px; flex: none;
+  background: var(--color-primary);
+}
+.otab__sum { font-weight: 700; font-variant-numeric: tabular-nums; }
+.otab__empty { font-weight: 500; color: var(--color-subtle-foreground); }
+.otab__close {
+  width: 32px; height: 32px; margin-right: -6px; border: none; background: transparent;
+  border-radius: var(--radius-sm); cursor: pointer; color: var(--color-muted-foreground);
+  display: flex; align-items: center; justify-content: center;
+}
+.ordertabs__add {
+  width: 48px; flex: none; border: none; border-left: 1px solid var(--color-border);
+  background: var(--color-surface-muted); color: var(--color-foreground); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.ordertabs__add:disabled { color: var(--color-disabled-foreground); cursor: not-allowed; }
+
+/* ---------- detail column (component states, not a device frame) ---------- */
+.frame--detail { width: 400px; }
+.detailcard {
+  background: var(--color-surface); border: 1px solid #d0d5dd; border-radius: var(--radius-lg);
+  overflow: hidden; margin-bottom: var(--space-4);
+}
+.detailcard__head {
+  font-size: var(--text-caption); font-weight: 600; letter-spacing: .02em;
+  color: var(--color-muted-foreground); padding: var(--space-2-5) var(--space-3);
+  background: var(--color-surface-muted); border-bottom: 1px solid var(--color-border);
+}
+.scrim { background: var(--color-overlay); padding: var(--space-6); }
+.dialog {
+  background: var(--color-surface-raised); border-radius: var(--radius-xl);
+  padding: var(--space-6); box-shadow: var(--elev-overlay);
+  display: flex; flex-direction: column; gap: var(--space-3);
+}
+.btn--danger { background: var(--color-destructive); color: var(--color-destructive-foreground); }
+.paypane--compact .paycard { min-height: 56px; padding: var(--space-3); }
+.paypane--compact .paycard.on { padding: 11px; }
+
+
+/* ---------- product image slot ---------- */
+.tile__img {
+  position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--acc) 7%, #fff);
+  display: flex; align-items: center; justify-content: center;
+}
+.grid--wide .tile__img { aspect-ratio: 4 / 3; }
+.prod { width: 72%; height: 72%; color: var(--acc); display: block; }
+.tile__mono {
+  font-size: 22px; font-weight: 700; letter-spacing: -.02em; color: var(--acc);
+}
+.tile__badge { position: absolute; top: 6px; right: 6px;
+  box-shadow: 0 1px 2px rgb(16 24 40 / 14%); }
+.badge--onimg { background: var(--color-surface); color: var(--color-muted-foreground); }
+.tile--out .tile__img { opacity: .45; filter: grayscale(1); }
+.tile--out .tile__badge { opacity: 1; filter: none; }
+
+/* 40 pt thumbnail, same fallback rule, used in cart lines and order previews */
+.thumb {
+  width: 40px; height: 40px; flex: none; border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--acc) 10%, #fff);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.thumb .prod { width: 32px; height: 32px; }
+.thumb__mono { font-size: 13px; font-weight: 700; color: var(--acc); }

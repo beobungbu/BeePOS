@@ -186,12 +186,75 @@ single action where one exists. Cart empty: `shopping-cart`, `Giỏ hàng trốn
 void the way the current build does; cap the block at 280 pt and align it to the top third.
 
 **Alert banner rules.** `alert-banner` never sits above the product grid. Shift-not-open
-renders as a 40 pt strip directly under the app header, full bleed, `bg-warning` at 12
+renders as a 40 pt strip directly under the app header, below the order tab strip on POS
+because the tab strip is shell chrome and the banner is a transient notice, full bleed, `bg-warning` at 12
 percent, `triangle-alert` + `Chưa mở ca` + a text button `Mở ca`. Low stock on
 `/inventory` is the only place a full alert-banner block is allowed, and it sits above the
 filters, not above data. One banner maximum per screen.
 
-## 6. Forms
+## 6. Nhiều đơn cùng lúc
+
+A cashier serves several customers in parallel: customer A goes back for the fish sauce,
+customer B is rung up, then A returns. The sell screen keeps up to 8 open orders and the
+cashier switches between them without losing a line.
+
+**Placement.** The strip is shell chrome, so it sits in the same place at every width:
+directly under the app header, above the shift banner, above the search bar. On desktop it
+spans the full working width rather than living inside the 380 pt cart pane, for three
+reasons: 380 pt holds only 2 tabs and would need its own overflow control; the catalog is
+identical for every order so the strip is not a property of the cart; and KiotViet puts its
+multi-bill tabs across the top for the same reason
+(<https://www.kiotviet.vn/cap-nhat-giao-dien-ban-hang/>).
+
+**Strip.** 48 pt tall, `bg-surface-muted`, bottom `border-border`. Tabs scroll horizontally
+inside it; the new-order button is a 48 pt square pinned outside the scroller on the right
+so it is always reachable. Visible before scrolling: 2 on phone, 5 at 768, 8 at 1440. There
+is no overflow menu, scrolling is the only overflow mechanism.
+
+**Tab.** 36 pt tall, radius `md`, `text-label` weight 600, contents in order: a 3 pt primary
+accent bar (active only), the label `Đơn 1`, a `badge` with the line count, the order total
+in weight 700 tabular figures, then the close control (active only). Active tab is
+`bg-surface` with `border-border-strong` and `text-foreground`; inactive is transparent with
+`text-muted-foreground` and no border. An order with no lines shows `Trống` in
+`text-subtle-foreground` instead of the badge and total.
+
+**Close.** The close control appears only on the active tab. On touch the tabs sit next to
+each other and a close control on every tab produces mis-taps; to close another order the
+cashier selects it first. The control is a 32 pt square, the one documented exception to the
+44 pt rule, and the exception is paid for by the confirmation: closing an order that has
+lines always opens an `alert-dialog` naming the order, its line count and its total
+(`Đóng Đơn 2?` / `Đơn 2 đang có 1 mặt hàng trị giá 185.000 đ...`) with a destructive confirm.
+An empty order closes immediately with no dialog.
+
+**Limit.** 8 open orders. At 8 the new-order button is disabled and a `toast` explains why:
+`Tối đa 8 đơn cùng lúc. Hoàn tất hoặc đóng bớt một đơn.`
+
+**Keyboard, web only.** `Alt+1` to `Alt+8` switch order, `Alt+N` opens a new one, `Alt+W`
+closes the current one through the same confirmation. `Ctrl/Cmd+number` was rejected: every
+major browser binds it to browser tab switching, so the app would either lose the key or
+fight the browser for it.
+
+**Persistence.** Open orders live in the in-memory cart store and a reload discards all of
+them, which matches the prototype scope in `docs/product-spec.md`. Nothing in the UI may
+imply otherwise: no `đã lưu`, no draft badge, no restore prompt. When a backend exists these
+become parked bills and the copy changes then, not now.
+
+**Which BeeUI component.** None of the three candidates fits, so this is an app-owned
+composite: a horizontal `ScrollView` of `Pressable` rows using `Badge`, `Text` and
+`IconButton`. `Tabs` is out because the docs state a trigger "cannot carry its own press
+handler" and "pressing the active tab does nothing", which kills the close control exactly
+where it lives (<https://beeui.beemvp.com/docs/components/tabs/>). `Chip`/`ChipGroup` is out
+because it documents no remove affordance and no leading or trailing slot
+(<https://beeui.beemvp.com/docs/components/chip/>). `SegmentedControl` is out because equal
+width segments cannot hold a variable label plus badge plus total, and it does not scroll.
+
+**Everywhere else the order must be named.** The phone and tablet cart bar reads
+`Đơn 1 · 4 mặt hàng`, the desktop cart pane header reads `Đơn 1` instead of `Giỏ hàng`, and
+checkout shows a static `Đơn 1` badge with no strip, because switching order mid payment is
+never correct. Completing a payment returns the cashier to the next open order, not to an
+empty screen; when no order remains open a fresh empty `Đơn 1` is created.
+
+## 7. Forms
 
 Form content is capped at 480 and centred, regardless of breakpoint. Page padding: 16
 phone, 24 tablet, 32 desktop. Field gap 16, group gap 24 (`--spacing-density-form-gap`
@@ -204,7 +267,7 @@ hàng` (uppercase, autocapitalize characters) and `Mã PIN` (`otp-input`, 4 cell
 Primary button full width, 52 pt. Select-store renders stores as a `list-group` of 72 pt
 rows: store code chip, name weight 600, address in caption, `chevron-right` trailing.
 
-## 7. Tables versus lists
+## 8. Tables versus lists
 
 Rule: `table` at >= 768, `list-group` below. Never a horizontally scrolling table on phone.
 Every table row keeps a 56 pt height (`--spacing-density-row-height` is 3.5rem) and is a
@@ -219,7 +282,7 @@ link to the detail route.
 Money columns are right aligned and tabular in both modes. Status is always a `badge`
 with a word, never a bare colour dot.
 
-## 8. Dark mode
+## 9. Dark mode
 
 Same token names, no per-screen overrides, no conditional colours in components. The only
 allowed theme branch in app code is `Uniwind.setTheme('light' | 'dark')`, per
@@ -227,7 +290,7 @@ allowed theme branch in app code is `Uniwind.setTheme('light' | 'dark')`, per
 values automatically because they are tokens. Anything that needs a special case in dark
 means the wrong token was used in light.
 
-## 9. Copy rules
+## 10. Copy rules
 
 Vietnamese is the default and every string ships through `src/i18n`. No em-dash anywhere,
 in code or in copy. Money is `9.000 đ`: dot thousands separator, a non breaking space, a

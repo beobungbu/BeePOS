@@ -17,3 +17,8 @@ Why: day-one build skipped visual design (spec had one line on layout). Result w
 - No em-dash in any user-facing copy.
 
 Phase files: `phase-01-research-direction-wireframes.md`
+
+## Owner decisions (2026-09-12)
+- POS must hold several open orders at once (tabs); paying one returns to the next open order.
+- Product images are in. Seed images: generic grocery photos from a free-license stock source (Pexels/Unsplash), ~40 shared by category, bundled in repo. Owner chose this over supplying real product photos.
+- Brand stays BeeUI amber; shift-not-open is a nudge, not a gate; orders preview pane kept but must not clip the table; F keys web only; dark render checked in phase 2.
