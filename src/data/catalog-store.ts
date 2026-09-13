@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Category, Product, ProductVariant } from '../domain/types';
 import { categories as seedCategories, products as seedProducts } from './seed';
+import { isDemoChain } from './chain-seed';
 
 interface CatalogState {
   products: Product[];
@@ -14,9 +15,19 @@ interface CatalogState {
   removeVariant: (productId: string, variantId: string) => void;
 }
 
+/**
+ * The catalogue a chain opens with: the seeded shop for the demo chain, nothing at all for any
+ * other. A fresh chain imports a CSV or adds its first product; it does not inherit somebody
+ * else's shelves.
+ */
+export function catalogSeedForActiveOrg(): Pick<CatalogState, 'products' | 'categories'> {
+  return isDemoChain()
+    ? { products: seedProducts, categories: seedCategories }
+    : { products: [], categories: [] };
+}
+
 export const useCatalogStore = create<CatalogState>((set) => ({
-  products: seedProducts,
-  categories: seedCategories,
+  ...catalogSeedForActiveOrg(),
 
   upsertProduct: (product) =>
     set((state) => {

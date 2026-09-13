@@ -213,10 +213,11 @@ export function ShellHeader() {
             onPress={() => {
               const target = pendingOrgId;
               setPendingOrgId(null);
-              if (target) {
-                switchOrg(target);
-                router.replace('/login');
-              }
+              if (!target) return;
+              // The new scope has to be on disk before the app leaves this screen: on native
+              // the write is asynchronous, and a kill in the gap put the till back into the
+              // chain it had just left.
+              void switchOrg(target).then(() => router.replace('/login'));
             }}
           >
             {t('common.shell.switchOrgAction')}

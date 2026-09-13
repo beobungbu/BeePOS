@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle, ListGroup, ListItem, Sheet, SheetCo
 import { useRouter } from 'expo-router';
 import { useT } from '../../i18n';
 import { AppIcon } from '../icons';
-import { useVisibleNavItems } from './nav-items';
+import { MORE_SHEET_SUB_NAV_IDS, useVisibleNavItems, useVisibleSubNavItems } from './nav-items';
 
 interface MoreSheetProps {
   open: boolean;
@@ -21,7 +21,13 @@ interface MoreSheetProps {
 export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
   const t = useT();
   const router = useRouter();
-  const secondary = useVisibleNavItems().filter((item) => !item.primaryOnMobile);
+  const areas = useVisibleNavItems().filter((item) => !item.primaryOnMobile);
+  // "Ca làm việc" is not an area of its own, but on a narrow screen this menu is the only
+  // standing entry to it, so it is listed after the areas (P7-05).
+  const subAreas = useVisibleSubNavItems().filter((item) =>
+    (MORE_SHEET_SUB_NAV_IDS as readonly string[]).includes(item.id),
+  );
+  const secondary = [...areas, ...subAreas];
 
   function handleSelect(href: string) {
     onOpenChange(false);

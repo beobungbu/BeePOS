@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
-import { shiftSummary } from '../domain/pos';
+import { openShiftOn, shiftSummary } from '../domain/pos';
 import type { Shift } from '../domain/types';
 import { useOrderStore } from './order-store';
 import { useSessionStore } from './session-store';
@@ -66,6 +66,21 @@ export function useCurrentShift(): Shift | undefined {
     () => shifts.find((shift) => shift.storeId === storeId && shift.cashierId === cashierId && !shift.closedAt),
     [shifts, storeId, cashierId],
   );
+}
+
+/**
+ * The open shift on the till this session is bound to, whoever opened it.
+ *
+ * Separate from `useCurrentShift`, and deliberately: cash movements, the Z report and closing
+ * all belong to the cashier's own shift, while "is this till in a shift" is a fact about the
+ * till. The register picker and the sell screen both read this one, so they can no longer
+ * give two answers about the same station (P7-06).
+ */
+export function useRegisterShift(): Shift | undefined {
+  const storeId = useSessionStore((state) => state.store?.id);
+  const registerId = useSessionStore((state) => state.register?.id);
+  const shifts = useOrderStore((state) => state.shifts);
+  return useMemo(() => openShiftOn(shifts, storeId, registerId), [shifts, storeId, registerId]);
 }
 
 /** Reactive selector for a store's shift history, most recent first. */

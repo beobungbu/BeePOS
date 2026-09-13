@@ -2,6 +2,7 @@ import { View } from 'react-native';
 import { SafeArea, Screen, Text } from '@beemvp/beeui-ui';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { BrandMark } from '../../components/shell/brand-mark';
+import { FormScrollView } from '../../components/form-scroll-view';
 
 /** Version line in the auth footer; kept in step with `package.json` when either bumps. */
 export const APP_VERSION = '0.1.0';
@@ -21,10 +22,26 @@ export function AuthLayout({ children, footer }: { children: React.ReactNode; fo
         className={`flex-1 ${boxed ? 'bg-surface-muted' : 'bg-background'}`}
         edges={['top', 'bottom', 'left', 'right']}
       >
-        {/* The page gutter sits on this View, not on `SafeArea`: `SafeArea` resolves its own
-            horizontal padding from the insets and drops the horizontal padding it is given, which is what
-            left the phone login flush against both edges (findings-15-polish, 15-01). */}
-        <View className="flex-1 items-center justify-center gap-6 px-4 py-6">
+        {/* The page gutter sits on the content container, not on `SafeArea`: `SafeArea`
+            resolves its own horizontal padding from the insets and drops the horizontal padding
+            it is given, which is what left the phone login flush against both edges
+            (findings-15-polish, 15-01).
+
+            The frame scrolls and avoids the keyboard because the password field opens the
+            keyboard straight over "Đăng nhập" on a phone, and nothing moved: the only way to
+            submit was the return key (P7-01). `flexGrow: 1` with centred content keeps the
+            card in the middle of a screen that is taller than the form. */}
+        <FormScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            flexGrow: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 24,
+            paddingHorizontal: 16,
+            paddingVertical: 24,
+          }}
+        >
           <View
             className={`w-full max-w-[480px] gap-4 ${
               boxed ? 'rounded-lg border border-border bg-surface p-8' : ''
@@ -33,7 +50,7 @@ export function AuthLayout({ children, footer }: { children: React.ReactNode; fo
             {children}
           </View>
           {footer}
-        </View>
+        </FormScrollView>
       </SafeArea>
     </Screen>
   );

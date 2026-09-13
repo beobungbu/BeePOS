@@ -52,9 +52,16 @@ export async function loadActiveOrgId(): Promise<string> {
   return scope;
 }
 
-/** Points the next launch at `orgId`. The caller reloads the app, which re-reads the value. */
-export function setActiveOrgId(orgId: string): void {
+/**
+ * Points the next launch at `orgId`. The caller reloads the app, which re-reads the value.
+ *
+ * Awaited, not fired and forgotten: on native the write goes to AsyncStorage, and the app is
+ * about to drop the session and send the cashier back to the sign-in flow. A kill inside that
+ * window used to lose the switch and bring the till back up in the chain it had just left.
+ * The synchronous web write happens first, so web is unchanged in practice.
+ */
+export async function setActiveOrgId(orgId: string): Promise<void> {
   const storage = getPlatformStorage();
   storage.setItemSync?.(ACTIVE_ORG_KEY, orgId);
-  void storage.setItem(ACTIVE_ORG_KEY, orgId);
+  await storage.setItem(ACTIVE_ORG_KEY, orgId);
 }

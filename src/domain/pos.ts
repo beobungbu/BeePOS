@@ -147,6 +147,25 @@ export function ordersInShift(shift: Shift, orders: readonly Order[]): Order[] {
   );
 }
 
+/**
+ * The open shift standing on one till, whoever opened it.
+ *
+ * One answer to "is a shift open on this register", used by the register picker and by the
+ * sell screen. They used to compute it separately, and disagreed: the picker said "Quầy 1 ·
+ * Đang mở ca" about the till while the sell screen said "Chưa mở ca" about the cashier
+ * (P7-06). Which cashier owns a shift is a different question, answered by `useCurrentShift`.
+ */
+export function openShiftOn(
+  shifts: readonly Shift[],
+  storeId: string | undefined,
+  registerId: string | undefined,
+): Shift | undefined {
+  if (!storeId || !registerId) return undefined;
+  return shifts.find(
+    (shift) => !shift.closedAt && shift.storeId === storeId && shift.registerId === registerId,
+  );
+}
+
 /** The cash in/out entries booked against a shift, oldest first. */
 export function movementsInShift(shiftId: string, movements: readonly CashMovement[]): CashMovement[] {
   return movements

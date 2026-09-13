@@ -117,6 +117,7 @@ export const posVi = {
     removeLine: 'Xoá dòng',
     decreaseQty: 'Giảm số lượng',
     increaseQty: 'Tăng số lượng',
+    qtyLabel: 'Số lượng',
   },
 
   lineDiscount: {
@@ -249,6 +250,11 @@ export const posVi = {
     closeConfirmDescription: 'Kiểm tra kỹ số tiền mặt trước khi đóng ca. Hành động này không thể hoàn tác.',
     openedAt: 'Mở lúc',
     closedAt: 'Đóng lúc',
+    /* The strip on the sell screen once a shift is open: the way back to cash in/out, the Z
+       report and closing the shift, which had no entry point on a phone at all. */
+    chipOwn: 'Ca từ {time}',
+    chipOther: 'Ca của {name} từ {time}',
+    chipAction: 'Mở màn hình ca làm việc',
   },
 };
 

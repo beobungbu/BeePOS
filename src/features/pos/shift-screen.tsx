@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +24,7 @@ import {
   Text,
   useToast,
 } from '@beemvp/beeui-ui';
+import { FormScrollView } from '../../components/form-scroll-view';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { drawerAfterMovement, shiftSummary } from '../../domain/pos';
 import { formatVND } from '../../domain/money';
@@ -121,7 +122,10 @@ export default function ShiftScreen() {
 
   return (
     <View className="flex-1">
-      <ScrollView
+      {/* The float and the counted-cash fields both open the keypad over the button that
+          follows them, so this screen scrolls out from under the keyboard and keeps its taps
+          (P7-03: "Mở ca" took two taps, the first swallowed dismissing the keyboard). */}
+      <FormScrollView
         className="flex-1 bg-surface-muted"
         contentContainerStyle={{ padding: layout.gutter, gap: 16 }}
       >
@@ -342,7 +346,7 @@ export default function ShiftScreen() {
             })}
           </View>
         )}
-      </ScrollView>
+      </FormScrollView>
 
       <CashMovementDialog
         open={cashDialogOpen}

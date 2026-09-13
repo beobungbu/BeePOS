@@ -58,6 +58,8 @@ export const authEn = {
     onDuty: 'On duty: {name}',
     cancel: 'Cancel',
     roleLine: '{role} · {store} · {register}',
+    pinProgressLabel: 'PIN',
+    pinProgressValue: '{entered} of {total} digits',
   },
   password: {
     tooShort: 'Use at least 8 characters',

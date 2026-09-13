@@ -67,7 +67,16 @@ export const SUB_NAV_ITEMS: NavItem[] = [
   // Returning goods is a refund, so it costs what a refund costs rather than what selling
   // costs: a cashier who may not refund must not reach the screen by typing its URL.
   { id: 'returns', href: '/pos/returns', labelKey: 'returns.entryTitle', icon: 'receipt-text', primaryOnMobile: false, permission: 'pos.refund' },
+  // The shift, and the cash sheet, the Z report and the close behind it. It belongs here
+  // because it was reachable only from the "no shift open" banner, which is what disappears
+  // the moment a shift exists: on a phone there was then no way back to it at all (P7-05).
+  // Costs what standing at the till costs; the screen itself checks `cash.movement` before it
+  // offers cash in and out.
+  { id: 'shift', href: '/pos/shift', labelKey: 'pos.shift.title', icon: 'clock', primaryOnMobile: false, permission: 'pos.sell' },
 ];
+
+/** The sub-area screens the "Thêm" menu lists under the areas, in the order it lists them. */
+export const MORE_SHEET_SUB_NAV_IDS = ['shift'] as const;
 
 /**
  * The areas a role may open, in nav order. One filter for the rail, the sidebar, the bottom

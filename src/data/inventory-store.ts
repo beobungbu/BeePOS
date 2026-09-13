@@ -7,6 +7,7 @@ import {
   stockLevels as seedStockLevels,
   stockTransfers as seedStockTransfers,
 } from './seed';
+import { isDemoChain } from './chain-seed';
 
 interface InventoryState {
   stockLevels: StockLevel[];
@@ -45,6 +46,26 @@ function nextMovementId(existing: readonly StockMovement[]): string {
   return `mov-${existing.length + 1}-${Date.now()}`;
 }
 
+/**
+ * The stock a chain opens with. Nothing outside the demo chain: a chain with no catalogue has
+ * nothing to hold stock of, and a receipt or a CSV import is what puts the first row here.
+ */
+export function inventorySeedForActiveOrg(): Pick<
+  InventoryState,
+  'stockLevels' | 'goodsReceipts' | 'stockTransfers' | 'stockCounts' | 'movements'
+> {
+  if (!isDemoChain()) {
+    return { stockLevels: [], goodsReceipts: [], stockTransfers: [], stockCounts: [], movements: [] };
+  }
+  return {
+    stockLevels: seedStockLevels,
+    goodsReceipts: seedGoodsReceipts,
+    stockTransfers: seedStockTransfers,
+    stockCounts: seedStockCounts,
+    movements: [],
+  };
+}
+
 export const useInventoryStore = create<InventoryState>((set, get) => {
   function logMovement(input: StockMovementInput) {
     const movement: StockMovement = {
@@ -56,11 +77,7 @@ export const useInventoryStore = create<InventoryState>((set, get) => {
   }
 
   return {
-    stockLevels: seedStockLevels,
-    goodsReceipts: seedGoodsReceipts,
-    stockTransfers: seedStockTransfers,
-    stockCounts: seedStockCounts,
-    movements: [],
+    ...inventorySeedForActiveOrg(),
 
     adjustStock: (productId, storeId, delta, reason = 'adjustment') => {
       set((state) => ({

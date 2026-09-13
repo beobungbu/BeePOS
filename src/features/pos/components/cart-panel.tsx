@@ -108,6 +108,23 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
     router.push(`/orders/${order.id}`);
   }
 
+  const secondaryActions = (
+    <View className="mt-1 flex-row flex-wrap gap-2">
+      {wholesale ? (
+        <Button className="w-full" disabled={isEmpty} variant="outline" onPress={handleSaveQuote}>
+          <SecondaryButtonLabel>{t('pos.wholesale.saveQuote')}</SecondaryButtonLabel>
+        </Button>
+      ) : null}
+      <OrderDiscountDialog discount={cart.discount} onApply={setOrderDiscount} />
+      <OrderNoteDialog note={cart.note} onApply={setNote} />
+      {/* A return is its own transaction, not part of this order, but the till is where the
+          customer is standing, so the way in is on the till's action row. */}
+      <Button className="flex-1" variant="outline" onPress={() => router.push('/pos/returns')}>
+        <SecondaryButtonLabel>{t('returns.entryTitle')}</SecondaryButtonLabel>
+      </Button>
+    </View>
+  );
+
   return (
     <View className="flex-1 bg-surface">
       {showHeader ? (
@@ -126,31 +143,42 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
       </View>
       ) : null}
 
-      <WholesaleHeader
-        wholesale={wholesale}
-        onToggle={setWholesale}
-        customer={customer}
-        groups={groups}
-        reps={allStaff}
-        salesRepId={cart.salesRepId}
-        onSalesRepChange={setSalesRep}
-      />
+      {/* Everything above the totals scrolls with the lines.
 
-      <CustomerDialog
-        customers={customers}
-        selectedCustomerId={cart.customerId}
-        onSelect={setCustomer}
-        onCreate={createCustomer}
-      />
+          The wholesale header (switch, buyer, rep `Select`) plus the pinned totals block left
+          the line list about 67 pt on a phone, and what did not fit was drawn outside the list
+          and under the totals, where it took no taps: on a wholesale order that is the unit
+          selector and the quantity stepper, so the line could not be edited at all (P7-02).
+          Scrolling the header with the lines gives the list the space back, and
+          `overflow-hidden` on the scroll region stops anything painting through the footer
+          whatever the content height turns out to be. */}
+      <View className="min-h-0 flex-1 overflow-hidden">
+        <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }}>
+          <WholesaleHeader
+            wholesale={wholesale}
+            onToggle={setWholesale}
+            customer={customer}
+            groups={groups}
+            reps={allStaff}
+            salesRepId={cart.salesRepId}
+            onSalesRepChange={setSalesRep}
+          />
 
-      {isEmpty ? (
-        <View className="flex-1 items-center px-6 pt-10">
-          <View className="w-full max-w-[280px]">
-            <EmptyState title={t('pos.cart.emptyTitle')} description={t('pos.cart.emptyDescription')} />
-          </View>
-        </View>
-      ) : (
-        <ScrollView className="flex-1">
+          <CustomerDialog
+            customers={customers}
+            selectedCustomerId={cart.customerId}
+            onSelect={setCustomer}
+            onCreate={createCustomer}
+          />
+
+          {isEmpty ? (
+            <View className="flex-1 items-center px-6 pt-10">
+              <View className="w-full max-w-[280px]">
+                <EmptyState title={t('pos.cart.emptyTitle')} description={t('pos.cart.emptyDescription')} />
+              </View>
+            </View>
+          ) : null}
+
           {cart.lines.map((line) => {
             const product = products.find((item) => item.id === line.productId);
             const explanation =
@@ -182,10 +210,19 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
               />
             );
           })}
-        </ScrollView>
-      )}
 
-      <View className="gap-2 border-t border-border p-4">
+          {/* On a phone the secondary actions scroll with the order: pinned, they took a
+              quarter of the screen away from the very lines they act on, and the two that must
+              always be one thumb away (what the order costs, and paying it) are below. The
+              desktop pane is 380 pt of a full-height column and has the room, so there they
+              stay where they have always been. */}
+          {desktop ? null : <View className="px-4 pb-4">{secondaryActions}</View>}
+        </ScrollView>
+      </View>
+
+      {/* Opaque, and after the scroll region in document order: an overflowing line used to
+          show through this block and take the taps meant for it. */}
+      <View className="gap-2 border-t border-border bg-surface p-4">
         <OrderTotalsPanel totals={totals} bordered={false} wholesale={wholesale} />
 
         <Button
@@ -201,21 +238,7 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
           ) : null}
         </Button>
 
-        {wholesale ? (
-          <Button className="mt-1" disabled={isEmpty} variant="outline" onPress={handleSaveQuote}>
-            <SecondaryButtonLabel>{t('pos.wholesale.saveQuote')}</SecondaryButtonLabel>
-          </Button>
-        ) : null}
-
-        <View className="mt-1 flex-row flex-wrap gap-2">
-          <OrderDiscountDialog discount={cart.discount} onApply={setOrderDiscount} />
-          <OrderNoteDialog note={cart.note} onApply={setNote} />
-          {/* A return is its own transaction, not part of this order, but the till is where
-              the customer is standing, so the way in is on the till's action row. */}
-          <Button className="flex-1" variant="outline" onPress={() => router.push('/pos/returns')}>
-            <SecondaryButtonLabel>{t('returns.entryTitle')}</SecondaryButtonLabel>
-          </Button>
-        </View>
+        {desktop ? secondaryActions : null}
       </View>
     </View>
   );

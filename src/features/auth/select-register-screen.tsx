@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { Badge, EmptyState, ListGroup, ListItem, Text } from '@beemvp/beeui-ui';
 import { useRouter } from 'expo-router';
 import { useT } from '../../i18n';
+import { openShiftOn } from '../../domain/pos';
 import { useOrderStore } from '../../data/order-store';
 import { useOrgStore } from '../../data/org-store';
 import { useSessionStore } from '../../data/session-store';
@@ -27,16 +28,19 @@ export default function SelectRegisterScreen() {
   const shifts = useOrderStore((state) => state.shifts);
   const staff = useOrgStore((state) => state.staff);
 
-  // Open shifts of this branch, keyed by the till they were opened on.
+  // Open shifts of this branch, keyed by the till they were opened on. Built from the same
+  // `openShiftOn` the sell screen reads, so the two screens cannot describe one till
+  // differently (P7-06).
   const openByRegister = useMemo(() => {
     const map = new Map<string, { name: string; openedAt: string }>();
-    for (const shift of shifts) {
-      if (shift.closedAt || shift.storeId !== store?.id || !shift.registerId) continue;
-      const cashier = staff.find((member) => member.id === shift.cashierId);
-      map.set(shift.registerId, { name: cashier?.name ?? shift.cashierId, openedAt: shift.openedAt });
+    for (const register of registerOptions) {
+      const open = openShiftOn(shifts, store?.id, register.id);
+      if (!open) continue;
+      const cashier = staff.find((member) => member.id === open.cashierId);
+      map.set(register.id, { name: cashier?.name ?? open.cashierId, openedAt: open.openedAt });
     }
     return map;
-  }, [shifts, staff, store?.id]);
+  }, [registerOptions, shifts, staff, store?.id]);
 
   function handleSelect(registerId: string) {
     selectRegister(registerId);

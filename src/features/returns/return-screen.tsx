@@ -292,15 +292,31 @@ export function ReturnScreen({ orderCode }: ReturnScreenProps) {
     </View>
   );
 
+  /**
+   * The return lines.
+   *
+   * Six columns do not fit a phone: "Xử lý" sat at x 387-443 on a 402 pt screen, the
+   * horizontal scroll reported a single page, and the disposition control could not be reached
+   * at all (P7-07). Under 768 the reason and the disposition move under the product name, in
+   * the same cell, which leaves three columns that do fit: what is being returned, how many,
+   * and for how much.
+   *
+   * Still a `Table` rather than a `ListGroup` or `layout="stacked"`: both of those drop the
+   * row semantics. `layout="stacked"` was tried first and, measured on web, a line's quantity
+   * field is then no longer inside a row element at all, so anything that reads a line as a
+   * row (a screen reader, or the end-to-end suite) loses it. Filed in
+   * `docs/beeui-audit/findings-31-native-fix.md`. A return line is a row of a document the
+   * cashier reads across, and it stays one.
+   */
   const linesTable = order && (
     <Table layout="scroll">
       <TableHeader>
         <TableRow>
           <TableHead label={column.product}>{column.product}</TableHead>
-          <TableHead label={column.purchased}>{column.purchased}</TableHead>
+          {isWide ? <TableHead label={column.purchased}>{column.purchased}</TableHead> : null}
           <TableHead label={column.returnQty}>{column.returnQty}</TableHead>
-          <TableHead label={column.reason}>{column.reason}</TableHead>
-          <TableHead label={column.disposition}>{column.disposition}</TableHead>
+          {isWide ? <TableHead label={column.reason}>{column.reason}</TableHead> : null}
+          {isWide ? <TableHead label={column.disposition}>{column.disposition}</TableHead> : null}
           <TableHead label={column.amount}>{column.amount}</TableHead>
         </TableRow>
       </TableHeader>
@@ -308,32 +324,85 @@ export function ReturnScreen({ orderCode }: ReturnScreenProps) {
         {draft.map((line) => {
           const name = productById.get(line.productId)?.name ?? line.productId;
           const picked = line.qty > 0;
+
+          const reasonPicker = picked ? (
+            <ChipGroup
+              className="flex-row flex-wrap gap-1"
+              selectionMode="single"
+              value={line.reason}
+              onValueChange={(value) =>
+                updateDraft(line.productId, { reason: (value as ReturnReason) || line.reason })
+              }
+            >
+              {RETURN_REASONS.map((reason) => (
+                <Chip key={reason} value={reason}>
+                  {t(`returns.reason.${reason}`)}
+                </Chip>
+              ))}
+            </ChipGroup>
+          ) : (
+            <Text variant="label" tone="muted">{t('returns.unselected')}</Text>
+          );
+
+          const dispositionPicker = picked ? (
+            <SegmentedControl
+              value={line.disposition}
+              onValueChange={(value) =>
+                updateDraft(line.productId, { disposition: value as ReturnDisposition })
+              }
+            >
+              <SegmentedControlItem value="restock">
+                {t('returns.disposition.restock')}
+              </SegmentedControlItem>
+              <SegmentedControlItem value="damaged">
+                {t('returns.disposition.damaged')}
+              </SegmentedControlItem>
+            </SegmentedControl>
+          ) : (
+            <Text variant="label" tone="muted">{t('returns.unselected')}</Text>
+          );
+
           return (
             // An unpicked row stays on screen at 60 percent rather than disappearing: the
             // cashier has to be able to see the whole original order.
             <TableRow key={line.productId} className={picked ? '' : 'opacity-60'}>
               <TableCell label={column.product}>
-                <View className="flex-row items-center gap-2">
-                  <Checkbox
-                    accessibilityLabel={fill(t('returns.selectLine'), { product: name })}
-                    checked={picked}
-                    onCheckedChange={(checked) =>
-                      updateDraft(line.productId, { qty: checked ? clampQty(line, 1) : 0 })
-                    }
-                  />
-                  <View className="min-w-0">
-                    <Text variant="label" className="font-semibold">{name}</Text>
-                    <Text variant="caption" tone="muted">
-                      {line.remainingQty === 0
-                        ? t('returns.notReturnable')
-                        : fill(t('returns.remaining'), { qty: line.remainingQty })}
-                    </Text>
+                <View className="gap-2">
+                  <View className="flex-row items-center gap-2">
+                    <Checkbox
+                      accessibilityLabel={fill(t('returns.selectLine'), { product: name })}
+                      checked={picked}
+                      onCheckedChange={(checked) =>
+                        updateDraft(line.productId, { qty: checked ? clampQty(line, 1) : 0 })
+                      }
+                    />
+                    <View className="min-w-0 flex-1">
+                      <Text variant="label" className="font-semibold">{name}</Text>
+                      <Text variant="caption" tone="muted">
+                        {line.remainingQty === 0
+                          ? t('returns.notReturnable')
+                          : fill(t('returns.remaining'), { qty: line.remainingQty })}
+                      </Text>
+                      {isWide ? null : (
+                        <Text variant="caption" tone="muted">
+                          {`${column.purchased}: ${line.purchasedQty}`}
+                        </Text>
+                      )}
+                    </View>
                   </View>
+                  {isWide ? null : (
+                    <View className="gap-2">
+                      {reasonPicker}
+                      {dispositionPicker}
+                    </View>
+                  )}
                 </View>
               </TableCell>
-              <TableCell label={column.purchased}>
-                <Text variant="label" numeric="tabular" className="w-full text-right">{line.purchasedQty}</Text>
-              </TableCell>
+              {isWide ? (
+                <TableCell label={column.purchased}>
+                  <Text variant="label" numeric="tabular" className="w-full text-right">{line.purchasedQty}</Text>
+                </TableCell>
+              ) : null}
               <TableCell label={column.returnQty}>
                 <Input
                   accessibilityLabel={fill(t('returns.qtyLabel'), { product: name })}
@@ -344,45 +413,8 @@ export function ReturnScreen({ orderCode }: ReturnScreenProps) {
                   keyboardType="numeric"
                 />
               </TableCell>
-              <TableCell label={column.reason}>
-                {picked ? (
-                  <ChipGroup
-                    className="flex-row flex-wrap gap-1"
-                    selectionMode="single"
-                    value={line.reason}
-                    onValueChange={(value) =>
-                      updateDraft(line.productId, { reason: (value as ReturnReason) || line.reason })
-                    }
-                  >
-                    {RETURN_REASONS.map((reason) => (
-                      <Chip key={reason} value={reason}>
-                        {t(`returns.reason.${reason}`)}
-                      </Chip>
-                    ))}
-                  </ChipGroup>
-                ) : (
-                  <Text variant="label" tone="muted">{t('returns.unselected')}</Text>
-                )}
-              </TableCell>
-              <TableCell label={column.disposition}>
-                {picked ? (
-                  <SegmentedControl
-                    value={line.disposition}
-                    onValueChange={(value) =>
-                      updateDraft(line.productId, { disposition: value as ReturnDisposition })
-                    }
-                  >
-                    <SegmentedControlItem value="restock">
-                      {t('returns.disposition.restock')}
-                    </SegmentedControlItem>
-                    <SegmentedControlItem value="damaged">
-                      {t('returns.disposition.damaged')}
-                    </SegmentedControlItem>
-                  </SegmentedControl>
-                ) : (
-                  <Text variant="label" tone="muted">{t('returns.unselected')}</Text>
-                )}
-              </TableCell>
+              {isWide ? <TableCell label={column.reason}>{reasonPicker}</TableCell> : null}
+              {isWide ? <TableCell label={column.disposition}>{dispositionPicker}</TableCell> : null}
               <TableCell label={column.amount}>
                 <Text variant="label" numeric="tabular" className="w-full text-right font-bold">
                   {formatVND(line.qty * line.unitPrice)}

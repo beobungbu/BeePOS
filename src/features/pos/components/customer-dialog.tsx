@@ -201,6 +201,13 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect, onCrea
                     }}
                     accessibilityRole="button"
                     accessibilityLabel={customer.name}
+                    // The row shows the phone number because two customers share a name often
+                    // enough to matter, and announcing the name alone left a VoiceOver user
+                    // picking between two identical rows (P7-10). It rides on the value rather
+                    // than in the label so the row's accessible *name* stays the customer's
+                    // name: that is what the picker is searched by, on screen and in the
+                    // end-to-end suite.
+                    accessibilityValue={{ text: customer.phone }}
                     className="min-h-14 flex-row items-center justify-between rounded-md border border-border px-3 py-2"
                   >
                     <View className="gap-0.5">

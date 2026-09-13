@@ -17,9 +17,9 @@ import { ACTIVE_ORG_KEY, activeOrgId, loadActiveOrgId } from './active-org';
 import { useAuditStore } from './audit-store';
 import { useCartStore } from './cart-store';
 import { useCashMovementStore } from './cash-movement-store';
-import { useCatalogStore } from './catalog-store';
+import { catalogSeedForActiveOrg, useCatalogStore } from './catalog-store';
 import { useCustomerStore } from './customer-store';
-import { useInventoryStore } from './inventory-store';
+import { inventorySeedForActiveOrg, useInventoryStore } from './inventory-store';
 import { useOrderStore } from './order-store';
 import { seedForActiveOrg, useOrgStore } from './org-store';
 import { useSessionStore } from './session-store';
@@ -370,6 +370,11 @@ async function runHydration(): Promise<void> {
       // credentials back before the slices are registered and read.
       await loadActiveOrgId();
       useOrgStore.setState(seedForActiveOrg());
+      // A chain that is not the demo one sells nothing until it is given something to sell,
+      // so its catalogue and stock start empty rather than inheriting the seeded shop. Applied
+      // before the slices are registered, so it is also the state `resetDemoData()` restores.
+      useCatalogStore.setState(catalogSeedForActiveOrg());
+      useInventoryStore.setState(inventorySeedForActiveOrg());
       registerSlices();
     }
     await hydratePreferences();

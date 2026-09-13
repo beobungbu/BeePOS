@@ -58,6 +58,9 @@ export const authVi = {
     onDuty: 'Đang trực: {name}',
     cancel: 'Huỷ',
     roleLine: '{role} · {store} · {register}',
+    /* Announced for the PIN dots: how many digits have landed, never which. */
+    pinProgressLabel: 'Mã PIN',
+    pinProgressValue: '{entered} trên {total} chữ số',
   },
   password: {
     tooShort: 'Mật khẩu phải từ 8 ký tự',

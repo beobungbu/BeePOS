@@ -1,5 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { Text } from '@beemvp/beeui-ui';
+import { useT } from '../../../i18n';
+import { fill } from '../../orders/lib/fill';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;
 
@@ -8,10 +10,27 @@ export const PIN_LENGTH = 4;
 /**
  * Four filled or hollow dots. A cashier at a counter reads progress from across the till, and
  * the digits themselves must not be readable over their shoulder.
+ *
+ * The dots are one accessibility element carrying the count as its value, because painted
+ * progress is no progress at all to a VoiceOver user: they had no feedback that a digit had
+ * landed (P7-09). The value is how many digits, never which.
  */
 export function PinDots({ length, invalid }: { length: number; invalid?: boolean }) {
+  const t = useT();
+
   return (
-    <View className="flex-row items-center justify-center gap-4">
+    <View
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityLabel={t('auth.lock.pinProgressLabel')}
+      accessibilityValue={{
+        min: 0,
+        max: PIN_LENGTH,
+        now: length,
+        text: fill(t('auth.lock.pinProgressValue'), { entered: length, total: PIN_LENGTH }),
+      }}
+      className="flex-row items-center justify-center gap-4"
+    >
       {Array.from({ length: PIN_LENGTH }).map((_, index) => (
         <View
           key={index}

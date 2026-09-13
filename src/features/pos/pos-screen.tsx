@@ -8,8 +8,9 @@ import { useActiveCart, useCartStore } from '../../data/cart-store';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useCustomerStore } from '../../data/customer-store';
 import { useInventoryStore } from '../../data/inventory-store';
+import { useOrgStore } from '../../data/org-store';
 import { useSessionStore } from '../../data/session-store';
-import { useCurrentShift } from '../../data/shift-store';
+import { useCurrentShift, useRegisterShift } from '../../data/shift-store';
 import { useStorePriceIndex } from '../../data/store-price-store';
 import { effectivePrice } from '../../domain/catalog';
 import { findByBarcode, unitFactor } from '../../domain/units';
@@ -20,6 +21,7 @@ import { FloatingCartBar } from './components/floating-cart-bar';
 import { NoShiftBanner } from './components/no-shift-banner';
 import { OrderTabStrip } from './components/order-tab-strip';
 import { ProductGrid } from './components/product-grid';
+import { ShiftChip } from './components/shift-chip';
 import { useBarcodeScan } from './hooks/use-barcode-scan';
 import { usePosLayout } from './hooks/use-pos-layout';
 import { useCartRepricing, useWholesalePricing } from './hooks/use-wholesale-pricing';
@@ -34,7 +36,11 @@ export default function PosScreen() {
   const layout = usePosLayout();
 
   const store = useSessionStore((state) => state.store);
+  const staffId = useSessionStore((state) => state.staff?.id);
+  const staffList = useOrgStore((state) => state.staff);
   const currentShift = useCurrentShift();
+  // What this till is doing, whoever opened it: the register picker reads the same fact.
+  const registerShift = useRegisterShift();
   const products = useCatalogStore((state) => state.products);
   const categories = useCatalogStore((state) => state.categories);
   const stockLevels = useInventoryStore((state) => state.stockLevels);
@@ -167,14 +173,26 @@ export default function PosScreen() {
   const totals = cartTotalsOf(cart, activeProducts);
   const customerName = customers.find((item) => item.id === cart.customerId)?.name;
 
+  const shiftOnTill = currentShift ?? registerShift;
+  const otherCashierName =
+    shiftOnTill && shiftOnTill.cashierId !== staffId
+      ? staffList.find((member) => member.id === shiftOnTill.cashierId)?.name ?? shiftOnTill.cashierId
+      : undefined;
+  const shiftStrip = !shiftOnTill ? (
+    <NoShiftBanner gutter={layout.gutter} verbose={layout.breakpoint !== 'phone'} />
+  ) : layout.breakpoint === 'desktop' ? null : (
+    <ShiftChip shift={shiftOnTill} otherCashierName={otherCashierName} gutter={layout.gutter} />
+  );
+
   return (
     <View className="flex-1 flex-row">
       {scanCapture}
       <View className="min-w-0 flex-1">
         <OrderTabStrip products={activeProducts} />
-        {currentShift ? null : (
-          <NoShiftBanner gutter={layout.gutter} verbose={layout.breakpoint !== 'phone'} />
-        )}
+        {/* One strip, three states, all from the same two shifts: no shift on this till, the
+            cashier's own, or somebody else's handover. Desktop keeps the sidebar route to
+            `/pos/shift` and does not need the chip (P7-05, P7-06). */}
+        {shiftStrip}
 
         <View className="gap-2.5 border-b border-border bg-surface pb-2.5 pt-3">
           <View style={{ paddingHorizontal: layout.gutter }}>
@@ -214,6 +232,7 @@ export default function PosScreen() {
           quoteFor={wholesale ? quoteFor : undefined}
           unitByProduct={wholesale ? tileUnits : undefined}
           onUnitChange={wholesale ? (product, unit) => handleTileUnitChange(product, unit) : undefined}
+          catalogEmpty={activeProducts.length === 0}
         />
 
         {layout.isCartPaneVisible ? null : (

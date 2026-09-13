@@ -43,7 +43,10 @@ export function QtyStepper({ qty, onChange, onRemove }: QtyStepperProps) {
         <AppIcon name={atOne ? 'trash-2' : 'minus'} size={18} tone={atOne ? 'destructive' : 'foreground'} />
       </Pressable>
 
+      {/* Named, because between "Xoá dòng" and "Tăng số lượng" VoiceOver read this field out
+          as a bare "1" and there was nothing to say what the number was (P7-10). */}
       <Input
+        accessibilityLabel={t('pos.cart.qtyLabel')}
         value={text}
         onChangeText={setDraft}
         onBlur={() => commit(text)}

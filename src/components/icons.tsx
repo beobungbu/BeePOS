@@ -16,6 +16,7 @@ import {
   Check,
   ClipboardList,
   ChevronLeft,
+  Clock,
   ChevronRight,
   CreditCard,
   Ellipsis,
@@ -84,6 +85,8 @@ export const APP_ICONS = {
   percent: Percent,
   tag: Tag,
   wallet: Wallet,
+  // The shift: the sell screen's chip and the "Ca làm việc" entry in the Thêm menu.
+  clock: Clock,
 } as const satisfies Record<string, LucideIcon>;
 
 export type AppIconName = keyof typeof APP_ICONS;

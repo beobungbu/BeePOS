@@ -1,12 +1,19 @@
 import { useMemo } from 'react';
 import { FlatList, View } from 'react-native';
-import { EmptyState } from '@beemvp/beeui-ui';
+import { useRouter } from 'expo-router';
+import { Button, ButtonLabel, EmptyState } from '@beemvp/beeui-ui';
 import { effectivePrice } from '../../../domain/catalog';
 import { expiringLotsFor, gradeLot } from '../../inventory/lib/lots';
 import type { CartLine, Product, StockLevel } from '../../../domain/types';
 import { useT } from '../../../i18n';
+// The two words the empty catalogue offers belong to other areas' dictionaries.
+import '../../../i18n/products.vi';
+import '../../../i18n/products.en';
+import '../../../i18n/inventory.vi';
+import '../../../i18n/inventory.en';
 import type { PriceSourceBadge } from '../lib/wholesale';
 import { ProductCard } from './product-card';
+import { SecondaryButtonLabel } from './secondary-button-label';
 
 /** What a tile quotes when the order is on the wholesale switch. */
 export interface TileQuote {
@@ -39,6 +46,12 @@ interface ProductGridProps {
   /** The selling unit each tile is quoting, keyed by product. Absent means the base unit. */
   unitByProduct?: ReadonlyMap<string, string>;
   onUnitChange?: (product: Product, unit: string | undefined, factor: number) => void;
+  /**
+   * True when the chain has no catalogue at all, as opposed to a search or a category that
+   * matched nothing. A new chain starts empty, and "thử đổi danh mục" is no help to a shop
+   * that has never added a product: it needs the import and the add form.
+   */
+  catalogEmpty?: boolean;
 }
 
 export function ProductGrid({
@@ -56,8 +69,10 @@ export function ProductGrid({
   quoteFor,
   unitByProduct,
   onUnitChange,
+  catalogEmpty = false,
 }: ProductGridProps) {
   const t = useT();
+  const router = useRouter();
 
   // Indexed once per data change instead of scanned per tile. `renderItem` runs for every
   // visible cell on every scroll frame, so the two `find` calls that used to sit inside it
@@ -83,7 +98,27 @@ export function ProductGrid({
     return (
       <View className="flex-1 items-start bg-surface-muted px-6 pt-12">
         <View className="w-full max-w-[280px] self-center">
-          <EmptyState title={t('pos.emptyCatalogTitle')} description={t('pos.emptyCatalogDescription')} />
+          <EmptyState
+            title={catalogEmpty ? t('products.emptyTitle') : t('pos.emptyCatalogTitle')}
+            description={
+              catalogEmpty ? t('products.emptyDescription') : t('pos.emptyCatalogDescription')
+            }
+            action={
+              catalogEmpty ? (
+                <View className="w-full gap-2">
+                  {/* The import first: a shop opening on BeePOS has its products in a
+                      spreadsheet already, and typing 300 of them into the add form is not an
+                      onboarding. */}
+                  <Button onPress={() => router.push('/inventory/import')}>
+                    <ButtonLabel>{t('inventory.import.title')}</ButtonLabel>
+                  </Button>
+                  <Button variant="outline" onPress={() => router.push('/products/new')}>
+                    <SecondaryButtonLabel>{t('products.addProduct')}</SecondaryButtonLabel>
+                  </Button>
+                </View>
+              ) : undefined
+            }
+          />
         </View>
       </View>
     );

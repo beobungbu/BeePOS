@@ -165,10 +165,43 @@ export default function ZReportScreen() {
     t,
   ]);
 
-  const variance = useMemo(
-    () => (shift ? zReportTotals({ shift, orders, refunds, movements }).variance : null),
+  const totals = useMemo(
+    () => (shift ? zReportTotals({ shift, orders, refunds, movements }) : null),
     [shift, orders, refunds, movements],
   );
+  const variance = totals?.variance ?? null;
+
+  /**
+   * What the roll says, for a screen reader.
+   *
+   * The sheet is a monospaced block laid out in columns, so it is one accessibility element:
+   * announcing it verbatim reads a wall of dot leaders, and announcing only the title (which
+   * is what it did) hides every figure on the report from VoiceOver entirely (P7-08). This is
+   * the same set of numbers, in the order the sheet prints them, as sentences.
+   */
+  const sheetLabel = useMemo(() => {
+    if (!totals) return t('chain.zreport.title');
+    const s = (key: string) => t(`chain.zreport.sheet.${key}`);
+    const lines = [
+      `${t('chain.zreport.title')}${dateText ? `, ${dateText}` : ''}`,
+      `${s('orderCount')} ${totals.orderCount}`,
+      `${s('revenue')} ${formatVND(totals.grossRevenue)}`,
+      `${s('discount')} ${formatVND(totals.discountTotal)}`,
+      `${s('refunds')} ${formatVND(totals.refundTotal)}`,
+      `${s('netRevenue')} ${formatVND(totals.netRevenue)}`,
+      ...totals.payments
+        .filter((payment) => payment.amount > 0)
+        .map((payment) => `${t(METHOD_LABEL_KEY[payment.method])} ${formatVND(payment.amount)}`),
+      `${s('openingCash')} ${formatVND(totals.openingCash)}`,
+      `${s('cashSales')} ${formatVND(totals.cashRevenue)}`,
+      `${s('cashIn')} ${formatVND(totals.cashIn)}`,
+      `${s('cashOut')} ${formatVND(totals.cashOut)}`,
+      `${s('expected')} ${formatVND(totals.expectedCash)}`,
+      `${s('counted')} ${totals.countedCash == null ? s('notCounted') : formatVND(totals.countedCash)}`,
+      `${s('variance')} ${variance == null ? s('notCounted') : formatVND(variance)}`,
+    ];
+    return lines.join('. ');
+  }, [totals, variance, dateText, t]);
 
   function handlePrint() {
     if (printReceipt()) {
@@ -227,7 +260,7 @@ export default function ZReportScreen() {
             <Text
               variant="caption"
               testID="z-report-sheet"
-              accessibilityLabel={t('chain.zreport.title')}
+              accessibilityLabel={sheetLabel}
               style={{ fontFamily: MONO, lineHeight: 18 }}
             >
               {sheet}

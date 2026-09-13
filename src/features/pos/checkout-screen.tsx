@@ -14,6 +14,7 @@ import {
   useToast,
 } from '@beemvp/beeui-ui';
 import { AppIcon } from '../../components/icons';
+import { FormScrollView } from '../../components/form-scroll-view';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { pointsEarned } from '../../domain/pos';
 import { creditCheck, dueDateFor } from '../../domain/ledger';
@@ -426,12 +427,14 @@ export default function CheckoutScreen() {
 
   return (
     <View className="flex-1">
-      <ScrollView
+      {/* "Tiền khách đưa" opens the keypad straight over the pay button on a phone, and the
+          default scroll view swallows the first tap that follows (P7-03). */}
+      <FormScrollView
         className="flex-1 bg-surface-muted"
         contentContainerStyle={{ padding: layout.gutter, gap: 12 }}
       >
         {paymentColumn}
-      </ScrollView>
+      </FormScrollView>
       <View className="border-t border-border bg-surface-raised p-3">{primaryAction}</View>
     </View>
   );

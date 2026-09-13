@@ -70,7 +70,10 @@ export function recordCashMovement(input: CashMovementInput): CashMovementResult
   if (!Number.isFinite(input.amount) || input.amount <= 0) return { ok: false, reason: 'invalid_amount' };
 
   const movement: CashMovement = {
-    id: `cash-${Date.now()}`,
+    // The count is in the id, as in `inventory-store`: `cash-<ms>` alone gave two movements
+    // booked in the same millisecond one id, and the note, the running drawer figure and the
+    // row key are all keyed by it.
+    id: `cash-${useCashMovementStore.getState().movements.length + 1}-${Date.now()}`,
     orgId: currentOrgId(),
     storeId: store.id,
     shiftId: input.shiftId,

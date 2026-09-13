@@ -117,6 +117,7 @@ export const posEn = {
     removeLine: 'Remove line',
     decreaseQty: 'Decrease quantity',
     increaseQty: 'Increase quantity',
+    qtyLabel: 'Quantity',
   },
 
   lineDiscount: {
@@ -249,6 +250,9 @@ export const posEn = {
     closeConfirmDescription: 'Double check the counted cash before closing. This cannot be undone.',
     openedAt: 'Opened at',
     closedAt: 'Closed at',
+    chipOwn: 'Shift from {time}',
+    chipOther: "{name}'s shift from {time}",
+    chipAction: 'Open the shift screen',
   },
 };
 

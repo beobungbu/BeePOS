@@ -1,5 +1,6 @@
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { Button, ButtonLabel, Text } from '@beemvp/beeui-ui';
+import { FormScrollView } from '../../components/form-scroll-view';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { shiftSummary } from '../../domain/pos';
 import { formatVND } from '../../domain/money';
@@ -64,7 +65,11 @@ export default function CashMovementScreen() {
 
   return (
     <View className="flex-1">
-      <ScrollView
+      {/* `FormScrollView`, never a plain `ScrollView`: the amount field opens the numeric
+          keypad over the bottom half of a phone, and with neither keyboard avoidance nor
+          persistent taps the record button sat behind the keypad, where a tap aimed at it hit
+          a key instead and the movement was never written (P7-04). */}
+      <FormScrollView
         className="flex-1 bg-surface-muted"
         contentContainerStyle={{ padding: layout.gutter, gap: 16 }}
       >
@@ -87,7 +92,7 @@ export default function CashMovementScreen() {
             </ButtonLabel>
           </Button>
         </View>
-      </ScrollView>
+      </FormScrollView>
     </View>
   );
 }

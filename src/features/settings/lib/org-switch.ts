@@ -37,9 +37,13 @@ export function openCartCount(): number {
  * Re-points the storage scope at `orgId` and takes the app back to the sign-in flow, where
  * the branch of the other chain is chosen. On web the reload is what makes the new keys take
  * effect; native picks them up on its next launch, which the caller tells the user.
+ *
+ * Resolves only once the new scope is on disk, so the caller can navigate afterwards knowing
+ * the switch has actually been recorded. `setActiveOrgId` swallows a storage failure (the app
+ * keeps running on the chain it is on), so this never rejects.
  */
-export function switchOrg(orgId: string): void {
-  setActiveOrgId(orgId);
+export async function switchOrg(orgId: string): Promise<void> {
+  await setActiveOrgId(orgId);
   useSessionStore.getState().logout();
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     window.location.replace('/login');

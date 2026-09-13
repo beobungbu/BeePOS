@@ -140,6 +140,21 @@ export function ProductListScreen() {
           <EmptyState
             title={hasAnyProducts ? t('products.noResultsTitle') : t('products.emptyTitle')}
             description={hasAnyProducts ? t('products.noResultsDescription') : t('products.emptyDescription')}
+            // A chain with no catalogue at all is a new chain, and the two things it needs are
+            // the CSV its products are already in and the add form. A filter that matched
+            // nothing needs neither.
+            action={
+              hasAnyProducts ? undefined : (
+                <View className="w-full max-w-[280px] gap-2">
+                  <Button onPress={() => router.push('/inventory/import')}>
+                    {t('inventory.import.title')}
+                  </Button>
+                  <Button variant="outline" onPress={() => router.push('/products/new')}>
+                    {t('products.addProduct')}
+                  </Button>
+                </View>
+              )
+            }
           />
         ) : isWide ? (
           <ProductTable
