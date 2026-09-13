@@ -38,9 +38,9 @@ Vehicle carries inventory and the field operator sells/delivers directly from av
 
 ### Hybrid
 
-Route fulfills preorders but may also sell additional stock opportunistically.
+A route may combine presales/merchandising activity, ordered-goods delivery and van sales according to operating model.
 
-SAP Direct Distribution documentation explicitly separates presales and van-sales processes and includes route preparation, execution, check-in and settlement.
+SAP Last Mile Distribution for Direct Distribution explicitly supports presales, delivery and van-sales routes, route preparation/execution, truck-to-truck transfers and route settlement.
 
 ## 4. Actors
 
@@ -83,7 +83,7 @@ stateDiagram-v2
 7. Assign route personnel/vehicle.
 8. Estimate product load and collection exposure.
 
-KPIs such as visit adherence and drop density can later be evaluated against the plan.
+SAP route preparation models a route/freight order with multiple visits plus assigned vehicle and driver; this is a useful enterprise reference for the operational accountability boundary.
 
 ## 7. Route preparation / loading
 
@@ -124,6 +124,8 @@ Typical field sales visit:
 8. Accept authorized return/empties where relevant.
 9. Update route stock responsibility.
 10. Continue route.
+
+SAP's van-sales execution reference records route activities for later settlement and maintains visibility of route stock from warehouse loading through customer visits and final check-in.
 
 ## 10. Collection process
 
@@ -168,7 +170,7 @@ If allowed operationally:
 6. receiving route stock increases;
 7. both routes retain evidence for settlement.
 
-SAP Direct Distribution includes truck-to-truck transfer scenarios, illustrating why vehicle stock is a controlled inventory location/business custody rather than an informal load.
+SAP specifically supports stock transfer between van-sales routes, directly vehicle-to-vehicle or through a temporary storage location, and requires issuing/receiving route evidence. This reinforces why vehicle stock must be treated as controlled custody.
 
 ## 13. Route check-in
 
@@ -216,6 +218,8 @@ Opening cash float
 ```
 
 Actual cash and electronic evidence are reconciled separately.
+
+SAP route settlement explicitly checks expected versus actual product and payment data; differences and tolerance breaches become settlement work rather than being normalized away.
 
 ## 16. Failed delivery / visit outcomes
 
@@ -327,9 +331,12 @@ The route has unexplained shortage of 2 cases. The process should preserve load,
 
 ## 22. Research anchors
 
-- SAP Direct Distribution / van sales overview: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/5c3b91c0a4384ad1b1db6c12e27c3e1f/direct-distribution.html
-- SAP Direct Distribution route execution concepts: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/5c3b91c0a4384ad1b1db6c12e27c3e1f/van-sales.html
-- SAP Direct Distribution settlement concepts: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/5c3b91c0a4384ad1b1db6c12e27c3e1f/route-settlement.html
+- SAP Getting Started with Last Mile Distribution: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/e322becd165844e5868e590bc8efafaf/7ba9e0272efb4d02bcb8f75970093ca0.html
+- SAP Route Preparation: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/e322becd165844e5868e590bc8efafaf/0b7ed2e3469a41cabaf05322f5a707de.html
+- SAP Execution of Van Sales Routes: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/e322becd165844e5868e590bc8efafaf/966e5a1b8f1d4f828e4a14d0a57875a4.html
+- SAP Truck-to-Truck Stock Transfers: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/e322becd165844e5868e590bc8efafaf/d9a6eff6f9854141857c9c0a1d024be2.html
+- SAP Route Settlement: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/e322becd165844e5868e590bc8efafaf/19729401d8814f1d99afa814cf2f83ab.html
+- SAP Settlement of Different Route Types: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/e322becd165844e5868e590bc8efafaf/7786a46e210047839038d91d75bc8f32.html
 
 ## 23. Open business-policy questions
 
