@@ -17,6 +17,7 @@ import type { OrderStatus, Staff, Store } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import type { Breakpoint } from '../../../hooks/use-breakpoint';
 import { Toolbar } from '../../../components/toolbar';
+import { selectContentHeight } from '../../../components/select-content-height';
 import { calendarDateToIso, isoToCalendarDate } from '../lib/calendar-date';
 import { DATE_PRESETS, rangeForPreset, type DatePreset } from '../lib/order-presentation';
 
@@ -202,7 +203,7 @@ export function OrderFiltersBar({
         <SelectTrigger accessibilityLabel={t('orders.filters.cashier')}>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent maxHeight={selectContentHeight(cashiers.length + 1)}>
           <SelectItem value="all">{t('orders.filters.allCashiers')}</SelectItem>
           {cashiers.map((member) => (
             <SelectItem key={member.id} value={member.id}>

@@ -38,6 +38,8 @@ import type { StockCount, StockCountLine } from '../../domain/types';
 import { useT } from '../../i18n';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { currentOrgId } from '../../data/org-store';
+import { fill } from '../orders/lib/fill';
+import { recordAudit } from '../../data/audit-store';
 
 function makeCountId(): string {
   return `count-${Date.now()}`;
@@ -107,6 +109,16 @@ export function CountDetailScreen({ countId }: CountDetailScreenProps) {
     const count = buildCount('draft');
     upsertStockCount(count);
     postStockCount(count.id);
+    recordAudit({
+      action: 'stockCount',
+      entity: 'stock',
+      entityId: count.id,
+      storeId: count.storeId,
+      summary: fill(t('chain.audit.summary.stockCount'), {
+        count: count.lines.length,
+        variance: count.lines.reduce((total, line) => total + countVariance(line), 0),
+      }),
+    });
     setConfirmOpen(false);
     toast.show({ title: t('inventory.counts.post'), variant: 'success' });
     goBackOr('/inventory/counts');

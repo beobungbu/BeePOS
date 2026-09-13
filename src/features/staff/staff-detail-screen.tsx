@@ -16,6 +16,8 @@ import {
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { formatDateTime } from '../../lib/datetime';
 import { useT } from '../../i18n';
+import { fill } from '../orders/lib/fill';
+import { recordAudit } from '../../data/audit-store';
 import { accountForStaff, useOrgStore, isStaffActive } from '../../data/org-store';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { StaffFormFields } from './components/staff-form-fields';
@@ -74,6 +76,12 @@ export function StaffDetailScreen({ staffId }: StaffDetailScreenProps) {
   function handleResetPin(pin: string) {
     if (!member) return;
     resetStaffPin(member.id, pin);
+    recordAudit({
+      action: 'staffPinReset',
+      entity: 'staff',
+      entityId: member.id,
+      summary: fill(t('chain.audit.summary.pinReset'), { name: member.name }),
+    });
     toast.show({ title: t('staff.resetPin.successToast'), variant: 'success' });
   }
 

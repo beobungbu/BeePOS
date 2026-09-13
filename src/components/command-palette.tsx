@@ -14,7 +14,7 @@ import {
   type CommandGroup,
   type CommandItem,
 } from '../lib/command-search';
-import { useVisibleNavItems } from './shell/nav-items';
+import { useVisibleNavItems, useVisibleSubNavItems } from './shell/nav-items';
 import { useShellOverlayStore } from './shell/overlay-store';
 
 /** Rows per section, so one group with 200 hits cannot push the other three off screen. */
@@ -67,6 +67,10 @@ function CommandPaletteBody({ onClose }: { onClose: () => void }) {
   // The palette is a way into the app like any other, so it lists only the areas this role
   // may open; otherwise it offered a cashier a Báo cáo row the route guard then bounced.
   const navItems = useVisibleNavItems();
+  // Screens that are not an area of their own (Nhà cung cấp lives under Kho hàng). The palette
+  // is the only keyboard route to them, so leaving them out would make them unreachable
+  // without knowing the URL.
+  const subNavItems = useVisibleSubNavItems();
 
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -77,13 +81,13 @@ function CommandPaletteBody({ onClose }: { onClose: () => void }) {
 
   const screenItems = useMemo<CommandItem[]>(
     () =>
-      navItems.map((item) => ({
+      [...navItems, ...subNavItems].map((item) => ({
         id: `screen-${item.id}`,
         group: 'screens' as const,
         title: t(item.labelKey),
         href: item.href,
       })),
-    [navItems, t],
+    [navItems, subNavItems, t],
   );
 
   const searchItems = useMemo<CommandItem[]>(

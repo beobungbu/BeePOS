@@ -14,13 +14,17 @@ import {
 } from '../lib/preference-storage';
 import { getPlatformStorage, persistStore, type PersistedStore } from './persist';
 import { DEMO_ORG_ID } from './seed';
+import { useAuditStore } from './audit-store';
 import { useCartStore } from './cart-store';
+import { useCashMovementStore } from './cash-movement-store';
 import { useCatalogStore } from './catalog-store';
 import { useCustomerStore } from './customer-store';
 import { useInventoryStore } from './inventory-store';
 import { useOrderStore } from './order-store';
 import { useOrgStore } from './org-store';
 import { useSessionStore } from './session-store';
+import { useStorePriceStore } from './store-price-store';
+import { useSupplierStore } from './supplier-store';
 import { SIDEBAR_COLLAPSED_KEY, useSettingsStore } from './settings-store';
 
 /**
@@ -60,6 +64,10 @@ const VERSION = {
   customers: 1,
   catalog: 1,
   org: 2,
+  suppliers: 1,
+  storePrices: 1,
+  cash: 1,
+  audit: 1,
 } as const;
 
 /** `beepos.persist.<orgId>.<slice>`: one chain's data can never be read as another's. */
@@ -74,6 +82,10 @@ const KEY = {
   inventory: scoped('inventory'),
   customers: scoped('customers'),
   catalog: scoped('catalog'),
+  suppliers: scoped('suppliers'),
+  storePrices: scoped('store-prices'),
+  cash: scoped('cash'),
+  audit: scoped('audit'),
   // The chain itself and the device preferences are not scoped: the first is what defines the
   // scope, and theme, language and density belong to the device rather than to a chain.
   settings: 'beepos.persist.settings',
@@ -172,6 +184,29 @@ const entries: PersistedStore[] = [
     (state) => ({ products: state.products, categories: state.categories }),
     VERSION.catalog,
   ),
+  persistStore(
+    KEY.suppliers,
+    useSupplierStore,
+    (state) => ({ suppliers: state.suppliers }),
+    VERSION.suppliers,
+  ),
+  persistStore(
+    KEY.storePrices,
+    useStorePriceStore,
+    (state) => ({ prices: state.prices }),
+    VERSION.storePrices,
+  ),
+  // Cash in and out during a shift, plus the free-text note each entry was saved with. A
+  // drawer entry that a reload loses is a drawer that cannot be reconciled at close.
+  persistStore(
+    KEY.cash,
+    useCashMovementStore,
+    (state) => ({ movements: state.movements, notes: state.notes }),
+    VERSION.cash,
+  ),
+  // The log is append-only and is the record of who did what; it has to outlive a reload or
+  // it is not a log.
+  persistStore(KEY.audit, useAuditStore, (state) => ({ events: state.events }), VERSION.audit),
   persistStore(
     KEY.org,
     useOrgStore,

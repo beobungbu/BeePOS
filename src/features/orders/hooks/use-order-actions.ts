@@ -10,9 +10,11 @@ import { useOrderStore } from '../../../data/order-store';
 import { useCustomerStore } from '../../../data/customer-store';
 import { useInventoryStore } from '../../../data/inventory-store';
 import { applyRefund, canVoid, type Refund, type RefundPlanResult } from '../../../domain/orders';
-import { sum } from '../../../domain/money';
+import { formatVND, sum } from '../../../domain/money';
 import type { Order, PaymentMethod } from '../../../domain/types';
 import { useT } from '../../../i18n';
+import { fill } from '../lib/fill';
+import { recordAudit } from '../../../data/audit-store';
 
 export interface OrderActions {
   /** Refunds recorded against this order, oldest first. */
@@ -64,6 +66,16 @@ export function useOrderActions(order: Order | undefined): OrderActions {
     };
 
     addRefund(record);
+    recordAudit({
+      action: 'orderRefund',
+      entity: 'order',
+      entityId: order.code,
+      storeId: order.storeId,
+      summary: fill(t('chain.audit.summary.refund'), {
+        amount: formatVND(plan.amount),
+        count: plan.lines.length,
+      }),
+    });
     plan.lines.forEach((line) => adjustStock(line.productId, order.storeId, line.qty));
     updateOrder({ ...order, status: applyRefund(order, priorRefundedAmount, plan.amount) });
 
@@ -88,6 +100,13 @@ export function useOrderActions(order: Order | undefined): OrderActions {
   const voidOrder = () => {
     if (!order) return;
     updateOrder({ ...order, status: 'void' });
+    recordAudit({
+      action: 'orderVoid',
+      entity: 'order',
+      entityId: order.code,
+      storeId: order.storeId,
+      summary: fill(t('chain.audit.summary.void'), { amount: formatVND(order.total) }),
+    });
     toast.show({ title: t('orders.voidDialog.successToastTitle'), variant: 'success' });
   };
 

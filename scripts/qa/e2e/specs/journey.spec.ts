@@ -1,7 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 import { L, type Locale } from '../lib/labels';
 import { collectErrors, go, login } from '../lib/session';
+import { pickSupplier } from '../lib/flows';
 import { ean13 } from '../../../../src/data/seed/prng';
+
+/** A goods receipt is booked against a supplier record now, so the journey picks a seeded one. */
+const SEEDED_SUPPLIER = 'Cty TNHH Thực phẩm An Phát';
 
 // Barcode of seed product 3 ("Nước ngọt Coca-Cola 1.5L"): the catalogue builds every barcode
 // as ean13(893000000000 + sequence), so the scan step needs no on-screen source for it.
@@ -158,7 +162,7 @@ for (const locale of ['vi', 'en'] as Locale[]) {
 
       await test.step('inventory: receipt, transfer, count', async () => {
         await go(page, '/inventory/receipts/new');
-        await page.getByRole('textbox', { name: t.supplier }).fill('NCC E2E');
+        await pickSupplier(page, SEEDED_SUPPLIER, t.supplier);
         await page.getByRole('button', { name: t.addProduct }).click();
         await page.getByRole('dialog').last().getByRole('searchbox').fill('Oreo');
         await page.getByRole('dialog').last().getByText('Bánh Oreo Gói 133g').first().click();

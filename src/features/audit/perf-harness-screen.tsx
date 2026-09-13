@@ -13,6 +13,8 @@ export const PERF_PRODUCT_COUNT = 1000;
 
 /** A store id of this harness's own, so nothing here can be mistaken for a real shop's stock. */
 const PERF_STORE_ID = 'perf-store';
+/** No branch prices in the harness; shared so the grid does not get a new map each render. */
+const NO_STORE_PRICES: ReadonlyMap<string, number> = new Map();
 
 /**
  * Where the measurements land for `scripts/qa/e2e/specs/perf.spec.ts` to read. The spec takes
@@ -131,6 +133,9 @@ export function PerfHarnessScreen() {
           products={catalog.products}
           stockLevels={catalog.stockLevels}
           storeId={PERF_STORE_ID}
+          // The harness measures the grid, not the pricing rule, so it runs on the chain
+          // price: an empty index makes `effectivePrice` fall through to `product.salePrice`.
+          storePrices={NO_STORE_PRICES}
           columns={layout.gridColumns}
           gutter={layout.gutter}
           gap={layout.gap}
@@ -205,6 +210,7 @@ function BatchedGrid({
         <View style={{ flex: 1 / columns }}>
           <ProductCard
             product={item}
+            price={item.salePrice}
             stock={stockByProduct.get(item.id)}
             inCart={0}
             imageAspectRatio={imageAspectRatio}

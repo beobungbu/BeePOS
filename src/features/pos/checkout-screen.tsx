@@ -19,6 +19,8 @@ import { nextOrderCode, pointsEarned } from '../../domain/pos';
 import { formatVND, roundVND, sum } from '../../domain/money';
 import type { Order, Payment, PaymentMethod } from '../../domain/types';
 import { useT } from '../../i18n';
+import { fill } from '../orders/lib/fill';
+import { recordAudit } from '../../data/audit-store';
 import { useLargeText } from '../../hooks/use-large-text';
 import { useActiveCart, useCartStore } from '../../data/cart-store';
 import { useCatalogStore } from '../../data/catalog-store';
@@ -130,6 +132,19 @@ export default function CheckoutScreen() {
     };
 
     submitOrder(order, { shiftId: currentShift?.id });
+    // Logged here rather than where the discount is typed: at the till it is still a cart,
+    // and a log line that names no order code is a line nobody can trace back.
+    if (order.discountTotal > 0) {
+      recordAudit({
+        action: 'orderDiscount',
+        entity: 'order',
+        entityId: order.code,
+        summary: fill(t('chain.audit.summary.discount'), {
+          amount: formatVND(order.discountTotal),
+          base: formatVND(order.subtotal),
+        }),
+      });
+    }
     // Paying retires the order: the cashier lands on the next open one, or on a fresh empty
     // order when this was the last.
     closeCart(cart.id);

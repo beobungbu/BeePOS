@@ -10,6 +10,8 @@ export const commonVi = {
     reports: 'Báo cáo',
     stores: 'Cửa hàng',
     staff: 'Nhân viên',
+    suppliers: 'Nhà cung cấp',
+    audit: 'Nhật ký',
     settings: 'Cài đặt',
     more: 'Thêm',
   },

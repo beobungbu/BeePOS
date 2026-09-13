@@ -20,6 +20,8 @@ import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { Toolbar } from '../../components/toolbar';
 import { useT } from '../../i18n';
+import { fill } from '../orders/lib/fill';
+import { recordAudit } from '../../data/audit-store';
 import { accountForStaff, currentOrgId, useOrgStore } from '../../data/org-store';
 import { useSessionStore } from '../../data/session-store';
 import type { UserAccountStatus } from '../../domain/types';
@@ -70,6 +72,15 @@ export function StaffListScreen() {
     );
     upsertStaff(member);
     upsertAccount(account);
+    recordAudit({
+      action: 'staffInvite',
+      entity: 'account',
+      entityId: account.email,
+      summary: fill(t('chain.audit.summary.invite'), {
+        name: member.name,
+        role: t(`staff.role.${member.role}`),
+      }),
+    });
     // The prototype has no mail server, so the one-off credentials are handed over here; the
     // invited member must replace the password at their first sign-in.
     toast.show({

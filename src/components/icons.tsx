@@ -12,6 +12,7 @@
 import {
   Banknote,
   ChartColumn,
+  ClipboardList,
   ChevronLeft,
   ChevronRight,
   CreditCard,
@@ -30,6 +31,7 @@ import {
   Store,
   Trash2,
   TriangleAlert,
+  Truck,
   UsersRound,
   Warehouse,
   X,
@@ -39,10 +41,11 @@ import { Platform } from 'react-native';
 import { useBeeToken } from '@beemvp/beeui-ui';
 
 /**
- * The 20 icons of the direction doc plus three the shell and auth screens need and the doc's
- * list does not cover: `id-card` for the Nhân viên nav item (the mockup's distinct staff
- * glyph), `chevron-left` for the back control on `/select-store`, and `hexagon` for the
- * BeePOS brand mark.
+ * The 20 icons of the direction doc plus five the shell, auth and chain-ops screens need and
+ * the doc's list does not cover: `id-card` for the Nhân viên nav item (the mockup's distinct
+ * staff glyph), `chevron-left` for the back control on `/select-store`, `hexagon` for the
+ * BeePOS brand mark, and `truck` / `clipboard-list` for the Nhà cung cấp and Nhật ký items of
+ * `docs/design/mockups/chain-ops.html`.
  */
 export const APP_ICONS = {
   search: Search,
@@ -68,6 +71,8 @@ export const APP_ICONS = {
   'id-card': IdCard,
   'chevron-left': ChevronLeft,
   hexagon: Hexagon,
+  truck: Truck,
+  'clipboard-list': ClipboardList,
 } as const satisfies Record<string, LucideIcon>;
 
 export type AppIconName = keyof typeof APP_ICONS;

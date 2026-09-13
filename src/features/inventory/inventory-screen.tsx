@@ -156,6 +156,9 @@ export function InventoryScreen() {
   const documentButtons = (
     <>
       <CsvExportButton build={buildInventoryCsv} nameKey="inventory" />
+      <Button variant="outline" onPress={() => router.push('/inventory/suppliers')}>
+        {t('chain.suppliers.title')}
+      </Button>
       <Button variant="outline" onPress={() => router.push('/inventory/counts')}>
         {t('inventory.counts.title')}
       </Button>

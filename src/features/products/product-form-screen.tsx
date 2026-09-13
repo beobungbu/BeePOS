@@ -32,14 +32,25 @@ import type { Product, ProductVariant } from '../../domain/types';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { ProductThumb } from '../../components/product-thumb';
+import { selectContentHeight } from '../../components/select-content-height';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { ProductStockTable } from './product-stock-table';
 import { ProductVariantsSection } from './product-variants-section';
+import { StorePriceSection } from './components/store-price-section';
 import { useUnsavedChangesGuard } from './hooks/use-unsaved-changes-guard';
 import { currentOrgId } from '../../data/org-store';
+import { recordAudit } from '../../data/audit-store';
+import { formatVND } from '../../domain/money';
+import { fill } from '../orders/lib/fill';
 
 /** Form content is capped at 480 and centred at every breakpoint (direction doc section 7). */
 const FORM_MAX_WIDTH = 480;
+/**
+ * The branch-price table is six columns wide and is not a form field, so it is allowed the
+ * full content column instead of the 480 pt form cap: at 480 the override input measured 40 pt
+ * and the source badge was clipped off the right edge. The fields above it keep the cap.
+ */
+const WIDE_SECTION_MAX_WIDTH = 960;
 /** Page padding per band: 16 phone, 24 tablet, 32 desktop (direction doc section 7). */
 const FORM_PADDING = { phone: 'p-4', tablet: 'p-6', desktop: 'p-8' } as const;
 
@@ -156,6 +167,19 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
       description: values.description.trim() || undefined,
     };
     upsertProduct(product);
+    // A price change is the one edit on this form somebody may have to answer for later, so
+    // it is logged with the old value; the rest of the record is not worth a line each.
+    if (existing && existing.salePrice !== product.salePrice) {
+      recordAudit({
+        action: 'productPrice',
+        entity: 'product',
+        entityId: product.sku,
+        summary: fill(t('chain.audit.summary.productPrice'), {
+          from: formatVND(existing.salePrice),
+          to: formatVND(product.salePrice),
+        }),
+      });
+    }
     setValues(fromProduct(product));
     setTouched(false);
     toast.show({ title: t('products.savedToast'), variant: 'success' });
@@ -184,7 +208,7 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
   const margin = Number.isFinite(costPrice) && Number.isFinite(salePrice) ? marginPercent(costPrice, salePrice) : 0;
 
   return (
-    <KeyboardAwareScreen contentWidth="md">
+    <KeyboardAwareScreen contentWidth="lg">
       <View
         className={`w-full self-center gap-6 ${FORM_PADDING[breakpoint]}`}
         style={{ maxWidth: FORM_MAX_WIDTH }}
@@ -232,7 +256,7 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
                 <SelectTrigger>
                   <SelectValue placeholder={t('products.form.fieldCategory')} />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent maxHeight={selectContentHeight(categories.length)}>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id} textValue={category.name}>
                       {category.name}
@@ -329,6 +353,20 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
           </View>
         </View>
       </View>
+
+      {/* Branch prices belong to a saved product: a row keyed by a product id that does not
+          exist yet could not be written anywhere. Outside the 480 pt form column, because the
+          table is six columns of numbers rather than a field to fill in. */}
+      {existing && (
+        <View
+          className={`w-full self-center ${FORM_PADDING[breakpoint]} pt-0`}
+          style={{ maxWidth: WIDE_SECTION_MAX_WIDTH }}
+        >
+          <Section title={t('chain.storePrices.title')}>
+            <StorePriceSection product={existing} />
+          </Section>
+        </View>
+      )}
 
       <AlertDialog open={guard.promptOpen} onOpenChange={(open) => !open && guard.cancelDiscard()}>
         <AlertDialogContent>

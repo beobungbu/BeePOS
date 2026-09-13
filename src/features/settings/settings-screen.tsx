@@ -12,6 +12,7 @@ import { TaxSection } from './components/tax-section';
 import { PaymentSection } from './components/payment-section';
 import { PrinterSection } from './components/printer-section';
 import { SecuritySection } from './components/security-section';
+import { AuditSection } from './components/audit-section';
 import { AboutSection } from './components/about-section';
 import { ResetDataSection } from './components/reset-data-section';
 import { LogoutSection } from './components/logout-section';
@@ -50,6 +51,7 @@ export function SettingsScreen() {
             <PaymentSection />
             <PrinterSection />
             <SecuritySection />
+            <AuditSection />
             <AboutSection />
             <ResetDataSection />
             <LogoutSection />

@@ -18,6 +18,8 @@ import './products.vi';
 import './products.en';
 import './inventory.vi';
 import './inventory.en';
+import './chain.vi';
+import './chain.en';
 
 export type { Locale } from './registry';
 export { registerDictionary } from './registry';

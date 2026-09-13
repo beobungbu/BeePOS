@@ -14,4 +14,7 @@ export { products } from './products';
 export { stockLevels } from './stock';
 export { customers } from './customers';
 export { orders, shifts } from './orders';
+export { suppliers } from './suppliers';
+export { storePrices } from './store-prices';
+export { auditEvents } from './audit';
 export { goodsReceipts, stockTransfers, stockCounts } from './operations';

@@ -10,6 +10,8 @@ export const commonEn = {
     reports: 'Reports',
     stores: 'Stores',
     staff: 'Staff',
+    suppliers: 'Suppliers',
+    audit: 'Audit log',
     settings: 'Settings',
     more: 'More',
   },

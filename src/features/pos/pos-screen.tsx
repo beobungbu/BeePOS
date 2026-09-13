@@ -10,6 +10,8 @@ import { useCustomerStore } from '../../data/customer-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift } from '../../data/shift-store';
+import { useStorePriceIndex } from '../../data/store-price-store';
+import { effectivePrice } from '../../domain/catalog';
 import { CartPanel } from './components/cart-panel';
 import { CatalogSearch } from './components/catalog-search';
 import { ALL_CATEGORY, CategoryChips } from './components/category-chips';
@@ -34,6 +36,9 @@ export default function PosScreen() {
   const categories = useCatalogStore((state) => state.categories);
   const stockLevels = useInventoryStore((state) => state.stockLevels);
   const customers = useCustomerStore((state) => state.customers);
+  // What this branch charges. Indexed, because the grid re-prices every visible tile on every
+  // render and scanning the override rows per tile would cost `tiles x overrides` per frame.
+  const storePrices = useStorePriceIndex();
   const cart = useActiveCart();
   const ensureStore = useCartStore((state) => state.ensureStore);
   const addProduct = useCartStore((state) => state.addProduct);
@@ -62,7 +67,9 @@ export default function PosScreen() {
   }, [activeProducts, category, query]);
 
   function handleAddProduct(product: Product) {
-    addProduct(product.id, product.salePrice);
+    // The line keeps the price at sale time, so a price changed later never rewrites a bill
+    // that was already rung up.
+    addProduct(product.id, effectivePrice(product, store?.id, storePrices));
     toast.show({ title: t('pos.addedToCart'), description: product.name, variant: 'success', duration: 1500 });
   }
 
@@ -146,6 +153,7 @@ export default function PosScreen() {
           gap={layout.gap}
           imageAspectRatio={layout.imageAspectRatio}
           compactTiles={layout.compactTiles}
+          storePrices={storePrices}
           lines={cart.lines}
           onAddProduct={handleAddProduct}
         />

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 import { EmptyState } from '@beemvp/beeui-ui';
+import { effectivePrice } from '../../../domain/catalog';
 import type { CartLine, Product, StockLevel } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import { ProductCard } from './product-card';
@@ -16,6 +17,8 @@ interface ProductGridProps {
   imageAspectRatio: number;
   /** Small type step for the 3 column phone grid. */
   compactTiles?: boolean;
+  /** Per-store price overrides, indexed; the grid prices every tile through it. */
+  storePrices: ReadonlyMap<string, number>;
   lines: CartLine[];
   onAddProduct: (product: Product) => void;
 }
@@ -29,6 +32,7 @@ export function ProductGrid({
   gap,
   imageAspectRatio,
   compactTiles = false,
+  storePrices,
   lines,
   onAddProduct,
 }: ProductGridProps) {
@@ -88,6 +92,7 @@ export function ProductGrid({
           <View style={{ flex: 1 / columns }}>
             <ProductCard
               product={item}
+              price={effectivePrice(item, storeId, storePrices)}
               stock={stock}
               inCart={inCart}
               imageAspectRatio={imageAspectRatio}

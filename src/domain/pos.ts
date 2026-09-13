@@ -5,7 +5,17 @@
  */
 
 import { formatVND, roundVND, sum } from './money';
-import type { Cart, CartLine, Discount, Order, Shift } from './types';
+import type { Refund } from './orders';
+import type {
+  Cart,
+  CartLine,
+  CashMovement,
+  CashMovementType,
+  Discount,
+  Order,
+  PaymentMethod,
+  Shift,
+} from './types';
 
 /** A cart line combined with the tax rate its product carries. */
 export interface PricedCartLine extends CartLine {
@@ -31,6 +41,12 @@ export interface ShiftSummary {
   orderCount: number;
   revenue: number;
   cashRevenue: number;
+  /** Cash paid into the drawer during the shift that did not come from a sale. */
+  cashIn: number;
+  cashInCount: number;
+  /** Cash taken out of the drawer during the shift (banked, petty spend). */
+  cashOut: number;
+  cashOutCount: number;
   expectedCash: number;
   /** null until the shift has a closingCash to compare against. */
   variance: number | null;
@@ -120,19 +136,82 @@ function withinShiftWindow(createdAt: string, shift: Shift): boolean {
   return t >= opened && t <= closed;
 }
 
-/** Recomputes a shift's order count, revenue, cash revenue, expected cash, and cash variance. */
-export function shiftSummary(shift: Shift, orders: Order[]): ShiftSummary {
-  const shiftOrders = orders.filter(
-    (order) => order.storeId === shift.storeId && order.cashierId === shift.cashierId && withinShiftWindow(order.createdAt, shift),
+/** The orders a shift is answerable for: same store, same cashier, inside its window. */
+export function ordersInShift(shift: Shift, orders: readonly Order[]): Order[] {
+  return orders.filter(
+    (order) =>
+      order.storeId === shift.storeId &&
+      order.cashierId === shift.cashierId &&
+      withinShiftWindow(order.createdAt, shift),
   );
+}
+
+/** The cash in/out entries booked against a shift, oldest first. */
+export function movementsInShift(shiftId: string, movements: readonly CashMovement[]): CashMovement[] {
+  return movements
+    .filter((movement) => movement.shiftId === shiftId)
+    .slice()
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+}
+
+/**
+ * Recomputes a shift's order count, revenue, cash revenue, cash in/out, expected cash and
+ * cash variance.
+ *
+ * Expected cash is opening float plus cash sales plus cash paid in minus cash taken out: a
+ * drawer the cashier banked 5.000.000 out of is not short by that amount at close, and before
+ * cash movements existed that is exactly what the count said. `movements` defaults to empty so
+ * a caller that has none (the seeded history, the tests written before this) reads the same
+ * numbers it always did.
+ */
+export function shiftSummary(
+  shift: Shift,
+  orders: Order[],
+  movements: readonly CashMovement[] = [],
+): ShiftSummary {
+  const shiftOrders = ordersInShift(shift, orders);
   const revenue = sum(shiftOrders.map((order) => order.total));
   const cashRevenue = sum(
     shiftOrders.flatMap((order) => order.payments.filter((p) => p.method === 'cash').map((p) => p.amount)),
   );
-  const expectedCash = roundVND(shift.openingCash + cashRevenue);
+
+  const shiftMovements = movementsInShift(shift.id, movements);
+  const ins = shiftMovements.filter((movement) => movement.type === 'in');
+  const outs = shiftMovements.filter((movement) => movement.type === 'out');
+  const cashIn = sum(ins.map((movement) => movement.amount));
+  const cashOut = sum(outs.map((movement) => movement.amount));
+
+  const expectedCash = roundVND(shift.openingCash + cashRevenue + cashIn - cashOut);
   const variance = shift.closingCash != null ? roundVND(shift.closingCash - expectedCash) : null;
 
-  return { orderCount: shiftOrders.length, revenue, cashRevenue, expectedCash, variance };
+  return {
+    orderCount: shiftOrders.length,
+    revenue,
+    cashRevenue,
+    cashIn,
+    cashInCount: ins.length,
+    cashOut,
+    cashOutCount: outs.length,
+    expectedCash,
+    variance,
+  };
+}
+
+/**
+ * Cash in the drawer immediately after a movement: the float, every cash sale and every
+ * earlier movement of the shift. The cash sheet prints it beside each row so a count that
+ * comes out wrong can be traced back to the entry it went wrong at.
+ */
+export function drawerAfterMovement(
+  shift: Shift,
+  orders: Order[],
+  movements: readonly CashMovement[],
+  movementId: string,
+): number {
+  const ordered = movementsInShift(shift.id, movements);
+  const index = ordered.findIndex((movement) => movement.id === movementId);
+  if (index === -1) return shiftSummary(shift, orders, movements).expectedCash;
+  return shiftSummary(shift, orders, ordered.slice(0, index + 1)).expectedCash;
 }
 
 /** Adds a product to cart lines, incrementing qty if it is already present. */
@@ -405,5 +484,212 @@ export function formatReceiptText(input: ReceiptTextInput): string {
   if (input.change > 0) rows.push(pair(input.labels.change, formatVND(input.change)));
 
   rows.push(rule, centre(input.footer));
+  return rows.join('\n');
+}
+
+/* ---------------------------------------------------------------------------------------
+ * End of day (Z) report.
+ *
+ * The sheet a till prints when it closes: what it sold, how it was paid, what should be in
+ * the drawer and what was actually counted. `zReportTotals` is the arithmetic and
+ * `formatZReportText` is the paper, split for the same reason the receipt is: the numbers
+ * have to be assertable without a renderer, and the wording has to stay in the dictionary.
+ * ------------------------------------------------------------------------------------ */
+
+export interface ZReportTotals {
+  orderCount: number;
+  /** Sum of order totals, before refunds. */
+  grossRevenue: number;
+  discountTotal: number;
+  refundCount: number;
+  refundTotal: number;
+  /** What the till actually kept: gross minus refunds. */
+  netRevenue: number;
+  /** Taken per payment method, in the order the methods are listed. */
+  payments: { method: PaymentMethod; amount: number }[];
+  openingCash: number;
+  cashRevenue: number;
+  cashIn: number;
+  cashInCount: number;
+  cashOut: number;
+  cashOutCount: number;
+  expectedCash: number;
+  /** null while the shift is still open; the count only exists at close. */
+  countedCash: number | null;
+  variance: number | null;
+}
+
+/** Methods in the order the sheet prints them; a method with no takings still prints a zero. */
+export const Z_REPORT_METHODS: PaymentMethod[] = ['cash', 'transfer', 'card', 'points'];
+
+export interface ZReportSource {
+  shift: Shift;
+  orders: Order[];
+  refunds: readonly Refund[];
+  movements: readonly CashMovement[];
+}
+
+/**
+ * Every figure on the sheet, derived from the shift alone. Refunds are matched by order, not
+ * by their own timestamp: a refund given on an order this shift sold belongs to this shift's
+ * takings even when the customer comes back an hour later, which is the number the person
+ * counting the drawer is reconciling against.
+ */
+export function zReportTotals({ shift, orders, refunds, movements }: ZReportSource): ZReportTotals {
+  const summary = shiftSummary(shift, orders, movements);
+  const shiftOrders = ordersInShift(shift, orders);
+  const orderIds = new Set(shiftOrders.map((order) => order.id));
+  const shiftRefunds = refunds.filter((refund) => orderIds.has(refund.orderId));
+
+  const grossRevenue = sum(shiftOrders.map((order) => order.total));
+  const discountTotal = sum(shiftOrders.map((order) => order.discountTotal));
+  const refundTotal = sum(shiftRefunds.map((refund) => refund.amount));
+
+  const payments = Z_REPORT_METHODS.map((method) => ({
+    method,
+    amount: sum(
+      shiftOrders.flatMap((order) =>
+        order.payments.filter((payment) => payment.method === method).map((payment) => payment.amount),
+      ),
+    ),
+  }));
+
+  return {
+    orderCount: shiftOrders.length,
+    grossRevenue,
+    discountTotal,
+    refundCount: shiftRefunds.length,
+    refundTotal,
+    netRevenue: roundVND(grossRevenue - refundTotal),
+    payments,
+    openingCash: shift.openingCash,
+    cashRevenue: summary.cashRevenue,
+    cashIn: summary.cashIn,
+    cashInCount: summary.cashInCount,
+    cashOut: summary.cashOut,
+    cashOutCount: summary.cashOutCount,
+    expectedCash: summary.expectedCash,
+    countedCash: shift.closingCash ?? null,
+    variance: summary.variance,
+  };
+}
+
+/** One cash movement as the sheet prints it: `08:15 Nộp tiền` and a signed amount. */
+export interface ZReportMovementLine {
+  timeText: string;
+  reason: string;
+  type: CashMovementType;
+  amount: number;
+}
+
+export interface ZReportLabels {
+  title: string;
+  revenueSection: string;
+  orderCount: string;
+  revenue: string;
+  discount: string;
+  refunds: string;
+  netRevenue: string;
+  methodSection: string;
+  methods: Record<PaymentMethod, string>;
+  drawerSection: string;
+  openingCash: string;
+  cashSales: string;
+  cashIn: string;
+  cashOut: string;
+  expected: string;
+  counted: string;
+  variance: string;
+  movementSection: string;
+  noMovements: string;
+  closedBy: string;
+  printedAt: string;
+  notCounted: string;
+}
+
+export interface ZReportTextInput {
+  orgName: string;
+  storeName: string;
+  storeAddress?: string;
+  /** Already localised by the caller; the domain owns no locale. */
+  dateText: string;
+  registerName: string;
+  shiftWindowText: string;
+  cashierNames: string[];
+  totals: ZReportTotals;
+  movements: ZReportMovementLine[];
+  closedByName: string;
+  printedAtText: string;
+  footer: string;
+  labels: ZReportLabels;
+}
+
+/** `+1.000 đ` / `-1.000 đ`: a drawer line has to say which way the money went. */
+function signed(amount: number): string {
+  if (amount === 0) return formatVND(0);
+  return amount > 0 ? `+${formatVND(amount)}` : `-${formatVND(Math.abs(amount))}`;
+}
+
+/**
+ * The Z report as monospaced text: the share payload on native and, through the same 32
+ * column block the receipt prints, what a thermal printer puts on the roll.
+ */
+export function formatZReportText(input: ZReportTextInput): string {
+  const rule = '-'.repeat(RECEIPT_WIDTH);
+  const { totals, labels } = input;
+  const rows: string[] = [centre(input.orgName), centre(input.storeName)];
+  if (input.storeAddress) rows.push(...wrap(input.storeAddress).map(centre));
+
+  rows.push(
+    rule,
+    centre(labels.title),
+    centre(`${input.dateText} · ${input.registerName}`),
+    centre(input.shiftWindowText),
+  );
+  if (input.cashierNames.length > 0) rows.push(...wrap(input.cashierNames.join(', ')).map(centre));
+
+  rows.push(
+    rule,
+    labels.revenueSection,
+    pair(labels.orderCount, String(totals.orderCount)),
+    pair(labels.revenue, formatVND(totals.grossRevenue)),
+    pair(labels.discount, signed(-totals.discountTotal)),
+    pair(`${labels.refunds} (${totals.refundCount})`, signed(-totals.refundTotal)),
+    pair(labels.netRevenue, formatVND(totals.netRevenue)),
+    rule,
+    labels.methodSection,
+    ...totals.payments.map((payment) => pair(labels.methods[payment.method], formatVND(payment.amount))),
+    rule,
+    labels.drawerSection,
+    pair(labels.openingCash, formatVND(totals.openingCash)),
+    pair(labels.cashSales, signed(totals.cashRevenue)),
+    pair(`${labels.cashIn} (${totals.cashInCount})`, signed(totals.cashIn)),
+    pair(`${labels.cashOut} (${totals.cashOutCount})`, signed(-totals.cashOut)),
+    pair(labels.expected, formatVND(totals.expectedCash)),
+    pair(labels.counted, totals.countedCash != null ? formatVND(totals.countedCash) : labels.notCounted),
+    pair(labels.variance, totals.variance != null ? signed(totals.variance) : labels.notCounted),
+    rule,
+    labels.movementSection,
+  );
+
+  if (input.movements.length === 0) {
+    rows.push(labels.noMovements);
+  } else {
+    for (const movement of input.movements) {
+      rows.push(
+        pair(
+          `${movement.timeText} ${movement.reason}`.slice(0, RECEIPT_WIDTH - 12),
+          signed(movement.type === 'in' ? movement.amount : -movement.amount),
+        ),
+      );
+    }
+  }
+
+  rows.push(
+    rule,
+    centre(`${labels.closedBy}: ${input.closedByName}`),
+    centre(`${labels.printedAt} ${input.printedAtText}`),
+    centre(input.footer),
+  );
   return rows.join('\n');
 }

@@ -31,7 +31,21 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'reports', href: '/reports', labelKey: 'common.nav.reports', icon: 'chart-column', primaryOnMobile: false, permission: 'reports.store' },
   { id: 'stores', href: '/stores', labelKey: 'common.nav.stores', icon: 'store', primaryOnMobile: false, permission: 'stores.manage' },
   { id: 'staff', href: '/staff', labelKey: 'common.nav.staff', icon: 'id-card', primaryOnMobile: false, permission: 'staff.manage' },
+  // Before Settings, and deliberately: `permissionForPath` takes the first item whose href
+  // prefixes the path, so a `/settings` entry placed first would demand `settings.manage` for
+  // the log and lock a manager (who may read it) out of a screen their nav offers them.
+  { id: 'audit', href: '/settings/audit', labelKey: 'common.nav.audit', icon: 'clipboard-list', primaryOnMobile: false, permission: 'audit.view' },
   { id: 'settings', href: '/settings', labelKey: 'common.nav.settings', icon: 'settings', primaryOnMobile: false, permission: 'settings.manage' },
+];
+
+/**
+ * Screens that belong inside another area rather than being an area of their own: they are
+ * not in the sidebar, the rail or the tab bar, but the command palette offers them and the
+ * route guard has to know what they cost. Suppliers lives under Kho hàng, where the receipt
+ * that needs one is created.
+ */
+export const SUB_NAV_ITEMS: NavItem[] = [
+  { id: 'suppliers', href: '/inventory/suppliers', labelKey: 'common.nav.suppliers', icon: 'truck', primaryOnMobile: false, permission: 'inventory.manage' },
 ];
 
 /**
@@ -48,8 +62,14 @@ export function useVisibleNavItems(): NavItem[] {
   return visibleNavItems(role);
 }
 
+/** The sub-area screens this role may open. The command palette lists these after the areas. */
+export function useVisibleSubNavItems(): NavItem[] {
+  const role = useSessionStore((state) => state.staff?.role);
+  return SUB_NAV_ITEMS.filter((item) => can(role, item.permission));
+}
+
 /** The permission a path needs, from the nav item that owns it (`/staff/new` -> staff). */
 export function permissionForPath(pathname: string): Permission | undefined {
-  return NAV_ITEMS.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
-    ?.permission;
+  const owns = (item: NavItem) => pathname === item.href || pathname.startsWith(`${item.href}/`);
+  return (SUB_NAV_ITEMS.find(owns) ?? NAV_ITEMS.find(owns))?.permission;
 }

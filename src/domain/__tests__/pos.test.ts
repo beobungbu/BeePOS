@@ -15,8 +15,13 @@ import {
   openCart,
   pointsEarned,
   pointsToVnd,
+  drawerAfterMovement,
+  formatZReportText,
+  movementsInShift,
   setLineQty,
   shiftSummary,
+  zReportTotals,
+  Z_REPORT_METHODS,
   switchCart,
   updateActiveCart,
   emptyScanBuffer,
@@ -27,8 +32,9 @@ import {
   type CartSet,
   type PricedCartLine,
   type ReceiptTextInput,
+  type ZReportLabels,
 } from '../pos';
-import type { Order, Shift } from '../types';
+import type { CashMovement, Order, Shift } from '../types';
 
 describe('applyOrderDiscount', () => {
   it('computes a percent discount', () => {
@@ -486,3 +492,216 @@ describe('formatReceiptText', () => {
     expect(text.split('\n')[1]).toBe('-'.repeat(RECEIPT_WIDTH));
   });
 });
+
+describe('cash movements in a shift', () => {
+  const shift: Shift = {
+    id: 'shift-9',
+    orgId: ORG,
+    storeId: 'store-1',
+    cashierId: 'staff-1',
+    openedAt: '2026-09-13T01:00:00.000Z',
+    openingCash: 1_500_000,
+    expectedCash: 1_500_000,
+    orderCount: 0,
+    revenue: 0,
+  };
+
+  const orders: Order[] = [
+    {
+      id: 'z1',
+      orgId: ORG,
+      code: 'HD-HN01-20260913-001',
+      storeId: 'store-1',
+      cashierId: 'staff-1',
+      lines: [],
+      subtotal: 13_000_000,
+      discountTotal: 520_000,
+      taxTotal: 0,
+      total: 12_480_000,
+      payments: [{ method: 'cash', amount: 12_480_000 }],
+      status: 'paid',
+      createdAt: '2026-09-13T02:00:00.000Z',
+    },
+    {
+      id: 'z2',
+      orgId: ORG,
+      code: 'HD-HN01-20260913-002',
+      storeId: 'store-1',
+      cashierId: 'staff-1',
+      lines: [],
+      subtotal: 8_280_000,
+      discountTotal: 160_000,
+      taxTotal: 0,
+      total: 8_120_000,
+      payments: [{ method: 'transfer', amount: 8_120_000 }],
+      status: 'paid',
+      createdAt: '2026-09-13T03:00:00.000Z',
+    },
+  ];
+
+  const movements: CashMovement[] = [
+    {
+      id: 'cash-1',
+      orgId: ORG,
+      storeId: 'store-1',
+      shiftId: 'shift-9',
+      type: 'in',
+      amount: 2_000_000,
+      reason: 'deposit',
+      staffId: 'staff-1',
+      createdAt: new Date('2026-09-13T01:15:00.000Z'),
+    },
+    {
+      id: 'cash-2',
+      orgId: ORG,
+      storeId: 'store-1',
+      shiftId: 'shift-9',
+      type: 'out',
+      amount: 5_000_000,
+      reason: 'withdraw',
+      staffId: 'staff-1',
+      createdAt: new Date('2026-09-13T04:30:00.000Z'),
+    },
+    {
+      id: 'cash-3',
+      orgId: ORG,
+      storeId: 'store-1',
+      shiftId: 'other-shift',
+      type: 'out',
+      amount: 900_000,
+      reason: 'petty',
+      staffId: 'staff-1',
+      createdAt: new Date('2026-09-13T04:40:00.000Z'),
+    },
+  ];
+
+  it('expected cash is the float plus cash sales plus cash in minus cash out', () => {
+    const summary = shiftSummary(shift, orders, movements);
+    expect(summary.cashRevenue).toBe(12_480_000);
+    expect(summary.cashIn).toBe(2_000_000);
+    expect(summary.cashOut).toBe(5_000_000);
+    expect(summary.expectedCash).toBe(1_500_000 + 12_480_000 + 2_000_000 - 5_000_000);
+  });
+
+  it('ignores movements booked against another shift', () => {
+    expect(movementsInShift('shift-9', movements)).toHaveLength(2);
+    expect(shiftSummary(shift, orders, movements).cashOutCount).toBe(1);
+  });
+
+  it('reads the same as before when a shift has no movements', () => {
+    expect(shiftSummary(shift, orders).expectedCash).toBe(1_500_000 + 12_480_000);
+  });
+
+  it('the drawer after a movement includes every earlier one', () => {
+    expect(drawerAfterMovement(shift, orders, movements, 'cash-1')).toBe(
+      1_500_000 + 12_480_000 + 2_000_000,
+    );
+    expect(drawerAfterMovement(shift, orders, movements, 'cash-2')).toBe(
+      1_500_000 + 12_480_000 + 2_000_000 - 5_000_000,
+    );
+  });
+
+  describe('Z report', () => {
+    const closed: Shift = { ...shift, closedAt: '2026-09-13T14:40:00.000Z', closingCash: 10_930_000 };
+    const refunds = [
+      {
+        id: 'r1',
+        orderId: 'z1',
+        createdAt: '2026-09-13T05:00:00.000Z',
+        lines: [],
+        method: 'cash' as const,
+        reason: 'khách trả hàng',
+        amount: 1_240_000,
+        pointsDeducted: 0,
+      },
+      // Belongs to an order this shift never sold, so it is not this shift's problem.
+      {
+        id: 'r2',
+        orderId: 'not-mine',
+        createdAt: '2026-09-13T05:10:00.000Z',
+        lines: [],
+        method: 'cash' as const,
+        reason: 'khác ca',
+        amount: 500_000,
+        pointsDeducted: 0,
+      },
+    ];
+
+    const totals = zReportTotals({ shift: closed, orders, refunds, movements });
+
+    it('net takings are gross minus the refunds of this shift only', () => {
+      expect(totals.grossRevenue).toBe(20_600_000);
+      expect(totals.refundCount).toBe(1);
+      expect(totals.refundTotal).toBe(1_240_000);
+      expect(totals.netRevenue).toBe(20_600_000 - 1_240_000);
+    });
+
+    it('the payment mix adds up to the gross takings', () => {
+      const byMethod = totals.payments.reduce((total, payment) => total + payment.amount, 0);
+      expect(byMethod).toBe(totals.grossRevenue);
+      expect(totals.payments.map((payment) => payment.method)).toEqual(Z_REPORT_METHODS);
+    });
+
+    it('the drawer block balances: expected = opening + cash + in - out, variance = counted - expected', () => {
+      expect(totals.expectedCash).toBe(
+        totals.openingCash + totals.cashRevenue + totals.cashIn - totals.cashOut,
+      );
+      expect(totals.countedCash).toBe(10_930_000);
+      expect(totals.variance).toBe(10_930_000 - totals.expectedCash);
+    });
+
+    it('prints every figure at 32 columns', () => {
+      const text = formatZReportText({
+        orgName: 'Chuỗi tạp hoá Bee',
+        storeName: 'HN01 · Tạp hoá Cầu Giấy',
+        dateText: '13/09/2026',
+        registerName: 'Quầy 1',
+        shiftWindowText: 'Ca 08:00 - 21:40',
+        cashierNames: ['Vũ Thị Giang'],
+        totals,
+        movements: [
+          { timeText: '08:15', reason: 'Nộp tiền', type: 'in', amount: 2_000_000 },
+          { timeText: '11:30', reason: 'Rút tiền', type: 'out', amount: 5_000_000 },
+        ],
+        closedByName: 'Vũ Thị Giang',
+        printedAtText: '13/09/2026 21:42',
+        footer: 'Cảm ơn quý khách',
+        labels: Z_LABELS,
+      });
+
+      expect(text).toContain('BAO CAO Z');
+      expect(text).toContain('19.360.000 đ');
+      expect(text).toContain('+2.000.000 đ');
+      expect(text).toContain('-5.000.000 đ');
+      expect(text).toContain('08:15 Nộp tiền');
+      // The block is a roll: no rendered line may be wider than the paper.
+      for (const line of text.split('\n')) expect(line.length).toBeLessThanOrEqual(RECEIPT_WIDTH);
+    });
+  });
+});
+
+/** Labels for the formatter test; the app passes the dictionary, the domain owns no copy. */
+const Z_LABELS: ZReportLabels = {
+  title: 'BAO CAO Z',
+  revenueSection: 'DOANH THU',
+  orderCount: 'So don',
+  revenue: 'Doanh thu',
+  discount: 'Giam gia',
+  refunds: 'Hoan tra',
+  netRevenue: 'Thuc thu',
+  methodSection: 'THEO PHUONG THUC',
+  methods: { cash: 'Tien mat', transfer: 'Chuyen khoan', card: 'The', points: 'Diem' },
+  drawerSection: 'TIEN MAT',
+  openingCash: 'Dau ca',
+  cashSales: 'Ban tien mat',
+  cashIn: 'Thu khac',
+  cashOut: 'Chi khac',
+  expected: 'Du kien',
+  counted: 'Dem thuc te',
+  variance: 'Chenh lech',
+  movementSection: 'THU CHI',
+  noMovements: 'Khong co',
+  closedBy: 'Nguoi dong ca',
+  printedAt: 'In luc',
+  notCounted: 'Chua dem',
+};

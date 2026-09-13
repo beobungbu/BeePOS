@@ -11,6 +11,7 @@ import {
 } from '../domain/auth';
 import type { Permission, Register, Session, Staff, Store, UserAccount } from '../domain/types';
 import { accountByEmail, accountForStaff, isStaffActive, registersForStore, useOrgStore } from './org-store';
+import { auditText, recordAudit, setAuditActorSource } from './audit-store';
 
 export type LoginFailure = 'invalid' | 'disabled' | 'invited' | 'no_store';
 
@@ -106,6 +107,18 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       lastActivityAt: Date.now(),
     });
 
+    // After the state is set, so `recordAudit` reads the member it is about to name. The two
+    // session events are the only ones the log cannot get from a screen: nothing else runs
+    // between the credentials being accepted and the app area taking over.
+    recordAudit({
+      action: 'login',
+      entity: 'session',
+      entityId: account.email,
+      staffId: member.id,
+      storeId: only?.id,
+      summary: auditText('chain.audit.summary.login'),
+    });
+
     return { ok: true, mustChangePassword: account.mustChangePassword, storeOptions: options };
   },
 
@@ -180,7 +193,20 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     return { ok: true, switched: true, staff: member };
   },
 
-  logout: () =>
+  logout: () => {
+    const { account, staff: member, store } = get();
+    // Recorded before the state is cleared: afterwards there is no member left to attribute
+    // the act to, and `recordAudit` would drop it.
+    if (member) {
+      recordAudit({
+        action: 'logout',
+        entity: 'session',
+        entityId: account?.email ?? member.id,
+        staffId: member.id,
+        storeId: store?.id,
+        summary: auditText('chain.audit.summary.logout'),
+      });
+    }
     set({
       session: null,
       account: null,
@@ -189,7 +215,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       register: null,
       storeOptions: [],
       registerOptions: [],
-    }),
+    });
+  },
 
   touch: () => set({ lastActivityAt: Date.now() }),
 
@@ -208,6 +235,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     return true;
   },
 }));
+
+// Who the log names. Registered here rather than read from the audit store, which knows
+// nothing about sessions; see `setAuditActorSource`.
+setAuditActorSource(() => {
+  const { staff, store } = useSessionStore.getState();
+  return { staffId: staff?.id, storeId: store?.id };
+});
 
 export function getCurrentStaff(): Staff | null {
   return useSessionStore.getState().staff;

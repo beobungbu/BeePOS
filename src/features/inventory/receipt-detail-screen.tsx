@@ -10,7 +10,6 @@ import {
   Button,
   EmptyState,
   Field,
-  Input,
   KeyboardAwareScreen,
   Select,
   SelectContent,
@@ -32,6 +31,8 @@ import { useScreenHeader } from '../../components/shell/screen-header';
 import { LineEditorTable } from './line-editor-table';
 import { ProductPicker } from './product-picker';
 import { currentOrgId } from '../../data/org-store';
+import { SupplierPicker } from '../suppliers/components/supplier-picker';
+import { useSuppliers } from '../../data/supplier-store';
 
 function makeReceiptId(): string {
   return `receipt-${Date.now()}`;
@@ -50,18 +51,23 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
   const receipts = useInventoryStore((state) => state.goodsReceipts);
   const upsertGoodsReceipt = useInventoryStore((state) => state.upsertGoodsReceipt);
   const receiveGoodsReceipt = useInventoryStore((state) => state.receiveGoodsReceipt);
+  const suppliers = useSuppliers();
 
   const existing = receiptId ? receipts.find((item) => item.id === receiptId) : undefined;
   const notFound = Boolean(receiptId) && !existing;
 
-  const [supplierName, setSupplierName] = useState(existing?.supplierName ?? '');
+  const [supplierId, setSupplierId] = useState(existing?.supplierId ?? '');
   const [storeId, setStoreId] = useState(existing?.storeId ?? currentStore?.id ?? allStores[0].id);
   const [lines, setLines] = useState<GoodsReceiptLine[]>(existing?.lines ?? []);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const isReceived = existing?.status === 'received';
-  const canSave = supplierName.trim().length > 0 && lines.length > 0;
+  // The display name is derived from the picked record rather than typed: a partner whose name
+  // is spelled two ways is a partner whose purchase history is split in two.
+  const supplier = suppliers.find((item) => item.id === supplierId);
+  const supplierName = supplier?.name ?? existing?.supplierName ?? '';
+  const canSave = supplierId.length > 0 && lines.length > 0;
 
   // Pushed route: the shell header names the screen and carries the way back to the list.
   useScreenHeader({ title: t('inventory.receipts.detailTitle'), backTo: '/inventory/receipts' });
@@ -71,7 +77,8 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
       id: existing?.id ?? makeReceiptId(),
       orgId: currentOrgId(),
       storeId,
-      supplierName: supplierName.trim(),
+      supplierId,
+      supplierName,
       lines,
       status,
       createdAt: existing?.createdAt ?? new Date().toISOString(),
@@ -117,9 +124,7 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
           )}
         </View>
 
-        <Field label={t('inventory.receipts.supplierLabel')} required>
-          <Input value={supplierName} onChangeText={setSupplierName} editable={!isReceived} />
-        </Field>
+        <SupplierPicker value={supplierId} onChange={setSupplierId} disabled={isReceived} />
 
         <Field label={t('inventory.receipts.storeLabel')} required>
           <Select value={storeId} onValueChange={setStoreId} disabled={isReceived}>

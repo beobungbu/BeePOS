@@ -34,7 +34,7 @@ export const V = {
   // Customers screen
   customerSearch: 'Tìm theo tên hoặc số điện thoại',
   // Inventory
-  supplier: 'Tên nhà cung cấp',
+  supplier: 'Nhà cung cấp',
   addProduct: 'Thêm sản phẩm',
   searchProduct: 'Tìm sản phẩm theo tên hoặc SKU',
   receiveGoods: 'Nhận hàng',
@@ -129,6 +129,27 @@ export async function posStock(page: Page, productName: string): Promise<number>
   if (match) return Number(match[1]);
   if (label.includes('Hết hàng')) return 0;
   throw new Error(`no stock state in tile label: ${label}`);
+}
+
+/**
+ * Picks the partner a goods receipt is booked against.
+ *
+ * The field is a `Select` from tablet up and a searchable pushed dialog on the phone
+ * (`src/features/suppliers/components/supplier-picker.tsx`), so the helper tries the combobox
+ * first and falls back to the dialog. `label` is passed in because the journey runs in both
+ * locales; every other spec takes the Vietnamese default.
+ */
+export async function pickSupplier(page: Page, supplierName: string, label: string = V.supplier): Promise<void> {
+  const combo = page.getByRole('combobox', { name: label }).first();
+  if (await combo.isVisible().catch(() => false)) {
+    await combo.click();
+    await page.getByRole('option', { name: supplierName }).first().click();
+    return;
+  }
+  await page.getByRole('button', { name: label }).first().click();
+  const dialog = overlay(page).last();
+  await dialog.getByRole('searchbox').fill(supplierName);
+  await dialog.getByText(supplierName, { exact: true }).first().click();
 }
 
 /** Pays the active order in full with cash and lands on its receipt. */

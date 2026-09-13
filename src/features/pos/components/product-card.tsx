@@ -14,6 +14,12 @@ const NAME_LINES = 2;
 
 interface ProductCardProps {
   product: Product;
+  /**
+   * What this branch charges: the store's own price when it has one, the chain price
+   * otherwise (`effectivePrice` in `src/domain/catalog.ts`). Passed in rather than read off
+   * the product, so the tile and the line the cart books are the same number by construction.
+   */
+  price: number;
   stock: StockLevel | undefined;
   /** Units of this product in the active order, shown as the in-cart counter. */
   inCart: number;
@@ -39,6 +45,7 @@ interface ProductCardProps {
  */
 export function ProductCard({
   product,
+  price,
   stock,
   inCart,
   imageAspectRatio,
@@ -60,7 +67,7 @@ export function ProductCard({
   // and, when the order already holds some, the in-cart count.
   const accessibilityLabel = [
     product.name,
-    formatVND(product.salePrice),
+    formatVND(price),
     stockLabel(t, onHand, minLevel),
     !outOfStock && inCart > 0 ? `${t('pos.inCart')} ${inCart}` : undefined,
   ]
@@ -109,7 +116,7 @@ export function ProductCard({
         numeric="tabular"
         className={`font-bold ${outOfStock ? 'text-muted-foreground' : 'text-foreground'}`}
       >
-        {formatVND(product.salePrice)}
+        {formatVND(price)}
       </Text>
     </Pressable>
   );

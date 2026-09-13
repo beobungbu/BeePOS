@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { collectErrors, go, login } from '../lib/session';
-import { PRODUCT_A, PRODUCT_B, V, overlay, posStock } from '../lib/flows';
+import { PRODUCT_A, PRODUCT_B, V, overlay, pickSupplier, posStock } from '../lib/flows';
 
 /**
  * The two stock operations that move real numbers: a goods receipt raises what the till can
@@ -8,7 +8,13 @@ import { PRODUCT_A, PRODUCT_B, V, overlay, posStock } from '../lib/flows';
  * which is where a cashier would notice the difference, and both run on either viewport
  * (the receipt and count editors are the same form on a phone).
  */
-const SUPPLIER = 'NCC Kiểm thử E2E';
+/**
+ * A receipt is booked against a supplier record now, not a typed-in name, so the spec picks a
+ * seeded partner. The seed gives every active partner exactly one receipt, which is why the
+ * list step below takes the last row with this name rather than the first: the new receipt is
+ * appended, so the last one carrying the name is the one this test just wrote.
+ */
+const SUPPLIER = 'Cty CP Acecook Việt Nam';
 const RECEIVED_A = 5;
 const RECEIVED_B = 3;
 const SHORT_BY = 2;
@@ -24,7 +30,7 @@ test.describe('inventory operations', () => {
 
     await test.step('create a receipt with two lines and receive it', async () => {
       await go(page, '/inventory/receipts/new');
-      await page.getByRole('textbox', { name: V.supplier }).fill(SUPPLIER);
+      await pickSupplier(page, SUPPLIER);
 
       for (const [product, qty] of [
         [PRODUCT_A, RECEIVED_A],
@@ -53,7 +59,7 @@ test.describe('inventory operations', () => {
       await go(page, '/inventory/receipts');
       // The list is a table on desktop and a card list on the phone, so the status is read
       // off the receipt itself rather than off a row shape that only one viewport has.
-      await page.getByText(SUPPLIER).first().click();
+      await page.getByText(SUPPLIER).last().click();
       await page.waitForURL('**/inventory/receipts/**');
       await expect(page.getByText('Đã nhận hàng').first()).toBeVisible();
       await expect(page.getByRole('row').filter({ hasText: PRODUCT_A })).toHaveCount(1);
