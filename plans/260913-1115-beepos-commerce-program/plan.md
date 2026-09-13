@@ -93,3 +93,11 @@ export interface AppNotification { id: string; orgId: string; storeId?: string; 
 - Delete any `.tmp-shots/` scratch specs; add `.tmp-shots` to jest ignore so a peer's scratch cannot break `npm test`.
 - W-I open decisions: credit-note amount on an exchange (net vs gross), PO code shape, CSV import route placement.
 - W-P: `Organization.taxCode?` and `Customer.billingAddress?` type additions; promotions currently applied on wholesale orders only, decision: apply on retail too (owner wants general promotions); `/pos/returns?order=<code>` deep link from order detail.
+
+## Wave 2 product gaps from W-E (2026-09-13 16:40), for the wave 3 gap worker
+1. No screen raises a supplier bill on credit (receipt confirm with payment term should book an AP invoice; payables list needs "Ghi nhận công nợ" from a receipt).
+2. Cash book never sees live till cash: `cash-movement-store` (shift in/out) and `ledger-store.cashBook` are separate; a shift cash-in and every cash sale must post cash-book rows.
+3. The till ignores `LoyaltyRule`: points awarded at a fixed rate per 10.000 đ instead of earnPerVnd x tier multiplier.
+4. Retail tile quotes the shelf price while the cart charges the promotion (`pos-screen.tsx` passes `quoteFor` only on wholesale); tiles must show the effective price for retail too.
+5. Wholesale grid re-prices every visible tile per commit; memoise `resolvePrice` per (product, customer group, store) and only re-price on those inputs.
+Also from W-N: a non-demo chain inherits the demo catalogue (P7 worker implements empty start with the CSV import empty state).
