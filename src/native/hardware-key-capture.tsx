@@ -106,6 +106,7 @@ export function HardwareKeyCapture({ onScan, enabled = true }: HardwareKeyCaptur
       onBlur={scheduleClaim}
       // Keeps the focus after the scanner's Enter, so the next code needs no re-focus.
       submitBehavior="submit"
+      // The wedge is a keyboard, so iOS would raise the soft one on focus and cover the grid.
       showSoftInputOnFocus={false}
       caretHidden
       contextMenuHidden

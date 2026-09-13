@@ -113,9 +113,14 @@ const QUOTE_ORDER = 'order-w2';
 const CANCELLABLE_ORDER = 'order-w4';
 /** `supplier-return-1`, seeded as a draft so the send path has a subject. */
 const SUPPLIER_RETURN = '/inventory/supplier-returns/supplier-return-1';
-const SECOND_ORG_STORE = 'Chuỗi Minh Châu';
+const SECOND_ORG = 'Chuỗi Minh Châu';
+/** Its only branch (`src/data/seed/second-org.ts`), and the one register behind it. */
+const SECOND_ORG_BRANCH = 'Minh Châu Quận 7';
+const SECOND_ORG_REGISTER = 'Quầy 1';
 const ACTIVE_ORG_KEY = 'beepos.persist.active-org';
 const SECOND_ORG_ID = 'chuoi-demo-2';
+/** The demo chain's branch, which must not be on screen once the second chain is signed in. */
+const DEMO_BRANCH = 'Tạp hoá Cầu Giấy';
 
 /** Digits of the figure beside a stat-strip label, as the money specs read them. */
 async function stat(page: Page, label: string): Promise<number> {
@@ -182,7 +187,7 @@ test.describe('commerce coverage', () => {
     expect(errors, errors.join('\n')).toEqual([]);
   });
 
-  test('a live promotion is applied on a retail order', async ({ page }) => {
+  test('a live promotion prices a retail cart line', async ({ page }) => {
     const { errors } = collectErrors(page);
     await login(page);
 
@@ -190,17 +195,34 @@ test.describe('commerce coverage', () => {
     await expect(page.getByText(PROMO_NAME).first()).toBeVisible();
     await expect(page.getByText(L.promotionsStatusActive).first()).toBeVisible();
 
-    // The tile is where a promotion has to show first: the cashier quotes off the grid.
+    await openShift(page);
+    await go(page, '/pos');
+    await posTile(page, PROMO_PRODUCT).click();
+
+    // The cart line caption is "<variant> · <unit> · <unit price>", and the unit price is what
+    // the buyer is charged, promotion or no promotion.
+    const caption = await page.getByText(/·\s[\d.]+\sđ$/).first().innerText();
+    const unitPrice = money(caption.split('·').pop() ?? '');
+    expect(unitPrice, 'a live percent promotion prices the retail line').toBe(PROMO_PRICE);
+
+    expect(errors, errors.join('\n')).toEqual([]);
+  });
+
+  test('and the sell tile quotes the promotion the cart will charge', async ({ page }) => {
+    const { errors } = collectErrors(page);
+    await login(page);
+
     await go(page, '/pos');
     const label = await tileLabel(page, PROMO_PRODUCT);
-    const unitPrice = money(/[\d.]+\s*đ/.exec(label)?.[0] ?? '');
+    const tilePrice = money(/[\d.]+\s*đ/.exec(label)?.[0] ?? '');
     test.skip(
-      unitPrice === PROMO_SHELF_PRICE,
-      'promotions are applied on wholesale orders only (use-wholesale-pricing.ts passes an empty ' +
-        'promotion list on a retail order); W-R owns turning them on at the counter',
+      tilePrice === PROMO_SHELF_PRICE,
+      'the retail tile prices through `effectivePrice`: `pos-screen.tsx` hands the grid its ' +
+        '`quoteFor` only when the wholesale switch is on, so a promotion reaches the cart line ' +
+        'and the total but not the tile the cashier quotes from',
     );
-    expect(unitPrice, 'a live percent promotion prices the retail tile').toBe(PROMO_PRICE);
-    expect(label, 'and names itself on the tile').toContain(PROMO_NAME);
+    expect(tilePrice, 'the tile and the line have to agree').toBe(PROMO_PRICE);
+    expect(label, 'and the tile names the promotion it is pricing').toContain(PROMO_NAME);
 
     expect(errors, errors.join('\n')).toEqual([]);
   });
@@ -520,33 +542,38 @@ test.describe('commerce coverage', () => {
     await login(page);
 
     await page.getByRole('button', { name: L.profile }).click();
-    await page.getByText(SECOND_ORG_STORE).click();
+    await page.getByText(SECOND_ORG).click();
     const dialog = overlay(page).last();
     await dialog.getByRole('button', { name: L.switchOrgConfirm }).click();
     await page.waitForURL('**/login');
     expect(await page.evaluate((key) => window.localStorage.getItem(key), ACTIVE_ORG_KEY)).toBe(SECOND_ORG_ID);
 
-    // Signing in again has to land in the chain that was switched to. The seed gives
-    // `chuoi-demo-2` a directory entry and a membership but no Store, Staff or UserAccount, and
-    // `session-store.login` resolves the staff record from `account.staffId` rather than through
-    // the membership for the active chain, so today the sign-in either refuses or lands back on
-    // the demo chain's branches. W-R owns both halves; this asserts the outcome, not the fix.
+    // Signing in again has to land in the chain that was switched to. The second chain has one
+    // branch, so the store picker is skipped and the register is what comes up next.
     await page.getByLabel('Email', { exact: true }).fill('owner@chuoi.vn');
     await page.getByLabel('Mật khẩu', { exact: true }).fill('BeePOS@2026');
     await page.getByRole('button', { name: 'Đăng nhập' }).click();
 
     const landed = await page
-      .getByText('Chọn cửa hàng')
+      .getByText(SECOND_ORG_BRANCH)
       .first()
-      .waitFor({ timeout: 8_000 })
+      .waitFor({ timeout: 15_000 })
       .then(() => true)
       .catch(() => false);
     test.skip(
       !landed,
-      'the second chain has no Store, Staff or UserAccount in the seed, so its sign-in refuses; ' +
-        'W-R owns seeding it and resolving login through OrgMembership',
+      'the sign-in did not reach the second chain: check that `chuoi-demo-2` is seeded with a ' +
+        'Store, Staff and UserAccount and that `session-store.login` resolves the staff record ' +
+        'through OrgMembership for the active chain',
     );
-    await expect(page.getByText(SECOND_ORG_STORE).first()).toBeVisible();
+
+    if (await page.getByText('Chọn quầy').first().isVisible().catch(() => false)) {
+      await page.getByText(SECOND_ORG_REGISTER, { exact: true }).first().click();
+    }
+    await page.waitForURL('**/pos');
+    // The till is standing in the other chain's shop, not in the demo chain's four branches.
+    await expect(page.getByText(SECOND_ORG_BRANCH).first()).toBeVisible();
+    await expect(page.getByText(DEMO_BRANCH)).toHaveCount(0);
 
     expect(errors, errors.join('\n')).toEqual([]);
   });
