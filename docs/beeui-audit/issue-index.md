@@ -173,3 +173,10 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 |---|---|---|---|
 | [#610](https://github.com/beobungbu/BeeUI/issues/610) | 22-01 | major | PasswordInput hardcoded English Show/Hide |
 | [#611](https://github.com/beobungbu/BeeUI/issues/611) | 22-02, 22-05, 22-06, 23-01, 23-03, 23-04 | minor | umbrella 8 |
+
+## Batch 19 (2026-09-13, chain ops)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#612](https://github.com/beobungbu/BeeUI/issues/612) | 24-01..24-03 | major | scrolling SelectContent swallows mouse presses |
+| [#611](https://github.com/beobungbu/BeeUI/issues/611) (comment) | 24-04..24-06 | minor | TableCell row layout, mono variant, Badge tone |
