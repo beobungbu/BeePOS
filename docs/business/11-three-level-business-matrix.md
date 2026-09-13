@@ -1,165 +1,195 @@
 # BeePOS — Three-Level Business Matrix
 
-Status: Business-documentation coverage map · 2026-09-13
+Status: SOP-level documentation coverage map · 2026-09-13
 
 ## 1. Purpose
 
-This matrix gives a single three-level view of the BeePOS business-research package.
+This matrix gives one three-level view of the BeePOS business-research package.
 
-The three business levels are:
+- **Level 1 — Business Domain:** major area the enterprise must operate.
+- **Level 2 — Process Family:** coherent group of business processes inside the domain.
+- **Level 3 — Operational Process / SOP:** detailed workflow with actors, evidence, states, exceptions, approvals, controls, KPIs, examples and open policy questions.
 
-- **Level 1 — Business Domain / Capability Domain:** a major area the enterprise must be able to operate.
-- **Level 2 — Process Family / Major Business Process:** a coherent group of end-to-end or management processes inside the domain.
-- **Level 3 — Operational Process / SOP-Level Activity:** the concrete business workflow that can be validated with real operators, forms, approvals, exceptions, controls and KPIs.
+This hierarchy is business-facing, not a software-module design.
 
-The matrix intentionally separates business hierarchy from software modules. A Level-3 process may span POS, ERP, WMS, accounting, spreadsheets, paper, external partners and human approval.
+## 2. Coverage and validation
 
-### Coverage legend
+### Documentation coverage
 
-- **SOP-level** — dedicated detailed process specification exists under `docs/business/processes/`.
-- **Baseline** — process is described in the process catalogue/E2E/business-rule documents but does not yet have a dedicated SOP-level file.
-- **Capability-only** — identified in the capability map but not yet decomposed deeply enough for operator validation.
+After the P17–P27 expansion, **every process family in this matrix has SOP-level documentation coverage**.
 
----
+**SOP-level** means a dedicated detailed process specification exists under `docs/business/processes/`, either directly for the process family or through a clearly identified SOP that owns the flow.
 
-## 2. Three-level matrix
+### Validation status
 
-| L1 Business Domain | L2 Process Family / Major Process | L3 Operational Processes Already Documented | Main existing documents | Coverage |
-|---|---|---|---|---|
-| **1. Strategy & Performance Management** | Corporate / chain planning | Define chain strategy; store-network priorities; annual/monthly operating plan; budget/expense targets | `01-business-capability-map.md`, `05-business-rules-controls-kpis.md` | Capability-only |
-|  | Performance management | Set sales/margin/availability/shrinkage targets; store benchmarking; exception/action review | `01-business-capability-map.md`, `05-business-rules-controls-kpis.md`, `08-process-control-kpi-traceability.md` | Baseline |
-| **2. Merchandise & Category Management** | Category management | Define category role/strategy; analyze category performance; determine breadth/depth; seasonal/category review | `02-process-catalogue.md`, `processes/P10-category-assortment-product-lifecycle.md` | SOP-level |
-|  | Assortment management | Plan assortment by store/cluster/channel; range/de-range SKU; launch new assortment; manage residual stock | `processes/P10-category-assortment-product-lifecycle.md` | SOP-level |
-|  | Product lifecycle / master | Product introduction; SKU/barcode/UOM maintenance; status/lifecycle; delisting | `02-process-catalogue.md`, `processes/P10-category-assortment-product-lifecycle.md`, `06-business-glossary.md` | SOP-level |
-| **3. Supplier & Procurement Management** | Supplier lifecycle | Identify/qualify/approve supplier; maintain commercial terms; suspend/reactivate; performance review | `processes/P09-supplier-to-settlement.md` | SOP-level |
-|  | Purchase planning | Review demand/stock need; source selection; MOQ/pack/lead-time review; purchase recommendation/approval | `02-process-catalogue.md`, `processes/P01-procure-to-receive.md` | SOP-level |
-|  | Purchase ordering | Create/approve/send PO; receive supplier confirmation; amend/cancel; monitor open PO | `processes/P01-procure-to-receive.md` | SOP-level |
-|  | Goods receiving | Identify PO/delivery; count; quality/expiry check; shortage/overage/damage/cost discrepancy; accept/reject | `processes/P01-procure-to-receive.md` | SOP-level |
-|  | Supplier settlement | Invoice matching; tolerance/discrepancy handling; supplier credit/claim; payment authorization | `processes/P09-supplier-to-settlement.md`, `processes/P16-finance-facing-retail-controls.md` | SOP-level |
-|  | Supplier return | Identify returnable stock; authorize; dispatch; supplier credit/settlement adjustment | `02-process-catalogue.md`, `P01`, `P09` | Baseline |
-| **4. Demand, Replenishment & Allocation** | Demand planning | Use sales/stock/seasonality/promotion signals; forecast; review/override forecast exceptions | `02-process-catalogue.md`, `processes/P03-replenish-to-shelf.md` | Baseline |
-|  | Replenishment policy | Define min/max/target stock; reorder point; safety stock; lead time; case-pack constraints | `processes/P03-replenish-to-shelf.md` | SOP-level |
-|  | Replenishment execution | Detect need; calculate recommended quantity; choose supplier/DC/store source; create PO/transfer; monitor fulfillment | `processes/P03-replenish-to-shelf.md` | SOP-level |
-|  | Allocation | Allocate scarce/new/promotion inventory across stores/channels; handle shortage priorities | `01-business-capability-map.md`, `02-process-catalogue.md`, `P03`, `P15` | Baseline |
-| **5. Inventory & Stock Control** | Inventory visibility | View on-hand/available/reserved/in-transit; identify low/zero/excess/aging/expiry risk | `processes/P02-inventory-to-availability.md` | SOP-level |
-|  | Store/DC transfer | Create/approve transfer; source pick; dispatch; in-transit accountability; destination receipt; discrepancy resolution | `processes/P02-inventory-to-availability.md`, `04-end-to-end-processes.md` | SOP-level |
-|  | Stock count | Plan count; blind/count/recount; variance investigation; approval; adjustment | `processes/P02-inventory-to-availability.md` | SOP-level |
-|  | Inventory adjustment / shrinkage | Damage; spoilage; loss; found stock; manual correction; material-variance escalation | `P02`, `P11-grocery-quality-expiry-waste.md` | SOP-level |
-|  | Lot / expiry / quality stock status | FEFO; short-dated; quarantine; waste; recall; quality disposition | `processes/P11-grocery-quality-expiry-waste.md` | SOP-level |
-|  | Inventory valuation inputs | Quantity/cost evidence; landed cost; stock valuation and COGS control points | `processes/P16-finance-facing-retail-controls.md` | SOP-level |
-| **6. Warehouse & Distribution Operations** | Inbound operations | Delivery scheduling; receiving; quality/quantity check; staging/putaway | `P01`, `P02`, `02-process-catalogue.md` | Baseline |
-|  | Storage / internal replenishment | Storage; replenishment to pick/shelf location; stock-status control | `P02`, `P03` | Baseline |
-|  | Outbound fulfillment | Pick; pack; dispatch; delivery handoff; discrepancy/failed-delivery handling | `P13-wholesale-order-to-cash.md`, `P14-distribution-route-to-settlement.md`, `P15-omnichannel-order-to-fulfillment.md` | SOP-level across channel flows |
-|  | Cross-dock / DC-specific flow | Cross-docking, wave/pick-face depth, warehouse slotting | `01-business-capability-map.md`, `02-process-catalogue.md` | Capability-only |
-| **7. Store Operations** | Store opening / closing | Operational readiness; register/till readiness; day-end closure | `01-business-capability-map.md`, `P06-shift-to-reconciliation.md` | Baseline |
-|  | Shelf operations | Store receiving; backroom-to-shelf; FEFO/FIFO; price-label/promo execution; shelf-gap resolution | `processes/P03-replenish-to-shelf.md`, `P11` | SOP-level |
-|  | Store inventory control | Local receiving; transfer; count; adjustment; damage/expiry handling | `P02`, `P03`, `P11` | SOP-level |
-|  | Store exception management | Price dispute; item-not-found; shortage; cash variance; failed promotion; suspicious refund | `P04`, `P05`, `P06`, `P07`, `P08` | SOP-level |
-| **8. Selling & Customer Service** | Store-to-Cash | Scan/select; basket; customer attach; pricing/promotion; discount approval; tender; receipt; finalize sale | `processes/P04-store-to-cash.md` | SOP-level |
-|  | Return / exchange / refund | Verify original sale; eligibility; condition; partial promotion return; refund; disposition; fraud control | `processes/P05-return-to-resolution.md` | SOP-level |
-|  | Customer service / recovery | Complaint handling, service recovery, special exception approval | `04-end-to-end-processes.md`, `P05`, `P12` | Baseline |
-| **9. Pricing & Promotion Management** | Regular pricing | Set regular/store/channel/customer-group price; effective date; approval; execution validation | `processes/P07-pricing-and-promotion-lifecycle.md` | SOP-level |
-|  | Markdown / emergency price | Markdown rationale; timing; approval; execution; margin/clearance outcome | `P07` | SOP-level |
-|  | Promotion lifecycle | Objective/budget; eligibility; mechanics; stacking/conflict; approval; publish; execution; evaluation | `P07` | SOP-level |
-|  | Promotion exception | Missing/incorrect promo; stock readiness; manual compensation/override policy | `P04`, `P07` | SOP-level |
-| **10. Customer & Loyalty Management** | Customer lifecycle | Enroll/profile/consent; segmentation; contact preference; service history | `processes/P12-customer-loyalty-lifecycle.md` | SOP-level |
-|  | Loyalty lifecycle | Earn; redeem; tier; expiry; return reversal; manual adjustment; abuse control | `P12` | SOP-level |
-|  | Customer analytics / targeted offer | Purchase history; segments; targeted promotions; loyalty effectiveness | `P12`, `05-business-rules-controls-kpis.md` | Baseline |
-| **11. Finance & Cash Control** | Shift / till control | Opening float; paid-in/out; safe drop; close count; expected vs actual; over/short approval | `processes/P06-shift-to-reconciliation.md` | SOP-level |
-|  | Tender reconciliation | Cash; card/electronic tender; settlement mismatch; unresolved reconciliation | `P06`, `P16` | SOP-level |
-|  | Supplier AP | PO/receipt/invoice evidence; three-way/tolerance matching; payable exception; payment | `P09`, `P16` | SOP-level |
-|  | B2B AR / credit | Credit limit; credit hold; invoice; collection; allocation; aging; overdue follow-up | `processes/P13-wholesale-order-to-cash.md`, `P16` | SOP-level |
-|  | Margin / COGS / stock value controls | Historical cost/COGS policy points; stock valuation; landed cost; reconciliation | `P16` | SOP-level baseline; retailer policy still open |
-| **12. Workforce & Access Management** | Employee / role operations | Employee onboarding; store assignment; role/authority assignment; cashier/manager responsibilities | `03-actors-and-responsibilities.md`, `01-business-capability-map.md` | Baseline |
-|  | Authority / segregation of duties | Buyer vs receiver; cashier vs variance approver; price/discount/refund authority; finance separation | `03-actors-and-responsibilities.md`, `05-business-rules-controls-kpis.md`, `08-process-control-kpi-traceability.md` | Baseline |
-|  | Scheduling / attendance | Shift scheduling, attendance integration, workforce planning | `01-business-capability-map.md` | Capability-only |
-| **13. Risk, Compliance & Audit** | Sales assurance / transaction audit | Missing/duplicate/erroneous/suspicious transactions; store-day exception queue; trusted-data release | `processes/P08-sales-to-assurance.md` | SOP-level |
-|  | Business controls | Price override; refund; stock adjustment; cash variance; credit release; supplier discrepancy | `05-business-rules-controls-kpis.md`, `08-process-control-kpi-traceability.md`, P01–P16 | Baseline cross-process |
-|  | Fiscal/tax compliance | Tax/invoice evidence and reconciliation requirements | `P04`, `P05`, `P16` | Baseline; Vietnam-specific compliance needs separate deep dive |
-|  | Business continuity | Offline/manual operating procedure, evidence preservation, recovery | `01-business-capability-map.md`, `07-business-policy-decision-register.md` | Capability-only |
-| **14. Data, Reporting & Master Data** | Master-data governance | Product; supplier; store/location; employee; customer; price/promotion; reason codes | `01-business-capability-map.md`, `06-business-glossary.md`, P09/P10/P12 | Baseline |
-|  | Operational reporting | Sales; inventory; supplier; cash; returns; route; fulfillment; exception reporting | `05-business-rules-controls-kpis.md`, P01–P16 | Baseline |
-|  | KPI governance | KPI definitions; control evidence; management questions; owner/accountability | `05-business-rules-controls-kpis.md`, `08-process-control-kpi-traceability.md` | Baseline |
-|  | Data-quality / exception governance | Missing/duplicate/suspicious sales; unmatched receipt/invoice; unexplained stock/cash differences | `P08`, `P09`, `P16` | SOP-level in selected flows |
-| **15. Wholesale & Distribution** | B2B customer / commercial setup | Account approval; contract/customer price; payment term; credit limit; territory/salesperson | `processes/P13-wholesale-order-to-cash.md` | SOP-level |
-|  | Wholesale Order-to-Cash | Order capture; credit check; allocation; pick/ship; POD; invoice; collection; return/credit note | `P13` | SOP-level |
-|  | Dealer / route distribution | Route planning; load; presales/van sales; delivery; collection; returns/empties; route settlement | `processes/P14-distribution-route-to-settlement.md` | SOP-level |
-|  | Trade terms / rebate / sell-in/sell-out | Volume rebate; dealer terms; sell-in/sell-out visibility; trade-promotion economics | `P13`, `P14`, `01-business-capability-map.md` | Baseline; deeper TPM/DMS research still open |
-| **16. Omnichannel & Fulfillment** | Order capture / orchestration | Digital order validation; availability promise; source selection; allocation/reservation | `processes/P15-omnichannel-order-to-fulfillment.md` | SOP-level |
-|  | Store / DC fulfillment | Store pick; ship-from-store; DC fulfillment; substitution; staging; carrier handoff | `P15` | SOP-level |
-|  | Click-and-collect | Ready-for-pickup; customer verification; pickup; expiry/no-show; restock/cancel | `P15` | SOP-level |
-|  | Delivery / failed fulfillment | Delivery; failed delivery; reattempt; return-to-source; refund/resolution | `P15` | SOP-level |
-|  | Cross-channel return | Verify original order; return policy; refund; disposition; channel reconciliation | `P15`, `P05` | SOP-level |
+Coverage must not be confused with real-enterprise approval.
+
+All current SOPs are still **Desk-Research SOPs** unless and until they are validated with a real retailer using interviews, observed work, forms/reports and exception cases.
+
+Target maturity remains:
+
+```text
+SOP-level desk-research
+        ↓
+Validated SOP
+        ↓
+Approved / Operational SOP
+```
 
 ---
 
-## 3. Cross-cutting documentation layer
+## 3. Three-level matrix — 100% SOP-level documentation coverage
 
-The following files do not represent one single business domain. They support all three levels above.
+| L1 Business Domain | L2 Process Family | L3 Operational Processes Covered | Dedicated SOP reference | Coverage | Validation |
+|---|---|---|---|---|---|
+| **1. Strategy & Performance Management** | Corporate / chain planning | Context review; strategic choices; store/network priorities; annual/monthly plan; budget/resource alignment | **P17 Strategy-to-Performance** | **SOP-level** | Desk-research |
+|  | Performance management | KPI/target cascade; store benchmarking; monthly/quarterly review; action governance; reforecast | **P17** | **SOP-level** | Desk-research |
+| **2. Merchandise & Category Management** | Category management | Category role/strategy; performance review; breadth/depth; seasonal/category decisions | **P10 Category/Assortment/Product Lifecycle** | **SOP-level** | Desk-research |
+|  | Assortment management | Store/cluster/channel ranging; new assortment; de-range; residual-stock exit | **P10** | **SOP-level** | Desk-research |
+|  | Product lifecycle / master | NPI; SKU/barcode/UOM maintenance; lifecycle/status; delist | **P10**, supported by **P26** | **SOP-level** | Desk-research |
+| **3. Supplier & Procurement Management** | Supplier lifecycle | Identify/qualify/approve; terms; suspension/reactivation; supplier-performance review | **P09 Supplier-to-Settlement** | **SOP-level** | Desk-research |
+|  | Purchase planning | Demand/stock need; source selection; MOQ/pack/lead-time review; purchase approval | **P01 Procure-to-Receive** | **SOP-level** | Desk-research |
+|  | Purchase ordering | Create/approve/send PO; confirmation; amendment/cancellation; open-PO monitoring | **P01** | **SOP-level** | Desk-research |
+|  | Goods receiving | Expected receipt; count; quality/expiry; shortage/overage/damage; accept/reject | **P01** | **SOP-level** | Desk-research |
+|  | Supplier settlement | Invoice matching; tolerance; claim/credit; payable/payment authorization | **P09**, **P16 Finance-Facing Retail Controls** | **SOP-level** | Desk-research |
+|  | Supplier return | Eligibility; authorization; pick/count; dispatch; supplier confirmation; credit/claim resolution | **P18 Supplier Return-to-Credit** | **SOP-level** | Desk-research |
+| **4. Demand, Replenishment & Allocation** | Demand planning | History preparation; baseline forecast; event/promo uplift; override; consensus; accuracy/bias review | **P19 Demand Planning and Allocation** | **SOP-level** | Desk-research |
+|  | Replenishment policy | Min/max/target; reorder point; safety stock; lead time; pack constraints | **P03 Replenish-to-Shelf** | **SOP-level** | Desk-research |
+|  | Replenishment execution | Detect need; calculate recommended quantity; select source; PO/transfer; monitor fulfillment | **P03** | **SOP-level** | Desk-research |
+|  | Allocation | Constrained supply; launch/promotion allocation; channel/store priority; reallocation/override | **P19** | **SOP-level** | Desk-research |
+| **5. Inventory & Stock Control** | Inventory visibility | On-hand/available/reserved/in-transit; low/zero/excess/aging/expiry visibility | **P02 Inventory-to-Availability** | **SOP-level** | Desk-research |
+|  | Store / DC transfer | Request; approve; pick; dispatch; in-transit; receive; discrepancy resolution | **P02** | **SOP-level** | Desk-research |
+|  | Stock count | Plan; blind/count/recount; variance investigation; approval; adjustment | **P02** | **SOP-level** | Desk-research |
+|  | Inventory adjustment / shrinkage | Damage; spoilage; loss; found stock; controlled correction; escalation | **P02**, **P11 Grocery Quality/Expiry/Waste** | **SOP-level** | Desk-research |
+|  | Lot / expiry / quality stock status | FEFO; short-dated; quarantine; waste; recall; quality disposition | **P11** | **SOP-level** | Desk-research |
+|  | Inventory valuation inputs | Quantity/cost evidence; landed cost; stock value/COGS controls | **P16** | **SOP-level** | Desk-research |
+| **6. Warehouse & Distribution Operations** | Inbound operations | Arrival; unloading; receiving; QC; discrepancy; acceptance/quarantine | **P20 Warehouse Inbound, Storage and Cross-Dock** | **SOP-level** | Desk-research |
+|  | Storage / internal replenishment | Putaway; location discipline; pick-face replenishment; status/expiry controls | **P20** | **SOP-level** | Desk-research |
+|  | Outbound fulfillment | Pick; pack; dispatch; delivery handoff; failed-delivery resolution | **P13**, **P14**, **P15** | **SOP-level** | Desk-research |
+|  | Cross-dock / DC-specific flow | Cross-dock eligibility; flow-through; fall-back to putaway; custody/evidence | **P20** | **SOP-level** | Desk-research |
+| **7. Store Operations** | Store opening / closing | Security/readiness; staffing; equipment; till; pre-open walk; close/handover/lock-up | **P21 Store Open-to-Close** | **SOP-level** | Desk-research |
+|  | Shelf operations | Store receiving; backroom-to-shelf; FEFO/FIFO; label/promo execution; shelf-gap resolution | **P03**, **P11** | **SOP-level** | Desk-research |
+|  | Store inventory control | Local receiving; transfer; count; adjustment; quality/expiry | **P02**, **P03**, **P11** | **SOP-level** | Desk-research |
+|  | Store exception management | Price dispute; item-not-found; shortage; cash variance; failed promotion; suspicious refund | **P04–P08**, **P21** | **SOP-level** | Desk-research |
+| **8. Selling & Customer Service** | Store-to-Cash | Basket; customer attach; pricing/promotion; override; tender; receipt; finalize sale | **P04 Store-to-Cash** | **SOP-level** | Desk-research |
+|  | Return / exchange / refund | Original sale; eligibility; condition; refund/exchange; disposition; fraud control | **P05 Return-to-Resolution** | **SOP-level** | Desk-research |
+|  | Customer service / recovery | Complaint intake; SLA; investigation; compensation; escalation; root-cause feedback | **P22 Customer Service-to-Recovery** | **SOP-level** | Desk-research |
+| **9. Pricing & Promotion Management** | Regular pricing | Base/store/channel/customer-group price; effective date; approval; execution validation | **P07 Pricing and Promotion Lifecycle** | **SOP-level** | Desk-research |
+|  | Markdown / emergency price | Rationale; approval; timing; execution; margin/clearance evaluation | **P07** | **SOP-level** | Desk-research |
+|  | Promotion lifecycle | Objective/budget; eligibility; mechanics; stacking; approval; publish; evaluate | **P07** | **SOP-level** | Desk-research |
+|  | Promotion exception | Missing/incorrect offer; stock readiness; compensation/override policy | **P07**, **P04** | **SOP-level** | Desk-research |
+| **10. Customer & Loyalty Management** | Customer lifecycle | Enroll/profile/consent; segmentation attributes; preference; service history | **P12 Customer & Loyalty Lifecycle** | **SOP-level** | Desk-research |
+|  | Loyalty lifecycle | Earn; redeem; tier; expiry; return reversal; adjustment; abuse control | **P12** | **SOP-level** | Desk-research |
+|  | Customer analytics / targeted offer | Segmentation; audience eligibility; suppression; targeting; response/incrementality review | **P23 Customer Analytics-to-Targeting** | **SOP-level** | Desk-research |
+| **11. Finance & Cash Control** | Shift / till control | Float; paid-in/out; safe drop; close count; expected vs actual; over/short | **P06 Shift-to-Reconciliation** | **SOP-level** | Desk-research |
+|  | Tender reconciliation | Cash/card/electronic tender settlement; mismatch; exception closure | **P06**, **P16** | **SOP-level** | Desk-research |
+|  | Supplier AP | PO/receipt/invoice evidence; tolerance matching; payable exception; payment | **P09**, **P16** | **SOP-level** | Desk-research |
+|  | B2B AR / credit | Credit limit/hold; invoice; collection; allocation; aging; overdue follow-up | **P13 Wholesale Order-to-Cash**, **P16** | **SOP-level** | Desk-research |
+|  | Margin / COGS / stock value controls | Historical cost/COGS policy; stock valuation; landed cost; reconciliation | **P16** | **SOP-level** | Desk-research; costing policy open |
+| **12. Workforce & Access Management** | Employee / role operations | Onboarding; store assignment; training/readiness; transfer; offboarding/access removal | **P24 Workforce Lifecycle, Authority and Scheduling** | **SOP-level** | Desk-research |
+|  | Authority / segregation of duties | Authority matrix; conflicting duties; compensating review; periodic access review | **P24** | **SOP-level** | Desk-research |
+|  | Scheduling / attendance | Workload/role demand; schedule; publish; absence/swap; actual vs plan; productivity review | **P24** | **SOP-level** | Desk-research |
+| **13. Risk, Compliance & Audit** | Sales assurance / transaction audit | Missing/duplicate/erroneous/suspicious transaction detection and trusted-data release | **P08 Sales-to-Assurance** | **SOP-level** | Desk-research |
+|  | Business controls | Risk/control catalogue; control evidence; exception/escalation; remediation | **P25 Risk, Compliance and Business Continuity**, supported by **P01–P27** | **SOP-level** | Desk-research |
+|  | Fiscal / tax compliance | Fiscal/e-invoice transaction treatment; failure/retry; adjustment; reconciliation; legal-change intake | **P25**, **P16** | **SOP-level** | Desk-research; legal/retailer validation required |
+|  | Business continuity | Incident classification; degraded/manual procedure; recovery; reconciliation; lessons | **P25** | **SOP-level** | Desk-research |
+| **14. Data, Reporting & Master Data** | Master-data governance | Request; validation; approval; effective change; sensitive-field control; lifecycle | **P26 Master Data, Reporting and KPI Governance** | **SOP-level** | Desk-research |
+|  | Operational reporting | Report purpose/owner/source/cutoff/reconciliation; distribution; exception handling | **P26** | **SOP-level** | Desk-research |
+|  | KPI governance | Formula/source/owner/target/version; publication; interpretation; retirement | **P26** | **SOP-level** | Desk-research |
+|  | Data-quality / exception governance | Detect; classify; contain; correct through business evidence; reconcile; root-cause | **P26**, **P08**, **P09**, **P16** | **SOP-level** | Desk-research |
+| **15. Wholesale & Distribution** | B2B customer / commercial setup | Account approval; price/terms; credit; territory; return/rebate agreement | **P13 Wholesale Order-to-Cash** | **SOP-level** | Desk-research |
+|  | Wholesale Order-to-Cash | Order; credit check; allocation; pick/ship; POD; invoice; AR; collection; return | **P13** | **SOP-level** | Desk-research |
+|  | Dealer / route distribution | Route plan/load; presales/van sales; delivery; collection; return/empties; settlement | **P14 Distribution / Route-to-Settlement** | **SOP-level** | Desk-research |
+|  | Trade terms / rebate / sell-in / sell-out | Dealer terms; trade-promotion budget; rebate; claims; sell-in/sell-out; performance review | **P27 Trade Promotion and Dealer Management** | **SOP-level** | Desk-research |
+| **16. Omnichannel & Fulfillment** | Order capture / orchestration | Digital validation; promise; source selection; allocation/reservation | **P15 Omnichannel Order-to-Fulfillment** | **SOP-level** | Desk-research |
+|  | Store / DC fulfillment | Pick; stage; substitution; ship-from-store/DC handoff | **P15** | **SOP-level** | Desk-research |
+|  | Click-and-collect | Ready; notify; verify customer; pickup; no-show/expiry; restock/cancel | **P15** | **SOP-level** | Desk-research |
+|  | Delivery / failed fulfillment | Deliver; failed delivery; reattempt; return-to-source; refund | **P15** | **SOP-level** | Desk-research |
+|  | Cross-channel return | Original-order verification; refund; disposition; channel reconciliation | **P15**, **P05** | **SOP-level** | Desk-research |
 
-| Document | Role in the three-level model |
+---
+
+## 4. Dedicated SOP catalogue
+
+The detailed process set is now **P01–P27**.
+
+### Original operational core P01–P16
+
+- P01 Procure-to-Receive
+- P02 Inventory-to-Availability
+- P03 Replenish-to-Shelf
+- P04 Store-to-Cash
+- P05 Return-to-Resolution
+- P06 Shift-to-Reconciliation
+- P07 Pricing and Promotion Lifecycle
+- P08 Sales-to-Assurance
+- P09 Supplier-to-Settlement
+- P10 Category / Assortment / Product Lifecycle
+- P11 Grocery Quality / Expiry / Waste
+- P12 Customer & Loyalty Lifecycle
+- P13 Wholesale Order-to-Cash
+- P14 Distribution / Route-to-Settlement
+- P15 Omnichannel Order-to-Fulfillment
+- P16 Finance-Facing Retail Controls
+
+### Coverage-completion SOPs P17–P27
+
+- **P17 Strategy-to-Performance**
+- **P18 Supplier Return-to-Credit**
+- **P19 Demand Planning and Allocation**
+- **P20 Warehouse Inbound, Storage and Cross-Dock**
+- **P21 Store Open-to-Close**
+- **P22 Customer Service-to-Recovery**
+- **P23 Customer Analytics-to-Targeting**
+- **P24 Workforce Lifecycle, Authority and Scheduling**
+- **P25 Risk, Compliance and Business Continuity**
+- **P26 Master Data, Reporting and KPI Governance**
+- **P27 Trade Promotion and Dealer Management**
+
+---
+
+## 5. Cross-cutting documentation layer
+
+| Document | Role |
 |---|---|
-| `README.md` | research scope, methodology, maturity and navigation |
-| `01-business-capability-map.md` | canonical Level-1 capability/domain view |
-| `02-process-catalogue.md` | Level-2 and Level-3 catalogue backbone |
-| `03-actors-and-responsibilities.md` | process owners, actors, RACI and segregation of duties |
-| `04-end-to-end-processes.md` | cross-domain E2E value streams and handoffs |
-| `05-business-rules-controls-kpis.md` | business rules, internal controls, exception logic and KPI tree |
-| `06-business-glossary.md` | common business vocabulary and document definitions |
-| `07-business-policy-decision-register.md` | retailer-specific policy choices not safe to assume from desk research |
-| `08-process-control-kpi-traceability.md` | process → risk → control → evidence → KPI traceability |
-| `09-professional-source-map.md` | professional evidence base and reference strength |
-| `10-real-retailer-validation-guide.md` | interview/observation/evidence pack for moving from reference model to validated current state |
+| `README.md` | research scope, maturity and navigation |
+| `01-business-capability-map.md` | Level-1 domain/capability model |
+| `02-process-catalogue.md` | process taxonomy backbone |
+| `03-actors-and-responsibilities.md` | actors/RACI/segregation of duties |
+| `04-end-to-end-processes.md` | cross-domain value streams |
+| `05-business-rules-controls-kpis.md` | rules/controls/KPI tree |
+| `06-business-glossary.md` | normalized business vocabulary |
+| `07-business-policy-decision-register.md` | retailer-specific policies still to validate |
+| `08-process-control-kpi-traceability.md` | process → risk → control → evidence → KPI |
+| `09-professional-source-map.md` | professional source/evidence map |
+| `10-real-retailer-validation-guide.md` | field validation/interview/evidence pack |
 
 ---
 
-## 4. Coverage summary by level
+## 6. Coverage summary
 
-### Level 1
+### Documentation coverage
 
-All **16 capability domains** currently exist in the capability map.
+- **16/16 Level-1 business domains:** covered.
+- **All Level-2 process families in this matrix:** **SOP-level**.
+- **27 dedicated SOP-level process specifications:** P01–P27.
+- **No Baseline or Capability-only label remains in the matrix.**
 
-### Level 2
+### Important maturity caveat
 
-Core retail domains are decomposed into major process families. The strongest Level-2 coverage currently exists in:
+This is **100% SOP-level documentation coverage**, not 100% validated operational truth.
 
-- merchandise/category/product;
-- supplier/procurement;
-- replenishment;
-- inventory;
-- store operations;
-- selling/returns;
-- pricing/promotion;
-- customer/loyalty;
-- cash/finance control;
-- wholesale;
-- route distribution;
-- omnichannel.
+The package remains a professional desk-research reference model until retailer-specific values and current-state practice are validated, including:
 
-The thinner Level-2 areas are:
+- authority thresholds;
+- tolerances;
+- return windows;
+- credit policies;
+- workforce rules;
+- tax/fiscal operating detail;
+- costing/valuation policy;
+- continuity rules;
+- trade/rebate mechanics;
+- master-data ownership.
 
-- corporate strategy/planning;
-- workforce scheduling/attendance;
-- warehouse/DC-specific depth;
-- business continuity;
-- dedicated master-data governance.
-
-### Level 3
-
-There are currently **16 dedicated SOP-level process specifications (P01–P16)**. They provide deepest coverage for operational flows that materially affect revenue, margin, stock, cash, customer service or financial control.
-
----
-
-## 5. Main gaps exposed by the matrix
-
-The matrix shows that the next business-research work should not simply create more POS flows. The main gaps are now concentrated in:
-
-1. **Strategy-to-Plan / performance-management operating cycle** — annual/monthly planning, budgeting, target cascade, review/action governance.
-2. **Warehouse/DC operations depth** — inbound appointment, putaway, slotting, wave/picking, packing, cross-dock, dispatch and warehouse productivity.
-3. **Workforce operations** — scheduling, attendance, labor planning, store labor productivity and role/certification requirements.
-4. **Vietnam-specific fiscal/compliance operations** — e-invoice/tax operational lifecycle and exception handling from a business/compliance perspective.
-5. **Master-data governance** — who creates/approves/changes critical product/supplier/customer/price/location data and how bad master data is detected/corrected.
-6. **Trade-promotion/distributor-management depth** — dealer hierarchy, territory, sell-in/sell-out, rebate claims, trade spend and distributor stock.
-7. **Enterprise planning / S&OP-style cycle** — demand, purchase, inventory and commercial plan alignment for a larger chain.
-
-These should be treated as business-research gaps, not software backlog items.
+Use `10-real-retailer-validation-guide.md` to progress each SOP to **Validated SOP**, then **Approved / Operational SOP**.
