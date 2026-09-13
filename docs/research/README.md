@@ -58,6 +58,7 @@ This is a logical domain split, not a microservice requirement. A modular monoli
 4. [`04-vietnam-compliance-and-platform.md`](./04-vietnam-compliance-and-platform.md) — e-invoice, offline, peripheral and integration requirements.
 5. [`05-roadmap.md`](./05-roadmap.md) — research-to-build sequence and priority gates.
 6. [`06-execution-backlog.md`](./06-execution-backlog.md) — Gate 0 dependency graph, implementation unblock matrix and backend-schema Definition of Ready.
+7. [`07-gate0-architecture-review.md`](./07-gate0-architecture-review.md) — cross-ADR consistency review and acceptance recommendation.
 
 ## Architecture decision set
 
@@ -73,7 +74,7 @@ This is a logical domain split, not a microservice requirement. A modular monoli
 - [`ADR-010`](../adr/ADR-010-vietnam-fiscal-provider.md) — Vietnam fiscal/e-invoice provider boundary.
 - [`ADR-011`](../adr/ADR-011-business-audit-events.md) — business audit events.
 
-All ADRs are currently **Proposed**, not silently treated as approved. Parent decision tracker: GitHub issue #2. Decision issues: #3–#12. Review checklist: #14.
+All ADRs are currently **Proposed**, not silently treated as approved. Parent decision tracker: GitHub issue #2. Decision issues: #3–#12. Cross-review found no structural contradiction and marks ADR-002..ADR-011 **Ready for Maintainer Acceptance**.
 
 ## Decision principles
 
