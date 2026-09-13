@@ -1,12 +1,15 @@
 import { PixelRatio, Pressable, View } from 'react-native';
-import { Text } from '@beemvp/beeui-ui';
+import { Badge, Text } from '@beemvp/beeui-ui';
 import { variantAndUnit } from '../../../domain/catalog';
 import { formatVND } from '../../../domain/money';
 import type { Product, StockLevel } from '../../../domain/types';
 import { useT } from '../../../i18n';
+import type { PriceSourceBadge as PriceSourceBadgeValue } from '../lib/wholesale';
 import { stockLabel } from '../lib/stock-label';
+import { PriceSourceBadge } from './price-source-badge';
 import { ProductImageSlot } from './product-image-slot';
 import { StockBadge } from './stock-badge';
+import { UnitSelector } from './unit-selector';
 
 /** Line height of the step the name uses, from the token table in the design direction. */
 const NAME_LINE_HEIGHT = { caption: 16, label: 20 } as const;
@@ -28,6 +31,18 @@ interface ProductCardProps {
   /** The 3 column grid under 400 pt: one type step down, so 2 lines of name still fit. */
   compact?: boolean;
   onAdd: () => void;
+  /** Wholesale only: the selling unit the tile is quoting, and how to change it. */
+  unit?: string;
+  onUnitChange?: (unit: string | undefined, factor: number) => void;
+  /** Where `price` came from; absent on a shelf price, which wears no label. */
+  priceBadge?: PriceSourceBadgeValue;
+  /** Non-blocking note that one unit is under the product's minimum wholesale quantity. */
+  minOrderText?: string;
+  /**
+   * FEFO: the branch holds a batch of this product that has expired or is about to. Lot
+   * tracking is opt in per product, so most tiles never carry one.
+   */
+  expiryWarning?: { text: string; expired: boolean };
 }
 
 /**
@@ -51,6 +66,11 @@ export function ProductCard({
   imageAspectRatio,
   compact = false,
   onAdd,
+  unit,
+  onUnitChange,
+  priceBadge,
+  minOrderText,
+  expiryWarning,
 }: ProductCardProps) {
   const t = useT();
   const onHand = stock?.onHand ?? 0;
@@ -70,20 +90,55 @@ export function ProductCard({
     formatVND(price),
     stockLabel(t, onHand, minLevel),
     !outOfStock && inCart > 0 ? `${t('pos.inCart')} ${inCart}` : undefined,
+    priceBadge?.label,
+    expiryWarning?.text,
   ]
     .filter(Boolean)
     .join(', ');
 
+  // The unit selector and the price-source label are siblings of the add control, never
+  // children of it: a pressable inside a pressable is the pitfall recorded in
+  // `docs/beeui-audit/findings-00-scaffold.md` (scaffold-05), and the segment presses would
+  // otherwise race the "add one unit" press that covers the whole tile.
+  const wholesaleFooter =
+    onUnitChange || priceBadge || minOrderText || expiryWarning ? (
+      <View className="gap-1">
+        {expiryWarning ? (
+          <View className="flex-row">
+            <Badge variant={expiryWarning.expired ? 'destructive' : 'warning'}>
+              {expiryWarning.text}
+            </Badge>
+          </View>
+        ) : null}
+        {onUnitChange ? (
+          <UnitSelector product={product} value={unit} onChange={onUnitChange} />
+        ) : null}
+        {priceBadge ? (
+          <View className="flex-row">
+            <PriceSourceBadge badge={priceBadge} />
+          </View>
+        ) : null}
+        {minOrderText ? (
+          <Text variant="caption" className="font-semibold text-warning" numberOfLines={1}>
+            {minOrderText}
+          </Text>
+        ) : null}
+      </View>
+    ) : null;
+
   return (
+    <View
+      className={`flex-1 rounded-md border border-border ${compact ? 'gap-1 p-2' : 'gap-1.5 p-2.5'} ${
+        outOfStock ? 'bg-surface-muted' : 'bg-surface'
+      }`}
+    >
     <Pressable
       onPress={onAdd}
       disabled={outOfStock}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: outOfStock }}
-      className={`flex-1 rounded-md border border-border ${compact ? 'gap-1 p-2' : 'gap-1.5 p-2.5'} ${
-        outOfStock ? 'bg-surface-muted' : 'bg-surface active:bg-muted'
-      }`}
+      className={`${compact ? 'gap-1' : 'gap-1.5'} ${outOfStock ? '' : 'active:bg-muted'}`}
     >
       <ProductImageSlot product={product} aspectRatio={imageAspectRatio} dimmed={outOfStock}>
         <StockBadge
@@ -119,5 +174,7 @@ export function ProductCard({
         {formatVND(price)}
       </Text>
     </Pressable>
+    {wholesaleFooter}
+    </View>
   );
 }

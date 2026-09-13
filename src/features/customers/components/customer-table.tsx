@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Avatar, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Text } from '@beemvp/beeui-ui';
-import type { Customer } from '../../../domain/types';
+import { Avatar, Badge, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Text } from '@beemvp/beeui-ui';
+import type { Customer, CustomerGroup } from '../../../domain/types';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
 import { useTableRowClass } from '../../../components/table-row-density';
@@ -16,10 +16,13 @@ import { initialsOf } from '../../../lib/initials';
  */
 export function CustomerTable({
   customers,
+  groups,
   lastOrderLabel,
   showLastOrder,
 }: {
   customers: Customer[];
+  /** Groups to name `Customer.groupId` with; a customer with none reads as unfiled. */
+  groups: CustomerGroup[];
   lastOrderLabel: (customerId: string) => string | null;
   /** Dropped at 768: six columns clip the date rather than fit, and a clipped column is banned. */
   showLastOrder: boolean;
@@ -34,6 +37,8 @@ export function CustomerTable({
         <TableRow>
           <TableHead label={t('customers.table.name')}>{t('customers.table.name')}</TableHead>
           <TableHead label={t('customers.table.phone')}>{t('customers.table.phone')}</TableHead>
+          <TableHead label={t('customers.business.type')}>{t('customers.business.type')}</TableHead>
+          <TableHead label={t('customers.business.group')}>{t('customers.business.group')}</TableHead>
           <TableHead label={t('customers.table.tier')}>{t('customers.table.tier')}</TableHead>
           <TableHead className="items-end text-right" label={t('customers.table.points')}>
             {t('customers.table.points')}
@@ -65,6 +70,21 @@ export function CustomerTable({
             <TableCell label={t('customers.table.phone')}>
               <Text variant="label" className="font-normal text-foreground" numeric="tabular">
                 {customer.phone}
+              </Text>
+            </TableCell>
+            <TableCell label={t('customers.business.type')}>
+              <View className="flex-row">
+                <Badge variant={customer.type === 'company' ? 'info' : 'outline'}>
+                  {customer.type === 'company'
+                    ? t('customers.business.typeCompany')
+                    : t('customers.business.typeRetail')}
+                </Badge>
+              </View>
+            </TableCell>
+            <TableCell label={t('customers.business.group')}>
+              <Text variant="label" className="font-normal text-foreground" numberOfLines={1}>
+                {groups.find((group) => group.id === customer.groupId)?.name ??
+                  t('customers.business.groupNone')}
               </Text>
             </TableCell>
             <TableCell label={t('customers.table.tier')}>

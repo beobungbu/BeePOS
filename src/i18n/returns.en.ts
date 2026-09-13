@@ -1,0 +1,78 @@
+import { registerDictionary } from './registry';
+
+export const returnsEn = {
+  title: 'Returns and exchanges',
+  entryTitle: 'Return / exchange',
+  subtitle: 'Pick the order, pick the lines and quantities, then net it against the exchange.',
+  search: {
+    label: 'Find order',
+    placeholder: 'Order code, e.g. HD20260913-0007',
+    action: 'Find order',
+    notFound: 'No order matches that code.',
+    selected: '{code} selected',
+    orderMeta: 'Original order {total} · {date}',
+    clear: 'Pick another order',
+  },
+  emptyTitle: 'No order picked yet',
+  emptyDescription: 'Enter an order code to start a return or an exchange.',
+  linesTitle: 'Goods coming back',
+  columns: {
+    product: 'Product',
+    purchased: 'Bought',
+    returnQty: 'Return',
+    reason: 'Reason',
+    disposition: 'Disposition',
+    amount: 'Line total',
+  },
+  disposition: {
+    restock: 'Back to stock',
+    damaged: 'Damaged',
+  },
+  reasonTitle: 'Return reason',
+  reason: {
+    nearExpiry: 'Near expiry',
+    damagedPack: 'Damaged packaging',
+    wrongItem: 'Wrong item',
+    changedMind: 'Changed their mind',
+    manufacturing: 'Manufacturing fault',
+    other: 'Other',
+  },
+  remaining: '{qty} still returnable',
+  notReturnable: 'Fully returned',
+  unselected: 'Not picked',
+  exchange: {
+    title: 'Exchange goods',
+    add: 'Add',
+    empty: 'No exchange lines yet.',
+    remove: 'Remove exchange line',
+    qty: 'Exchange quantity',
+  },
+  totals: {
+    returnValue: 'Value coming back',
+    exchangeValue: 'Value going out',
+    refund: 'Refund to customer',
+    extraPayment: 'Customer pays',
+    even: 'Nothing to settle',
+  },
+  note: {
+    restock: '{qty} units go back on the shelf.',
+    damaged: '{qty} units go to the write-off log and never back to stock.',
+    creditNote: 'A company customer who bought on account gets a credit note instead of cash.',
+  },
+  action: {
+    refund: 'Refund {value} in cash',
+    charge: 'Collect {value}',
+    creditNote: 'Issue a {value} credit note',
+    even: 'Complete the return',
+  },
+  confirmTitle: 'Complete this return?',
+  confirmDescription: 'Restocked lines go back into stock, damaged lines go to the write-off log. This cannot be undone.',
+  doneToast: 'Return recorded',
+  creditNoteToast: 'Credit note issued',
+  invalidToast: 'No line has been picked to return',
+  creditNoteUnavailable: 'No credit note was issued: the receivables ledger is not available.',
+  qtyLabel: 'Return quantity for {product}',
+  selectLine: 'Select {product}',
+};
+
+registerDictionary('en', 'returns', returnsEn);

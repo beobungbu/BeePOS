@@ -1,27 +1,50 @@
 import { useState } from 'react';
 import { Button, DatePicker, Field, Input, Text, Textarea, VStack, type CalendarDate } from '@beemvp/beeui-ui';
 import { isValidVnPhone } from '../../../domain/customers';
+import type { Customer, CustomerGroup, Staff } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import { calendarDateToIso, isoToCalendarDate } from '../lib/calendar-date';
+import {
+  businessDraftOf,
+  businessPatchOf,
+  CustomerBusinessFields,
+  type CustomerBusinessDraft,
+} from './customer-business-fields';
 
-export function CustomerInfoTab({
-  name: initialName,
-  phone: initialPhone,
-  birthday: initialBirthday,
-  note: initialNote,
-  onSave,
-}: {
+export interface CustomerInfoSave {
   name: string;
   phone: string;
   birthday: string | null;
   note: string;
-  onSave: (input: { name: string; phone: string; birthday: string | null; note: string }) => void;
+  billingAddress: string;
+  business: Partial<Customer>;
+}
+
+export function CustomerInfoTab({
+  customer,
+  birthday: initialBirthday,
+  note: initialNote,
+  billingAddress: initialBillingAddress,
+  groups,
+  reps,
+  onSave,
+}: {
+  customer: Customer;
+  birthday: string | null;
+  note: string;
+  billingAddress: string;
+  groups: CustomerGroup[];
+  reps: Staff[];
+  onSave: (input: CustomerInfoSave) => void;
 }) {
   const t = useT();
-  const [name, setName] = useState(initialName);
-  const [phone, setPhone] = useState(initialPhone);
+  const [name, setName] = useState(customer.name);
+  const [phone, setPhone] = useState(customer.phone);
   const [birthday, setBirthday] = useState<CalendarDate | null>(initialBirthday ? isoToCalendarDate(initialBirthday) : null);
   const [note, setNote] = useState(initialNote);
+  const [business, setBusiness] = useState<CustomerBusinessDraft>(() =>
+    businessDraftOf(customer, initialBillingAddress),
+  );
   const [saved, setSaved] = useState(false);
 
   const nameValid = name.trim().length > 0;
@@ -40,6 +63,9 @@ export function CustomerInfoTab({
       >
         <Input keyboardType="phone-pad" onChangeText={setPhone} value={phone} />
       </Field>
+
+      <CustomerBusinessFields value={business} onChange={setBusiness} groups={groups} reps={reps} />
+
       <Field label={t('customers.infoTab.birthday')}>
         <DatePicker
           clearable
@@ -57,7 +83,14 @@ export function CustomerInfoTab({
       <Button
         disabled={!nameValid || !phoneValid}
         onPress={() => {
-          onSave({ name: name.trim(), phone: phone.trim(), birthday: birthday ? calendarDateToIso(birthday) : null, note: note.trim() });
+          onSave({
+            name: name.trim(),
+            phone: phone.trim(),
+            birthday: birthday ? calendarDateToIso(birthday) : null,
+            note: note.trim(),
+            billingAddress: business.billingAddress.trim(),
+            business: businessPatchOf(business),
+          });
           setSaved(true);
         }}
       >

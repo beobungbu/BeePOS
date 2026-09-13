@@ -1,12 +1,9 @@
 import { Button, ButtonLabel, Field, HStack, Section, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@beemvp/beeui-ui';
 import { useT } from '../../../i18n';
 import { useSettingsStore } from '../../../data/settings-store';
-
-const MOCK_PRINTERS = [
-  { id: 'printer-1', name: 'Xprinter XP-80C (USB)' },
-  { id: 'printer-2', name: 'Epson TM-T82 (LAN)' },
-  { id: 'printer-3', name: 'HPRT TP806L (Bluetooth)' },
-];
+// One list for the chain default here and the per branch override on a store's page: a branch
+// naming a printer the chain list does not have would print to nothing.
+import { PRINTERS } from '../lib/printers';
 
 export function PrinterSection() {
   const t = useT();
@@ -31,7 +28,7 @@ export function PrinterSection() {
               <SelectValue placeholder={t('settings.printer.none')} />
             </SelectTrigger>
             <SelectContent>
-              {MOCK_PRINTERS.map((printer) => (
+              {PRINTERS.map((printer) => (
                 <SelectItem key={printer.id} value={printer.id}>
                   {printer.name}
                 </SelectItem>

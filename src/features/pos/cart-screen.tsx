@@ -6,6 +6,7 @@ import { useT } from '../../i18n';
 import { CartClearButton } from './components/cart-clear-button';
 import { CartPanel } from './components/cart-panel';
 import { PosSubHeader } from './components/pos-sub-header';
+import { useCartRepricing } from './hooks/use-wholesale-pricing';
 import { cartUnitCount } from './lib/cart-totals';
 import { cartLabel, countLabel } from './lib/order-label';
 
@@ -19,6 +20,9 @@ export default function CartScreen() {
   const cart = useActiveCart();
   const products = useCatalogStore((state) => state.products);
   const activeProducts = useMemo(() => products.filter((product) => product.isActive), [products]);
+  // The sell screen is not mounted behind this route on the phone, so the order is re-priced
+  // here too: a quantity changed on this screen may cross a tier.
+  useCartRepricing(cart);
 
   return (
     <View className="flex-1">

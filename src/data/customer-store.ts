@@ -12,6 +12,13 @@ const seedRefunds = buildSeedRefunds(seedOrders);
 export interface CustomerProfileExtra {
   birthday?: string;
   note?: string;
+  /**
+   * Where the VAT invoice is addressed, when that differs from where the goods go. In
+   * practice the two differ often enough that one field would be wrong on half the invoices;
+   * `Customer` itself carries only `deliveryAddress`, so the billing one lives here until the
+   * type contract grows a `billingAddress`.
+   */
+  billingAddress?: string;
 }
 
 interface CustomerState {

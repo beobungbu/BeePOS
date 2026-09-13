@@ -18,6 +18,12 @@ interface OrderTotalsPanelProps {
    * and the change block all fit above the fold, as the mockup's phone frame does.
    */
   collapsible?: boolean;
+  /**
+   * Wholesale relabels the breakdown: `Tạm tính chưa VAT` and `VAT` on their own lines,
+   * because a VAT invoice has to show the tax separately, where a retail bill keeps it inside
+   * the price (`docs/design/specs/commerce.md` section A).
+   */
+  wholesale?: boolean;
 }
 
 /**
@@ -27,9 +33,16 @@ interface OrderTotalsPanelProps {
  * accessibility text sizes the amount used to be the side that gave way, and the row read
  * "TỔNG CỘNG 13.200" with the currency suffix cut off. The row wraps before that happens.
  */
-export function OrderTotalsPanel({ totals, bordered = true, collapsible = false }: OrderTotalsPanelProps) {
+export function OrderTotalsPanel({
+  totals,
+  bordered = true,
+  collapsible = false,
+  wholesale = false,
+}: OrderTotalsPanelProps) {
   const t = useT();
   const [expanded, setExpanded] = useState(!collapsible);
+  const subtotalLabel = wholesale ? t('pos.wholesale.vat.subtotal') : t('pos.cart.subtotal');
+  const taxLabel = wholesale ? t('pos.wholesale.vat.tax') : t('pos.cart.taxIncluded');
 
   return (
     <View className={`gap-2 ${bordered ? 'rounded-lg border border-border bg-surface p-4' : ''}`}>
@@ -54,7 +67,7 @@ export function OrderTotalsPanel({ totals, bordered = true, collapsible = false 
       {expanded ? (
         <>
           <View className={ROW_CLASS}>
-            <Text variant="label" className="min-w-0 shrink font-normal text-muted-foreground">{t('pos.cart.subtotal')}</Text>
+            <Text variant="label" className="min-w-0 shrink font-normal text-muted-foreground">{subtotalLabel}</Text>
             <Text variant="label" className="shrink-0 font-normal tabular-nums text-foreground">{formatVND(totals.subtotal)}</Text>
           </View>
           <View className={ROW_CLASS}>
@@ -69,8 +82,16 @@ export function OrderTotalsPanel({ totals, bordered = true, collapsible = false 
             </Text>
           </View>
           <View className={ROW_CLASS}>
-            <Text variant="caption" className="min-w-0 shrink text-subtle-foreground">{t('pos.cart.taxIncluded')}</Text>
-            <Text variant="caption" className="shrink-0 tabular-nums text-subtle-foreground">
+            <Text
+              variant={wholesale ? 'label' : 'caption'}
+              className={`min-w-0 shrink ${wholesale ? 'font-normal text-muted-foreground' : 'text-subtle-foreground'}`}
+            >
+              {taxLabel}
+            </Text>
+            <Text
+              variant={wholesale ? 'label' : 'caption'}
+              className={`shrink-0 tabular-nums ${wholesale ? 'font-normal text-foreground' : 'text-subtle-foreground'}`}
+            >
               {formatVND(totals.taxTotal)}
             </Text>
           </View>

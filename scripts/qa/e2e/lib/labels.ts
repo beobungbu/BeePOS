@@ -38,3 +38,58 @@ export const L = {
   },
 } as const;
 export type Locale = keyof typeof L;
+
+/**
+ * Commerce (phase 7) sales and pricing labels, Vietnamese only: `commerce-sales.spec.ts`
+ * runs in the default locale, as every feature spec after the journey does. Kept in its own
+ * block so the journey's per-locale dictionary above stays a pair of mirrored objects.
+ */
+export const C = {
+  // POS wholesale
+  wholesale: 'Bán sỉ',
+  wholesaleBadge: 'Sỉ',
+  attachCustomer: 'Gắn khách hàng',
+  changeCustomer: 'Đổi khách hàng',
+  customerSearch: 'Tìm theo tên hoặc số điện thoại',
+  saveQuote: 'Lưu báo giá',
+  checkout: 'Thanh toán',
+  onAccount: 'Ghi nợ',
+  creditLeft: 'Còn được nợ sau đơn này',
+  vatInvoice: 'Hoá đơn VAT',
+  groupPrice: 'Giá sỉ nhóm',
+  contractPrice: 'Giá riêng',
+  // Customers
+  customerTypeCompany: 'Công ty',
+  debtTab: 'Công nợ',
+  debtBalance: 'Đang nợ',
+  pricingLink: 'Giá bán',
+  // Pricing
+  pricingTitle: 'Giá bán',
+  tabPriceLists: 'Bảng giá',
+  tabGroups: 'Nhóm khách',
+  addRule: 'Thêm quy tắc',
+  ruleSearch: 'Tìm sản phẩm trong bảng giá',
+  minQty: 'SL tối thiểu',
+  unitPrice: 'Đơn giá',
+  vsBase: 'So với giá gốc',
+  save: 'Lưu',
+  precedence: 'Thứ tự ưu tiên',
+  listAgentA: 'Bảng giá Đại lý A',
+  // Order lifecycle
+  advanceTo: 'Chuyển sang',
+  statusConfirmed: 'Đã xác nhận',
+  statusDelivering: 'Đang giao',
+  statusCompleted: 'Đã giao',
+  createDeliveryNote: 'Tạo phiếu giao hàng',
+  markDelivered: 'Xác nhận đã giao',
+  deliveryNotes: 'Phiếu giao hàng',
+  cancelOrder: 'Huỷ đơn',
+  printVatInvoice: 'In hoá đơn VAT',
+} as const;
+
+/** Seed rows the commerce spec acts on, from `src/data/seed`. */
+export const MINH_LONG = 'Cty TNHH Thương mại Minh Long';
+export const MINH_LONG_ID = 'customer-41';
+/** Two SKUs on the Đại lý A price list: the first also carries selling units. */
+export const WHOLESALE_PRODUCT_UNITS = 'Nước ngọt Coca-Cola 330ml';
+export const WHOLESALE_PRODUCT_GROUP = 'Nước ngọt Coca-Cola 500ml';

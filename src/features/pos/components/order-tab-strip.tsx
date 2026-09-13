@@ -8,6 +8,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogTitle,
+  Badge,
   Button,
   ButtonLabel,
   Dialog,
@@ -23,7 +24,8 @@ import {
 import { AppIcon } from '../../../components/icons';
 import { formatVND } from '../../../domain/money';
 import { MAX_OPEN_CARTS } from '../../../domain/pos';
-import type { Cart, Product } from '../../../domain/types';
+import type { Product } from '../../../domain/types';
+import type { PosCart } from '../../../data/cart-store';
 import { useT } from '../../../i18n';
 import { isOverlayOpen } from '../../../lib/keyboard';
 import { useCartStore } from '../../../data/cart-store';
@@ -84,7 +86,7 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
   }
 
   /** An empty order closes on the spot; one with lines has to be confirmed by name. */
-  function requestClose(cart: Cart) {
+  function requestClose(cart: PosCart) {
     if (cart.lines.length === 0) {
       closeCart(cart.id);
       return;
@@ -93,7 +95,7 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
   }
 
   /** Opens the naming dialog on the order the gesture landed on, seeded with its name. */
-  function requestRename(cart: Cart) {
+  function requestRename(cart: PosCart) {
     setRenameDraft(cart.label ?? '');
     setRenameId(cart.id);
   }
@@ -317,7 +319,7 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
 }
 
 interface OrderTabProps {
-  cart: Cart;
+  cart: PosCart;
   products: Product[];
   active: boolean;
   onSwitch: () => void;
@@ -375,6 +377,9 @@ function OrderTab({ cart, products, active, onSwitch, onClose, onRename, onMeasu
         >
           {label}
         </Text>
+        {/* A cashier flipping between a retail order and a wholesale one needs to see which
+            is which before touching a tile, so the badge rides on the tab. */}
+        {cart.wholesale ? <Badge variant="warning">{t('pos.wholesale.badge')}</Badge> : null}
         {lineCount === 0 ? (
           <Text variant="caption" className="text-subtle-foreground">{t('pos.order.empty')}</Text>
         ) : (

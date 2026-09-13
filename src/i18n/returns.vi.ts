@@ -1,0 +1,78 @@
+import { registerDictionary } from './registry';
+
+export const returnsVi = {
+  title: 'Trả và đổi hàng',
+  entryTitle: 'Trả / đổi hàng',
+  subtitle: 'Chọn đơn, chọn dòng và số lượng, rồi bù trừ với hàng đổi.',
+  search: {
+    label: 'Tìm đơn hàng',
+    placeholder: 'Mã đơn, ví dụ HD20260913-0007',
+    action: 'Tìm đơn',
+    notFound: 'Không tìm thấy đơn hàng nào khớp mã này.',
+    selected: 'Đã chọn {code}',
+    orderMeta: 'Đơn gốc {total} · {date}',
+    clear: 'Chọn đơn khác',
+  },
+  emptyTitle: 'Chưa chọn đơn hàng',
+  emptyDescription: 'Nhập mã đơn để bắt đầu phiếu trả hoặc đổi hàng.',
+  linesTitle: 'Chọn hàng trả lại',
+  columns: {
+    product: 'Sản phẩm',
+    purchased: 'Đã mua',
+    returnQty: 'Trả',
+    reason: 'Lý do',
+    disposition: 'Xử lý',
+    amount: 'Thành tiền',
+  },
+  disposition: {
+    restock: 'Nhập lại kho',
+    damaged: 'Hàng hỏng',
+  },
+  reasonTitle: 'Lý do trả',
+  reason: {
+    nearExpiry: 'Hàng cận date',
+    damagedPack: 'Bao bì rách',
+    wrongItem: 'Sai hàng',
+    changedMind: 'Khách đổi ý',
+    manufacturing: 'Lỗi nhà sản xuất',
+    other: 'Khác',
+  },
+  remaining: 'Còn trả được {qty}',
+  notReturnable: 'Đã trả hết',
+  unselected: 'Chưa chọn',
+  exchange: {
+    title: 'Hàng đổi',
+    add: 'Thêm',
+    empty: 'Chưa có hàng đổi.',
+    remove: 'Xoá dòng đổi',
+    qty: 'Số lượng đổi',
+  },
+  totals: {
+    returnValue: 'Giá trị hàng trả',
+    exchangeValue: 'Giá trị hàng đổi',
+    refund: 'Hoàn lại khách',
+    extraPayment: 'Khách trả thêm',
+    even: 'Không chênh lệch',
+  },
+  note: {
+    restock: '{qty} đơn vị nhập lại kho.',
+    damaged: '{qty} đơn vị vào sổ hàng hỏng, không cộng lại tồn kho.',
+    creditNote: 'Khách công ty mua ghi nợ sẽ nhận phiếu giảm trừ công nợ thay vì tiền mặt.',
+  },
+  action: {
+    refund: 'Hoàn {value} tiền mặt',
+    charge: 'Thu thêm {value}',
+    creditNote: 'Phát hành phiếu giảm trừ {value}',
+    even: 'Hoàn tất trả hàng',
+  },
+  confirmTitle: 'Hoàn tất phiếu trả hàng?',
+  confirmDescription: 'Hàng nhập lại kho cộng vào tồn, hàng hỏng vào sổ hàng hỏng. Không thể hoàn tác.',
+  doneToast: 'Đã ghi nhận phiếu trả hàng',
+  creditNoteToast: 'Đã phát hành phiếu giảm trừ công nợ',
+  invalidToast: 'Chưa chọn dòng hàng nào để trả',
+  creditNoteUnavailable: 'Chưa phát hành được phiếu giảm trừ: sổ công nợ chưa sẵn sàng.',
+  qtyLabel: 'Số lượng trả {product}',
+  selectLine: 'Chọn dòng {product}',
+};
+
+registerDictionary('vi', 'returns', returnsVi);

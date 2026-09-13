@@ -3,7 +3,7 @@ import { Pressable } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { useT } from '../../i18n';
 import { useLargeText } from '../../hooks/use-large-text';
-import { AppIcon, type AppIconName } from '../icons';
+import { ShellIcon, type ShellIconName } from './shell-icons';
 import { useVisibleNavItems } from './nav-items';
 
 /** Bottom tab bar for phones (< 768): 4 primary areas plus a "Thêm" menu trigger. */
@@ -18,7 +18,7 @@ export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
   const primary = items.filter((item) => item.primaryOnMobile);
   const secondary = items.filter((item) => !item.primaryOnMobile);
 
-  const tabs: { key: string; label: string; icon: AppIconName; active: boolean; onPress: () => void }[] = [
+  const tabs: { key: string; label: string; icon: ShellIconName; active: boolean; onPress: () => void }[] = [
     ...primary.map((item) => ({
       key: item.id,
       label: t(item.labelKey),
@@ -29,7 +29,7 @@ export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
     {
       key: 'more',
       label: t('common.nav.more'),
-      icon: 'ellipsis' as AppIconName,
+      icon: 'ellipsis' as ShellIconName,
       active: secondary.some((item) => pathname.startsWith(item.href)),
       onPress: onMorePress,
     },
@@ -46,7 +46,7 @@ export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
           onPress={tab.onPress}
           className="min-h-touch-target min-w-0 flex-1 items-center justify-center gap-1 px-1 py-2"
         >
-          <AppIcon name={tab.icon} size={24} tone={tab.active ? 'primary-pressed' : 'muted-foreground'} />
+          <ShellIcon name={tab.icon} size={24} tone={tab.active ? 'primary-pressed' : 'muted-foreground'} />
           {iconOnly ? null : (
             <Text
               numberOfLines={1}

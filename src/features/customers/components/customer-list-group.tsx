@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { Avatar, ListGroup, ListItem, Text } from '@beemvp/beeui-ui';
+import { Avatar, Badge, ListGroup, ListItem, Text } from '@beemvp/beeui-ui';
 import type { Customer } from '../../../domain/types';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
@@ -39,6 +39,9 @@ export function CustomerListGroup({
                   {meta}
                 </Text>
                 <View className="flex-row items-center gap-2">
+                  {customer.type === 'company' ? (
+                    <Badge variant="info">{t('customers.business.typeCompany')}</Badge>
+                  ) : null}
                   <TierBadge tier={customer.tier} />
                   <Text variant="caption" className="min-w-0 shrink text-muted-foreground" numberOfLines={1}>
                     {orderLine}

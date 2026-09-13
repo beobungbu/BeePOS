@@ -2,9 +2,18 @@ import { useMemo } from 'react';
 import { FlatList, View } from 'react-native';
 import { EmptyState } from '@beemvp/beeui-ui';
 import { effectivePrice } from '../../../domain/catalog';
+import { expiringLotsFor, gradeLot } from '../../inventory/lib/lots';
 import type { CartLine, Product, StockLevel } from '../../../domain/types';
 import { useT } from '../../../i18n';
+import type { PriceSourceBadge } from '../lib/wholesale';
 import { ProductCard } from './product-card';
+
+/** What a tile quotes when the order is on the wholesale switch. */
+export interface TileQuote {
+  price: number;
+  badge?: PriceSourceBadge;
+  minOrderText?: string;
+}
 
 interface ProductGridProps {
   products: Product[];
@@ -21,6 +30,15 @@ interface ProductGridProps {
   storePrices: ReadonlyMap<string, number>;
   lines: CartLine[];
   onAddProduct: (product: Product) => void;
+  /**
+   * Wholesale only. Absent, every tile prices through `effectivePrice` exactly as it always
+   * has: the precedence engine walks rule arrays per tile, which is a cost a retail grid of a
+   * thousand products should not pay for a feature it is not using.
+   */
+  quoteFor?: (product: Product, unit: string | undefined) => TileQuote;
+  /** The selling unit each tile is quoting, keyed by product. Absent means the base unit. */
+  unitByProduct?: ReadonlyMap<string, string>;
+  onUnitChange?: (product: Product, unit: string | undefined, factor: number) => void;
 }
 
 export function ProductGrid({
@@ -35,6 +53,9 @@ export function ProductGrid({
   storePrices,
   lines,
   onAddProduct,
+  quoteFor,
+  unitByProduct,
+  onUnitChange,
 }: ProductGridProps) {
   const t = useT();
 
@@ -86,18 +107,41 @@ export function ProductGrid({
       renderItem={({ item }) => {
         const stock = stockByProductId.get(item.id);
         const inCart = qtyByProductId.get(item.id) ?? 0;
+        const unit = unitByProduct?.get(item.id);
+        const quote = quoteFor?.(item, unit);
+        // Only the SKUs that opted into lots are asked: `expiringLotsFor` reads the lot store
+        // itself, and a grid of a thousand tiles must not pay for a feature ten of them use.
+        const lots = item.trackLots ? expiringLotsFor(item.id, storeId) : [];
+        const expiryWarning =
+          lots.length > 0
+            ? {
+                text: lots.some((lot) => gradeLot(lot) === 'expired')
+                  ? t('pos.expiry.expired')
+                  : t('pos.expiry.soon'),
+                expired: lots.some((lot) => gradeLot(lot) === 'expired'),
+              }
+            : undefined;
         return (
           // `flex: 1 / columns`, not `flex-1`: a last row (or a filtered result) holding one
           // item would otherwise stretch that tile across the full grid width.
           <View style={{ flex: 1 / columns }}>
             <ProductCard
               product={item}
-              price={effectivePrice(item, storeId, storePrices)}
+              price={quote ? quote.price : effectivePrice(item, storeId, storePrices)}
               stock={stock}
               inCart={inCart}
               imageAspectRatio={imageAspectRatio}
               compact={compactTiles}
               onAdd={() => onAddProduct(item)}
+              unit={unit}
+              onUnitChange={
+                onUnitChange
+                  ? (nextUnit, factor) => onUnitChange(item, nextUnit, factor)
+                  : undefined
+              }
+              priceBadge={quote?.badge}
+              minOrderText={quote?.minOrderText}
+              expiryWarning={expiryWarning}
             />
           </View>
         );

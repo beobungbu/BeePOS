@@ -29,6 +29,8 @@ interface OrderState {
   setOrderStatus: (orderId: string, status: OrderStatus) => void;
   upsertDeliveryNote: (note: DeliveryNote) => void;
   markDelivered: (deliveryNoteId: string, at?: Date) => void;
+  /** Per-order free text: the cancellation reason, and whatever the till left on the order. */
+  setOrderNote: (orderId: string, note: string) => void;
   setCart: (cart: Cart | null) => void;
   addShift: (shift: Shift) => void;
   updateShift: (shift: Shift) => void;
@@ -73,6 +75,9 @@ export const useOrderStore = create<OrderState>((set) => ({
         note.id === deliveryNoteId ? { ...note, status: 'delivered', deliveredAt: at } : note,
       ),
     })),
+
+  setOrderNote: (orderId, note) =>
+    set((state) => ({ notes: { ...state.notes, [orderId]: note } })),
 
   setCart: (cart) => set({ cart }),
 

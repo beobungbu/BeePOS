@@ -4,6 +4,7 @@ import type { CartLine, Product } from '../../../domain/types';
 import { formatVND } from '../../../domain/money';
 import { lineNetAmount } from '../../../domain/orders';
 import { ProductThumb } from '../../../components/product-thumb';
+import { unitConversionText } from '../../pos/lib/wholesale';
 
 /**
  * The order's items as cart-line rows (`docs/design/design-direction.md` section 5): the 40 pt
@@ -29,7 +30,13 @@ export function OrderLinesList({ lines, products }: { lines: CartLine[]; product
                 {name}
               </Text>
               <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
-                {product?.unit ? `${product.unit} x${line.qty}` : `x${line.qty}`}
+                {/* A line sold by the case says so in full, as the cart line did: "6 thùng x
+                    12 chai = 72 chai". A retail line keeps the shape it always had. */}
+                {line.unit
+                  ? unitConversionText(product, line)
+                  : product?.unit
+                    ? `${product.unit} x${line.qty}`
+                    : `x${line.qty}`}
               </Text>
             </View>
             <Text variant="label" className="font-bold text-foreground" numeric="tabular">

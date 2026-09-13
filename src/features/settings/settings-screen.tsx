@@ -9,6 +9,7 @@ import { LanguageSection } from './components/language-section';
 import { DefaultStoreSection } from './components/default-store-section';
 import { ReceiptSection } from './components/receipt-section';
 import { TaxSection } from './components/tax-section';
+import { LoyaltySection } from './components/loyalty-section';
 import { PaymentSection } from './components/payment-section';
 import { PrinterSection } from './components/printer-section';
 import { SecuritySection } from './components/security-section';
@@ -48,6 +49,7 @@ export function SettingsScreen() {
             <DefaultStoreSection />
             <ReceiptSection />
             <TaxSection />
+            <LoyaltySection />
             <PaymentSection />
             <PrinterSection />
             <SecuritySection />

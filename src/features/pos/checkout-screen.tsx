@@ -15,7 +15,8 @@ import {
 } from '@beemvp/beeui-ui';
 import { AppIcon } from '../../components/icons';
 import { useScreenHeader } from '../../components/shell/screen-header';
-import { nextOrderCode, pointsEarned, toOrderLines } from '../../domain/pos';
+import { pointsEarned } from '../../domain/pos';
+import { creditCheck, dueDateFor } from '../../domain/ledger';
 import { formatVND, roundVND, sum } from '../../domain/money';
 import type { Order, Payment, PaymentMethod } from '../../domain/types';
 import { useT } from '../../i18n';
@@ -25,18 +26,28 @@ import { useLargeText } from '../../hooks/use-large-text';
 import { useActiveCart, useCartStore } from '../../data/cart-store';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useCustomerStore } from '../../data/customer-store';
+import { useLedgerStore } from '../../data/ledger-store';
 import { useOrderStore } from '../../data/order-store';
 import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift } from '../../data/shift-store';
-import { submitOrder } from './adapters';
+import { recordOnAccountInvoice, submitOrder } from './adapters';
+import { OnAccountPanel } from './components/on-account-panel';
 import { OrderTotalsPanel } from './components/order-totals-panel';
-import { PaymentMethodCards } from './components/payment-method-cards';
+import {
+  ON_ACCOUNT,
+  PaymentMethodCards,
+  type PaymentChoice,
+} from './components/payment-method-cards';
 import { PaymentMethodPanel } from './components/payment-method-panel';
 import { SplitPaymentList } from './components/split-payment-list';
+import { VatInvoiceBlock } from './components/vat-invoice-block';
 import { usePosLayout } from './hooks/use-pos-layout';
+import { useCartRepricing } from './hooks/use-wholesale-pricing';
+import { buildOrder, vatInvoiceFor } from './lib/build-order';
 import { cartLineCount, cartTotalsOf, cartUnitCount } from './lib/cart-totals';
 import { cartLabel, countLabel, openOrdersLabel } from './lib/order-label';
 import { draftPayment } from './lib/payment-draft';
+import { unitConversionText } from './lib/wholesale';
 import { currentOrgId } from '../../data/org-store';
 import { currentCost } from '../../data/costing-store';
 
@@ -56,8 +67,10 @@ export default function CheckoutScreen() {
   const products = useCatalogStore((state) => state.products);
   const customers = useCustomerStore((state) => state.customers);
   const orders = useOrderStore((state) => state.orders);
+  const setVatInvoice = useCartStore((state) => state.setVatInvoice);
+  const ledgerEntries = useLedgerStore((state) => state.entries);
 
-  const [method, setMethod] = useState<PaymentMethod>('cash');
+  const [choice, setChoice] = useState<PaymentChoice>('cash');
   const [payments, setPayments] = useState<Payment[]>([]);
   const [amountText, setAmountText] = useState('');
   const [refText, setRefText] = useState('');
@@ -67,6 +80,21 @@ export default function CheckoutScreen() {
   const totals = cartTotalsOf(cart, products);
   const paidSoFar = sum(payments.map((payment) => payment.amount));
   const remaining = Math.max(0, roundVND(totals.total - paidSoFar));
+
+  // A tier crossed on the way to this screen has to be priced before anything is tendered.
+  useCartRepricing(cart);
+
+  const wholesale = cart.wholesale === true;
+  const isCompany = customer?.type === 'company';
+  const vatInvoice = cart.vatInvoice ?? vatInvoiceFor(customer);
+  const credit = customer
+    ? creditCheck(customer, ledgerEntries, totals.total)
+    : { allowed: false, balance: 0, limit: 0, available: 0, projected: totals.total };
+  // No limit means no credit: a shop that has not agreed one with a buyer is not extending it.
+  const accountAllowed = wholesale && isCompany && credit.limit > 0;
+  const onAccount = choice === ON_ACCOUNT;
+  const dueDate = dueDateFor(new Date(), customer?.paymentTermDays);
+  const method: PaymentMethod = onAccount ? 'cash' : choice;
 
   const draft = draftPayment({
     method,
@@ -100,45 +128,46 @@ export default function CheckoutScreen() {
     badge: cartLabel(t, cart),
     backTo: '/pos',
   });
-  const canFinish = remaining === 0 || (draft.payment !== undefined && draft.settlesBalance);
-  const canAct = canFinish || draft.payment !== undefined;
+  const canFinish = onAccount
+    ? credit.allowed && payments.length === 0
+    : remaining === 0 || (draft.payment !== undefined && draft.settlesBalance);
+  const canAct = canFinish || (!onAccount && draft.payment !== undefined);
 
   /** Switching method clears the fields of the previous one instead of carrying them over. */
-  function chooseMethod(next: PaymentMethod) {
-    setMethod(next);
+  function chooseMethod(next: PaymentChoice) {
+    setChoice(next);
     setAmountText('');
     setRefText('');
     setPointsText('');
   }
 
   function completeOrder(finalPayments: Payment[]) {
-    if (!store || !staff || finalPayments.length === 0) return;
+    if (!store || !staff) return;
+    if (finalPayments.length === 0 && !onAccount) return;
 
     const existingCodes = orders.filter((order) => order.storeId === store.id).map((order) => order.code);
-    const order: Order = {
-      id: `order-${Date.now()}`,
+    // Wholesale never rings straight into `paid`: the goods still have to be delivered, and
+    // the lifecycle stepper on the order detail is what walks it from there. Retail is a
+    // counter sale and is done.
+    const order: Order = buildOrder({
+      cart: { ...cart, vatInvoice: wholesale ? vatInvoice : undefined },
+      store,
       orgId: currentOrgId(),
-      code: nextOrderCode(store.code, new Date(), existingCodes),
-      storeId: store.id,
       cashierId: staff.id,
-      customerId: cart.customerId,
-      // The cost each line is measured against is frozen here: a later receipt may move the
-      // product's weighted average, and this order's margin must not move with it.
-      lines: toOrderLines(cart.lines, (productId) => {
+      customer,
+      totals,
+      payments: finalPayments,
+      status: wholesale ? 'confirmed' : 'paid',
+      existingCodes,
+      costFor: (productId) => {
         const product = products.find((item) => item.id === productId);
         return currentCost(productId, store.id) ?? product?.costPrice ?? 0;
-      }),
-      subtotal: totals.subtotal,
-      discountTotal: totals.discountTotal,
-      taxTotal: totals.taxTotal,
-      total: totals.total,
-      payments: finalPayments,
-      status: 'paid',
-      createdAt: new Date().toISOString(),
-      channel: 'retail',
-    };
+      },
+      onAccount,
+    });
 
     submitOrder(order, { shiftId: currentShift?.id });
+    if (onAccount) recordOnAccountInvoice(order);
     // Logged here rather than where the discount is typed: at the till it is still a cart,
     // and a log line that names no order code is a line nobody can trace back.
     if (order.discountTotal > 0) {
@@ -155,11 +184,23 @@ export default function CheckoutScreen() {
     // Paying retires the order: the cashier lands on the next open one, or on a fresh empty
     // order when this was the last.
     closeCart(cart.id);
-    toast.show({ title: t('pos.checkout.successToast'), variant: 'success' });
-    router.replace(`/pos/receipt/${order.id}`);
+    toast.show({
+      title: onAccount ? t('pos.wholesale.account.recorded') : t('pos.checkout.successToast'),
+      variant: 'success',
+    });
+    // A wholesale order is not finished by being rung up: it still has to be delivered, so
+    // the till lands on the order detail, where the stepper and the delivery notes live. A
+    // retail sale lands on its receipt, which is the thing the customer walks away with.
+    router.replace(order.channel === 'wholesale' ? `/orders/${order.id}` : `/pos/receipt/${order.id}`);
   }
 
   function handlePrimaryPress() {
+    if (onAccount) {
+      // Nothing is tendered: the whole total becomes a receivable, so the order is booked
+      // with no payment at all rather than with a fictional one.
+      if (credit.allowed) completeOrder([]);
+      return;
+    }
     if (remaining === 0) {
       completeOrder(payments);
       return;
@@ -185,24 +226,45 @@ export default function CheckoutScreen() {
 
   const paymentColumn = (
     <>
-      <OrderTotalsPanel totals={totals} collapsible={layout.breakpoint === 'phone'} />
+      <OrderTotalsPanel
+        totals={totals}
+        collapsible={layout.breakpoint === 'phone'}
+        wholesale={wholesale}
+      />
+      {wholesale && isCompany ? (
+        <VatInvoiceBlock value={vatInvoice} onChange={setVatInvoice} />
+      ) : null}
       <View className="gap-2">
         <Text variant="label" className="font-semibold text-foreground">{t('pos.checkout.method')}</Text>
-        <PaymentMethodCards value={method} onChange={chooseMethod} compact={layout.breakpoint === 'phone'} />
+        <PaymentMethodCards
+          value={choice}
+          onChange={chooseMethod}
+          compact={layout.breakpoint === 'phone'}
+          allowAccount={accountAllowed}
+        />
+        {wholesale && !isCompany ? (
+          <Text variant="caption" className="text-muted-foreground">
+            {t('pos.wholesale.account.needCompany')}
+          </Text>
+        ) : null}
       </View>
-      <PaymentMethodPanel
-        method={method}
-        remaining={remaining}
-        customer={customer}
-        draft={draft}
-        amountText={amountText}
-        onAmountChange={setAmountText}
-        refText={refText}
-        onRefChange={setRefText}
-        pointsText={pointsText}
-        onPointsChange={setPointsText}
-        storeName={store?.name}
-      />
+      {onAccount ? (
+        <OnAccountPanel check={credit} dueDate={dueDate} noLimit={credit.limit <= 0} />
+      ) : (
+        <PaymentMethodPanel
+          method={method}
+          remaining={remaining}
+          customer={customer}
+          draft={draft}
+          amountText={amountText}
+          onAmountChange={setAmountText}
+          refText={refText}
+          onRefChange={setRefText}
+          pointsText={pointsText}
+          onPointsChange={setPointsText}
+          storeName={store?.name}
+        />
+      )}
       <SplitPaymentList
         payments={payments}
         remaining={remaining}
@@ -223,8 +285,16 @@ export default function CheckoutScreen() {
     </>
   );
 
-  const actionWord = canFinish ? t('pos.checkout.finish') : t('pos.checkout.addPayment');
-  const actionAmount = formatVND(canFinish ? totals.total : draft.payment?.amount ?? remaining);
+  // "Ghi nợ · 6.771.600 đ": the button says what it is about to do to the buyer's account,
+  // not "Hoàn tất", because no money changes hands.
+  const actionWord = onAccount
+    ? t('pos.wholesale.account.method')
+    : canFinish
+      ? t('pos.checkout.finish')
+      : t('pos.checkout.addPayment');
+  const actionAmount = formatVND(
+    onAccount || canFinish ? totals.total : draft.payment?.amount ?? remaining,
+  );
   const actionLabel = `${actionWord} · ${actionAmount}`;
 
   const primaryAction = (
@@ -304,7 +374,7 @@ export default function CheckoutScreen() {
                               {product?.name ?? line.productId}
                             </Text>
                             <Text variant="caption" className="text-muted-foreground">
-                              {product?.unit ?? ''}
+                              {wholesale ? unitConversionText(product, line) : product?.unit ?? ''}
                             </Text>
                           </View>
                         </TableCell>

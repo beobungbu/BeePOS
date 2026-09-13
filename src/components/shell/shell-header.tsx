@@ -1,4 +1,11 @@
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
   AppHeader,
   Avatar,
   Badge,
@@ -23,7 +30,11 @@ import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { goBackOr } from '../../lib/navigation';
 import { BrandMark } from './brand-mark';
 import { initialsOf } from '../../lib/initials';
+import { openCartCount, switchOrg, useAccountOrgs } from '../../features/settings/lib/org-switch';
+import { currentOrgId } from '../../data/org-store';
 import { NAV_ITEMS } from './nav-items';
+import { NotificationBell } from './notification-bell';
+import { ShellIcon } from './shell-icons';
 import { useCurrentScreenHeader } from './screen-header';
 
 /**
@@ -53,6 +64,13 @@ export function ShellHeader() {
   const selectStore = useSessionStore((state) => state.selectStore);
   const lock = useSessionStore((state) => state.lock);
   const logout = useSessionStore((state) => state.logout);
+  const orgs = useAccountOrgs();
+  const activeOrgId = currentOrgId();
+  // The chain to move to once the warning about open orders has been answered.
+  const [pendingOrgId, setPendingOrgId] = useState<string | null>(null);
+
+  const storeCountLabel = (count: number) =>
+    t('common.shell.orgStoreCount').replace('{count}', String(count));
 
   const isPhone = breakpoint === 'phone';
   const isDesktop = breakpoint === 'desktop';
@@ -113,6 +131,39 @@ export function ShellHeader() {
             {register ? `${staff.name} · ${register.name}` : staff.name}
           </DropdownMenuLabel>
         ) : null}
+        {/* The chain is identity and the branch is working context, so switching chain lives
+            here and switching branch lives on the store chip (commerce spec section G). */}
+        {orgs.length > 1 ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>{t('common.shell.orgSection')}</DropdownMenuLabel>
+            {orgs.map((org) => {
+              const isCurrent = org.id === activeOrgId;
+              return (
+                <DropdownMenuItem
+                  key={org.id}
+                  onSelect={() => {
+                    if (!isCurrent) setPendingOrgId(org.id);
+                  }}
+                >
+                  <View className="min-w-0 flex-row items-center gap-2">
+                    <View className="min-w-0 gap-0.5">
+                      <Text variant="label" className="font-semibold text-foreground" numberOfLines={1}>
+                        {org.name}
+                      </Text>
+                      <Text variant="caption" className="text-muted-foreground" numberOfLines={1}>
+                        {isCurrent
+                          ? `${storeCountLabel(org.storeCount)} · ${t('common.shell.orgCurrent')}`
+                          : storeCountLabel(org.storeCount)}
+                      </Text>
+                    </View>
+                    {isCurrent ? <ShellIcon name="check" size={16} tone="primary" /> : null}
+                  </View>
+                </DropdownMenuItem>
+              );
+            })}
+          </>
+        ) : null}
         {/* Below desktop the store switcher has no chip of its own, so it stays here. */}
         {!isDesktop && storeOptions.length > 1 ? (
           <>
@@ -148,8 +199,37 @@ export function ShellHeader() {
     </DropdownMenu>
   );
 
+  // Switching chain drops the session and reloads every slice, so parked orders at the branch
+  // being left are named in the warning rather than silently abandoned.
+  const orgSwitchDialog = (
+    <AlertDialog open={pendingOrgId !== null} onOpenChange={(next) => !next && setPendingOrgId(null)}>
+      <AlertDialogContent>
+        <AlertDialogTitle>{t('common.shell.switchOrgConfirmTitle')}</AlertDialogTitle>
+        <AlertDialogDescription>
+          {t('common.shell.switchOrgConfirmBody').replace('{count}', String(openCartCount()))}
+        </AlertDialogDescription>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('common.actions.cancel')}</AlertDialogCancel>
+          <AlertDialogAction
+            onPress={() => {
+              const target = pendingOrgId;
+              setPendingOrgId(null);
+              if (target) {
+                switchOrg(target);
+                router.replace('/login');
+              }
+            }}
+          >
+            {t('common.shell.switchOrgAction')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
   if (isDesktop) {
     return (
+      <>
       <AppHeader
         className="min-h-12 border-b border-border bg-surface px-6 py-0"
         leading={leading}
@@ -177,15 +257,19 @@ export function ShellHeader() {
               </View>
             ) : null}
             {paletteButton}
+            <NotificationBell />
             <StoreSwitcher />
             {avatarMenu}
           </HStack>
         }
       />
+      {orgSwitchDialog}
+      </>
     );
   }
 
   return (
+    <>
     <AppHeader
       className="min-h-14 bg-surface py-2"
       leading={leading}
@@ -211,6 +295,7 @@ export function ShellHeader() {
             </View>
           ) : null}
           {paletteButton}
+          <NotificationBell />
           {!isPhone && store ? (
             <Badge variant="outline" className="rounded-sm border-transparent bg-muted">
               {store.code}
@@ -220,6 +305,8 @@ export function ShellHeader() {
         </HStack>
       }
     />
+    {orgSwitchDialog}
+    </>
   );
 }
 

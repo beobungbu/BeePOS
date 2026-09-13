@@ -2,6 +2,10 @@ import { router } from 'expo-router';
 import {
   AlertBanner,
   Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   SearchInput,
   Select,
   SelectContent,
@@ -153,9 +157,33 @@ export function InventoryScreen() {
 
   // Only one action per screen is primary (direction doc section 2), and receiving goods is
   // the one a stock keeper starts from, so it is last in the row and the only filled button.
+  // Four more document screens landed with the commerce phase and the desktop toolbar is one
+  // 56 pt row that may not wrap, so the second rank of them lives behind one menu button
+  // rather than as four more inline buttons.
   const documentButtons = (
     <>
       <CsvExportButton build={buildInventoryCsv} nameKey="inventory" />
+      <DropdownMenu>
+        <DropdownMenuTrigger variant="outline" accessibilityLabel={t('inventory.documentsMenu')}>
+          <Text variant="label" className="text-foreground">
+            {t('inventory.documentsMenu')}
+          </Text>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onSelect={() => router.push('/inventory/purchase-orders')}>
+            <Text>{t('inventory.purchaseOrders.title')}</Text>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/inventory/supplier-returns')}>
+            <Text>{t('inventory.supplierReturns.title')}</Text>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/inventory/expiring')}>
+            <Text>{t('inventory.expiring.title')}</Text>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/inventory/import')}>
+            <Text>{t('inventory.import.title')}</Text>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Button variant="outline" onPress={() => router.push('/inventory/suppliers')}>
         {t('chain.suppliers.title')}
       </Button>

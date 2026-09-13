@@ -3,7 +3,7 @@ import { Avatar, Text } from '@beemvp/beeui-ui';
 import { useRouter, usePathname } from 'expo-router';
 import { useT } from '../../i18n';
 import { useSessionStore } from '../../data/session-store';
-import { AppIcon } from '../icons';
+import { ShellIcon } from './shell-icons';
 import { BrandBlock } from './brand-mark';
 import { initialsOf } from '../../lib/initials';
 import { SidebarToggle } from './sidebar-toggle';
@@ -77,7 +77,7 @@ function SidebarItem({ item, active }: { item: NavItem; active: boolean }) {
         active ? 'bg-primary/15' : ''
       }`}
     >
-      <AppIcon name={item.icon} tone={active ? 'primary-pressed' : 'muted-foreground'} />
+      <ShellIcon name={item.icon} tone={active ? 'primary-pressed' : 'muted-foreground'} />
       <Text
         variant="label"
         numberOfLines={1}

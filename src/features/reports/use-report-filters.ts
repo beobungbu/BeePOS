@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { create } from 'zustand';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useOrderStore } from '../../data/order-store';
 import { useOrgStore } from '../../data/org-store';
@@ -34,28 +35,82 @@ export interface ReportFiltersState {
   canViewAllStores: boolean;
 }
 
-/** Owns period/store filter UI state for `/reports`. */
+interface ReportFilterState {
+  periodKey: PeriodKey;
+  customStart: Date | null;
+  customEnd: Date | null;
+  storeId: string | null;
+  setPeriodKey: (periodKey: PeriodKey) => void;
+  setCustomStart: (customStart: Date) => void;
+  setCustomEnd: (customEnd: Date) => void;
+  setStoreId: (storeId: string | null) => void;
+}
+
+/**
+ * Period and branch live in a module store rather than in the screen, because `/reports` is
+ * now seven screens: picking "30 ngày" on the overview and then opening Theo giờ has to stay
+ * on 30 days, or every tab change silently changes the question being asked.
+ */
+const useReportFilterStore = create<ReportFilterState>((set) => ({
+  periodKey: 'today',
+  customStart: null,
+  customEnd: null,
+  storeId: null,
+  setPeriodKey: (periodKey) => set({ periodKey }),
+  setCustomStart: (customStart) => set({ customStart }),
+  setCustomEnd: (customEnd) => set({ customEnd }),
+  setStoreId: (storeId) => set({ storeId }),
+}));
+
+/** Owns period/store filter UI state, shared by every report screen. */
 export function useReportFilters(): ReportFiltersState {
   const staff = useSessionStore((state) => state.staff);
   const session = useSessionStore((state) => state.store);
   const canSeeAllStores = canViewAllStores(staff);
+  const state = useReportFilterStore();
+  const sessionStoreId = session?.id ?? null;
 
-  const [periodKey, setPeriodKey] = useState<PeriodKey>('today');
-  const [customStart, setCustomStart] = useState<Date | null>(null);
-  const [customEnd, setCustomEnd] = useState<Date | null>(null);
-  const [storeId, setStoreId] = useState<string | null>(canSeeAllStores ? null : (session?.id ?? null));
+  // A cashier may only read their own branch, so the filter is pinned to it whatever the
+  // shared state was left on by an owner on the same device.
+  useEffect(() => {
+    if (!canSeeAllStores && state.storeId !== sessionStoreId) state.setStoreId(sessionStoreId);
+  }, [canSeeAllStores, sessionStoreId, state]);
 
   return {
-    periodKey,
-    setPeriodKey,
-    customStart,
-    customEnd,
-    setCustomStart,
-    setCustomEnd,
-    storeId,
-    setStoreId,
+    periodKey: state.periodKey,
+    setPeriodKey: state.setPeriodKey,
+    customStart: state.customStart,
+    customEnd: state.customEnd,
+    setCustomStart: state.setCustomStart,
+    setCustomEnd: state.setCustomEnd,
+    storeId: canSeeAllStores ? state.storeId : sessionStoreId,
+    setStoreId: state.setStoreId,
     canViewAllStores: canSeeAllStores,
   };
+}
+
+/**
+ * The orders the current filters select, with the range they came from. The six phase-7 cuts
+ * each derive their own figures from this rather than from `useReportData`, whose shape is the
+ * overview screen's.
+ */
+export function useReportPeriod(filters: ReportFiltersState) {
+  const orders = useOrderStore((state) => state.orders);
+
+  return useMemo(() => {
+    const now = new Date();
+    const range = periodRange(
+      filters.periodKey,
+      now,
+      filters.customStart ?? undefined,
+      filters.customEnd ?? undefined,
+    );
+    return {
+      now,
+      range,
+      orders: filterOrders(orders, range, filters.storeId ?? undefined),
+    };
+  }, [orders, filters.periodKey, filters.customStart, filters.customEnd, filters.storeId]);
 }
 
 /** Derives every dashboard section's data from the current filters, memoized. */

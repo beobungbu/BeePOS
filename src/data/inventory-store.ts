@@ -16,6 +16,12 @@ interface InventoryState {
   /** Chronological log of every stock change, newest first. */
   movements: StockMovement[];
   adjustStock: (productId: string, storeId: string, delta: number, reason?: string) => void;
+  /**
+   * Sets on hand to an absolute quantity, creating the level row when the product has none at
+   * that branch yet. `adjustStock` cannot do this: it applies a delta to a row that exists, and
+   * a product that has just been imported has no row anywhere.
+   */
+  setStockLevel: (productId: string, storeId: string, onHand: number, reason?: string) => void;
   setMinLevel: (productId: string, storeId: string, minLevel: number) => void;
   upsertGoodsReceipt: (receipt: GoodsReceipt) => void;
   upsertStockTransfer: (transfer: StockTransfer) => void;
@@ -61,6 +67,25 @@ export const useInventoryStore = create<InventoryState>((set, get) => {
         stockLevels: applyMovement(state.stockLevels, { productId, storeId, delta }),
       }));
       logMovement({ productId, storeId, delta, reason });
+    },
+
+    setStockLevel: (productId, storeId, onHand, reason = 'import') => {
+      const target = Math.max(0, onHand);
+      const current = get().stockLevels.find(
+        (level) => level.productId === productId && level.storeId === storeId,
+      );
+      if (current && current.onHand === target) return;
+
+      set((state) => ({
+        stockLevels: current
+          ? state.stockLevels.map((level) =>
+              level.productId === productId && level.storeId === storeId
+                ? { ...level, onHand: target }
+                : level,
+            )
+          : [...state.stockLevels, { productId, storeId, onHand: target, reserved: 0, minLevel: 0 }],
+      }));
+      logMovement({ productId, storeId, delta: target - (current?.onHand ?? 0), reason });
     },
 
     setMinLevel: (productId, storeId, minLevel) =>

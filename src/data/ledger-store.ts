@@ -14,6 +14,7 @@ import type {
   CashBookKind,
   LedgerEntry,
   LedgerParty,
+  ReturnRecord,
 } from '../domain/types';
 import { balanceFor } from '../domain/ledger';
 import {
@@ -33,6 +34,34 @@ export interface SettlementInput {
   staffId: string;
   /** Set when the money went through the bank rather than the drawer. */
   bankAccountId?: string;
+  /**
+   * Ledger id of the one invoice this payment settles. `openInvoices` honours it exactly and
+   * spills any excess onto the next oldest bill, so a cashier who picks a bill gets that bill
+   * cleared rather than the oldest one.
+   */
+  invoiceEntryId?: string;
+  note?: string;
+  createdAt?: Date;
+}
+
+/** A cash deposit carried from a branch drawer to one of the chain's bank accounts. */
+export interface DepositInput {
+  orgId: string;
+  storeId: string;
+  amount: number;
+  bankAccountId: string;
+  staffId: string;
+  createdAt?: Date;
+}
+
+/** A note raised by hand: a discount granted after the fact, or a charge added to a bill. */
+export interface ManualNoteInput {
+  orgId: string;
+  storeId: string;
+  party: LedgerParty;
+  partyId: string;
+  kind: 'credit_note' | 'debit_note';
+  amount: number;
   note?: string;
   createdAt?: Date;
 }
@@ -53,6 +82,19 @@ interface LedgerState {
   settle: (input: SettlementInput) => LedgerEntry | null;
   /** Books a credit note, the ledger side of a return on a delivered wholesale order. */
   addCreditNote: (input: Omit<SettlementInput, 'bankAccountId'> & { refId?: string }) => LedgerEntry | null;
+  /**
+   * The ledger side of a return: lowers what the customer owes by the value of the goods that
+   * came back. Call it from the return flow after the return record is written; the record
+   * carries the branch, the org and the amount, so nothing has to be recomputed here.
+   */
+  createCreditNote: (customerId: string, record: ReturnRecord) => LedgerEntry | null;
+  /** A credit or debit note typed in by a manager, against a customer or a supplier. */
+  addManualNote: (input: ManualNoteInput) => LedgerEntry | null;
+  /**
+   * Cash carried from the branch drawer to a bank account. Money out of the till, so the cash
+   * book gets an outflow row; no ledger entry, because nobody's debt moved.
+   */
+  deposit: (input: DepositInput) => CashBookEntry | null;
 }
 
 function nextId(prefix: string, existing: readonly { id: string }[]): string {
@@ -97,7 +139,10 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
       partyId: input.partyId,
       storeId: input.storeId,
       kind: 'payment',
+      // `refType` stays `manual` even when an invoice is named: `refId` on a credit holds the
+      // ledger entry it settles, not a document, and `openInvoices` reads it that way.
       refType: 'manual',
+      refId: input.invoiceEntryId,
       amount: input.amount,
       createdAt,
       note: input.note,
@@ -143,7 +188,59 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
     set((state) => ({ entries: [...state.entries, entry] }));
     return entry;
   },
+
+  createCreditNote: (customerId, record) =>
+    get().addCreditNote({
+      orgId: record.orgId,
+      storeId: record.storeId,
+      party: 'customer',
+      partyId: customerId,
+      amount: record.refundAmount,
+      staffId: record.staffId,
+      refId: record.id,
+      createdAt: record.createdAt,
+    }),
+
+  addManualNote: (input) => {
+    if (!Number.isFinite(input.amount) || input.amount <= 0) return null;
+    const entry: LedgerEntry = {
+      id: nextId(input.kind === 'credit_note' ? 'ledger-credit' : 'ledger-debit', get().entries),
+      orgId: input.orgId,
+      party: input.party,
+      partyId: input.partyId,
+      storeId: input.storeId,
+      kind: input.kind,
+      refType: 'manual',
+      amount: input.amount,
+      createdAt: input.createdAt ?? new Date(),
+      note: input.note,
+    };
+    set((state) => ({ entries: [...state.entries, entry] }));
+    return entry;
+  },
+
+  deposit: (input) => {
+    if (!Number.isFinite(input.amount) || input.amount <= 0) return null;
+    if (!input.bankAccountId) return null;
+    const entry: CashBookEntry = {
+      id: nextId('cash-deposit', get().cashBook),
+      orgId: input.orgId,
+      storeId: input.storeId,
+      kind: 'deposit',
+      amount: input.amount,
+      bankAccountId: input.bankAccountId,
+      staffId: input.staffId,
+      createdAt: input.createdAt ?? new Date(),
+    };
+    set((state) => ({ cashBook: [...state.cashBook, entry] }));
+    return entry;
+  },
 }));
+
+/** Id for a bank account added from the money area. */
+export function makeBankAccountId(): string {
+  return `bank-${Date.now()}`;
+}
 
 /** A party's current balance, read straight off the store. */
 export function balanceOf(party: LedgerParty, partyId: string): number {

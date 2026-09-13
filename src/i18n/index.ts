@@ -20,6 +20,12 @@ import './inventory.vi';
 import './inventory.en';
 import './chain.vi';
 import './chain.en';
+import './promotions.vi';
+import './promotions.en';
+import './notifications.vi';
+import './notifications.en';
+import './returns.vi';
+import './returns.en';
 
 export type { Locale } from './registry';
 export { registerDictionary } from './registry';

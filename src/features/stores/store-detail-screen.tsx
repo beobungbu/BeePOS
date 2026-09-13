@@ -37,6 +37,7 @@ import { useOrderStore } from '../../data/order-store';
 import { currentOrgId, useOrgStore } from '../../data/org-store';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { StoreFormFields } from './components/store-form-fields';
+import { StoreSettingsSection } from './components/store-settings-section';
 import { storeToForm, useStoreForm } from './store-form-state';
 
 /** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
@@ -154,6 +155,8 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
               </ListGroup>
             )}
           </Section>
+
+          <StoreSettingsSection storeId={store.id} />
 
           <Section title={t('stores.detail.edit')}>
             <View className="w-full" style={{ maxWidth: FORM_MAX_WIDTH }}>

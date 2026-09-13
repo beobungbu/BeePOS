@@ -5,13 +5,13 @@
 import { can } from '../../domain/auth';
 import type { Permission, StaffRole } from '../../domain/types';
 import { useSessionStore } from '../../data/session-store';
-import type { AppIconName } from '../icons';
+import type { ShellIconName } from './shell-icons';
 
 export interface NavItem {
   id: string;
   href: string;
   labelKey: string;
-  icon: AppIconName;
+  icon: ShellIconName;
   /** Shown as one of the primary bottom tabs on narrow screens (< 768). */
   primaryOnMobile: boolean;
   /**
@@ -27,7 +27,11 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'orders', href: '/orders', labelKey: 'common.nav.orders', icon: 'receipt-text', primaryOnMobile: true, permission: 'orders.view' },
   { id: 'products', href: '/products', labelKey: 'common.nav.products', icon: 'package', primaryOnMobile: true, permission: 'catalog.manage' },
   { id: 'inventory', href: '/inventory', labelKey: 'common.nav.inventory', icon: 'warehouse', primaryOnMobile: true, permission: 'inventory.manage' },
+  // Promotions is an area of its own rather than a tab inside Sản phẩm: it is a calendar of
+  // campaigns, edited by whoever sets prices, and nothing about it is per product.
+  { id: 'promotions', href: '/promotions', labelKey: 'common.nav.promotions', icon: 'percent', primaryOnMobile: false, permission: 'catalog.manage' },
   { id: 'customers', href: '/customers', labelKey: 'common.nav.customers', icon: 'users-round', primaryOnMobile: false, permission: 'customers.manage' },
+  { id: 'money', href: '/money', labelKey: 'common.nav.money', icon: 'wallet', primaryOnMobile: false, permission: 'reports.store' },
   { id: 'reports', href: '/reports', labelKey: 'common.nav.reports', icon: 'chart-column', primaryOnMobile: false, permission: 'reports.store' },
   { id: 'stores', href: '/stores', labelKey: 'common.nav.stores', icon: 'store', primaryOnMobile: false, permission: 'stores.manage' },
   { id: 'staff', href: '/staff', labelKey: 'common.nav.staff', icon: 'id-card', primaryOnMobile: false, permission: 'staff.manage' },
@@ -46,6 +50,23 @@ export const NAV_ITEMS: NavItem[] = [
  */
 export const SUB_NAV_ITEMS: NavItem[] = [
   { id: 'suppliers', href: '/inventory/suppliers', labelKey: 'common.nav.suppliers', icon: 'truck', primaryOnMobile: false, permission: 'inventory.manage' },
+  // Selling prices belong to the catalogue: price lists and rules are read next to the product
+  // they price, so the area is Sản phẩm and this is the way in.
+  { id: 'pricing', href: '/pricing', labelKey: 'common.nav.pricing', icon: 'tag', primaryOnMobile: false, permission: 'catalog.manage' },
+  // The notification centre is reached from the bell in the header at every width. It is here
+  // so the command palette offers it and so the route guard knows what it costs: every role
+  // gets notifications, so it costs what standing at the till costs.
+  { id: 'notifications', href: '/notifications', labelKey: 'common.nav.notifications', icon: 'bell', primaryOnMobile: false, permission: 'pos.sell' },
+  // Inventory 2 screens: reached from the Kho hàng toolbar, and from the palette through here.
+  // `/inventory/purchase-orders` must precede nothing in particular, but every entry has to
+  // exist or `permissionForPath` falls back to the Kho hàng area's permission, which is the
+  // same one here; the entries are for the palette.
+  { id: 'purchase-orders', href: '/inventory/purchase-orders', labelKey: 'inventory.purchaseOrders.title', icon: 'clipboard-list', primaryOnMobile: false, permission: 'inventory.manage' },
+  { id: 'expiring', href: '/inventory/expiring', labelKey: 'inventory.expiring.title', icon: 'triangle-alert', primaryOnMobile: false, permission: 'inventory.manage' },
+  { id: 'csv-import', href: '/inventory/import', labelKey: 'inventory.import.title', icon: 'package', primaryOnMobile: false, permission: 'inventory.manage' },
+  // Returning goods is a refund, so it costs what a refund costs rather than what selling
+  // costs: a cashier who may not refund must not reach the screen by typing its URL.
+  { id: 'returns', href: '/pos/returns', labelKey: 'returns.entryTitle', icon: 'receipt-text', primaryOnMobile: false, permission: 'pos.refund' },
 ];
 
 /**

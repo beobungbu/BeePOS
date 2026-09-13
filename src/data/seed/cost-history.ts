@@ -45,10 +45,9 @@ function buildCostHistory(): CostHistory[] {
         qty: onHandFor(line.productId, receipt.storeId),
         unitCost: product.costPrice,
       };
-      // Receipts arrive at a slightly different price each time; the seeded receipt lines all
-      // carry the catalogue cost, so nudge the incoming price to make the average move.
-      const incomingCost = Math.round(product.costPrice * 1.04);
-      const unitCost = weightedAverageCost(previous, { qty: line.qty, unitCost: incomingCost });
+      // The incoming price is the receipt line's own cost, so every history row reconciles with
+      // the document it came from (the cost tab shows both side by side).
+      const unitCost = weightedAverageCost(previous, { qty: line.qty, unitCost: line.unitCost });
 
       running.set(key, { qty: previous.qty + line.qty, unitCost });
       rows.push({

@@ -13,7 +13,7 @@ import {
   SelectValue,
   Text,
 } from '@beemvp/beeui-ui';
-import type { OrderStatus, Staff, Store } from '../../../domain/types';
+import type { OrderChannel, OrderStatus, Staff, Store } from '../../../domain/types';
 import { useT } from '../../../i18n';
 import type { Breakpoint } from '../../../hooks/use-breakpoint';
 import { Toolbar } from '../../../components/toolbar';
@@ -21,7 +21,24 @@ import { selectContentHeight } from '../../../components/select-content-height';
 import { calendarDateToIso, isoToCalendarDate } from '../lib/calendar-date';
 import { DATE_PRESETS, rangeForPreset, type DatePreset } from '../lib/order-presentation';
 
-const STATUS_OPTIONS: OrderStatus[] = ['paid', 'partial_refund', 'refunded', 'void'];
+/**
+ * Every status the list can hold, retail and wholesale, in lifecycle order. Widened from the
+ * retail four when the wholesale lifecycle landed: a filter that cannot name `Đang giao`
+ * cannot find the orders a warehouse is working on today.
+ */
+const STATUS_OPTIONS: OrderStatus[] = [
+  'quote',
+  'confirmed',
+  'delivering',
+  'completed',
+  'paid',
+  'partial_refund',
+  'refunded',
+  'cancelled',
+  'void',
+];
+
+const CHANNEL_OPTIONS: OrderChannel[] = ['retail', 'wholesale'];
 
 /** DOM id of the search wrapper, so the web-only F3 shortcut can reach the input inside it. */
 const SEARCH_WRAPPER_ID = 'orders-search';
@@ -30,6 +47,7 @@ export interface OrdersFilterValue {
   storeId: string;
   cashierId: string;
   status: OrderStatus | '';
+  channel: OrderChannel | '';
   preset: DatePreset;
   fromDate: string;
   toDate: string;
@@ -61,7 +79,10 @@ export function OrderFiltersBar({
   // What the collapsed `Bộ lọc` button counts: the three selects that narrow the list away
   // from "all". The date range is not counted, because a range is always in force.
   const activeFilterCount =
-    (value.storeId ? 1 : 0) + (value.cashierId ? 1 : 0) + (value.status ? 1 : 0);
+    (value.storeId ? 1 : 0) +
+    (value.cashierId ? 1 : 0) +
+    (value.status ? 1 : 0) +
+    (value.channel ? 1 : 0);
 
   const setPreset = (preset: DatePreset) =>
     onChange({ ...value, preset, ...rangeForPreset(preset, new Date(), value) });
@@ -90,11 +111,30 @@ export function OrderFiltersBar({
       <SelectTrigger accessibilityLabel={t('orders.filters.status')}>
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent maxHeight={selectContentHeight(STATUS_OPTIONS.length + 1)}>
         <SelectItem value="all">{t('orders.filters.allStatuses')}</SelectItem>
         {STATUS_OPTIONS.map((status) => (
           <SelectItem key={status} value={status}>
             {t(`orders.status.${status}`)}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+
+  const channelSelect = (
+    <Select
+      onValueChange={(v) => onChange({ ...value, channel: v === 'all' ? '' : (v as OrderChannel) })}
+      value={value.channel || 'all'}
+    >
+      <SelectTrigger accessibilityLabel={t('orders.channel.label')}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">{t('orders.channel.all')}</SelectItem>
+        {CHANNEL_OPTIONS.map((channel) => (
+          <SelectItem key={channel} value={channel}>
+            {t(`orders.channel.${channel}`)}
           </SelectItem>
         ))}
       </SelectContent>
@@ -149,6 +189,20 @@ export function OrderFiltersBar({
             {DATE_PRESETS.map((preset) => (
               <Chip key={preset} value={preset}>
                 {t(`orders.filters.${preset}`)}
+              </Chip>
+            ))}
+          </ChipGroup>
+          <View className="h-6 w-px bg-border-strong" />
+          <ChipGroup
+            className="flex-row flex-nowrap gap-2"
+            onValueChange={(v) => onChange({ ...value, channel: v === 'all' ? '' : (v as OrderChannel) })}
+            selectionMode="single"
+            value={value.channel || 'all'}
+          >
+            <Chip value="all">{t('orders.channel.all')}</Chip>
+            {CHANNEL_OPTIONS.map((channel) => (
+              <Chip key={channel} value={channel}>
+                {t(`orders.channel.${channel}`)}
               </Chip>
             ))}
           </ChipGroup>
@@ -237,6 +291,7 @@ export function OrderFiltersBar({
           {storeSelect}
           <View className="min-w-32">{presetSelect}</View>
           <View className="min-w-36">{statusSelect}</View>
+          <View className="min-w-32">{channelSelect}</View>
           {cashierSelect}
         </Toolbar>
         {customRange ? <View className="pb-3">{customRange}</View> : null}
@@ -250,6 +305,7 @@ export function OrderFiltersBar({
         {search}
         <View className="min-w-32">{presetSelect}</View>
         <View className="min-w-36">{statusSelect}</View>
+        <View className="min-w-32">{channelSelect}</View>
         {actions ? <View className="ml-auto flex-row items-center gap-2">{actions}</View> : null}
       </View>
       {customRange}

@@ -6,6 +6,7 @@ import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useSettingsStore } from '../../data/settings-store';
 import { CommandPalette } from '../command-palette';
 import { ShortcutHelp } from '../shortcut-help';
+import { useNotificationRunner } from '../../features/notifications/notification-runner';
 import { ShellHeader } from './shell-header';
 import { useOverlayShortcuts } from './overlay-store';
 import { isFocusedSellRoute, useShellRail } from './use-shell-rail';
@@ -50,6 +51,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useSidebarShortcut(isDesktop);
   useOverlayShortcuts();
+  // One runner behind the sign-in, so the bell is current on whatever screen the till is on.
+  useNotificationRunner();
 
   // Leaving the sell screen arms the rail again, so POS is always entered focused.
   useEffect(() => {

@@ -43,6 +43,7 @@ export function OrdersListScreen() {
     storeId: '',
     cashierId: '',
     status: '',
+    channel: '',
     search: '',
     preset: 'days7',
     ...rangeForPreset('days7', new Date()),
@@ -89,7 +90,7 @@ export function OrdersListScreen() {
           search: filters.search || undefined,
         },
         customers,
-      ),
+      ).filter((order) => !filters.channel || order.channel === filters.channel),
     [orders, filters, customers],
   );
   const sorted = useMemo(() => sortOrders(filtered, sortKey, sortDirection), [filtered, sortKey, sortDirection]);

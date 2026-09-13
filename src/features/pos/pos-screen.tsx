@@ -12,6 +12,7 @@ import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift } from '../../data/shift-store';
 import { useStorePriceIndex } from '../../data/store-price-store';
 import { effectivePrice } from '../../domain/catalog';
+import { findByBarcode, unitFactor } from '../../domain/units';
 import { CartPanel } from './components/cart-panel';
 import { CatalogSearch } from './components/catalog-search';
 import { ALL_CATEGORY, CategoryChips } from './components/category-chips';
@@ -21,8 +22,10 @@ import { OrderTabStrip } from './components/order-tab-strip';
 import { ProductGrid } from './components/product-grid';
 import { useBarcodeScan } from './hooks/use-barcode-scan';
 import { usePosLayout } from './hooks/use-pos-layout';
+import { useCartRepricing, useWholesalePricing } from './hooks/use-wholesale-pricing';
 import { cartTotalsOf, cartLineCount, cartUnitCount } from './lib/cart-totals';
 import { cartLabel } from './lib/order-label';
+import { priceSourceBadge, tileMinOrderText } from './lib/wholesale';
 
 export default function PosScreen() {
   const t = useT();
@@ -42,9 +45,15 @@ export default function PosScreen() {
   const cart = useActiveCart();
   const ensureStore = useCartStore((state) => state.ensureStore);
   const addProduct = useCartStore((state) => state.addProduct);
+  const addPricedProduct = useCartStore((state) => state.addPricedProduct);
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState(ALL_CATEGORY);
+  /** The selling unit each tile is quoting. Absent means the product's base unit. */
+  const [tileUnits, setTileUnits] = useState<ReadonlyMap<string, string>>(() => new Map());
+
+  const { wholesale, explain } = useWholesalePricing(cart);
+  useCartRepricing(cart);
 
   useEffect(() => {
     if (store) ensureStore(store.id);
@@ -66,10 +75,27 @@ export default function PosScreen() {
     });
   }, [activeProducts, category, query]);
 
-  function handleAddProduct(product: Product) {
-    // The line keeps the price at sale time, so a price changed later never rewrites a bill
-    // that was already rung up.
-    addProduct(product.id, effectivePrice(product, store?.id, storePrices));
+  function handleAddProduct(product: Product, unit?: string) {
+    const selectedUnit = unit ?? tileUnits.get(product.id);
+    if (wholesale) {
+      // Priced through the engine at the quantity the order will end up holding, so a tile
+      // that says "Bậc 10+" adds a line at that tier rather than at the shelf price.
+      const existing = cart.lines.find((line) => line.productId === product.id);
+      const sameUnit = existing ? (existing.unit ?? undefined) === (selectedUnit ?? undefined) : false;
+      const nextQty = existing && sameUnit ? existing.qty + 1 : 1;
+      const { resolution } = explain(product, nextQty, selectedUnit);
+      addPricedProduct(product.id, {
+        unit: selectedUnit,
+        unitFactor: unitFactor(product, selectedUnit),
+        unitPrice: resolution.unitPrice,
+        priceSource: resolution.source,
+        promotionId: resolution.promotionId,
+      });
+    } else {
+      // The line keeps the price at sale time, so a price changed later never rewrites a bill
+      // that was already rung up.
+      addProduct(product.id, effectivePrice(product, store?.id, storePrices));
+    }
     toast.show({ title: t('pos.addedToCart'), description: product.name, variant: 'success', duration: 1500 });
   }
 
@@ -78,13 +104,16 @@ export default function PosScreen() {
    * field, so the burst is caught at the window and looked up here. An unknown code names
    * itself in the toast: the cashier can read it off the packet and check the catalog.
    *
+   * The lookup searches every code the SKU answers to, the case barcode included, and adds
+   * the unit that code belongs to: scanning a carton adds the carton, not one can.
+   *
    * Plain functions, not `useCallback`: the hook keeps the latest one in a ref, so memoising
    * would buy nothing and would freeze `t` at the locale of the first render.
    */
   function handleScan(code: string) {
-    const match = activeProducts.find((product) => product.barcode === code);
+    const match = findByBarcode(activeProducts, code);
     if (match) {
-      handleAddProduct(match);
+      handleAddProduct(match.product, match.factor > 1 ? match.unit : undefined);
       return;
     }
     toast.show({
@@ -100,14 +129,37 @@ export default function PosScreen() {
   function handleBarcodeSubmit(value: string) {
     const trimmed = value.trim();
     if (!trimmed) return;
-    const match = activeProducts.find((product) => product.barcode === trimmed);
+    const match = findByBarcode(activeProducts, trimmed);
     if (match) {
-      handleAddProduct(match);
+      handleAddProduct(match.product, match.factor > 1 ? match.unit : undefined);
       setQuery('');
     } else if (trimmed.length >= 8) {
       // Only treat long numeric-looking input as a barcode scan attempt; short queries just filter.
       toast.show({ title: t('pos.barcodeNotFound'), variant: 'destructive', duration: 2000 });
     }
+  }
+
+  function handleTileUnitChange(product: Product, unit: string | undefined) {
+    setTileUnits((previous) => {
+      const next = new Map(previous);
+      if (unit) next.set(product.id, unit);
+      else next.delete(product.id);
+      return next;
+    });
+  }
+
+  /**
+   * What a tile quotes on a wholesale order: the engine's price for one of the selected unit,
+   * the label naming where it came from, and the minimum-order note when one unit is under
+   * the product's wholesale minimum.
+   */
+  function quoteFor(product: Product, unit: string | undefined) {
+    const { resolution, group, minQty, promotionName } = explain(product, 1, unit);
+    return {
+      price: resolution.unitPrice,
+      badge: priceSourceBadge(t, resolution.source, { group, minQty, promotionName }),
+      minOrderText: tileMinOrderText(t, product, unit),
+    };
   }
 
   const totals = cartTotalsOf(cart, activeProducts);
@@ -156,6 +208,9 @@ export default function PosScreen() {
           storePrices={storePrices}
           lines={cart.lines}
           onAddProduct={handleAddProduct}
+          quoteFor={wholesale ? quoteFor : undefined}
+          unitByProduct={wholesale ? tileUnits : undefined}
+          onUnitChange={wholesale ? (product, unit) => handleTileUnitChange(product, unit) : undefined}
         />
 
         {layout.isCartPaneVisible ? null : (

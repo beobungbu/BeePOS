@@ -28,7 +28,7 @@ import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
 import { isValidEan13, marginPercent, nextSku } from '../../domain/catalog';
-import type { Product, ProductVariant } from '../../domain/types';
+import type { Product, ProductVariant, UnitConversion } from '../../domain/types';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { ProductThumb } from '../../components/product-thumb';
@@ -36,7 +36,10 @@ import { selectContentHeight } from '../../components/select-content-height';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { ProductStockTable } from './product-stock-table';
 import { ProductVariantsSection } from './product-variants-section';
+import { ProductLotsSection } from './components/product-lots-section';
+import { ProductUnitsSection } from './components/product-units-section';
 import { StorePriceSection } from './components/store-price-section';
+import { ProductCostHistory } from '../money/components/product-cost-history';
 import { useUnsavedChangesGuard } from './hooks/use-unsaved-changes-guard';
 import { currentOrgId } from '../../data/org-store';
 import { recordAudit } from '../../data/audit-store';
@@ -69,6 +72,11 @@ interface ProductFormValues {
   isActive: boolean;
   description: string;
   variants: ProductVariant[];
+  /** Extra codes beyond `barcode`; a blank row is dropped on save rather than stored. */
+  barcodes: string[];
+  units: UnitConversion[];
+  minOrderQty: string;
+  trackLots: boolean;
 }
 
 function fromProduct(product: Product | undefined): ProductFormValues {
@@ -84,6 +92,10 @@ function fromProduct(product: Product | undefined): ProductFormValues {
     isActive: product?.isActive ?? true,
     description: product?.description ?? '',
     variants: product?.variants ?? [],
+    barcodes: product?.barcodes ?? [],
+    units: product?.units ?? [],
+    minOrderQty: product?.minOrderQty === undefined ? '' : String(product.minOrderQty),
+    trackLots: product?.trackLots ?? false,
   };
 }
 
@@ -135,11 +147,18 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
   const costError = touched && !Number.isFinite(costPrice) ? t('products.form.invalidNumberError') : undefined;
   const saleError = touched && !Number.isFinite(salePrice) ? t('products.form.invalidNumberError') : undefined;
 
+  const minOrderQty = values.minOrderQty.trim().length === 0 ? undefined : Number(values.minOrderQty);
+  const minOrderQtyError =
+    touched && minOrderQty !== undefined && (!Number.isFinite(minOrderQty) || minOrderQty < 0)
+      ? t('products.form.invalidNumberError')
+      : undefined;
+
   const isValid =
     values.name.trim().length > 0 &&
     values.sku.trim().length > 0 &&
     values.categoryId.length > 0 &&
     !barcodeError &&
+    !minOrderQtyError &&
     Number.isFinite(costPrice) &&
     Number.isFinite(salePrice);
 
@@ -165,6 +184,19 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
       isActive: values.isActive,
       variants: values.variants,
       description: values.description.trim() || undefined,
+      // A blank row in either editor is a row the stock keeper started and abandoned, not a
+      // barcode that scans to nothing or a unit with no name.
+      barcodes: values.barcodes.map((code) => code.trim()).filter(Boolean),
+      units: values.units
+        .filter((unit) => unit.unit.trim().length > 0)
+        .map((unit) => ({
+          unit: unit.unit.trim(),
+          factor: Math.max(1, unit.factor),
+          barcode: unit.barcode?.trim() || undefined,
+        })),
+      minOrderQty: minOrderQtyError || minOrderQty === undefined ? undefined : minOrderQty,
+      trackLots: values.trackLots,
+      imageUrl: existing?.imageUrl,
     };
     upsertProduct(product);
     // A price change is the one edit on this form somebody may have to answer for later, so
@@ -330,6 +362,58 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
             <ProductVariantsSection variants={values.variants} onChange={(variants) => update('variants', variants)} />
           </View>
         </Section>
+
+        <Section title={t('products.form.sectionUnits')}>
+          <View className="gap-4">
+            <ProductUnitsSection
+              primaryBarcode={values.barcode}
+              baseUnit={values.unit}
+              barcodes={values.barcodes}
+              units={values.units}
+              onBarcodesChange={(barcodes) => update('barcodes', barcodes)}
+              onUnitsChange={(units) => update('units', units)}
+            />
+
+            <Field
+              label={t('products.form.fieldMinOrderQty')}
+              invalid={Boolean(minOrderQtyError)}
+              error={minOrderQtyError}
+              description={t('products.form.fieldMinOrderQtyHint')}
+            >
+              <Input
+                value={values.minOrderQty}
+                onChangeText={(value) => update('minOrderQty', value)}
+                keyboardType="numeric"
+              />
+            </Field>
+
+            <View className="min-h-11 flex-row items-center justify-between">
+              <View className="min-w-0 flex-1 pr-3">
+                <Text variant="label">{t('products.form.fieldTrackLots')}</Text>
+                <Text variant="caption" tone="muted">{t('inventory.lots.trackHint')}</Text>
+              </View>
+              <Switch
+                value={values.trackLots}
+                onValueChange={(value) => update('trackLots', value)}
+                accessibilityLabel={t('products.form.fieldTrackLots')}
+              />
+            </View>
+          </View>
+        </Section>
+
+        {existing && values.trackLots && (
+          <Section title={t('inventory.lots.sectionTitle')}>
+            <ProductLotsSection productId={existing.id} />
+          </Section>
+        )}
+
+        {/* The cost history is the money work's component, mounted here because the question
+            "what did this cost us" is asked while looking at the product. */}
+        {existing && (
+          <Section title={t('money.cost.title')}>
+            <ProductCostHistory productId={existing.id} />
+          </Section>
+        )}
 
         {existing && (
           <Section title={t('products.form.stockTitle')}>

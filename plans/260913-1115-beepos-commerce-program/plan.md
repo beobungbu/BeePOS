@@ -73,7 +73,7 @@ export interface AppNotification { id: string; orgId: string; storeId?: string; 
 | 1 | W-P sales + pricing | A + B (except promotions/loyalty screens) | IN PROGRESS |
 | 1 | W-M money + cost | C + D + credit notes for E | IN PROGRESS |
 | 1 | W-I inventory 2 + returns UI | E (POS return/exchange, supplier returns) + F | IN PROGRESS |
-| 1 | W-S settings, promotions, reports, notifications | B promotions + loyalty, G | IN PROGRESS |
+| 1 | W-S settings, promotions, reports, notifications | B promotions + loyalty, G | DONE · [report](reports/w-s-settings-reports-report.md) |
 | 2 | W-R review · W-E E2E + perf · W-N native (iOS smoke, hardware scanner spike, AppState flush, VoiceOver) | J, H, I | PENDING |
 | 3 | integrator | gates, dark sweep, deploy, BeeUI batches, report | PENDING |
 
@@ -83,3 +83,12 @@ export interface AppNotification { id: string; orgId: string; storeId?: string; 
 - Money balances: cash book, receivables and payables reconcile to orders / receipts / returns in tests.
 - Returns: restock changes stock, damaged does not, exchange nets correctly, credit note reduces the customer balance.
 - All gates green: tsc, jest, eslint, qa:e2e, export all; production E2E green after deploy.
+
+## Wave 1 integration follow-ups (collected 2026-09-13 14:30, for wave 2 W-R)
+- Second org sign-in: seed a Store, Staff and UserAccount for `chuoi-demo-2`; `session-store.login` must resolve staff through OrgMembership for the active org, not `account.staffId` (W-S finding).
+- Seed receipt line costs vary slightly per receipt so the weighted average and the valuation curve move (W-S); the cost seed already uses the line cost (integrator fix 14:05).
+- Fold `src/components/shell/shell-icons.tsx` glyphs into `src/components/icons.tsx` (W-S deviation).
+- Supplier return books a `credit_note` with party supplier because `debit_note` sign is +1 in `entrySign`; either rename to a named `createSupplierDebitNote` or document (W-I).
+- `/pos/returns` gated on `pos.refund` (W-S choice, accepted).
+- Delete any `.tmp-shots/` scratch specs; add `.tmp-shots` to jest ignore so a peer's scratch cannot break `npm test`.
+- W-I open decisions: credit-note amount on an exchange (net vs gross), PO code shape, CSV import route placement.

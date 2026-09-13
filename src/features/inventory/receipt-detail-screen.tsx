@@ -22,6 +22,7 @@ import { goBackOr } from '../../lib/navigation';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
+import { applyReceiptCost } from '../../data/costing-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useSessionStore } from '../../data/session-store';
 import { stores as allStores } from '../../data/seed';
@@ -91,6 +92,9 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
   function handleConfirmReceive() {
     const receipt = buildReceipt('draft');
     upsertGoodsReceipt(receipt);
+    // Confirming a delivery is also a cost event: the money work blends it into the weighted
+    // average. It refuses a second pass over the same receipt, so this cannot double count.
+    applyReceiptCost(receipt);
     receiveGoodsReceipt(receipt.id);
     setConfirmOpen(false);
     toast.show({ title: t('inventory.receipts.confirmReceive'), variant: 'success' });
