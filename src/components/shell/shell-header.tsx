@@ -49,7 +49,9 @@ export function ShellHeader() {
   const store = useSessionStore((state) => state.store);
   const staff = useSessionStore((state) => state.staff);
   const storeOptions = useSessionStore((state) => state.storeOptions);
+  const register = useSessionStore((state) => state.register);
   const selectStore = useSessionStore((state) => state.selectStore);
+  const lock = useSessionStore((state) => state.lock);
   const logout = useSessionStore((state) => state.logout);
 
   const isPhone = breakpoint === 'phone';
@@ -106,7 +108,11 @@ export function ShellHeader() {
         <Avatar fallback={initialsOf(staff?.name)} fallbackClassName="text-foreground" size="md" />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {staff ? <DropdownMenuLabel>{staff.name}</DropdownMenuLabel> : null}
+        {staff ? (
+          <DropdownMenuLabel>
+            {register ? `${staff.name} · ${register.name}` : staff.name}
+          </DropdownMenuLabel>
+        ) : null}
         {/* Below desktop the store switcher has no chip of its own, so it stays here. */}
         {!isDesktop && storeOptions.length > 1 ? (
           <>
@@ -119,6 +125,17 @@ export function ShellHeader() {
           </>
         ) : null}
         <DropdownMenuSeparator />
+        {/* Locking is the gesture a cashier leaving the counter actually needs: the session
+            and the open orders stay, and a PIN reopens them (or hands the till to the next
+            shift). Signing out sits under it for the end of the day. */}
+        <DropdownMenuItem
+          onSelect={() => {
+            lock();
+            router.replace('/lock');
+          }}
+        >
+          <Text>{t('common.shell.lock')}</Text>
+        </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => {
             logout();

@@ -2,6 +2,8 @@ import { useSettingsStore } from '../data/settings-store';
 import { getDictionary, type Locale } from './registry';
 import './common.vi';
 import './common.en';
+import './auth.vi';
+import './auth.en';
 import './pos.vi';
 import './pos.en';
 import './reports.vi';

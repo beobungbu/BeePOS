@@ -7,7 +7,7 @@ import { AppIcon } from '../icons';
 import { BrandBlock } from './brand-mark';
 import { initialsOf } from '../../lib/initials';
 import { SidebarToggle } from './sidebar-toggle';
-import { SETTINGS_NAV_ITEM, WIDE_NAV_ITEMS, type NavItem } from './nav-items';
+import { useVisibleNavItems, type NavItem } from './nav-items';
 
 /**
  * 240 pt sidebar for desktop (>= 1280): brand block on top, every area in the middle, then
@@ -18,6 +18,8 @@ export function Sidebar() {
   const pathname = usePathname();
   const staff = useSessionStore((state) => state.staff);
   const store = useSessionStore((state) => state.store);
+  const items = useVisibleNavItems();
+  const settingsItem = items.find((item) => item.id === 'settings');
 
   return (
     <View className="w-60 shrink-0 border-r border-border bg-surface px-3 py-4">
@@ -25,13 +27,17 @@ export function Sidebar() {
         <BrandBlock />
       </View>
 
-      {WIDE_NAV_ITEMS.map((item) => (
-        <SidebarItem key={item.id} item={item} active={pathname.startsWith(item.href)} />
-      ))}
+      {items
+        .filter((item) => item.id !== 'settings')
+        .map((item) => (
+          <SidebarItem key={item.id} item={item} active={pathname.startsWith(item.href)} />
+        ))}
 
       <View className="flex-1" />
 
-      <SidebarItem item={SETTINGS_NAV_ITEM} active={pathname.startsWith(SETTINGS_NAV_ITEM.href)} />
+      {settingsItem ? (
+        <SidebarItem item={settingsItem} active={pathname.startsWith(settingsItem.href)} />
+      ) : null}
 
       {/* Collapse control at the bottom, the same slot the rail puts it in, so the chevron
           stays under the pointer across the swap. */}

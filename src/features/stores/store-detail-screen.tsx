@@ -34,7 +34,7 @@ import { formatVND } from '../../domain/money';
 import { staffForStore } from '../../domain/org';
 import { filterOrders, periodRange, totalRevenue } from '../../domain/reports';
 import { useOrderStore } from '../../data/order-store';
-import { useOrgStore } from '../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { StoreFormFields } from './components/store-form-fields';
 import { storeToForm, useStoreForm } from './store-form-state';
@@ -77,7 +77,7 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
   }, [orders, storeId]);
 
   const form = useStoreForm(
-    store ? storeToForm(store, storeHoursById[storeId] ?? '08:00 - 21:00') : storeToForm({ id: '', code: '', name: '', address: '', phone: '', isActive: true }, ''),
+    store ? storeToForm(store, storeHoursById[storeId] ?? '08:00 - 21:00') : storeToForm({ id: '', orgId: currentOrgId(), code: '', name: '', address: '', phone: '', isActive: true }, ''),
     t('stores.validation.required'),
   );
 

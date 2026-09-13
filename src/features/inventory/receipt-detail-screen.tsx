@@ -31,6 +31,7 @@ import { useT } from '../../i18n';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { LineEditorTable } from './line-editor-table';
 import { ProductPicker } from './product-picker';
+import { currentOrgId } from '../../data/org-store';
 
 function makeReceiptId(): string {
   return `receipt-${Date.now()}`;
@@ -68,6 +69,7 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
   function buildReceipt(status: GoodsReceipt['status']): GoodsReceipt {
     return {
       id: existing?.id ?? makeReceiptId(),
+      orgId: currentOrgId(),
       storeId,
       supplierName: supplierName.trim(),
       lines,

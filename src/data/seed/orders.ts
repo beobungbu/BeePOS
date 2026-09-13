@@ -5,6 +5,7 @@ import { customers } from './customers';
 import { products } from './products';
 import { staff } from './staff';
 import { stores } from './stores';
+import { DEMO_ORG_ID } from './org';
 
 const SEED = 20260911;
 const NOW = new Date('2026-09-11T09:00:00.000Z');
@@ -96,6 +97,7 @@ function buildOrders(): Order[] {
 
     orders.push({
       id: `order-${i}`,
+      orgId: DEMO_ORG_ID,
       code: `HD${createdAt.slice(0, 10).replace(/-/g, '')}-${String(i).padStart(4, '0')}`,
       storeId: store.id,
       cashierId,
@@ -149,7 +151,11 @@ function buildShifts(): Shift[] {
 
     shifts.push({
       id: `shift-${index + 1}`,
+      orgId: DEMO_ORG_ID,
       storeId: combo.store.id,
+      // Alternating tills, so the register picker has both states to show: one station with a
+      // shift open on it and one free.
+      registerId: `${combo.store.id}-reg-${(index % 2) + 1}`,
       cashierId: combo.cashierId,
       openedAt: openedAt.toISOString(),
       closedAt: isOpen ? undefined : closedAt.toISOString(),

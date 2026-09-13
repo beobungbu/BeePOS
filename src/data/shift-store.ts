@@ -4,6 +4,7 @@ import { shiftSummary } from '../domain/pos';
 import type { Shift } from '../domain/types';
 import { useOrderStore } from './order-store';
 import { useSessionStore } from './session-store';
+import { currentOrgId } from './org-store';
 
 interface ShiftState {
   /** Opens a new shift for the current staff/store; throws if there is no active session. */
@@ -14,12 +15,14 @@ interface ShiftState {
 
 export const useShiftStore = create<ShiftState>(() => ({
   openShift: (openingCash) => {
-    const { staff, store } = useSessionStore.getState();
+    const { staff, store, register } = useSessionStore.getState();
     if (!staff || !store) throw new Error('Không có phiên đăng nhập đang hoạt động');
 
     const shift: Shift = {
       id: `shift-${Date.now()}`,
+      orgId: currentOrgId(),
       storeId: store.id,
+      registerId: register?.id,
       cashierId: staff.id,
       openedAt: new Date().toISOString(),
       openingCash,

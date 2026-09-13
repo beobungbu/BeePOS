@@ -10,8 +10,16 @@ export const settingsEn = {
     payment: 'Payment',
     printer: 'Printer',
     about: 'About',
+    security: 'Security',
     account: 'Account',
     data: 'Data',
+  },
+  security: {
+    autoLock: 'Auto lock',
+    autoLockDescription: 'Lock after a spell of no activity; a PIN reopens the till.',
+    autoLockOff: 'Never lock',
+    autoLockMinutes: '{count} minutes',
+    changePassword: 'Change password',
   },
   density: {
     label: 'Display density',

@@ -9,15 +9,17 @@ import {
   validatePin,
 } from '../org';
 
+const ORG = 'org-1';
+
 const stores: Store[] = [
-  { id: 'store-1', code: 'HN01', name: 'Store 1', address: '', phone: '', isActive: true },
-  { id: 'store-2', code: 'HN02', name: 'Store 2', address: '', phone: '', isActive: true },
+  { id: 'store-1', orgId: ORG, code: 'HN01', name: 'Store 1', address: '', phone: '', isActive: true },
+  { id: 'store-2', orgId: ORG, code: 'HN02', name: 'Store 2', address: '', phone: '', isActive: true },
 ];
 
 const staff: Staff[] = [
-  { id: 'staff-1', name: 'Bình', role: 'owner', storeIds: ['store-1', 'store-2'], pin: '1234' },
-  { id: 'staff-2', name: 'An', role: 'manager', storeIds: ['store-1'], pin: '1234' },
-  { id: 'staff-3', name: 'Cường', role: 'cashier', storeIds: ['store-1'], pin: '1234' },
+  { id: 'staff-1', orgId: ORG, name: 'Bình', role: 'owner', storeIds: ['store-1', 'store-2'], pin: '1234' },
+  { id: 'staff-2', orgId: ORG, name: 'An', role: 'manager', storeIds: ['store-1'], pin: '1234' },
+  { id: 'staff-3', orgId: ORG, name: 'Cường', role: 'cashier', storeIds: ['store-1'], pin: '1234' },
 ];
 
 describe('canAssignRole', () => {

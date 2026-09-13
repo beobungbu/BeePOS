@@ -189,9 +189,12 @@ describe('addOrIncrementLine / setLineQty', () => {
   });
 });
 
+const ORG = 'org-1';
+
 describe('shiftSummary', () => {
   const shift: Shift = {
     id: 'shift-1',
+    orgId: ORG,
     storeId: 'store-1',
     cashierId: 'staff-1',
     openedAt: '2026-09-11T08:00:00.000Z',
@@ -204,6 +207,7 @@ describe('shiftSummary', () => {
   const orders: Order[] = [
     {
       id: 'o1',
+      orgId: ORG,
       code: 'HD-HN01-20260911-001',
       storeId: 'store-1',
       cashierId: 'staff-1',
@@ -218,6 +222,7 @@ describe('shiftSummary', () => {
     },
     {
       id: 'o2',
+      orgId: ORG,
       code: 'HD-HN01-20260911-002',
       storeId: 'store-1',
       cashierId: 'staff-1',
@@ -232,6 +237,7 @@ describe('shiftSummary', () => {
     },
     {
       id: 'o3',
+      orgId: ORG,
       code: 'HD-HN01-20260910-001',
       storeId: 'store-1',
       cashierId: 'staff-1',

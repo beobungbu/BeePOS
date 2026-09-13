@@ -10,8 +10,16 @@ export const settingsVi = {
     payment: 'Thanh toán',
     printer: 'Máy in',
     about: 'Về ứng dụng',
+    security: 'Bảo mật',
     account: 'Tài khoản',
     data: 'Dữ liệu',
+  },
+  security: {
+    autoLock: 'Tự khoá màn hình',
+    autoLockDescription: 'Khoá sau khoảng thời gian không thao tác, mở lại bằng mã PIN.',
+    autoLockOff: 'Không tự khoá',
+    autoLockMinutes: '{count} phút',
+    changePassword: 'Đổi mật khẩu',
   },
   density: {
     label: 'Mật độ hiển thị',

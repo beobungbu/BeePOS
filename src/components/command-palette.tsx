@@ -14,7 +14,7 @@ import {
   type CommandGroup,
   type CommandItem,
 } from '../lib/command-search';
-import { NAV_ITEMS } from './shell/nav-items';
+import { useVisibleNavItems } from './shell/nav-items';
 import { useShellOverlayStore } from './shell/overlay-store';
 
 /** Rows per section, so one group with 200 hits cannot push the other three off screen. */
@@ -64,6 +64,9 @@ function CommandPaletteBody({ onClose }: { onClose: () => void }) {
   const products = useCatalogStore((state) => state.products);
   const orders = useOrderStore((state) => state.orders);
   const customers = useCustomerStore((state) => state.customers);
+  // The palette is a way into the app like any other, so it lists only the areas this role
+  // may open; otherwise it offered a cashier a Báo cáo row the route guard then bounced.
+  const navItems = useVisibleNavItems();
 
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -74,13 +77,13 @@ function CommandPaletteBody({ onClose }: { onClose: () => void }) {
 
   const screenItems = useMemo<CommandItem[]>(
     () =>
-      NAV_ITEMS.map((item) => ({
+      navItems.map((item) => ({
         id: `screen-${item.id}`,
         group: 'screens' as const,
         title: t(item.labelKey),
         href: item.href,
       })),
-    [t],
+    [navItems, t],
   );
 
   const searchItems = useMemo<CommandItem[]>(

@@ -36,6 +36,7 @@ import { useScreenHeader } from '../../components/shell/screen-header';
 import { ProductStockTable } from './product-stock-table';
 import { ProductVariantsSection } from './product-variants-section';
 import { useUnsavedChangesGuard } from './hooks/use-unsaved-changes-guard';
+import { currentOrgId } from '../../data/org-store';
 
 /** Form content is capped at 480 and centred at every breakpoint (direction doc section 7). */
 const FORM_MAX_WIDTH = 480;
@@ -141,6 +142,7 @@ export function ProductFormScreen({ productId }: ProductFormScreenProps) {
     if (!isValid) return;
     const product: Product = {
       id: existing?.id ?? `product-${Date.now()}`,
+      orgId: existing?.orgId ?? currentOrgId(),
       sku: values.sku.trim(),
       barcode: values.barcode.trim(),
       name: values.name.trim(),

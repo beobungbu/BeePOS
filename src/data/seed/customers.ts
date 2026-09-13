@@ -1,5 +1,6 @@
 import type { Customer, CustomerTier } from '../../domain/types';
 import { createRng, pick, randInt } from './prng';
+import { DEMO_ORG_ID } from './org';
 
 const SEED = 20260911;
 
@@ -31,6 +32,7 @@ function buildCustomers(): Customer[] {
 
     customers.push({
       id: `customer-${i}`,
+      orgId: DEMO_ORG_ID,
       name,
       phone,
       points: Math.floor(totalSpent / 10_000),

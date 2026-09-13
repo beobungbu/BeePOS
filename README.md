@@ -1,6 +1,6 @@
 # BeePOS
 
-Live web demo: https://beepos.beemvp.com (store code `HN01`, PIN `1234`). Deployed from `npm run deploy:web` (Expo web export served by Cloudflare Workers static assets, config in `wrangler.jsonc`).
+Live web demo: https://beepos.beemvp.com (`owner@chuoi.vn` / `BeePOS@2026`, then pick a store and a register). Deployed from `npm run deploy:web` (Expo web export served by Cloudflare Workers static assets, config in `wrangler.jsonc`).
 
 BeePOS is an interactive UI prototype of a point-of-sale system for a Vietnamese grocery
 chain (tap hoa). One Expo codebase renders the same product on iOS, Android and Web: a
@@ -48,10 +48,38 @@ npm run ios       # Expo iOS simulator
 npm run android   # Expo Android emulator
 ```
 
-Log in with any store code from the seed data and PIN `1234`. Store codes are defined in
-[`src/data/seed/stores.ts`](src/data/seed/stores.ts) (`HN01`, `HN02`, `HCM01`, `DN01` as of
-this writing). Data persists on the device between reloads; Settings has "Đặt lại dữ liệu mẫu"
-to restore the seed.
+### Signing in
+
+Sign in with an email and a password, then pick the store and the register you are standing at.
+Every seeded account uses the same demo password `BeePOS@2026`, which is a documented demo
+value, not a secret: the prototype stores only its salted hash
+([`src/domain/auth.ts`](src/domain/auth.ts)) and ships no real data.
+
+| Email | Staff | Role | Stores | PIN | Account |
+|---|---|---|---|---|---|
+| `owner@chuoi.vn` | Nguyễn Văn An | Chủ chuỗi | all four | `1000` | active |
+| `binh@chuoi.vn` | Trần Thị Bình | Quản lý | HN01 | `2001` | active |
+| `cuong@chuoi.vn` | Lê Văn Cường | Quản lý | HN02 | `2002` | active |
+| `dung@chuoi.vn` | Phạm Thị Dung | Quản lý | HCM01 | `2003` | active |
+| `em@chuoi.vn` | Hoàng Văn Em | Quản lý | DN01 | `2004` | active |
+| `giang@chuoi.vn` | Vũ Thị Giang | Thu ngân | HN01 | `3001` | active |
+| `hai@chuoi.vn` | Đặng Văn Hải | Thu ngân | HN01 | `3002` | active |
+| `hoa@chuoi.vn` | Bùi Thị Hoa | Thu ngân | HN02 | `3003` | active |
+| `khoa@chuoi.vn` | Ngô Văn Khoa | Thu ngân | HN02 | `3004` | active |
+| `lan@chuoi.vn` | Đỗ Thị Lan | Thu ngân | HCM01, DN01 | `3005` | active |
+| `minh@chuoi.vn` | Phan Văn Minh | Thu ngân | HCM01 | `3006` | active |
+| `nga@chuoi.vn` | Trịnh Thị Nga | Thu ngân | DN01 | `3007` | invited (must set a password on first sign-in) |
+
+The PIN is what unlocks the screen and hands the till to the next cashier; it is unique per
+chain, so the PIN alone names the person. Roles decide what the app shows: a cashier sells and
+looks after customers, a manager runs one branch, chain-wide reports, branches and settings are
+the owner's (`/staff/permissions` shows the whole matrix).
+
+Signing in on a device with no chain at all opens the onboarding wizard instead, which creates
+the chain, its first store, its first register and the owner account.
+
+Data persists on the device between reloads, keyed by the chain; Settings has "Đặt lại dữ liệu
+mẫu" to restore the seed.
 
 ## Features
 

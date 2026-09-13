@@ -1,63 +1,212 @@
 import { create } from 'zustand';
-import type { Staff, Store } from '../domain/types';
-import { isStaffActive, useOrgStore } from './org-store';
+import {
+  DEFAULT_AUTO_LOCK_MINUTES,
+  can,
+  hashPassword,
+  isSessionExpired,
+  issueSession,
+  lockSession,
+  unlockSession,
+  verifyPassword,
+} from '../domain/auth';
+import type { Permission, Register, Session, Staff, Store, UserAccount } from '../domain/types';
+import { accountByEmail, accountForStaff, isStaffActive, registersForStore, useOrgStore } from './org-store';
+
+export type LoginFailure = 'invalid' | 'disabled' | 'invited' | 'no_store';
+
+export type LoginResult =
+  | { ok: true; mustChangePassword: boolean; storeOptions: Store[] }
+  | { ok: false; reason: LoginFailure };
+
+export type UnlockResult =
+  | { ok: true; switched: boolean; staff: Staff }
+  | { ok: false; reason: 'unknown_pin' | 'not_here' | 'disabled' };
 
 interface SessionState {
+  /** The issued session: identity, chain, till and lifetime. `null` when signed out. */
+  session: Session | null;
+  /** The account that signed in; the staff record beside it is who works the till. */
+  account: UserAccount | null;
   staff: Staff | null;
   store: Store | null;
+  register: Register | null;
   storeOptions: Store[];
-  login: (storeCode: string, pin: string) => boolean;
+  registerOptions: Register[];
+  /** Minutes of inactivity before the till locks itself; `0` turns the auto-lock off. */
+  autoLockMinutes: number;
+  /** Epoch ms of the last interaction, the input to the auto-lock. Never persisted. */
+  lastActivityAt: number;
+  login: (email: string, password: string) => Promise<LoginResult>;
   selectStore: (storeId: string) => void;
+  selectRegister: (registerId: string) => void;
+  lock: () => void;
+  unlock: (pin: string) => UnlockResult;
   logout: () => void;
+  touch: () => void;
+  setAutoLockMinutes: (minutes: number) => void;
+  /** Verifies the current password and stores the new one. Used by the change-password screen. */
+  changePassword: (currentPassword: string, nextPassword: string) => Promise<boolean>;
 }
 
-function findStoreOptions(member: Staff, stores: Store[]): Store[] {
-  return stores.filter((store) => member.storeIds.includes(store.id));
+function storeOptionsFor(member: Staff, stores: Store[]): Store[] {
+  return stores.filter((store) => member.storeIds.includes(store.id) && store.isActive);
 }
 
 export const useSessionStore = create<SessionState>((set, get) => ({
+  session: null,
+  account: null,
   staff: null,
   store: null,
+  register: null,
   storeOptions: [],
+  registerOptions: [],
+  autoLockMinutes: DEFAULT_AUTO_LOCK_MINUTES,
+  lastActivityAt: Date.now(),
 
   /**
-   * Credentials are read from the org store, not from the seed arrays: the staff screen can
-   * reset a PIN, deactivate a member and create new ones, and all three have to reach the
-   * login form. Reading the seed instead left a reset PIN inert, the old one still working,
-   * and a deactivated cashier still able to open the till.
+   * Email and password against the accounts in the org store, never against the seed arrays:
+   * a password changed in the app, an invite accepted and a member switched off all have to
+   * reach this path, and reading the seed would leave every one of them inert.
+   *
+   * The store is not chosen here. A member assigned to one branch is dropped straight onto it,
+   * anyone else picks on `/select-store`, and the till is picked after that.
    */
-  login: (storeCode, pin) => {
-    const { stores, staff, staffActiveById } = useOrgStore.getState();
+  login: async (email, password) => {
+    const { accounts, staff, stores, staffActiveById, organization } = useOrgStore.getState();
+    const account = accountByEmail(accounts, email);
+    if (!account) return { ok: false, reason: 'invalid' };
+    if (account.status === 'disabled') return { ok: false, reason: 'disabled' };
 
-    const store = stores.find(
-      (candidate) => candidate.code.toLowerCase() === storeCode.trim().toLowerCase(),
-    );
-    if (!store) return false;
+    const ok = await verifyPassword(password, account.salt, account.passwordHash);
+    if (!ok) return { ok: false, reason: 'invalid' };
 
-    // Deactivated members are skipped rather than matched and then rejected: the seed gives
-    // every member the same mock PIN, so rejecting the first match would lock out everyone
-    // who shares it instead of only the member who was turned off.
-    const member = staff.find(
-      (candidate) =>
-        candidate.pin === pin &&
-        candidate.storeIds.includes(store.id) &&
-        isStaffActive(staffActiveById, candidate.id),
-    );
-    if (!member) return false;
+    const member = staff.find((candidate) => candidate.id === account.staffId);
+    if (!member || !isStaffActive(staffActiveById, member.id)) return { ok: false, reason: 'disabled' };
 
-    set({ staff: member, store, storeOptions: findStoreOptions(member, stores) });
-    return true;
+    const options = storeOptionsFor(member, stores);
+    if (options.length === 0) return { ok: false, reason: 'no_store' };
+
+    const only = options.length === 1 ? options[0] : null;
+    const session = issueSession({
+      orgId: organization?.id ?? account.orgId,
+      userId: account.id,
+      staffId: member.id,
+      storeId: only?.id,
+    });
+
+    useOrgStore.getState().markAccountSignedIn(account.id, session.issuedAt);
+    set({
+      session,
+      account,
+      staff: member,
+      store: only,
+      register: null,
+      storeOptions: options,
+      registerOptions: only ? registersForStore(useOrgStore.getState().registers, only.id) : [],
+      lastActivityAt: Date.now(),
+    });
+
+    return { ok: true, mustChangePassword: account.mustChangePassword, storeOptions: options };
   },
 
   selectStore: (storeId) => {
-    const { staff: member, storeOptions } = get();
+    const { staff: member, storeOptions, session } = get();
     if (!member) return;
     const nextStore = storeOptions.find((store) => store.id === storeId);
     if (!nextStore) return;
-    set({ store: nextStore });
+    const registerOptions = registersForStore(useOrgStore.getState().registers, nextStore.id);
+    set({
+      store: nextStore,
+      // Switching branch drops the till: a register belongs to one shop, and keeping the old
+      // one would book the next sale to a station in another city.
+      register: null,
+      registerOptions,
+      session: session ? { ...session, storeId: nextStore.id, registerId: undefined } : session,
+      lastActivityAt: Date.now(),
+    });
   },
 
-  logout: () => set({ staff: null, store: null, storeOptions: [] }),
+  selectRegister: (registerId) => {
+    const { registerOptions, session } = get();
+    const nextRegister = registerOptions.find((register) => register.id === registerId);
+    if (!nextRegister) return;
+    set({
+      register: nextRegister,
+      session: session ? { ...session, registerId: nextRegister.id } : session,
+      lastActivityAt: Date.now(),
+    });
+  },
+
+  lock: () => {
+    const { session } = get();
+    if (!session) return;
+    set({ session: lockSession(session) });
+  },
+
+  /**
+   * One PIN pad does both jobs: the signed-in cashier's own PIN reopens the till, and any
+   * other member of this branch's PIN hands the till over to them. PINs are unique per chain,
+   * so the PIN alone names the person.
+   */
+  unlock: (pin) => {
+    const { session, store, staff: current } = get();
+    if (!session) return { ok: false, reason: 'unknown_pin' };
+
+    const { staff, accounts, staffActiveById } = useOrgStore.getState();
+    const member = staff.find((candidate) => candidate.pin === pin);
+    if (!member) return { ok: false, reason: 'unknown_pin' };
+    if (!isStaffActive(staffActiveById, member.id)) return { ok: false, reason: 'disabled' };
+    if (store && !member.storeIds.includes(store.id)) return { ok: false, reason: 'not_here' };
+
+    if (current && member.id === current.id) {
+      set({ session: unlockSession(session), lastActivityAt: Date.now() });
+      return { ok: true, switched: false, staff: member };
+    }
+
+    const account = accountForStaff(accounts, member.id);
+    if (account?.status === 'disabled') return { ok: false, reason: 'disabled' };
+
+    const nextSession = unlockSession({
+      ...session,
+      userId: account?.id ?? session.userId,
+      staffId: member.id,
+    });
+    set({
+      session: nextSession,
+      account: account ?? null,
+      staff: member,
+      lastActivityAt: Date.now(),
+    });
+    return { ok: true, switched: true, staff: member };
+  },
+
+  logout: () =>
+    set({
+      session: null,
+      account: null,
+      staff: null,
+      store: null,
+      register: null,
+      storeOptions: [],
+      registerOptions: [],
+    }),
+
+  touch: () => set({ lastActivityAt: Date.now() }),
+
+  setAutoLockMinutes: (autoLockMinutes) => set({ autoLockMinutes }),
+
+  changePassword: async (currentPassword, nextPassword) => {
+    const { account } = get();
+    if (!account) return false;
+    const fresh = useOrgStore.getState().accounts.find((item) => item.id === account.id) ?? account;
+    if (!(await verifyPassword(currentPassword, fresh.salt, fresh.passwordHash))) return false;
+
+    const passwordHash = await hashPassword(nextPassword, fresh.salt);
+    useOrgStore.getState().setAccountPassword(fresh.id, passwordHash, fresh.salt);
+    const updated = useOrgStore.getState().accounts.find((item) => item.id === fresh.id) ?? null;
+    set({ account: updated });
+    return true;
+  },
 }));
 
 export function getCurrentStaff(): Staff | null {
@@ -66,4 +215,29 @@ export function getCurrentStaff(): Staff | null {
 
 export function getCurrentStore(): Store | null {
   return useSessionStore.getState().store;
+}
+
+export function getCurrentRegister(): Register | null {
+  return useSessionStore.getState().register;
+}
+
+/** The chain of the active session; falls back to the loaded chain when signed out. */
+export function currentOrgId(): string {
+  return useSessionStore.getState().session?.orgId ?? useOrgStore.getState().organization?.id ?? '';
+}
+
+/** True while the lock screen should be covering the app. */
+export function isLocked(session: Session | null): boolean {
+  return Boolean(session?.lockedAt);
+}
+
+/** True when there is no session left to work with (signed out or timed out). */
+export function isSignedOut(session: Session | null, now: Date = new Date()): boolean {
+  return !session || isSessionExpired(session, now);
+}
+
+/** Permission check bound to the signed-in member. `false` while signed out. */
+export function useCan(permission: Permission): boolean {
+  const role = useSessionStore((state) => state.staff?.role);
+  return can(role, permission);
 }

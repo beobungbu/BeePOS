@@ -57,7 +57,9 @@ export function InventoryScreen() {
   const stockLevels = useInventoryStore((state) => state.stockLevels);
 
   const canSeeAllStores = canViewAllStores(staff);
-  const [scope, setScope] = useState<StoreScope>(currentStore?.id ?? allStores[0].id);
+  /** The store the screen opens on; the toolbar counts a filter only once the scope leaves it. */
+  const defaultScope: StoreScope = currentStore?.id ?? allStores[0].id;
+  const [scope, setScope] = useState<StoreScope>(defaultScope);
   // Desktop only, matching the 1440 frame of docs/design/mockups/inventory.html: the narrower
   // bands keep the tab pair and gain no search field in this phase.
   const [search, setSearch] = useState('');
@@ -180,24 +182,35 @@ export function InventoryScreen() {
             pushed the first stock row past the fold; the toolbar chip is both (phase 4,
             decision 5). */}
         <View className={`border-b border-border bg-surface ${GUTTER.desktop}`}>
-          <Toolbar actions={documentButtons}>
-            <View className="w-[300px]">
-              <SearchInput
-                accessibilityLabel={t('inventory.searchPlaceholder')}
-                onChangeText={setSearch}
-                onSearch={setSearch}
-                placeholder={t('inventory.searchPlaceholder')}
-              />
-            </View>
+          <Toolbar
+            actions={documentButtons}
+            // The store scope is the only filter that may hide; the chip is an alert that
+            // replaced a banner (phase 4, decision 5) and stays on the row at every width.
+            activeFilterCount={scope === defaultScope ? 0 : 1}
+            search={
+              // 300 pt at rest; the row may squeeze it to 240 before the filters collapse
+              // (`src/components/toolbar-fit.ts`).
+              <View className="w-[300px] min-w-60 shrink">
+                <SearchInput
+                  accessibilityLabel={t('inventory.searchPlaceholder')}
+                  onChangeText={setSearch}
+                  onSearch={setSearch}
+                  placeholder={t('inventory.searchPlaceholder')}
+                />
+              </View>
+            }
+            pinned={
+              alertCount > 0 ? (
+                <LowStockChip
+                  count={alertCount}
+                  label={fill(t('inventory.lowStockChip'), { count: alertCount })}
+                  selected={lowOnly}
+                  onPress={() => setActiveTab(lowOnly ? 'stock' : 'low')}
+                />
+              ) : null
+            }
+          >
             {storeSelect}
-            {alertCount > 0 ? (
-              <LowStockChip
-                count={alertCount}
-                label={fill(t('inventory.lowStockChip'), { count: alertCount })}
-                selected={lowOnly}
-                onPress={() => setActiveTab(lowOnly ? 'stock' : 'low')}
-              />
-            ) : null}
           </Toolbar>
         </View>
 

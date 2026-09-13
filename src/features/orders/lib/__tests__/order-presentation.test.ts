@@ -6,9 +6,12 @@ import { formatDate, formatDateTime, formatTime } from '../../../../lib/datetime
 
 const TODAY = new Date(2026, 8, 12, 14, 32); // 12/09/2026 14:32 local
 
+const ORG = 'org-1';
+
 function makeOrder(overrides: Partial<Order> = {}): Order {
   return {
     id: 'order-1',
+    orgId: ORG,
     code: 'HD20260912-0018',
     storeId: 'store-1',
     cashierId: 'staff-1',

@@ -35,6 +35,7 @@ import { usePosLayout } from './hooks/use-pos-layout';
 import { cartLineCount, cartTotalsOf, cartUnitCount } from './lib/cart-totals';
 import { cartLabel, countLabel, openOrdersLabel } from './lib/order-label';
 import { draftPayment } from './lib/payment-draft';
+import { currentOrgId } from '../../data/org-store';
 
 export default function CheckoutScreen() {
   const t = useT();
@@ -113,6 +114,7 @@ export default function CheckoutScreen() {
     const existingCodes = orders.filter((order) => order.storeId === store.id).map((order) => order.code);
     const order: Order = {
       id: `order-${Date.now()}`,
+      orgId: currentOrgId(),
       code: nextOrderCode(store.code, new Date(), existingCodes),
       storeId: store.id,
       cashierId: staff.id,

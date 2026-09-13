@@ -9,8 +9,10 @@
 import { Platform } from 'react-native';
 
 const STORAGE_KEY = 'beepos.remembered-store-code';
+const EMAIL_KEY = 'beepos.remembered-email';
 
 let inMemoryCode: string | null = null;
+let inMemoryEmail: string | null = null;
 
 function webStorage(): Storage | null {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return null;
@@ -39,6 +41,29 @@ export function setRememberedStoreCode(code: string | null): void {
   try {
     if (code) storage.setItem(STORAGE_KEY, code);
     else storage.removeItem(STORAGE_KEY);
+  } catch {
+    // Memory copy above already holds the value for this session.
+  }
+}
+
+/** Same treatment for the sign-in email, so a till reopens with its own cashier prefilled. */
+export function getRememberedEmail(): string | null {
+  const storage = webStorage();
+  if (!storage) return inMemoryEmail;
+  try {
+    return storage.getItem(EMAIL_KEY);
+  } catch {
+    return inMemoryEmail;
+  }
+}
+
+export function setRememberedEmail(email: string | null): void {
+  inMemoryEmail = email;
+  const storage = webStorage();
+  if (!storage) return;
+  try {
+    if (email) storage.setItem(EMAIL_KEY, email);
+    else storage.removeItem(EMAIL_KEY);
   } catch {
     // Memory copy above already holds the value for this session.
   }

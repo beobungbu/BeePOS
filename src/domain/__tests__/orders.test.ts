@@ -9,9 +9,12 @@ import {
   type Refund,
 } from '../orders';
 
+const ORG = 'org-1';
+
 function makeOrder(overrides: Partial<Order> = {}): Order {
   return {
     id: 'order-1',
+    orgId: ORG,
     code: 'HD20260911-0001',
     storeId: 'store-1',
     cashierId: 'staff-6',
@@ -34,6 +37,7 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
 const customers: Customer[] = [
   {
     id: 'customer-1',
+    orgId: ORG,
     name: 'Nguyễn Văn An',
     phone: '0912345678',
     points: 100,

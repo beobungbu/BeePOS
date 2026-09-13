@@ -17,19 +17,22 @@ import {
 
 const NOW = new Date('2026-09-11T09:00:00.000Z');
 
+const ORG = 'org-1';
+
 const stores: Store[] = [
-  { id: 'store-1', code: 'HN01', name: 'Store 1', address: '', phone: '', isActive: true },
-  { id: 'store-2', code: 'HN02', name: 'Store 2', address: '', phone: '', isActive: true },
+  { id: 'store-1', orgId: ORG, code: 'HN01', name: 'Store 1', address: '', phone: '', isActive: true },
+  { id: 'store-2', orgId: ORG, code: 'HN02', name: 'Store 2', address: '', phone: '', isActive: true },
 ];
 
 const staff: Staff[] = [
-  { id: 'staff-1', name: 'An', role: 'cashier', storeIds: ['store-1'], pin: '1234' },
-  { id: 'staff-2', name: 'Binh', role: 'cashier', storeIds: ['store-2'], pin: '1234' },
+  { id: 'staff-1', orgId: ORG, name: 'An', role: 'cashier', storeIds: ['store-1'], pin: '1234' },
+  { id: 'staff-2', orgId: ORG, name: 'Binh', role: 'cashier', storeIds: ['store-2'], pin: '1234' },
 ];
 
 const products: Product[] = [
   {
     id: 'p1',
+    orgId: ORG,
     sku: 'p1',
     barcode: '1',
     name: 'Sữa tươi',
@@ -42,6 +45,7 @@ const products: Product[] = [
   },
   {
     id: 'p2',
+    orgId: ORG,
     sku: 'p2',
     barcode: '2',
     name: 'Bánh mì',
@@ -57,6 +61,7 @@ const products: Product[] = [
 function makeOrder(overrides: Partial<Order>): Order {
   return {
     id: 'order-1',
+    orgId: ORG,
     code: 'HD001',
     storeId: 'store-1',
     cashierId: 'staff-1',

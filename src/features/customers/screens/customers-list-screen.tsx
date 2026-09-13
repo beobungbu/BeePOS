@@ -18,6 +18,7 @@ import { fill } from '../../orders/lib/fill';
 import { CustomerTable } from '../components/customer-table';
 import { CustomerListGroup } from '../components/customer-list-group';
 import { AddCustomerDialog, type NewCustomerInput } from '../components/add-customer-dialog';
+import { currentOrgId } from '../../../data/org-store';
 
 const TIERS: CustomerTier[] = ['bronze', 'silver', 'gold', 'platinum'];
 
@@ -52,6 +53,7 @@ export function CustomersListScreen() {
     const id = `customer-${Date.now()}`;
     const newCustomer: Customer = {
       id,
+      orgId: currentOrgId(),
       name: input.name,
       phone: input.phone,
       points: 0,
@@ -105,14 +107,21 @@ export function CustomersListScreen() {
       {isDesktop ? (
         <>
           <View className={`border-b border-border bg-surface ${gutter}`}>
-            <Toolbar actions={<Button onPress={() => setAddOpen(true)}>{t('customers.addButton')}</Button>}>
-              <View className="w-[300px]">
-                <SearchInput
-                  accessibilityLabel={t('customers.search')}
-                  onSearch={setSearch}
-                  placeholder={t('customers.search')}
-                />
-              </View>
+            <Toolbar
+              actions={<Button onPress={() => setAddOpen(true)}>{t('customers.addButton')}</Button>}
+              activeFilterCount={tier ? 1 : 0}
+              search={
+                // 300 pt at rest; the row may squeeze it to 240 before the filters collapse
+                // (`src/components/toolbar-fit.ts`).
+                <View className="w-[300px] min-w-60 shrink">
+                  <SearchInput
+                    accessibilityLabel={t('customers.search')}
+                    onSearch={setSearch}
+                    placeholder={t('customers.search')}
+                  />
+                </View>
+              }
+            >
               {tierChips}
             </Toolbar>
           </View>

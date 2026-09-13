@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle, ListGroup, ListItem, Sheet, SheetCo
 import { useRouter } from 'expo-router';
 import { useT } from '../../i18n';
 import { AppIcon } from '../icons';
-import { SECONDARY_MOBILE_ITEMS } from './nav-items';
+import { useVisibleNavItems } from './nav-items';
 
 interface MoreSheetProps {
   open: boolean;
@@ -21,6 +21,7 @@ interface MoreSheetProps {
 export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
   const t = useT();
   const router = useRouter();
+  const secondary = useVisibleNavItems().filter((item) => !item.primaryOnMobile);
 
   function handleSelect(href: string) {
     onOpenChange(false);
@@ -29,7 +30,7 @@ export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
 
   const items = (
     <ListGroup>
-      {SECONDARY_MOBILE_ITEMS.map((item) => (
+      {secondary.map((item) => (
         <ListItem
           key={item.id}
           title={t(item.labelKey)}

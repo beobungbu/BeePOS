@@ -12,7 +12,8 @@ import {
   hydratePreferences,
   readBooleanPreference,
 } from '../lib/preference-storage';
-import { persistStore, type PersistedStore } from './persist';
+import { getPlatformStorage, persistStore, type PersistedStore } from './persist';
+import { DEMO_ORG_ID } from './seed';
 import { useCartStore } from './cart-store';
 import { useCatalogStore } from './catalog-store';
 import { useCustomerStore } from './customer-store';
@@ -22,44 +23,86 @@ import { useOrgStore } from './org-store';
 import { useSessionStore } from './session-store';
 import { SIDEBAR_COLLAPSED_KEY, useSettingsStore } from './settings-store';
 
+/**
+ * The chain whose data these keys address. Kept in its own tiny key so the scope is known
+ * before any slice is read: the org slice itself is what would otherwise have to be parsed
+ * first, and the data slices are registered at import time.
+ *
+ * A chain created through onboarding writes its id here and starts from empty storage instead
+ * of inheriting the seeded chain's catalogue, orders and stock.
+ */
+const ACTIVE_ORG_KEY = 'beepos.persist.active-org';
+
+function readActiveOrgId(): string {
+  try {
+    return getPlatformStorage().getItemSync?.(ACTIVE_ORG_KEY) || DEMO_ORG_ID;
+  } catch {
+    return DEMO_ORG_ID;
+  }
+}
+
+/** Points the data keys at `orgId`. The caller reloads the app, which re-registers the keys. */
+export function setActiveOrgId(orgId: string): void {
+  const storage = getPlatformStorage();
+  storage.setItemSync?.(ACTIVE_ORG_KEY, orgId);
+  void storage.setItem(ACTIVE_ORG_KEY, orgId);
+}
+
+const ORG_SCOPE = readActiveOrgId();
+
 /** Bump a version when the matching slice changes shape; the old copy is then dropped on boot. */
 const VERSION = {
-  session: 1,
+  session: 2,
   settings: 1,
   carts: 1,
   orders: 1,
   inventory: 1,
   customers: 1,
   catalog: 1,
-  org: 1,
+  org: 2,
 } as const;
 
+/** `beepos.persist.<orgId>.<slice>`: one chain's data can never be read as another's. */
+function scoped(slice: string): string {
+  return `beepos.persist.${ORG_SCOPE}.${slice}`;
+}
+
 const KEY = {
-  session: 'beepos.persist.session',
+  session: scoped('session'),
+  carts: scoped('carts'),
+  orders: scoped('orders'),
+  inventory: scoped('inventory'),
+  customers: scoped('customers'),
+  catalog: scoped('catalog'),
+  // The chain itself and the device preferences are not scoped: the first is what defines the
+  // scope, and theme, language and density belong to the device rather than to a chain.
   settings: 'beepos.persist.settings',
-  carts: 'beepos.persist.carts',
-  orders: 'beepos.persist.orders',
-  inventory: 'beepos.persist.inventory',
-  customers: 'beepos.persist.customers',
-  catalog: 'beepos.persist.catalog',
   org: 'beepos.persist.org',
 } as const;
 
 /** Every persisted key, so a full wipe needs no enumeration API from the platform storage. */
-export const PERSISTED_KEYS = Object.values(KEY);
+export const PERSISTED_KEYS = [...Object.values(KEY), ACTIVE_ORG_KEY];
 
 const entries: PersistedStore[] = [
-  // Active staff and store: a reload lands back on the sell screen instead of the login form.
+  // The issued session, its staff, branch and till: a reload lands back on the sell screen
+  // instead of the login form, and a locked till comes back locked rather than open.
+  //
   // The signed-in member's PIN is blanked before the slice is written: nothing reads it back
-  // off the session (login checks the org store), so keeping it here only put a working till
-  // credential in `localStorage` where any devtools window can read it.
+  // off the session (the lock screen checks the org store), so keeping it here only put a
+  // working till credential in `localStorage` where any devtools window can read it. The
+  // account is written without its credential fields for the same reason.
   persistStore(
     KEY.session,
     useSessionStore,
     (state) => ({
+      session: state.session,
+      account: state.account ? { ...state.account, passwordHash: '', salt: '' } : null,
       staff: state.staff ? { ...state.staff, pin: '' } : null,
       store: state.store,
+      register: state.register,
       storeOptions: state.storeOptions,
+      registerOptions: state.registerOptions,
+      autoLockMinutes: state.autoLockMinutes,
     }),
     VERSION.session,
   ),
@@ -133,8 +176,11 @@ const entries: PersistedStore[] = [
     KEY.org,
     useOrgStore,
     (state) => ({
+      organization: state.organization,
       stores: state.stores,
       staff: state.staff,
+      registers: state.registers,
+      accounts: state.accounts,
       staffActiveById: state.staffActiveById,
       storeHoursById: state.storeHoursById,
     }),
@@ -219,7 +265,8 @@ export async function flushAll(): Promise<void> {
  * and receipt text.
  */
 export async function resetDemoData(): Promise<void> {
-  const { staff, store, storeOptions } = useSessionStore.getState();
+  const { session, account, staff, store, register, storeOptions, registerOptions } =
+    useSessionStore.getState();
 
   // `reset()` puts its seed slice back synchronously and only then awaits the storage clear,
   // so the session is signed back in inside the same tick it was emptied. Restoring it after
@@ -228,7 +275,7 @@ export async function resetDemoData(): Promise<void> {
   // never saw the toast.
   const cleared = entries.map((entry) => entry.reset());
   if (staff && store) {
-    useSessionStore.setState({ staff, store, storeOptions });
+    useSessionStore.setState({ session, account, staff, store, register, storeOptions, registerOptions });
   }
 
   await Promise.all(cleared);

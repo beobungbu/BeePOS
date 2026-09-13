@@ -37,6 +37,7 @@ import { countVariance } from '../../domain/inventory';
 import type { StockCount, StockCountLine } from '../../domain/types';
 import { useT } from '../../i18n';
 import { useScreenHeader } from '../../components/shell/screen-header';
+import { currentOrgId } from '../../data/org-store';
 
 function makeCountId(): string {
   return `count-${Date.now()}`;
@@ -87,6 +88,7 @@ export function CountDetailScreen({ countId }: CountDetailScreenProps) {
   function buildCount(status: StockCount['status']): StockCount {
     return {
       id: existing?.id ?? makeCountId(),
+      orgId: currentOrgId(),
       storeId,
       lines,
       status,

@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'expo-router';
 import { useT } from '../../i18n';
 import { useLargeText } from '../../hooks/use-large-text';
 import { AppIcon, type AppIconName } from '../icons';
-import { PRIMARY_MOBILE_TABS, SECONDARY_MOBILE_ITEMS } from './nav-items';
+import { useVisibleNavItems } from './nav-items';
 
 /** Bottom tab bar for phones (< 768): 4 primary areas plus a "Thêm" menu trigger. */
 export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
@@ -14,9 +14,12 @@ export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
   // Large Dynamic Type: five labels no longer fit a phone width, keep icons only (labels stay
   // available to assistive tech through accessibilityLabel).
   const iconOnly = useLargeText();
+  const items = useVisibleNavItems();
+  const primary = items.filter((item) => item.primaryOnMobile);
+  const secondary = items.filter((item) => !item.primaryOnMobile);
 
   const tabs: { key: string; label: string; icon: AppIconName; active: boolean; onPress: () => void }[] = [
-    ...PRIMARY_MOBILE_TABS.map((item) => ({
+    ...primary.map((item) => ({
       key: item.id,
       label: t(item.labelKey),
       icon: item.icon,
@@ -27,7 +30,7 @@ export function BottomTabBar({ onMorePress }: { onMorePress: () => void }) {
       key: 'more',
       label: t('common.nav.more'),
       icon: 'ellipsis' as AppIconName,
-      active: SECONDARY_MOBILE_ITEMS.some((item) => pathname.startsWith(item.href)),
+      active: secondary.some((item) => pathname.startsWith(item.href)),
       onPress: onMorePress,
     },
   ];

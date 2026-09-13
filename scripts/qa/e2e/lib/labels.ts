@@ -13,6 +13,9 @@ export const L = {
     newTransfer: 'Tạo phiếu chuyển', send: 'Gửi hàng', receive: 'Nhận hàng', newCount: 'Tạo phiếu kiểm kê', generate: 'Tạo dòng kiểm kê', post: 'Ghi nhận',
     today: 'Hôm nay', days7: '7 ngày', days30: '30 ngày', custom: 'Tuỳ chọn',
     resetPin: 'Đặt lại PIN', themeLight: 'Sáng', themeDark: 'Tối', language: 'Ngôn ngữ', receiptHeader: 'Tiêu đề hoá đơn',
+    signIn: 'Đăng nhập', email: 'Email', password: 'Mật khẩu', selectStore: 'Chọn cửa hàng', selectRegister: 'Chọn quầy',
+    lock: 'Khoá màn hình', unlockPrompt: 'Nhập mã PIN 4 chữ số để mở khoá', switchCashier: 'Đổi thu ngân',
+    staff: 'Nhân viên', permissionsMatrix: 'Ma trận quyền', invite: 'Mời qua email', statusInvited: 'Đã mời',
     tabs: ['Bán hàng', 'Đơn hàng', 'Sản phẩm', 'Kho hàng', 'Thêm'],
   },
   en: {
@@ -28,6 +31,9 @@ export const L = {
     newTransfer: 'New transfer', send: 'Send', receive: 'Receive', newCount: 'New count', generate: 'Generate lines', post: 'Post count',
     today: 'Today', days7: '7 days', days30: '30 days', custom: 'Custom',
     resetPin: 'Reset PIN', themeLight: 'Light', themeDark: 'Dark', language: 'Language', receiptHeader: 'Receipt header',
+    signIn: 'Sign in', email: 'Email', password: 'Password', selectStore: 'Select store', selectRegister: 'Pick a register',
+    lock: 'Lock screen', unlockPrompt: 'Enter your 4 digit PIN to unlock', switchCashier: 'Switch cashier',
+    staff: 'Staff', permissionsMatrix: 'Permission matrix', invite: 'Invite by email', statusInvited: 'Invited',
     tabs: ['Sell', 'Orders', 'Products', 'Inventory', 'More'],
   },
 } as const;

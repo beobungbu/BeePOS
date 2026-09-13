@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Button, ButtonLabel, SafeArea, Screen, Text, useToast, VStack } from '@beemvp/beeui-ui';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
-import { useOrgStore } from '../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { StoreFormFields } from './components/store-form-fields';
 import { emptyStoreForm, useStoreForm } from './store-form-state';
@@ -32,6 +32,7 @@ export function StoreNewScreen() {
     const id = `store-${stores.length + 1}-${Date.now()}`;
     upsertStore({
       id,
+      orgId: currentOrgId(),
       code: form.values.code,
       name: form.values.name,
       address: form.values.address,

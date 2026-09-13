@@ -3,7 +3,8 @@ import { useRouter } from 'expo-router';
 import { Button, ButtonLabel, SafeArea, Screen, Text, useToast, VStack } from '@beemvp/beeui-ui';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
-import { useOrgStore } from '../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
+import { nextAvailablePin } from '../../domain/auth';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { StaffFormFields } from './components/staff-form-fields';
 import { emptyStaffForm, useStaffForm } from './staff-form-state';
@@ -30,8 +31,22 @@ export function StaffNewScreen() {
   function handleCreate() {
     if (!form.validate()) return;
     const id = `staff-${staffList.length + 1}-${Date.now()}`;
-    upsertStaff({ id, name: form.values.name, role: form.values.role, storeIds: form.values.storeIds, pin: '1234' });
-    toast.show({ title: t('staff.toast.created'), variant: 'success' });
+    // A PIN nobody else in the chain has: the lock screen resolves a cashier from the PIN
+    // alone, so a duplicate would hand the till to whoever was listed first.
+    const pin = nextAvailablePin(staffList.map((member) => member.pin));
+    upsertStaff({
+      id,
+      orgId: currentOrgId(),
+      name: form.values.name,
+      role: form.values.role,
+      storeIds: form.values.storeIds,
+      pin,
+    });
+    toast.show({
+      title: t('staff.toast.created'),
+      description: t('staff.invite.pinNote').replace('{pin}', pin),
+      variant: 'success',
+    });
     router.replace(`/staff/${id}`);
   }
 

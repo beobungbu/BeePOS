@@ -2,6 +2,7 @@ import type { GoodsReceipt, StockCount, StockTransfer } from '../../domain/types
 import { createRng, pickMany, randInt } from './prng';
 import { products } from './products';
 import { stores } from './stores';
+import { DEMO_ORG_ID } from './org';
 
 const SEED = 20260911;
 const NOW = new Date('2026-09-11T09:00:00.000Z');
@@ -23,6 +24,7 @@ function buildGoodsReceipts(): GoodsReceipt[] {
     }));
     return {
       id: `receipt-${index + 1}`,
+      orgId: DEMO_ORG_ID,
       storeId: store.id,
       supplierName: suppliers[index % suppliers.length],
       lines,
@@ -49,6 +51,7 @@ function buildStockTransfers(): StockTransfer[] {
     }));
     return {
       id: `transfer-${index + 1}`,
+      orgId: DEMO_ORG_ID,
       fromStoreId,
       toStoreId,
       lines,
@@ -70,6 +73,7 @@ function buildStockCounts(): StockCount[] {
     });
     return {
       id: `count-${index + 1}`,
+      orgId: DEMO_ORG_ID,
       storeId: store.id,
       lines,
       status: statuses[index % statuses.length],

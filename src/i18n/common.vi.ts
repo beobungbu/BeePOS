@@ -60,17 +60,9 @@ export const commonVi = {
     errorToast: 'Không xuất được tệp CSV',
   },
   auth: {
-    storeCode: 'Mã cửa hàng',
-    pin: 'Mã PIN',
-    login: 'Đăng nhập',
     logout: 'Đăng xuất',
     selectStore: 'Chọn cửa hàng',
-    invalidCredentials: 'Mã cửa hàng hoặc mã PIN không đúng',
-    welcome: 'Chào mừng đến với BeePOS',
-    continueButton: 'Tiếp tục',
     tagline: 'Hệ thống bán hàng chuỗi tạp hoá',
-    rememberStore: 'Ghi nhớ cửa hàng này',
-    storeNotFound: 'Không tìm thấy cửa hàng với mã này',
     greeting: 'Xin chào, {name}',
     selectStorePrompt: 'Chọn cửa hàng để bắt đầu ca làm việc',
     recentStore: 'Gần đây',
@@ -78,6 +70,7 @@ export const commonVi = {
   },
   shell: {
     switchStore: 'Đổi cửa hàng',
+    lock: 'Khoá màn hình',
     profile: 'Tài khoản',
     theme: 'Giao diện',
     language: 'Ngôn ngữ',
@@ -86,6 +79,10 @@ export const commonVi = {
     themeSystem: 'Theo hệ thống',
     collapseMenu: 'Thu gọn menu',
     expandMenu: 'Mở rộng menu',
+  },
+  toolbar: {
+    filters: 'Bộ lọc',
+    filtersActive: '{count} bộ lọc đang bật',
   },
 };
 

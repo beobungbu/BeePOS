@@ -1,5 +1,6 @@
 import type { Product } from '../../domain/types';
 import { ean13 } from './prng';
+import { DEMO_ORG_ID } from './org';
 
 interface ProductVariantSeed {
   label: string;
@@ -471,6 +472,7 @@ function buildProducts(): Product[] {
       const sku = `${prefix}-${String(counter).padStart(3, '0')}`;
       products.push({
         id: `product-${sequence}`,
+        orgId: DEMO_ORG_ID,
         sku,
         barcode: ean13(String(893000000000 + sequence).slice(0, 12)),
         name: `${template.name} ${variant.label}`,

@@ -1,8 +1,22 @@
 import { ScrollView } from 'react-native';
-import { Button, ButtonLabel, HStack, SafeArea, Screen, Section, Text, useToast, VStack } from '@beemvp/beeui-ui';
+import {
+  Badge,
+  Button,
+  ButtonLabel,
+  HStack,
+  ListGroup,
+  ListItem,
+  SafeArea,
+  Screen,
+  Section,
+  Text,
+  useToast,
+  VStack,
+} from '@beemvp/beeui-ui';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
+import { formatDateTime } from '../../lib/datetime';
 import { useT } from '../../i18n';
-import { useOrgStore, isStaffActive } from '../../data/org-store';
+import { accountForStaff, useOrgStore, isStaffActive } from '../../data/org-store';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { StaffFormFields } from './components/staff-form-fields';
 import { ResetPinDialog } from './components/reset-pin-dialog';
@@ -25,11 +39,13 @@ export function StaffDetailScreen({ staffId }: StaffDetailScreenProps) {
   const staffList = useOrgStore((state) => state.staff);
   const stores = useOrgStore((state) => state.stores);
   const staffActiveById = useOrgStore((state) => state.staffActiveById);
+  const accounts = useOrgStore((state) => state.accounts);
   const upsertStaff = useOrgStore((state) => state.upsertStaff);
   const setStaffActive = useOrgStore((state) => state.setStaffActive);
   const resetStaffPin = useOrgStore((state) => state.resetStaffPin);
 
   const member = staffList.find((item) => item.id === staffId);
+  const account = accountForStaff(accounts, staffId);
 
   // Pushed route: the back control lives in the shell header, with the member as the title.
   useScreenHeader({ title: member?.name ?? t('staff.title'), backTo: '/staff' });
@@ -75,6 +91,29 @@ export function StaffDetailScreen({ staffId }: StaffDetailScreenProps) {
               <Text variant="title">{member.name}</Text>
               <Text variant="caption" tone="muted">{t(`staff.role.${member.role}`)}</Text>
             </VStack>
+
+            {/* The sign-in account beside the roster entry: "is this person set up yet" is the
+                question the staff screen is opened with, and an invite that was never accepted
+                looks exactly like an active member without it. */}
+            <Section title={t('staff.account.title')}>
+              <ListGroup>
+                <ListItem
+                  title={account?.email ?? t('staff.account.none')}
+                  description={
+                    account?.lastLoginAt
+                      ? `${t('staff.account.lastLogin')}: ${formatDateTime(account.lastLoginAt.toISOString())}`
+                      : t('staff.account.never')
+                  }
+                  trailing={
+                    account ? (
+                      <Badge variant={account.status === 'active' ? 'success' : account.status === 'invited' ? 'warning' : 'secondary'}>
+                        {t(`staff.status.${account.status}`)}
+                      </Badge>
+                    ) : undefined
+                  }
+                />
+              </ListGroup>
+            </Section>
 
             <Section title={t('staff.detail.info')}>
               <StaffFormFields

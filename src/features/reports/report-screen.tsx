@@ -5,7 +5,7 @@ import { useScreenHeader } from '../../components/shell/screen-header';
 import { Toolbar } from '../../components/toolbar';
 import { useT } from '../../i18n';
 import { PeriodFilter } from './components/period-filter';
-import { StatCards } from './components/stat-cards';
+import { ReportStats } from './components/report-stats';
 import { RevenueBarChart } from './components/revenue-bar-chart';
 import { StoreRevenueTable } from './components/store-revenue-table';
 import { TopProductsTable } from './components/top-products-table';
@@ -42,11 +42,15 @@ export function ReportScreen() {
         {/* `Screen` owns no scroll behaviour, so the report sections need one here. */}
         <ScrollView className="flex-1">
           {/* Desktop: period, store and export share the one 56 pt toolbar row under the
-              header. Reports keeps its stat cards, where a figure is the content of the
-              screen and not a caption on a table (phase 4, decision 4). */}
+              header. The period and the store select collapse into the `Bộ lọc` popover when
+              the row would otherwise wrap; export never leaves the row. */}
           {isDesktop ? (
             <View className="border-b border-border bg-surface px-6">
               <Toolbar
+                activeFilterCount={
+                  // Default state of `useReportFilters`: today, every store the staff may see.
+                  (filters.periodKey === 'today' ? 0 : 1) + (filters.storeId ? 1 : 0)
+                }
                 actions={
                   <Button variant="outline" size="sm" onPress={handleExport} accessibilityLabel={t('reports.export.button')}>
                     {/* `ButtonLabel` paints itself `text-primary-foreground` whatever the
@@ -70,7 +74,9 @@ export function ReportScreen() {
               </Stack>
             )}
 
-            <StatCards stats={data.stats} />
+            {/* One figure per row below 1280: five money values on one row leave "217.513.070 đ"
+                wrapped onto two lines at 768 and unreadable at 375. */}
+            <ReportStats stats={data.stats} layout={isDesktop ? 'row' : 'stacked'} />
 
             <Stack direction={isWide ? 'horizontal' : 'vertical'} gap="lg" wrap align="start">
               <VStack gap="lg" className={isWide ? 'min-w-80 flex-1' : ''}>

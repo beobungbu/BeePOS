@@ -42,17 +42,45 @@ export async function clearPersistedState(page: Page): Promise<void> {
   }, CLEARED_FLAG);
 }
 
-/** Login with the README demo credentials and pick the first store. */
-export async function login(page: Page, storeCode = 'HN01', pin = '1234'): Promise<void> {
+/** The seeded owner, documented in the README. Every spec starts from this account. */
+export const DEMO_EMAIL = 'owner@chuoi.vn';
+export const DEMO_PASSWORD = 'BeePOS@2026';
+/** The branch and the till the journeys expect to be standing at. */
+export const DEMO_STORE = 'Tạp hoá Cầu Giấy';
+export const DEMO_REGISTER = 'Quầy 1';
+
+/**
+ * Signs in with the README demo credentials, then picks the branch and the till.
+ *
+ * Three steps rather than one form: an account is not a shop, and a session with no register
+ * books shifts and receipts to nowhere. The owner is assigned to four branches and every
+ * branch has two tills, so both pickers always appear for this account.
+ */
+export async function login(
+  page: Page,
+  email = DEMO_EMAIL,
+  password = DEMO_PASSWORD,
+  store = DEMO_STORE,
+  register = DEMO_REGISTER,
+): Promise<void> {
   await clearPersistedState(page);
   await page.goto('/login');
-  await page.getByLabel('Mã cửa hàng').fill(storeCode);
-  await page.getByLabel('Mã PIN').fill(pin);
+  await page.getByLabel('Email', { exact: true }).fill(email);
+  await page.getByLabel('Mật khẩu', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   // The phone select-store screen carries the phrase twice, in the header and in the prompt
   // under the greeting, so match the first occurrence instead of tripping strict mode.
   await page.getByText('Chọn cửa hàng').first().waitFor();
-  await page.getByText('Tạp hoá Cầu Giấy').first().click();
+  await page.getByText(store).first().click();
+  await page.getByText('Chọn quầy').first().waitFor();
+  await page.getByText(register, { exact: true }).first().click();
   await page.waitForURL('**/pos');
-  await expect(page.getByText('Tạp hoá Cầu Giấy').first()).toBeVisible();
+  await expect(page.getByText(store).first()).toBeVisible();
+}
+
+/** Locks the till from the avatar menu and waits for the PIN pad. */
+export async function lockScreen(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Tài khoản' }).click();
+  await page.getByText('Khoá màn hình').click();
+  await page.waitForURL('**/lock');
 }

@@ -4,7 +4,10 @@
  * No network calls, no faker library. Split by entity to keep each file small and reviewable.
  */
 
+export { organization, DEMO_ORG_ID, DEMO_EMAIL_DOMAIN } from './org';
 export { stores } from './stores';
+export { registers } from './registers';
+export { accounts, DEMO_PASSWORD, seedSalt } from './accounts';
 export { staff } from './staff';
 export { categories } from './categories';
 export { products } from './products';

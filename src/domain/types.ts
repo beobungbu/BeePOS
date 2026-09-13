@@ -1,7 +1,24 @@
 /** Core domain model for BeePOS. Pure types, no runtime dependencies. */
 
+/**
+ * The chain a set of stores, staff and data belongs to. Every root entity carries `orgId`, so
+ * one device can only ever read the chain its session was issued for.
+ */
+export interface Organization {
+  id: string;
+  code: string;
+  name: string;
+  plan: 'free' | 'pro' | 'enterprise';
+  currency: 'VND';
+  taxRate: number;
+  receiptHeader: string;
+  receiptFooter: string;
+  createdAt: Date;
+}
+
 export interface Store {
   id: string;
+  orgId: string;
   code: string;
   name: string;
   address: string;
@@ -13,6 +30,7 @@ export type StaffRole = 'owner' | 'manager' | 'cashier';
 
 export interface Staff {
   id: string;
+  orgId: string;
   name: string;
   role: StaffRole;
   storeIds: string[];
@@ -21,6 +39,7 @@ export interface Staff {
 
 export interface Category {
   id: string;
+  orgId: string;
   name: string;
   parentId?: string;
 }
@@ -34,6 +53,7 @@ export interface ProductVariant {
 
 export interface Product {
   id: string;
+  orgId: string;
   sku: string;
   barcode: string;
   name: string;
@@ -70,6 +90,7 @@ export type CustomerTier = 'bronze' | 'silver' | 'gold' | 'platinum';
 
 export interface Customer {
   id: string;
+  orgId: string;
   name: string;
   phone: string;
   points: number;
@@ -122,6 +143,7 @@ export type OrderStatus = 'paid' | 'refunded' | 'partial_refund' | 'void';
 
 export interface Order {
   id: string;
+  orgId: string;
   code: string;
   storeId: string;
   cashierId: string;
@@ -138,7 +160,13 @@ export interface Order {
 
 export interface Shift {
   id: string;
+  orgId: string;
   storeId: string;
+  /**
+   * The till the shift was opened on. Optional because shifts seeded before registers existed
+   * carry none; a session always binds one before a shift can be opened.
+   */
+  registerId?: string;
   cashierId: string;
   openedAt: string;
   closedAt?: string;
@@ -159,7 +187,13 @@ export type GoodsReceiptStatus = 'draft' | 'received';
 
 export interface GoodsReceipt {
   id: string;
+  orgId: string;
   storeId: string;
+  /**
+   * Supplier entity the receipt was booked against. Optional until the supplier screens land
+   * (wave 2 owns `Supplier` CRUD); `supplierName` stays the display value either way.
+   */
+  supplierId?: string;
   supplierName: string;
   lines: GoodsReceiptLine[];
   status: GoodsReceiptStatus;
@@ -170,6 +204,7 @@ export type StockTransferStatus = 'draft' | 'sent' | 'received';
 
 export interface StockTransfer {
   id: string;
+  orgId: string;
   fromStoreId: string;
   toStoreId: string;
   lines: GoodsReceiptLine[];
@@ -187,8 +222,123 @@ export type StockCountStatus = 'draft' | 'posted';
 
 export interface StockCount {
   id: string;
+  orgId: string;
   storeId: string;
   lines: StockCountLine[];
   status: StockCountStatus;
   createdAt: string;
+}
+
+/**
+ * A till: one physical station inside a store. A session binds to one, so two cashiers on two
+ * tills in the same shop are told apart on the shift and on the receipt.
+ */
+export interface Register {
+  id: string;
+  orgId: string;
+  storeId: string;
+  code: string;
+  name: string;
+  isActive: boolean;
+}
+
+/** Everything a role may be allowed to do. Screens ask `can(role, permission)`, never the role. */
+export type Permission =
+  | 'pos.sell'
+  | 'pos.refund'
+  | 'pos.discount'
+  | 'pos.void'
+  | 'orders.view'
+  | 'catalog.manage'
+  | 'inventory.manage'
+  | 'inventory.transfer'
+  | 'customers.manage'
+  | 'reports.store'
+  | 'reports.chain'
+  | 'stores.manage'
+  | 'staff.manage'
+  | 'settings.manage'
+  | 'audit.view'
+  | 'cash.movement';
+
+export interface RoleDefinition {
+  role: StaffRole;
+  label: string;
+  permissions: Permission[];
+}
+
+export type UserAccountStatus = 'active' | 'invited' | 'disabled';
+
+/**
+ * Sign-in identity. Separate from `Staff` on purpose: a staff record is who works the till
+ * (name, PIN, branches), an account is who may sign in (email, password, invite state).
+ */
+export interface UserAccount {
+  id: string;
+  orgId: string;
+  email: string;
+  passwordHash: string;
+  salt: string;
+  staffId: string;
+  status: UserAccountStatus;
+  mustChangePassword: boolean;
+  lastLoginAt?: Date;
+  createdAt: Date;
+}
+
+export interface Session {
+  token: string;
+  orgId: string;
+  userId: string;
+  staffId: string;
+  storeId?: string;
+  registerId?: string;
+  issuedAt: Date;
+  expiresAt: Date;
+  /** Set while the screen is locked; the session stays valid and a PIN brings it back. */
+  lockedAt?: Date;
+}
+
+export interface Supplier {
+  id: string;
+  orgId: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  note?: string;
+  isActive: boolean;
+}
+
+/** Per-store override of a product's sale price; absence means the catalogue price applies. */
+export interface StorePrice {
+  orgId: string;
+  storeId: string;
+  productId: string;
+  salePrice: number;
+}
+
+export type CashMovementType = 'in' | 'out';
+
+export interface CashMovement {
+  id: string;
+  orgId: string;
+  storeId: string;
+  shiftId: string;
+  type: CashMovementType;
+  amount: number;
+  reason: string;
+  staffId: string;
+  createdAt: Date;
+}
+
+export interface AuditEvent {
+  id: string;
+  orgId: string;
+  storeId?: string;
+  staffId: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  summary: string;
+  createdAt: Date;
 }

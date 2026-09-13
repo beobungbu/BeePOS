@@ -14,12 +14,14 @@ import {
 import { useRouter } from 'expo-router';
 import { useT } from '../../i18n';
 import { useSessionStore } from '../../data/session-store';
+import { useOrgStore } from '../../data/org-store';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { AppIcon } from '../../components/icons';
 import { initialsOf } from '../../lib/initials';
 import type { Store } from '../../domain/types';
 import { AuthBrand, AuthLayout } from './auth-layout';
-import { getRememberedStoreCode } from './remembered-store';
+import { getRememberedStoreCode, setRememberedStoreCode } from './remembered-store';
+import { resumeRoute } from './routes';
 
 export default function SelectStoreScreen() {
   const t = useT();
@@ -29,6 +31,7 @@ export default function SelectStoreScreen() {
   const storeOptions = useSessionStore((state) => state.storeOptions);
   const selectStore = useSessionStore((state) => state.selectStore);
   const logout = useSessionStore((state) => state.logout);
+  const registers = useOrgStore((state) => state.registers);
 
   const rememberedCode = getRememberedStoreCode();
   const recentStore = useMemo(
@@ -38,7 +41,12 @@ export default function SelectStoreScreen() {
 
   function handleSelect(storeId: string) {
     selectStore(storeId);
-    router.replace('/pos');
+    // What puts this branch under "Gần đây" next time: a till reopens on the shop it was used
+    // at, without that being a setting anyone has to find.
+    setRememberedStoreCode(storeOptions.find((store) => store.id === storeId)?.code ?? null);
+    // The till is the next question, unless the shop has only one, which `resumeRoute` binds
+    // on the spot: a session with no register books shifts and receipts to nowhere.
+    router.replace(resumeRoute());
   }
 
   function handleSignOut() {
@@ -53,7 +61,12 @@ export default function SelectStoreScreen() {
         className="min-h-[72px]"
         title={store.name}
         titleClassName="text-[length:var(--text-label)] leading-[var(--text-label--line-height)] font-semibold text-foreground"
-        description={`${store.address}${store.phone ? ` · ${store.phone}` : ''}`}
+        // Till count before the address: it is what says whether the next screen will ask
+        // anything, and two branches are told apart by the address under it.
+        description={`${t('auth.register.count').replace(
+          '{count}',
+          String(registers.filter((item) => item.storeId === store.id && item.isActive).length),
+        )} · ${store.address}`}
         leading={
           <Badge variant="outline" className="rounded-sm border-transparent bg-muted">
             {store.code}

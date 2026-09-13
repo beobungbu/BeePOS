@@ -57,6 +57,11 @@ export function OrderFiltersBar({
 
   useSearchHotkey(isDesktop);
 
+  // What the collapsed `Bộ lọc` button counts: the three selects that narrow the list away
+  // from "all". The date range is not counted, because a range is always in force.
+  const activeFilterCount =
+    (value.storeId ? 1 : 0) + (value.cashierId ? 1 : 0) + (value.status ? 1 : 0);
+
   const setPreset = (preset: DatePreset) =>
     onChange({ ...value, preset, ...rangeForPreset(preset, new Date(), value) });
 
@@ -96,7 +101,7 @@ export function OrderFiltersBar({
   );
 
   const search = (
-    <View className="min-w-48 flex-1" nativeID={SEARCH_WRAPPER_ID}>
+    <View className="min-w-48 flex-1 shrink" nativeID={SEARCH_WRAPPER_ID}>
       <SearchInput
         accessibilityLabel={t('orders.filters.search')}
         defaultValue={value.search}
@@ -214,11 +219,20 @@ export function OrderFiltersBar({
   if (isDesktop) {
     return (
       <View className="border-b border-border bg-surface px-6">
-        <Toolbar actions={actions}>
-          <View style={{ width: 300 }}>{search}</View>
-          <Text variant="caption" className="text-subtle-foreground" numberOfLines={1}>
-            F3
-          </Text>
+        <Toolbar
+          actions={actions}
+          activeFilterCount={activeFilterCount}
+          search={
+            // 300 pt at rest; the row may squeeze it to 240 before the filters collapse
+            // (`src/components/toolbar-fit.ts`).
+            <View className="w-[300px] min-w-60 shrink flex-row items-center gap-2">
+              {search}
+              <Text variant="caption" className="text-subtle-foreground" numberOfLines={1}>
+                F3
+              </Text>
+            </View>
+          }
+        >
           {storeSelect}
           <View className="min-w-32">{presetSelect}</View>
           <View className="min-w-36">{statusSelect}</View>

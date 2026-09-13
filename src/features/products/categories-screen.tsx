@@ -25,6 +25,7 @@ import { useCatalogStore } from '../../data/catalog-store';
 import type { Category } from '../../domain/types';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
+import { currentOrgId } from '../../data/org-store';
 
 type DialogMode = 'add' | 'addSub' | 'rename' | 'delete';
 
@@ -77,10 +78,15 @@ export function CategoriesScreen() {
       upsertCategory({ ...dialog.target, name: nameInput.trim() });
       toast.show({ title: t('products.categories.rename'), variant: 'success' });
     } else if (dialog.mode === 'add' && nameInput.trim()) {
-      upsertCategory({ id: makeCategoryId(), name: nameInput.trim() });
+      upsertCategory({ id: makeCategoryId(), orgId: currentOrgId(), name: nameInput.trim() });
       toast.show({ title: t('products.categories.addCategory'), variant: 'success' });
     } else if (dialog.mode === 'addSub' && dialog.target && nameInput.trim()) {
-      upsertCategory({ id: makeCategoryId(), name: nameInput.trim(), parentId: dialog.target.id });
+      upsertCategory({
+        id: makeCategoryId(),
+        orgId: currentOrgId(),
+        name: nameInput.trim(),
+        parentId: dialog.target.id,
+      });
       toast.show({ title: t('products.categories.addSubcategory'), variant: 'success' });
     }
     closeDialog();

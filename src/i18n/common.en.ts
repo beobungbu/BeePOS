@@ -60,23 +60,16 @@ export const commonEn = {
     errorToast: 'The CSV file could not be exported',
   },
   auth: {
-    storeCode: 'Store code',
-    pin: 'PIN',
-    login: 'Log in',
     logout: 'Log out',
     selectStore: 'Select store',
-    invalidCredentials: 'Store code or PIN is incorrect',
-    welcome: 'Welcome to BeePOS',
-    continueButton: 'Continue',
     tagline: 'Point of sale for grocery chains',
-    rememberStore: 'Remember this store',
-    storeNotFound: 'No store matches this code',
     greeting: 'Hello, {name}',
     selectStorePrompt: 'Choose a store to start your shift',
     recentStore: 'Recent',
     allStores: 'All stores',
   },
   shell: {
+    lock: 'Lock screen',
     switchStore: 'Switch store',
     profile: 'Account',
     theme: 'Theme',
@@ -86,6 +79,10 @@ export const commonEn = {
     themeSystem: 'System',
     collapseMenu: 'Collapse menu',
     expandMenu: 'Expand menu',
+  },
+  toolbar: {
+    filters: 'Filters',
+    filtersActive: '{count} active filters',
   },
 };
 

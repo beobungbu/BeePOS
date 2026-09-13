@@ -30,16 +30,25 @@ export function ProductToolbar({ filters, categories, onFiltersChange, actions }
   // status segments together leave the search box too narrow to read its own placeholder.
   const isDesktop = useBreakpoint() === 'desktop';
 
+  // What the collapsed `Bộ lọc` button counts: each control that narrows the list away from "all".
+  const activeFilterCount =
+    (filters.categoryId !== 'all' ? 1 : 0) + (filters.status !== 'all' ? 1 : 0);
+
+  const search = (
+    // 300 pt at rest; the row may squeeze it to 240 before the filters collapse
+    // (`src/components/toolbar-fit.ts`).
+    <View className={isDesktop ? 'w-[300px] min-w-60 shrink' : ''}>
+      <SearchInput
+        placeholder={t('products.searchPlaceholder')}
+        defaultValue={filters.search}
+        onChangeText={(value) => onFiltersChange({ ...filters, search: value })}
+        onSearch={(value) => onFiltersChange({ ...filters, search: value })}
+      />
+    </View>
+  );
+
   const fields = (
     <>
-      <View className={isDesktop ? 'min-w-64 flex-1' : ''}>
-        <SearchInput
-          placeholder={t('products.searchPlaceholder')}
-          defaultValue={filters.search}
-          onChangeText={(value) => onFiltersChange({ ...filters, search: value })}
-          onSearch={(value) => onFiltersChange({ ...filters, search: value })}
-        />
-      </View>
       <View className={isDesktop ? 'w-56' : ''}>
         <Select
           value={filters.categoryId}
@@ -74,11 +83,16 @@ export function ProductToolbar({ filters, categories, onFiltersChange, actions }
   );
 
   if (isDesktop) {
-    return <Toolbar actions={actions}>{fields}</Toolbar>;
+    return (
+      <Toolbar actions={actions} activeFilterCount={activeFilterCount} search={search}>
+        {fields}
+      </Toolbar>
+    );
   }
 
   return (
     <View className="gap-3">
+      {search}
       {fields}
       {actions ? <View className="flex-row flex-wrap items-center gap-2">{actions}</View> : null}
     </View>

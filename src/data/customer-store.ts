@@ -4,6 +4,7 @@ import { tierFor, type PointMovement } from '../domain/customers';
 import { customers as seedCustomers, orders as seedOrders } from './seed';
 import { buildSeedRefunds } from '../features/orders/lib/seed-refunds';
 import { buildSeedPointHistory } from '../features/customers/lib/seed-point-history';
+import { currentOrgId } from './org-store';
 
 const seedRefunds = buildSeedRefunds(seedOrders);
 
@@ -64,6 +65,7 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
 
     const customer: Customer = {
       id: `customer-${sequence}`,
+      orgId: currentOrgId(),
       name: name.trim(),
       phone: phone.trim(),
       points: 0,

@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'expo-router';
 import { useT } from '../../i18n';
 import { AppIcon } from '../icons';
 import { BrandMark } from './brand-mark';
-import { SETTINGS_NAV_ITEM, WIDE_NAV_ITEMS, type NavItem } from './nav-items';
+import { useVisibleNavItems, type NavItem } from './nav-items';
 import { SidebarToggle } from './sidebar-toggle';
 
 /**
@@ -15,17 +15,24 @@ import { SidebarToggle } from './sidebar-toggle';
  */
 export function NavRail({ showToggle = false }: { showToggle?: boolean } = {}) {
   const pathname = usePathname();
+  // Role first: a cashier's rail carries three icons, not nine greyed-out ones.
+  const items = useVisibleNavItems();
+  const settingsItem = items.find((item) => item.id === 'settings');
 
   return (
     <View className="w-[72px] shrink-0 items-center gap-0.5 border-r border-border bg-surface py-3">
       <View className="mb-2.5">
         <BrandMark />
       </View>
-      {WIDE_NAV_ITEMS.map((item) => (
-        <RailItem key={item.id} item={item} active={pathname.startsWith(item.href)} />
-      ))}
+      {items
+        .filter((item) => item.id !== 'settings')
+        .map((item) => (
+          <RailItem key={item.id} item={item} active={pathname.startsWith(item.href)} />
+        ))}
       <View className="flex-1" />
-      <RailItem item={SETTINGS_NAV_ITEM} active={pathname.startsWith(SETTINGS_NAV_ITEM.href)} />
+      {settingsItem ? (
+        <RailItem item={settingsItem} active={pathname.startsWith(settingsItem.href)} />
+      ) : null}
       {/* Desktop only: the tablet rail has no sidebar to expand into. */}
       {showToggle ? <SidebarToggle collapsed /> : null}
     </View>

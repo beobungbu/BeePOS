@@ -25,6 +25,7 @@ import { useT } from '../../i18n';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { LineEditorTable } from './line-editor-table';
 import { ProductPicker } from './product-picker';
+import { currentOrgId } from '../../data/org-store';
 
 function makeTransferId(): string {
   return `transfer-${Date.now()}`;
@@ -67,6 +68,7 @@ export function TransferDetailScreen({ transferId }: TransferDetailScreenProps) 
   function buildTransfer(): StockTransfer {
     return {
       id: existing?.id ?? makeTransferId(),
+      orgId: currentOrgId(),
       fromStoreId,
       toStoreId,
       lines,
