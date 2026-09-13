@@ -180,3 +180,9 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 |---|---|---|---|
 | [#612](https://github.com/beobungbu/BeeUI/issues/612) | 24-01..24-03 | major | scrolling SelectContent swallows mouse presses |
 | [#611](https://github.com/beobungbu/BeeUI/issues/611) (comment) | 24-04..24-06 | minor | TableCell row layout, mono variant, Badge tone |
+
+## Batch 20 (2026-09-13, commerce wave 1)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#613](https://github.com/beobungbu/BeeUI/issues/613) | 25-01, 26-01, 26-02, 28-01 | minor | umbrella 9 |
