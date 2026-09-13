@@ -22,10 +22,17 @@ export const ordersEn = {
     results: '{count} results',
   },
   status: {
+    // Wholesale lifecycle, in the order an order walks it.
+    quote: 'Quote',
+    confirmed: 'Confirmed',
+    delivering: 'Delivering',
+    completed: 'Delivered',
     paid: 'Paid',
     refunded: 'Refunded',
     partial_refund: 'Partially refunded',
+    // `void` is a bill rung up in error; `cancelled` is an order that never went ahead.
     void: 'Voided',
+    cancelled: 'Cancelled',
   },
   paymentMethod: {
     cash: 'Cash',

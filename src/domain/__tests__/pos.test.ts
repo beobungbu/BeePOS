@@ -225,6 +225,7 @@ describe('shiftSummary', () => {
       payments: [{ method: 'cash', amount: 100000 }],
       status: 'paid',
       createdAt: '2026-09-11T09:00:00.000Z',
+      channel: 'retail',
     },
     {
       id: 'o2',
@@ -240,6 +241,7 @@ describe('shiftSummary', () => {
       payments: [{ method: 'transfer', amount: 50000 }],
       status: 'paid',
       createdAt: '2026-09-11T10:00:00.000Z',
+      channel: 'retail',
     },
     {
       id: 'o3',
@@ -255,6 +257,7 @@ describe('shiftSummary', () => {
       payments: [{ method: 'cash', amount: 999999 }],
       status: 'paid',
       createdAt: '2026-09-10T10:00:00.000Z',
+      channel: 'retail',
     },
   ];
 
@@ -521,6 +524,7 @@ describe('cash movements in a shift', () => {
       payments: [{ method: 'cash', amount: 12_480_000 }],
       status: 'paid',
       createdAt: '2026-09-13T02:00:00.000Z',
+      channel: 'retail',
     },
     {
       id: 'z2',
@@ -536,6 +540,7 @@ describe('cash movements in a shift', () => {
       payments: [{ method: 'transfer', amount: 8_120_000 }],
       status: 'paid',
       createdAt: '2026-09-13T03:00:00.000Z',
+      channel: 'retail',
     },
   ];
 

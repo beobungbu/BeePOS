@@ -1,7 +1,12 @@
 import { create } from 'zustand';
-import type { Cart, Order, Shift } from '../domain/types';
+import type { Cart, DeliveryNote, Order, OrderStatus, Shift } from '../domain/types';
 import type { Refund } from '../domain/orders';
-import { orders as seedOrders, shifts as seedShifts } from './seed';
+import { assertTransition } from '../domain/lifecycle';
+import {
+  deliveryNotes as seedDeliveryNotes,
+  orders as seedOrders,
+  shifts as seedShifts,
+} from './seed';
 import { buildSeedRefunds } from '../features/orders/lib/seed-refunds';
 import { buildOrderNotes } from '../features/orders/lib/order-notes';
 
@@ -13,8 +18,17 @@ interface OrderState {
   refunds: Refund[];
   /** Per-order free-text note, keyed by `orderId`. `Order` itself has no `note` field. */
   notes: Record<string, string>;
+  /** Deliveries against wholesale orders; an order can have more than one (partial delivery). */
+  deliveryNotes: DeliveryNote[];
   addOrder: (order: Order) => void;
   updateOrder: (order: Order) => void;
+  /**
+   * Moves an order along its lifecycle. Throws on an illegal move rather than writing an
+   * impossible status, so a screen wiring up the wrong button fails loudly in development.
+   */
+  setOrderStatus: (orderId: string, status: OrderStatus) => void;
+  upsertDeliveryNote: (note: DeliveryNote) => void;
+  markDelivered: (deliveryNoteId: string, at?: Date) => void;
   setCart: (cart: Cart | null) => void;
   addShift: (shift: Shift) => void;
   updateShift: (shift: Shift) => void;
@@ -27,12 +41,37 @@ export const useOrderStore = create<OrderState>((set) => ({
   cart: null,
   refunds: buildSeedRefunds(seedOrders),
   notes: buildOrderNotes(seedOrders),
+  deliveryNotes: seedDeliveryNotes,
 
   addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
 
   updateOrder: (order) =>
     set((state) => ({
       orders: state.orders.map((item) => (item.id === order.id ? order : item)),
+    })),
+
+  setOrderStatus: (orderId, status) =>
+    set((state) => ({
+      orders: state.orders.map((order) =>
+        order.id === orderId ? { ...order, status: assertTransition(order.status, status) } : order,
+      ),
+    })),
+
+  upsertDeliveryNote: (note) =>
+    set((state) => {
+      const exists = state.deliveryNotes.some((item) => item.id === note.id);
+      return {
+        deliveryNotes: exists
+          ? state.deliveryNotes.map((item) => (item.id === note.id ? note : item))
+          : [...state.deliveryNotes, note],
+      };
+    }),
+
+  markDelivered: (deliveryNoteId, at = new Date()) =>
+    set((state) => ({
+      deliveryNotes: state.deliveryNotes.map((note) =>
+        note.id === deliveryNoteId ? { ...note, status: 'delivered', deliveredAt: at } : note,
+      ),
     })),
 
   setCart: (cart) => set({ cart }),
@@ -46,3 +85,23 @@ export const useOrderStore = create<OrderState>((set) => ({
 
   addRefund: (refund) => set((state) => ({ refunds: [refund, ...state.refunds] })),
 }));
+
+/** Delivery notes raised against one order, oldest first. */
+export function deliveryNotesForOrder(notes: DeliveryNote[], orderId: string): DeliveryNote[] {
+  return notes.filter((note) => note.orderId === orderId);
+}
+
+/** How many units of each product an order has actually had delivered. */
+export function deliveredQtyByProduct(
+  notes: readonly DeliveryNote[],
+  orderId: string,
+): Record<string, number> {
+  const totals: Record<string, number> = {};
+  for (const note of notes) {
+    if (note.orderId !== orderId || note.status !== 'delivered') continue;
+    for (const line of note.lines) {
+      totals[line.productId] = (totals[line.productId] ?? 0) + line.qty;
+    }
+  }
+  return totals;
+}

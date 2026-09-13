@@ -15,7 +15,7 @@ import {
 } from '@beemvp/beeui-ui';
 import { AppIcon } from '../../components/icons';
 import { useScreenHeader } from '../../components/shell/screen-header';
-import { nextOrderCode, pointsEarned } from '../../domain/pos';
+import { nextOrderCode, pointsEarned, toOrderLines } from '../../domain/pos';
 import { formatVND, roundVND, sum } from '../../domain/money';
 import type { Order, Payment, PaymentMethod } from '../../domain/types';
 import { useT } from '../../i18n';
@@ -38,6 +38,7 @@ import { cartLineCount, cartTotalsOf, cartUnitCount } from './lib/cart-totals';
 import { cartLabel, countLabel, openOrdersLabel } from './lib/order-label';
 import { draftPayment } from './lib/payment-draft';
 import { currentOrgId } from '../../data/org-store';
+import { currentCost } from '../../data/costing-store';
 
 export default function CheckoutScreen() {
   const t = useT();
@@ -121,7 +122,12 @@ export default function CheckoutScreen() {
       storeId: store.id,
       cashierId: staff.id,
       customerId: cart.customerId,
-      lines: cart.lines,
+      // The cost each line is measured against is frozen here: a later receipt may move the
+      // product's weighted average, and this order's margin must not move with it.
+      lines: toOrderLines(cart.lines, (productId) => {
+        const product = products.find((item) => item.id === productId);
+        return currentCost(productId, store.id) ?? product?.costPrice ?? 0;
+      }),
       subtotal: totals.subtotal,
       discountTotal: totals.discountTotal,
       taxTotal: totals.taxTotal,
@@ -129,6 +135,7 @@ export default function CheckoutScreen() {
       payments: finalPayments,
       status: 'paid',
       createdAt: new Date().toISOString(),
+      channel: 'retail',
     };
 
     submitOrder(order, { shiftId: currentShift?.id });

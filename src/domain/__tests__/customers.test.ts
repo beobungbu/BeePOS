@@ -52,8 +52,8 @@ describe('isValidVnPhone', () => {
 const ORG = 'org-1';
 
 const customers: Customer[] = [
-  { id: 'c1', orgId: ORG, name: 'Nguyễn Văn An', phone: '0912345678', points: 10, tier: 'bronze', totalSpent: 100_000, createdAt: '2026-01-01T00:00:00.000Z' },
-  { id: 'c2', orgId: ORG, name: 'Trần Thị Bình', phone: '0987654321', points: 500, tier: 'gold', totalSpent: 9_000_000, createdAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'c1', orgId: ORG, name: 'Nguyễn Văn An', phone: '0912345678', points: 10, tier: 'bronze', totalSpent: 100_000, createdAt: '2026-01-01T00:00:00.000Z', type: 'retail' },
+  { id: 'c2', orgId: ORG, name: 'Trần Thị Bình', phone: '0987654321', points: 500, tier: 'gold', totalSpent: 9_000_000, createdAt: '2026-01-01T00:00:00.000Z', type: 'retail' },
 ];
 
 describe('filterCustomers', () => {

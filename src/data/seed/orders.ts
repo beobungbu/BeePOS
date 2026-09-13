@@ -1,11 +1,13 @@
-import type { CartLine, Order, OrderStatus, Payment, Shift } from '../../domain/types';
+import type { DeliveryNote, Order, OrderLine, OrderStatus, Payment, Shift } from '../../domain/types';
 import { roundVND } from '../../domain/money';
+import { unitFactor } from '../../domain/units';
 import { createRng, pick, pickMany, randInt } from './prng';
-import { customers } from './customers';
+import { companyCustomers, customers } from './customers';
 import { products } from './products';
 import { staff } from './staff';
 import { stores } from './stores';
 import { DEMO_ORG_ID } from './org';
+import { daysAgo } from './clock';
 
 const SEED = 20260911;
 const NOW = new Date('2026-09-11T09:00:00.000Z');
@@ -19,7 +21,7 @@ function cashiersForStore(storeId: string): string[] {
   return staff.filter((member) => member.storeIds.includes(storeId)).map((member) => member.id);
 }
 
-function buildOrderLines(rng: ReturnType<typeof createRng>): CartLine[] {
+function buildOrderLines(rng: ReturnType<typeof createRng>): OrderLine[] {
   const lineCount = randInt(rng, 1, 6);
   const chosen = pickMany(rng, products, lineCount);
   return chosen.map((product) => {
@@ -29,6 +31,10 @@ function buildOrderLines(rng: ReturnType<typeof createRng>): CartLine[] {
       productId: product.id,
       qty,
       unitPrice: product.salePrice,
+      // Sold at the catalogue price, costed at the catalogue cost: these orders predate both
+      // the pricing engine and the weighted average, so the snapshot is the opening cost.
+      unitCostSnapshot: product.costPrice,
+      priceSource: 'list' as const,
       ...(hasDiscount
         ? { lineDiscount: { type: 'percent' as const, value: randInt(rng, 5, 15) } }
         : {}),
@@ -36,7 +42,7 @@ function buildOrderLines(rng: ReturnType<typeof createRng>): CartLine[] {
   });
 }
 
-function lineTotal(line: CartLine): number {
+function lineTotal(line: OrderLine): number {
   const gross = line.qty * line.unitPrice;
   if (!line.lineDiscount) return gross;
   return line.lineDiscount.type === 'percent'
@@ -110,13 +116,164 @@ function buildOrders(): Order[] {
       payments: buildPayments(rng, total),
       status,
       createdAt,
+      channel: 'retail',
     });
   }
 
   return orders.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
-export const orders: Order[] = buildOrders();
+/* ---------------------------------------------------------------------------------------
+ * Wholesale orders.
+ *
+ * Ten orders for the company accounts, two in each lifecycle state, so every step of
+ * `quote -> confirmed -> delivering -> completed -> paid` has a subject before any screen is
+ * written. They are ordered by the case where the product has one, carry the rep who owns the
+ * account, and the ones that are on account carry the due date their payment term produces.
+ * ------------------------------------------------------------------------------------ */
+
+const WHOLESALE_STATUSES: OrderStatus[] = [
+  'quote', 'quote',
+  'confirmed', 'confirmed',
+  'delivering', 'delivering',
+  'completed', 'completed',
+  'paid', 'paid',
+];
+
+/** First wholesale order number; ids run `order-w1` upwards so they never clash with retail. */
+export const WHOLESALE_ORDER_COUNT = WHOLESALE_STATUSES.length;
+
+function buildWholesaleLines(rng: ReturnType<typeof createRng>): OrderLine[] {
+  // Only SKUs with a case unit: a wholesale order that is not by the case is a retail order.
+  const casePool = products.filter((product) => (product.units?.length ?? 0) > 0);
+  const chosen = pickMany(rng, casePool, randInt(rng, 2, 4));
+
+  return chosen.map((product) => {
+    const unit = product.units?.[product.units.length - 1]?.unit;
+    const factor = unitFactor(product, unit);
+    const qty = randInt(rng, 1, 6);
+    // 12 % off the catalogue price for the case, which is where the agent price lists sit.
+    const unitPrice = roundVND(product.salePrice * factor * 0.88);
+    return {
+      productId: product.id,
+      qty,
+      unitPrice,
+      unitCostSnapshot: product.costPrice,
+      unit,
+      unitFactor: factor,
+      priceSource: 'group' as const,
+    };
+  });
+}
+
+function buildWholesaleOrders(): Order[] {
+  const rng = createRng(SEED + 21);
+  const orders: Order[] = [];
+
+  WHOLESALE_STATUSES.forEach((status, index) => {
+    const customer = companyCustomers[index % companyCustomers.length];
+    const store = stores[index % 2];
+    const cashierPool = cashiersForStore(store.id);
+    const cashierId = cashierPool.length > 0 ? pick(rng, cashierPool) : staff[0].id;
+    const createdAt = daysAgo(28 - index * 2);
+
+    const lines = buildWholesaleLines(rng);
+    const subtotal = roundVND(lines.reduce((total, line) => total + line.qty * line.unitPrice, 0));
+    const taxTotal = roundVND(subtotal * 0.08);
+    const total = roundVND(subtotal + taxTotal);
+    const settled = status === 'paid';
+    const term = customer.paymentTermDays ?? 0;
+
+    orders.push({
+      id: `order-w${index + 1}`,
+      orgId: DEMO_ORG_ID,
+      code: `DH${createdAt.toISOString().slice(0, 10).replace(/-/g, '')}-${String(index + 1).padStart(3, '0')}`,
+      storeId: store.id,
+      cashierId,
+      customerId: customer.id,
+      lines,
+      subtotal,
+      discountTotal: 0,
+      taxTotal,
+      total,
+      // Nothing has been collected until the order is paid; an unpaid wholesale order is an
+      // open receivable, which is exactly what the ledger seed books against it.
+      payments: settled ? [{ method: 'transfer' as const, amount: total }] : [],
+      status,
+      createdAt: createdAt.toISOString(),
+      channel: 'wholesale',
+      salesRepId: customer.salesRepId,
+      ...(term > 0 && !settled
+        ? { dueDate: new Date(createdAt.getTime() + term * 86_400_000) }
+        : {}),
+      deliveryAddress: customer.deliveryAddress,
+      ...(index % 3 === 0 && customer.taxCode
+        ? {
+            vatInvoice: {
+              buyerName: customer.companyName ?? customer.name,
+              taxCode: customer.taxCode,
+              address: customer.deliveryAddress ?? '',
+            },
+          }
+        : {}),
+    });
+  });
+
+  return orders;
+}
+
+/** The wholesale orders on their own, for the ledger and delivery-note seeds. */
+export const wholesaleOrders: Order[] = buildWholesaleOrders();
+
+export const orders: Order[] = [...buildOrders(), ...wholesaleOrders].sort((a, b) =>
+  a.createdAt.localeCompare(b.createdAt),
+);
+
+/**
+ * One delivery note per wholesale order that has shipped. The two `delivering` orders are
+ * still pending and one of them is split into two notes, so "partially delivered" has a case
+ * on screen from the first boot.
+ */
+export const deliveryNotes: DeliveryNote[] = wholesaleOrders.flatMap((order, index) => {
+  if (order.status !== 'delivering' && order.status !== 'completed' && order.status !== 'paid') {
+    return [];
+  }
+  const delivered = order.status !== 'delivering';
+  const allLines = order.lines.map((line) => ({ productId: line.productId, qty: line.qty }));
+
+  // The first `delivering` order ships in two trips; everything else goes in one.
+  if (order.status === 'delivering' && index % 2 === 0 && allLines.length > 1) {
+    const half = Math.ceil(allLines.length / 2);
+    return [
+      {
+        id: `delivery-${order.id}-1`,
+        orgId: DEMO_ORG_ID,
+        orderId: order.id,
+        lines: allLines.slice(0, half),
+        status: 'delivered' as const,
+        deliveredAt: daysAgo(2),
+      },
+      {
+        id: `delivery-${order.id}-2`,
+        orgId: DEMO_ORG_ID,
+        orderId: order.id,
+        lines: allLines.slice(half),
+        status: 'pending' as const,
+      },
+    ];
+  }
+
+  return [
+    {
+      id: `delivery-${order.id}-1`,
+      orgId: DEMO_ORG_ID,
+      orderId: order.id,
+      lines: allLines,
+      status: delivered ? ('delivered' as const) : ('pending' as const),
+      ...(delivered ? { deliveredAt: new Date(new Date(order.createdAt).getTime() + 86_400_000) } : {}),
+    },
+  ];
+});
 
 function buildShifts(): Shift[] {
   const rng = createRng(SEED + 7);

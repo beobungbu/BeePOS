@@ -17,7 +17,14 @@ Owner instruction: "lập hết các cái đã trao đổi để làm, không đ
 | I | Earlier open items | native hardware barcode capture (spike a maintained key-event module; fall back to documenting); AppState flush of AsyncStorage on native; VoiceOver / TalkBack trait pass; D-08 expo-router dev warning tracked upstream | 2 / W-N |
 | J | Quality | mockups before screens (designer, wave 0); code review after wave 1; E2E for every new flow; perf harness re-run; dark sweep of new screens; BeeUI findings filed per batch; morning report | 0, 2, 3 |
 
-## Type contract (frozen after W-T lands; others request changes via report)
+## Type contract (frozen: W-T has landed, others request changes via report)
+
+Applied as written in `src/domain/types.ts`, with three additive deviations recorded in
+`reports/w-t-foundation-report.md` section 2: the five new line fields are optional on
+`CartLine` and required on `OrderLine extends CartLine` (`Order.lines: OrderLine[]`);
+`OrgSummary` is new, for the org switcher; `GoodsReceipt.purchaseOrderId?` is new.
+`PriceSource` carries the six precedence levels plus `promotion` and `manual`, and
+`LoyaltyRule` carries `tierMultiplier?`, both per the 2026-09-13 clarification.
 ```ts
 // customers and B2B
 export type CustomerType = 'retail' | 'company';
@@ -62,7 +69,7 @@ export interface AppNotification { id: string; orgId: string; storeId?: string; 
 | Wave | Worker | Scope | Status |
 |---|---|---|---|
 | 0 | designer | mockups `commerce.html`: POS wholesale mode (switch, unit selector, price source label, on-account pay), customer company form + group, price list and price rule screens, promotions, receivables and collection, cash book, PO and receive, returns / exchange at POS, lots and expiry, CSV import preview, notification center, org switch; phone 375 + desktop 1440 | IN PROGRESS |
-| 0 | W-T types + seed + domain core | apply the contract; migrate existing data (channel retail, priceSource list, unitCostSnapshot from costPrice); seed groups, price lists, rules, promotions, bank accounts, ledgers with a few open receivables and payables, POs, lots for 10 products, notifications; pure domain: `pricing.ts` (precedence engine), `costing.ts` (weighted average), `ledger.ts` (balances, aging), `returns.ts` (net exchange), `notify.ts`; persistence slices; `GoodsReceipt.supplierId` required; tests | IN PROGRESS |
+| 0 | W-T types + seed + domain core | apply the contract; migrate existing data (channel retail, priceSource list, unitCostSnapshot from costPrice); seed groups, price lists, rules, promotions, bank accounts, ledgers with a few open receivables and payables, POs, lots for 10 products, notifications; pure domain: `pricing.ts` (precedence engine), `costing.ts` (weighted average), `ledger.ts` (balances, aging), `returns.ts` (net exchange), `notify.ts`; persistence slices; `GoodsReceipt.supplierId` required; tests | DONE · [report](reports/w-t-foundation-report.md) |
 | 1 | W-P sales + pricing | A + B (except promotions/loyalty screens) | PENDING |
 | 1 | W-M money + cost | C + D + credit notes for E | PENDING |
 | 1 | W-I inventory 2 + returns UI | E (POS return/exchange, supplier returns) + F | PENDING |

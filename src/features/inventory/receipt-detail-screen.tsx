@@ -32,7 +32,6 @@ import { LineEditorTable } from './line-editor-table';
 import { ProductPicker } from './product-picker';
 import { currentOrgId } from '../../data/org-store';
 import { SupplierPicker } from '../suppliers/components/supplier-picker';
-import { useSuppliers } from '../../data/supplier-store';
 
 function makeReceiptId(): string {
   return `receipt-${Date.now()}`;
@@ -51,7 +50,6 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
   const receipts = useInventoryStore((state) => state.goodsReceipts);
   const upsertGoodsReceipt = useInventoryStore((state) => state.upsertGoodsReceipt);
   const receiveGoodsReceipt = useInventoryStore((state) => state.receiveGoodsReceipt);
-  const suppliers = useSuppliers();
 
   const existing = receiptId ? receipts.find((item) => item.id === receiptId) : undefined;
   const notFound = Boolean(receiptId) && !existing;
@@ -63,10 +61,8 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const isReceived = existing?.status === 'received';
-  // The display name is derived from the picked record rather than typed: a partner whose name
-  // is spelled two ways is a partner whose purchase history is split in two.
-  const supplier = suppliers.find((item) => item.id === supplierId);
-  const supplierName = supplier?.name ?? existing?.supplierName ?? '';
+  // The receipt stores the supplier id only and the name is read back off the partner record:
+  // a partner whose name is spelled two ways is a partner whose purchase history is split in two.
   const canSave = supplierId.length > 0 && lines.length > 0;
 
   // Pushed route: the shell header names the screen and carries the way back to the list.
@@ -78,7 +74,6 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
       orgId: currentOrgId(),
       storeId,
       supplierId,
-      supplierName,
       lines,
       status,
       createdAt: existing?.createdAt ?? new Date().toISOString(),

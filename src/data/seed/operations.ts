@@ -13,10 +13,10 @@ function daysAgoIso(days: number): string {
 }
 
 /**
- * Six receipts across three branches, every one booked against a real supplier record rather
- * than a typed-in name, so a partner's purchase history is complete the first time the
- * supplier screen is opened. Two receipts per branch means a supplier detail pane has more
- * than one row to show.
+ * Six receipts across three branches, every one booked against a real supplier record, which
+ * is now the only way a receipt can be booked: the display name is read off the `Supplier`
+ * record rather than copied onto the receipt. Two receipts per branch means a supplier detail
+ * pane has more than one row to show.
  */
 function buildGoodsReceipts(): GoodsReceipt[] {
   const rng = createRng(SEED + 8);
@@ -37,7 +37,6 @@ function buildGoodsReceipts(): GoodsReceipt[] {
         orgId: DEMO_ORG_ID,
         storeId: store.id,
         supplierId: supplier.id,
-        supplierName: supplier.name,
         lines,
         status: statuses[randInt(rng, 0, statuses.length - 1)],
         createdAt: daysAgoIso(randInt(rng, 1, 20)),

@@ -65,7 +65,7 @@ function makeOrder(overrides: Partial<Order>): Order {
     code: 'HD001',
     storeId: 'store-1',
     cashierId: 'staff-1',
-    lines: [{ productId: 'p1', qty: 2, unitPrice: 15_000 }],
+    lines: [{ productId: 'p1', qty: 2, unitPrice: 15_000, unitCostSnapshot: 10_000, priceSource: 'list' }],
     subtotal: 30_000,
     discountTotal: 0,
     taxTotal: 0,
@@ -73,6 +73,7 @@ function makeOrder(overrides: Partial<Order>): Order {
     payments: [{ method: 'cash', amount: 30_000 }],
     status: 'paid',
     createdAt: '2026-09-11T10:00:00.000Z',
+    channel: 'retail',
     ...overrides,
   };
 }
@@ -169,7 +170,7 @@ describe('averageBasket', () => {
 describe('grossProfit', () => {
   it('subtracts cost of goods sold from revenue', () => {
     const order = makeOrder({
-      lines: [{ productId: 'p1', qty: 2, unitPrice: 15_000 }],
+      lines: [{ productId: 'p1', qty: 2, unitPrice: 15_000, unitCostSnapshot: 10_000, priceSource: 'list' }],
       total: 30_000,
     });
     // revenue 30_000 - cogs (10_000 * 2) = 10_000
@@ -220,8 +221,8 @@ describe('topProducts', () => {
     const orders = [
       makeOrder({
         lines: [
-          { productId: 'p1', qty: 1, unitPrice: 15_000 },
-          { productId: 'p2', qty: 5, unitPrice: 8_000 },
+          { productId: 'p1', qty: 1, unitPrice: 15_000, unitCostSnapshot: 10_000, priceSource: 'list' },
+          { productId: 'p2', qty: 5, unitPrice: 8_000, unitCostSnapshot: 5_000, priceSource: 'list' },
         ],
       }),
     ];
@@ -235,8 +236,8 @@ describe('topProducts', () => {
     const orders = [
       makeOrder({
         lines: [
-          { productId: 'p1', qty: 1, unitPrice: 15_000 },
-          { productId: 'p2', qty: 1, unitPrice: 8_000 },
+          { productId: 'p1', qty: 1, unitPrice: 15_000, unitCostSnapshot: 10_000, priceSource: 'list' },
+          { productId: 'p2', qty: 1, unitPrice: 8_000, unitCostSnapshot: 5_000, priceSource: 'list' },
         ],
       }),
     ];

@@ -1,4 +1,4 @@
-import type { Product } from '../../domain/types';
+import type { Product, UnitConversion } from '../../domain/types';
 import { ean13 } from './prng';
 import { DEMO_ORG_ID } from './org';
 
@@ -459,6 +459,77 @@ const CATEGORY_PREFIX: Record<string, string> = {
   'cat-8': 'VS',
 };
 
+/**
+ * SKUs also sold by the case or the pack.
+ *
+ * Every sixth product, so the twenty that carry a unit are spread across all eight categories
+ * rather than bunched in the drinks aisle, and a reviewer opening any category finds one.
+ * Alternating shapes give the unit selector both a two-step ladder (lẻ / lốc / thùng) and a
+ * single larger unit to show.
+ */
+const UNIT_PRODUCT_STEP = 6;
+const UNIT_PRODUCT_COUNT = 20;
+
+/** The first ten unit-bearing SKUs also carry a second scannable code on the SKU itself. */
+const SECOND_BARCODE_COUNT = 10;
+
+/**
+ * The ten SKUs received in lots with an expiry: fresh dairy and instant noodles, which is
+ * where a Vietnamese grocery actually watches dates.
+ */
+const LOT_TRACKED_IDS = new Set([
+  'product-21', 'product-22', 'product-23', 'product-24', 'product-25',
+  'product-81', 'product-82', 'product-83', 'product-84', 'product-85',
+]);
+
+function unitsFor(sequence: number, position: number): UnitConversion[] {
+  // Case barcodes sit in their own 894-prefixed block so a case scan can never be mistaken
+  // for the piece it contains.
+  const caseBarcode = ean13(String(894000000000 + sequence).slice(0, 12));
+  if (position % 2 === 0) {
+    return [
+      { unit: 'lốc', factor: 6 },
+      { unit: 'thùng', factor: 24, barcode: caseBarcode },
+    ];
+  }
+  return [{ unit: 'thùng', factor: 12, barcode: caseBarcode }];
+}
+
+/**
+ * Adds the wholesale-facing fields to the generated catalogue: selling units, extra barcodes,
+ * a minimum order quantity and the lot flag. Kept apart from `buildProducts` so the 120-SKU
+ * generator stays about names and prices.
+ */
+function withCommerceFields(base: Product[]): Product[] {
+  let unitPosition = 0;
+
+  return base.map((product, index) => {
+    const sequence = index + 1;
+    const takesUnits = index % UNIT_PRODUCT_STEP === 0 && unitPosition < UNIT_PRODUCT_COUNT;
+    const trackLots = LOT_TRACKED_IDS.has(product.id);
+
+    if (!takesUnits) {
+      return trackLots ? { ...product, trackLots: true } : product;
+    }
+
+    const position = unitPosition;
+    unitPosition += 1;
+    const units = unitsFor(sequence, position);
+    const largestFactor = units.reduce((max, unit) => Math.max(max, unit.factor), 1);
+
+    return {
+      ...product,
+      units,
+      // A wholesale line has to be at least one full case of the largest packaging.
+      minOrderQty: largestFactor,
+      ...(position < SECOND_BARCODE_COUNT
+        ? { barcodes: [ean13(String(895000000000 + sequence).slice(0, 12))] }
+        : {}),
+      ...(trackLots ? { trackLots: true } : {}),
+    };
+  });
+}
+
 function buildProducts(): Product[] {
   const products: Product[] = [];
   let sequence = 1;
@@ -491,4 +562,4 @@ function buildProducts(): Product[] {
   return products;
 }
 
-export const products: Product[] = buildProducts();
+export const products: Product[] = withCommerceFields(buildProducts());

@@ -22,10 +22,17 @@ export const ordersVi = {
     results: '{count} kết quả',
   },
   status: {
+    // Wholesale lifecycle, in the order an order walks it.
+    quote: 'Báo giá',
+    confirmed: 'Đã xác nhận',
+    delivering: 'Đang giao',
+    completed: 'Đã giao',
     paid: 'Đã thanh toán',
     refunded: 'Đã hoàn tiền',
     partial_refund: 'Hoàn một phần',
+    // `void` is a bill rung up in error; `cancelled` is an order that never went ahead.
     void: 'Đã huỷ',
+    cancelled: 'Đã huỷ đơn',
   },
   paymentMethod: {
     cash: 'Tiền mặt',

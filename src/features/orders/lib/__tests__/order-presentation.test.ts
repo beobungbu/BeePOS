@@ -16,8 +16,8 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
     storeId: 'store-1',
     cashierId: 'staff-1',
     lines: [
-      { productId: 'p1', qty: 2, unitPrice: 9_000 },
-      { productId: 'p2', qty: 5, unitPrice: 4_500 },
+      { productId: 'p1', qty: 2, unitPrice: 9_000, unitCostSnapshot: 6_000, priceSource: 'list' },
+      { productId: 'p2', qty: 5, unitPrice: 4_500, unitCostSnapshot: 6_000, priceSource: 'list' },
     ],
     subtotal: 40_500,
     discountTotal: 0,
@@ -26,6 +26,7 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
     payments: [{ method: 'cash', amount: 40_500 }],
     status: 'paid',
     createdAt: new Date(2026, 8, 12, 14, 32).toISOString(),
+    channel: 'retail',
     ...overrides,
   };
 }

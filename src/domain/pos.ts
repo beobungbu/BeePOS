@@ -13,6 +13,7 @@ import type {
   CashMovementType,
   Discount,
   Order,
+  OrderLine,
   PaymentMethod,
   Shift,
 } from './types';
@@ -212,6 +213,25 @@ export function drawerAfterMovement(
   const index = ordered.findIndex((movement) => movement.id === movementId);
   if (index === -1) return shiftSummary(shift, orders, movements).expectedCash;
   return shiftSummary(shift, orders, ordered.slice(0, index + 1)).expectedCash;
+}
+
+/**
+ * Freezes cart lines into order lines at the moment of sale.
+ *
+ * The two fields an order line may not be missing are filled here and nowhere else: the cost
+ * the line is measured against (`costFor`, normally the product's weighted-average cost) and
+ * where its price came from. A line the pricing engine already stamped keeps its own source;
+ * one that was never priced through the engine is a plain catalogue sale, hence `list`.
+ */
+export function toOrderLines(
+  lines: readonly CartLine[],
+  costFor: (productId: string) => number,
+): OrderLine[] {
+  return lines.map((line) => ({
+    ...line,
+    unitCostSnapshot: line.unitCostSnapshot ?? costFor(line.productId),
+    priceSource: line.priceSource ?? 'list',
+  }));
 }
 
 /** Adds a product to cart lines, incrementing qty if it is already present. */

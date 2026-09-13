@@ -9,14 +9,21 @@ import '../../../i18n/orders.en';
 
 /**
  * Status is always a badge carrying a word, never a bare colour dot
- * (`docs/design/design-direction.md` section 8). Voided and refunded share the destructive
- * tint because both mean the money left the till; the word tells them apart.
+ * (`docs/design/design-direction.md` section 8). Voided, cancelled and refunded share the
+ * destructive tint because all three mean no money was kept; the word tells them apart.
+ * The wholesale lifecycle is warning while the order is still owed goods or money, and
+ * success once the goods are with the customer.
  */
 const VARIANT_BY_STATUS: Record<OrderStatus, 'success' | 'warning' | 'destructive'> = {
+  quote: 'warning',
+  confirmed: 'warning',
+  delivering: 'warning',
+  completed: 'success',
   paid: 'success',
   partial_refund: 'warning',
   refunded: 'destructive',
   void: 'destructive',
+  cancelled: 'destructive',
 };
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {

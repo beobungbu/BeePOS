@@ -25,6 +25,14 @@ import { useOrgStore } from './org-store';
 import { useSessionStore } from './session-store';
 import { useStorePriceStore } from './store-price-store';
 import { useSupplierStore } from './supplier-store';
+import { useCostingStore } from './costing-store';
+import { useLedgerStore } from './ledger-store';
+import { useLotStore } from './lot-store';
+import { useNotificationStore } from './notification-store';
+import { useOrgSettingsStore } from './org-settings-store';
+import { usePricingStore } from './pricing-store';
+import { usePurchasingStore } from './purchasing-store';
+import { useReturnsStore } from './returns-store';
 import { SIDEBAR_COLLAPSED_KEY, useSettingsStore } from './settings-store';
 
 /**
@@ -59,15 +67,27 @@ const VERSION = {
   session: 2,
   settings: 1,
   carts: 1,
-  orders: 1,
+  // 2: order lines carry a cost snapshot and a price source, orders carry a channel, and the
+  // slice now holds delivery notes.
+  orders: 2,
   inventory: 1,
-  customers: 1,
-  catalog: 1,
+  // 2: customers carry a type and the B2B fields.
+  customers: 2,
+  // 2: products carry selling units, extra barcodes, a minimum order qty and the lot flag.
+  catalog: 2,
   org: 2,
   suppliers: 1,
   storePrices: 1,
   cash: 1,
   audit: 1,
+  pricing: 1,
+  ledger: 1,
+  costing: 1,
+  returns: 1,
+  purchasing: 1,
+  lots: 1,
+  orgSettings: 1,
+  notifications: 1,
 } as const;
 
 /** `beepos.persist.<orgId>.<slice>`: one chain's data can never be read as another's. */
@@ -86,6 +106,14 @@ const KEY = {
   storePrices: scoped('store-prices'),
   cash: scoped('cash'),
   audit: scoped('audit'),
+  pricing: scoped('pricing'),
+  ledger: scoped('ledger'),
+  costing: scoped('costing'),
+  returns: scoped('returns'),
+  purchasing: scoped('purchasing'),
+  lots: scoped('lots'),
+  orgSettings: scoped('org-settings'),
+  notifications: scoped('notifications'),
   // The chain itself and the device preferences are not scoped: the first is what defines the
   // scope, and theme, language and density belong to the device rather than to a chain.
   settings: 'beepos.persist.settings',
@@ -153,6 +181,7 @@ const entries: PersistedStore[] = [
       shifts: state.shifts,
       refunds: state.refunds,
       notes: state.notes,
+      deliveryNotes: state.deliveryNotes,
     }),
     VERSION.orders,
   ),
@@ -220,6 +249,72 @@ const entries: PersistedStore[] = [
       storeHoursById: state.storeHoursById,
     }),
     VERSION.org,
+  ),
+  // What a buyer pays: groups, lists, rules, promotions and the loyalty maths. Editing a
+  // price list has to outlive a reload or the screen is a demo of a form, not of a price.
+  persistStore(
+    KEY.pricing,
+    usePricingStore,
+    (state) => ({
+      customerGroups: state.customerGroups,
+      priceLists: state.priceLists,
+      priceRules: state.priceRules,
+      promotions: state.promotions,
+      loyaltyRule: state.loyaltyRule,
+    }),
+    VERSION.pricing,
+  ),
+  // Receivables, payables, the bank and the cash book. A collection that a reload loses is a
+  // customer who is still shown as owing money they have paid.
+  persistStore(
+    KEY.ledger,
+    useLedgerStore,
+    (state) => ({
+      entries: state.entries,
+      bankAccounts: state.bankAccounts,
+      cashBook: state.cashBook,
+    }),
+    VERSION.ledger,
+  ),
+  persistStore(
+    KEY.costing,
+    useCostingStore,
+    (state) => ({ history: state.history }),
+    VERSION.costing,
+  ),
+  persistStore(
+    KEY.returns,
+    useReturnsStore,
+    (state) => ({ returns: state.returns, writeOffs: state.writeOffs }),
+    VERSION.returns,
+  ),
+  persistStore(
+    KEY.purchasing,
+    usePurchasingStore,
+    (state) => ({
+      purchaseOrders: state.purchaseOrders,
+      supplierReturns: state.supplierReturns,
+    }),
+    VERSION.purchasing,
+  ),
+  persistStore(KEY.lots, useLotStore, (state) => ({ lots: state.lots }), VERSION.lots),
+  persistStore(
+    KEY.orgSettings,
+    useOrgSettingsStore,
+    (state) => ({
+      storeSettings: state.storeSettings,
+      memberships: state.memberships,
+      orgDirectory: state.orgDirectory,
+    }),
+    VERSION.orgSettings,
+  ),
+  // Read marks are the state worth keeping here: the rows themselves are recomputed from the
+  // other slices, but which of them the owner has already seen is not derivable.
+  persistStore(
+    KEY.notifications,
+    useNotificationStore,
+    (state) => ({ notifications: state.notifications }),
+    VERSION.notifications,
   ),
 ];
 

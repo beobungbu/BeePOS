@@ -58,6 +58,7 @@ export function CustomersListScreen() {
       phone: input.phone,
       points: 0,
       tier: 'bronze',
+      type: 'retail',
       totalSpent: 0,
       createdAt: new Date().toISOString(),
     };

@@ -72,6 +72,9 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
       tier: tierFor(0),
       totalSpent: 0,
       createdAt: new Date().toISOString(),
+      // A name and a phone typed at the till is a walk-in; the company fields are collected
+      // on the customer form, never mid-sale.
+      type: 'retail',
     };
     set((state) => ({ customers: [...state.customers, customer] }));
     return customer;

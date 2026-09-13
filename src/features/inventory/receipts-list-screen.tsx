@@ -2,6 +2,7 @@ import { Badge, Button, EmptyState, ListGroup, ListItem, Table, TableBody, Table
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useInventoryStore } from '../../data/inventory-store';
+import { useSupplierStore } from '../../data/supplier-store';
 import { stores as allStores } from '../../data/seed';
 import { receiptTotals } from '../../domain/inventory';
 import { formatVND } from '../../domain/money';
@@ -21,6 +22,11 @@ export function ReceiptsListScreen() {
   const breakpoint = useBreakpoint();
   const isWide = breakpoint !== 'phone';
   const receipts = useInventoryStore((state) => state.goodsReceipts);
+  const suppliers = useSupplierStore((state) => state.suppliers);
+  // The receipt carries the supplier id only, so the name is always the partner record's
+  // current one: renaming a supplier no longer leaves an old name frozen on its receipts.
+  const supplierName = (supplierId: string): string =>
+    suppliers.find((supplier) => supplier.id === supplierId)?.name ?? supplierId;
 
   return (
     <ScrollView className="flex-1">
@@ -48,11 +54,11 @@ export function ReceiptsListScreen() {
                 <TableRow key={receipt.id}>
                   <TableCell label={t('inventory.receipts.columns.supplier')}>
                     <Pressable
-                      accessibilityLabel={`${t('inventory.receipts.detailTitle')} ${receipt.supplierName}`}
+                      accessibilityLabel={`${t('inventory.receipts.detailTitle')} ${supplierName(receipt.supplierId)}`}
                       accessibilityRole="button"
                       onPress={() => router.push(`/inventory/receipts/${receipt.id}`)}
                     >
-                      <Text variant="label" className="font-semibold">{receipt.supplierName}</Text>
+                      <Text variant="label" className="font-semibold">{supplierName(receipt.supplierId)}</Text>
                       <Text variant="caption" tone="muted">{storeName(receipt.storeId)}</Text>
                     </Pressable>
                   </TableCell>
@@ -79,7 +85,7 @@ export function ReceiptsListScreen() {
             {receipts.map((receipt) => (
               <ListItem
                 key={receipt.id}
-                title={receipt.supplierName}
+                title={supplierName(receipt.supplierId)}
                 description={`${storeName(receipt.storeId)} · ${formatVND(receiptTotals(receipt.lines).totalCost)}`}
                 onPress={() => router.push(`/inventory/receipts/${receipt.id}`)}
                 trailing={

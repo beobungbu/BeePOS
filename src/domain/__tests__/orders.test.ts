@@ -20,8 +20,8 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
     cashierId: 'staff-6',
     customerId: 'customer-1',
     lines: [
-      { productId: 'product-1', qty: 2, unitPrice: 10_000 },
-      { productId: 'product-2', qty: 1, unitPrice: 20_000 },
+      { productId: 'product-1', qty: 2, unitPrice: 10_000, unitCostSnapshot: 6_000, priceSource: 'list' },
+      { productId: 'product-2', qty: 1, unitPrice: 20_000, unitCostSnapshot: 6_000, priceSource: 'list' },
     ],
     subtotal: 40_000,
     discountTotal: 0,
@@ -30,6 +30,7 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
     payments: [{ method: 'cash', amount: 44_000 }],
     status: 'paid',
     createdAt: '2026-09-10T09:00:00.000Z',
+    channel: 'retail',
     ...overrides,
   };
 }
@@ -42,6 +43,7 @@ const customers: Customer[] = [
     phone: '0912345678',
     points: 100,
     tier: 'bronze',
+    type: 'retail',
     totalSpent: 500_000,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
