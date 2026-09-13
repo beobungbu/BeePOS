@@ -193,3 +193,9 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 |---|---|---|---|
 | [#614](https://github.com/beobungbu/BeeUI/issues/614) | 30N-02 | major | Input with accessibilityLabel hides its value from VoiceOver |
 | [#600](https://github.com/beobungbu/BeeUI/issues/600) (comment) | 30N-01 | minor | SegmentedControl mid-word wrap |
+
+## Batch 22 (2026-09-13, native fix wave)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#615](https://github.com/beobungbu/BeeUI/issues/615) | 31F-01 | minor | Table stacked layout drops the row grouping |
