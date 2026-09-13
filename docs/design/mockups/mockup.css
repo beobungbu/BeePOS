@@ -638,3 +638,86 @@ body.map [data-beeui]::after {
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
   mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
 }
+
+/* ---------- phase 6: auth, tenant and chain ops ---------- */
+.secthead {
+  padding: var(--space-10) var(--space-10) 0;
+  font-size: var(--text-heading); font-weight: 700; color: #101828;
+}
+.secthead span { display: block; font-size: var(--text-label); font-weight: 400;
+  color: #667085; margin-top: 4px; max-width: 900px; }
+
+/* onboarding progress */
+.steps { display: flex; align-items: center; gap: var(--space-2); }
+.steps__dot {
+  display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-caption);
+  font-weight: 600; color: var(--color-subtle-foreground); white-space: nowrap;
+}
+.steps__dot i {
+  width: 24px; height: 24px; border-radius: var(--radius-full); flex: none;
+  display: flex; align-items: center; justify-content: center; font-style: normal;
+  background: var(--color-muted); color: var(--color-muted-foreground);
+}
+.steps__dot.on { color: var(--color-foreground); }
+.steps__dot.on i { background: var(--color-primary); color: var(--color-primary-foreground); }
+.steps__dot.done i { background: var(--color-success); color: #fff; }
+.steps__bar { flex: 1; height: 2px; background: var(--color-border); min-width: 16px; }
+.steps__bar.done { background: var(--color-success); }
+
+/* lock screen + PIN pad */
+.lock {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-5); padding: var(--space-6); background: var(--color-surface-muted);
+}
+.lock__who { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
+.lock__dots { display: flex; gap: var(--space-3); }
+.lock__dots i { width: 14px; height: 14px; border-radius: 50%; display: block;
+  background: var(--color-border-strong); }
+.lock__dots i.on { background: var(--color-primary); }
+.pinpad { display: grid; grid-template-columns: repeat(3, 72px); gap: var(--space-3); }
+.pinpad button {
+  width: 72px; height: 72px; border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-strong); background: var(--color-surface);
+  font-family: inherit; font-size: var(--text-title); font-weight: 600; cursor: pointer;
+  color: var(--color-foreground);
+}
+.pinpad button.blank { border: none; background: transparent; cursor: default; }
+.pinpad button.act { font-size: var(--text-label); font-weight: 600;
+  color: var(--color-muted-foreground); border-color: transparent; background: transparent; }
+
+/* permissions matrix */
+.matrix th.role { text-align: center; width: 140px; }
+.matrix td.cell { text-align: center; }
+.matrix tr.group td {
+  background: var(--color-surface-muted); font-size: var(--text-caption); font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--color-muted-foreground);
+  height: 34px;
+}
+.cbx {
+  width: 20px; height: 20px; border-radius: var(--radius-xs, 4px); display: inline-flex;
+  align-items: center; justify-content: center; border: 1.5px solid var(--color-control-border);
+  background: var(--color-surface); color: transparent;
+}
+.cbx.on { background: var(--color-primary); border-color: var(--color-primary);
+  color: var(--color-primary-foreground); }
+.cbx--locked { background: var(--color-muted); border-color: var(--color-border-strong);
+  color: var(--color-muted-foreground); }
+
+/* receipt-style printable block */
+.receipt {
+  width: 320px; background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm); padding: var(--space-5) var(--space-4);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px; line-height: 18px; color: var(--color-foreground);
+}
+.receipt hr { border: none; border-top: 1px dashed var(--color-border-strong); margin: 8px 0; }
+.receipt .r { display: flex; justify-content: space-between; gap: 8px; }
+.receipt .r b { font-weight: 700; }
+.receipt .c { text-align: center; }
+.receipt .big { font-size: 15px; font-weight: 700; }
+
+/* small helpers */
+.dlgwrap { padding: var(--space-6); background: var(--color-overlay); }
+.kv { display: flex; justify-content: space-between; gap: var(--space-3);
+  font-size: var(--text-label); line-height: 22px; }
+.kv span:first-child { color: var(--color-muted-foreground); }
