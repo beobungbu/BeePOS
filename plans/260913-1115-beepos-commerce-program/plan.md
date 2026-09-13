@@ -1,6 +1,6 @@
 # BeePOS commerce program (phase 7): everything discussed on 2026-09-13, nothing left out
 
-Status: wave 0 IN PROGRESS · 2026-09-13 11:20 · owner: Ambrose
+Status: wave 0 DONE (commit e170aaf), wave 1 IN PROGRESS (W-P, W-M, W-I, W-S launched 12:10) · 2026-09-13 12:10 · owner: Ambrose
 Owner instruction: "lập hết các cái đã trao đổi để làm, không được thiếu gì". B2B mode is the hybrid the owner was offered (same app, per-order "Bán sỉ" switch); pure-B2B was not chosen, so hybrid is the working assumption.
 
 ## Scope checklist (source: chat 2026-09-13 09:03 to 11:15 and `docs/chain-multitenant-gap-analysis.md` P2/P3)
@@ -68,12 +68,12 @@ export interface AppNotification { id: string; orgId: string; storeId?: string; 
 ## Waves
 | Wave | Worker | Scope | Status |
 |---|---|---|---|
-| 0 | designer | mockups `commerce.html`: POS wholesale mode (switch, unit selector, price source label, on-account pay), customer company form + group, price list and price rule screens, promotions, receivables and collection, cash book, PO and receive, returns / exchange at POS, lots and expiry, CSV import preview, notification center, org switch; phone 375 + desktop 1440 | IN PROGRESS |
+| 0 | designer (DONE) | mockups `commerce.html`: POS wholesale mode (switch, unit selector, price source label, on-account pay), customer company form + group, price list and price rule screens, promotions, receivables and collection, cash book, PO and receive, returns / exchange at POS, lots and expiry, CSV import preview, notification center, org switch; phone 375 + desktop 1440 | IN PROGRESS |
 | 0 | W-T types + seed + domain core | apply the contract; migrate existing data (channel retail, priceSource list, unitCostSnapshot from costPrice); seed groups, price lists, rules, promotions, bank accounts, ledgers with a few open receivables and payables, POs, lots for 10 products, notifications; pure domain: `pricing.ts` (precedence engine), `costing.ts` (weighted average), `ledger.ts` (balances, aging), `returns.ts` (net exchange), `notify.ts`; persistence slices; `GoodsReceipt.supplierId` required; tests | DONE · [report](reports/w-t-foundation-report.md) |
-| 1 | W-P sales + pricing | A + B (except promotions/loyalty screens) | PENDING |
-| 1 | W-M money + cost | C + D + credit notes for E | PENDING |
-| 1 | W-I inventory 2 + returns UI | E (POS return/exchange, supplier returns) + F | PENDING |
-| 1 | W-S settings, promotions, reports, notifications | B promotions + loyalty, G | PENDING |
+| 1 | W-P sales + pricing | A + B (except promotions/loyalty screens) | IN PROGRESS |
+| 1 | W-M money + cost | C + D + credit notes for E | IN PROGRESS |
+| 1 | W-I inventory 2 + returns UI | E (POS return/exchange, supplier returns) + F | IN PROGRESS |
+| 1 | W-S settings, promotions, reports, notifications | B promotions + loyalty, G | IN PROGRESS |
 | 2 | W-R review · W-E E2E + perf · W-N native (iOS smoke, hardware scanner spike, AppState flush, VoiceOver) | J, H, I | PENDING |
 | 3 | integrator | gates, dark sweep, deploy, BeeUI batches, report | PENDING |
 
