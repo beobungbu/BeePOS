@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import { Dialog, DialogContent, DialogTitle, ListGroup, ListItem, Sheet, SheetContent, SheetTitle } from '@beemvp/beeui-ui';
 import { useRouter } from 'expo-router';
 import { useT } from '../../i18n';
-import { ShellIcon } from './shell-icons';
+import { AppIcon } from '../icons';
 import { useVisibleNavItems } from './nav-items';
 
 interface MoreSheetProps {
@@ -34,8 +34,8 @@ export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
         <ListItem
           key={item.id}
           title={t(item.labelKey)}
-          leading={<ShellIcon name={item.icon} tone="muted-foreground" />}
-          trailing={<ShellIcon name="chevron-right" size={18} tone="subtle-foreground" />}
+          leading={<AppIcon name={item.icon} tone="muted-foreground" />}
+          trailing={<AppIcon name="chevron-right" size={18} tone="subtle-foreground" />}
           onPress={() => handleSelect(item.href)}
         />
       ))}

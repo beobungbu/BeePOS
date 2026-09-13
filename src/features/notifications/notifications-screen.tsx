@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { useNotificationStore } from '../../data/notification-store';
+import { useSettingsStore } from '../../data/settings-store';
 import { useT } from '../../i18n';
 import type { AppNotification } from '../../domain/types';
 import {
@@ -57,14 +58,16 @@ export function NotificationsScreen() {
       unread > 0 ? t('notifications.unread').replace('{count}', String(unread)) : t('notifications.allRead'),
   });
 
+  // `t` is a new closure every render, so it cannot be the dependency; the locale it is bound
+  // to can. Without it the day headings ("Hôm nay") would keep the language they were grouped
+  // in until a notification happened to change.
+  const locale = useSettingsStore((state) => state.locale);
   const days = useMemo(() => {
     const now = new Date();
     const rows = filter === 'unread' ? notifications.filter((row) => !row.readAt) : notifications;
     return groupByDay(rows, now, t);
-    // `t` is a new closure per render; the locale it is bound to is what matters and it is
-    // already a dependency through `notifications` re-rendering on a language change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notifications, filter]);
+  }, [notifications, filter, locale]);
 
   function handleOpen(notification: AppNotification) {
     markRead(notification.id);

@@ -56,6 +56,7 @@ export function businessPatchOf(draft: CustomerBusinessDraft): Partial<Customer>
       companyName: undefined,
       taxCode: undefined,
       contactName: undefined,
+      billingAddress: undefined,
       deliveryAddress: undefined,
       salesRepId: undefined,
       creditLimit: undefined,
@@ -70,6 +71,7 @@ export function businessPatchOf(draft: CustomerBusinessDraft): Partial<Customer>
     companyName: draft.companyName.trim() || undefined,
     taxCode: draft.taxCode.trim() || undefined,
     contactName: draft.contactName.trim() || undefined,
+    billingAddress: draft.billingAddress.trim() || undefined,
     deliveryAddress: draft.deliveryAddress.trim() || undefined,
     groupId: draft.groupId === NONE ? undefined : draft.groupId,
     salesRepId: draft.salesRepId === NONE ? undefined : draft.salesRepId,
@@ -78,18 +80,15 @@ export function businessPatchOf(draft: CustomerBusinessDraft): Partial<Customer>
   };
 }
 
-/** Reads a stored customer (and its billing address) back into an editable draft. */
-export function businessDraftOf(
-  customer: Customer | undefined,
-  billingAddress: string | undefined,
-): CustomerBusinessDraft {
+/** Reads a stored customer back into an editable draft. */
+export function businessDraftOf(customer: Customer | undefined): CustomerBusinessDraft {
   if (!customer) return EMPTY_BUSINESS_DRAFT;
   return {
     type: customer.type,
     companyName: customer.companyName ?? '',
     taxCode: customer.taxCode ?? '',
     contactName: customer.contactName ?? '',
-    billingAddress: billingAddress ?? '',
+    billingAddress: customer.billingAddress ?? '',
     deliveryAddress: customer.deliveryAddress ?? '',
     groupId: customer.groupId ?? NONE,
     salesRepId: customer.salesRepId ?? NONE,

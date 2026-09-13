@@ -15,6 +15,7 @@
     "export:all": "expo export --platform all",
     "lint": "expo lint",
     "qa:e2e": "playwright test -c scripts/qa/e2e/playwright.config.ts",
+    "qa:e2e:quick": "playwright test -c scripts/qa/e2e/playwright.config.ts --project=wide specs/journey.spec.ts specs/commerce-reconciliation.spec.ts",
     "build:web": "expo export --platform web",
     "deploy:web": "npm run build:web && wrangler deploy"
   },
@@ -65,7 +66,8 @@
       "/scripts/audit/claims/",
       "/scripts/audit/props/",
       "/scripts/audit/browser/",
-      "/scripts/qa/"
+      "/scripts/qa/",
+      "/.tmp-shots/"
     ]
   }
 }

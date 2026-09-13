@@ -275,6 +275,43 @@ describe('resolvePrice', () => {
     expect(result.basePrice).toBe(10_000);
   });
 
+  it('runs a promotion over the counter as well as on a wholesale order', () => {
+    // A campaign is a shop-wide offer: a walk-in refused it while a company buyer gets it is a
+    // promotion nobody can explain. What the channel decides is the base it comes off.
+    const retail = resolvePrice(product, 1, undefined, {
+      ...base,
+      channel: 'retail',
+      storeId: 'store-2',
+      promotions: [percentPromo],
+    });
+    expect(retail.source).toBe('promotion');
+    // 10 % off the branch price, not off the catalogue price.
+    expect(retail.basePrice).toBe(10_500);
+    expect(retail.unitPrice).toBe(9450);
+  });
+
+  it('keeps the stackable flag meaning the same thing at retail', () => {
+    const second = { ...percentPromo, id: 'promo-pct-2' };
+    const exclusive = { ...percentPromo, id: 'promo-solo', stackable: false, value: 15 };
+
+    const stacked = resolvePrice(product, 1, undefined, {
+      ...base,
+      channel: 'retail',
+      promotions: [percentPromo, second],
+    });
+    expect(stacked.promotionIds).toEqual(['promo-pct', 'promo-pct-2']);
+    expect(stacked.unitPrice).toBe(8100);
+
+    // The exclusive offer is deeper than the two stacked ones, so it is used on its own.
+    const alone = resolvePrice(product, 1, undefined, {
+      ...base,
+      channel: 'retail',
+      promotions: [percentPromo, exclusive],
+    });
+    expect(alone.promotionIds).toEqual(['promo-solo']);
+    expect(alone.unitPrice).toBe(8500);
+  });
+
   it('compounds stackable promotions rather than adding their percentages', () => {
     const second = { ...percentPromo, id: 'promo-pct-2' };
     const result = resolvePrice(product, 1, undefined, {

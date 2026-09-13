@@ -70,7 +70,6 @@ export const returnsEn = {
   doneToast: 'Return recorded',
   creditNoteToast: 'Credit note issued',
   invalidToast: 'No line has been picked to return',
-  creditNoteUnavailable: 'No credit note was issued: the receivables ledger is not available.',
   qtyLabel: 'Return quantity for {product}',
   selectLine: 'Select {product}',
 };

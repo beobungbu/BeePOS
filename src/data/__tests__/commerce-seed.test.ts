@@ -321,6 +321,34 @@ describe('costing', () => {
       .reduce((total, receipt) => total + receipt.lines.length, 0);
     expect(costHistory.filter((row) => row.source === 'receipt')).toHaveLength(receivedLines);
   });
+
+  it('prices receipts off the catalogue cost rather than at it, so the average can move', () => {
+    const offCatalogue = goodsReceipts
+      .flatMap((receipt) => receipt.lines)
+      .filter((line) => {
+        const product = products.find((item) => item.id === line.productId);
+        return product !== undefined && line.unitCost !== product.costPrice;
+      });
+    expect(offCatalogue.length).toBeGreaterThan(0);
+
+    // Within a few percent: a supplier moves their price list, they do not double it.
+    for (const receipt of goodsReceipts) {
+      for (const line of receipt.lines) {
+        const product = products.find((item) => item.id === line.productId);
+        expect(Math.abs(line.unitCost - product!.costPrice) / product!.costPrice).toBeLessThan(0.06);
+      }
+    }
+  });
+
+  it('moves the weighted average off the opening cost for at least one branch and SKU', () => {
+    const opening = new Map(
+      costHistory.filter((row) => row.source === 'seed').map((row) => [row.productId, row.unitCost]),
+    );
+    const moved = costHistory.filter(
+      (row) => row.source === 'receipt' && row.unitCost !== opening.get(row.productId),
+    );
+    expect(moved.length).toBeGreaterThan(0);
+  });
 });
 
 describe('purchasing, returns and write-offs', () => {

@@ -223,9 +223,15 @@ export function OrderDetailScreen() {
             {t('orders.actions.reprint')}
           </Button>
           {/* Returning goods from this order is a new transaction at the till, so the action
-              hands over to `/pos/returns` rather than mutating the order from here. */}
+              hands over to `/pos/returns` rather than mutating the order from here. The code
+              travels with it, so the cashier lands on this order instead of retyping it. */}
           {actions.canRefund ? (
-            <Button onPress={() => router.push('/pos/returns')} variant="outline">
+            <Button
+              onPress={() =>
+                router.push(`/pos/returns?order=${encodeURIComponent(order.code)}`)
+              }
+              variant="outline"
+            >
               {t('returns.entryTitle')}
             </Button>
           ) : null}

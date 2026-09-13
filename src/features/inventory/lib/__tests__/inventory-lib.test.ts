@@ -86,7 +86,7 @@ const order: PurchaseOrder = {
   orgId: 'org-1',
   storeId: 'store-1',
   supplierId: 'supplier-1',
-  code: 'PO260913-001',
+  code: 'PO-HN01-20260913-001',
   status: 'partial',
   createdAt: NOW,
   lines: [
@@ -125,8 +125,10 @@ describe('purchase order arithmetic', () => {
     expect(defaultReceiveQuantities(order)).toEqual({ 'product-1': 240, 'product-81': 0, 'product-21': 240 });
   });
 
-  it('numbers a new code after the highest one already used that day', () => {
-    expect(nextPurchaseOrderCode([order], NOW)).toBe('PO260913-002');
-    expect(nextPurchaseOrderCode([], NOW)).toBe('PO260913-001');
+  it('numbers a new code after the highest one already used that day at that branch', () => {
+    expect(nextPurchaseOrderCode([order], 'HN01', NOW)).toBe('PO-HN01-20260913-002');
+    expect(nextPurchaseOrderCode([], 'HN01', NOW)).toBe('PO-HN01-20260913-001');
+    // Another branch keeps its own sequence: the code says where the goods are going.
+    expect(nextPurchaseOrderCode([order], 'HN02', NOW)).toBe('PO-HN02-20260913-001');
   });
 });

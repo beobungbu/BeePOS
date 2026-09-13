@@ -26,14 +26,14 @@ import { useScreenHeader } from '../../components/shell/screen-header';
 import { StatStrip } from '../../components/stat-strip';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useInventoryStore } from '../../data/inventory-store';
-import { currentOrgId } from '../../data/org-store';
-import { stores as allStores } from '../../data/seed';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
 import { useSessionStore } from '../../data/session-store';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useT } from '../../i18n';
 import { csvFilename, toCsv } from '../../lib/csv';
 import {
   importableRows,
+  MAX_IMPORT_ROWS,
   parseProductImport,
   productFromRow,
   TEMPLATE_HEADER,
@@ -100,7 +100,10 @@ export function CsvImportScreen() {
   const [fileName, setFileName] = useState('');
   const [preview, setPreview] = useState<CsvImportPreview>(EMPTY_PREVIEW);
   const [filter, setFilter] = useState<RowFilter>('all');
-  const [storeId, setStoreId] = useState(currentStore?.id ?? allStores[0].id);
+  // The branches of the chain this device is signed into, not the demo seed: a document
+  // must never be bookable to a branch of another chain.
+  const allStores = useOrgStore((state) => state.stores);
+  const [storeId, setStoreId] = useState(currentStore?.id ?? allStores[0]?.id ?? '');
 
   const context = useMemo(() => ({ products, categories }), [products, categories]);
   const visibleRows = preview.rows.filter((row) => filter === 'all' || row.status === filter);
@@ -257,6 +260,19 @@ export function CsvImportScreen() {
             <Text variant="label" className="text-destructive">{issueText(preview.fatal)}</Text>
           </View>
         )}
+
+        {/* The file was longer than the parser reads. Said plainly, because the alternative is
+            importing a prefix and letting the stock keeper believe the whole file went in. */}
+        {preview.droppedRows ? (
+          <View className="rounded-lg bg-warning/10 p-4">
+            <Text variant="label" className="text-warning">
+              {fill(t('inventory.import.truncated'), {
+                limit: MAX_IMPORT_ROWS,
+                dropped: preview.droppedRows,
+              })}
+            </Text>
+          </View>
+        ) : null}
 
         {preview.rows.length === 0 ? (
           <EmptyState

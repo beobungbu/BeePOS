@@ -71,10 +71,23 @@ test.describe('pos features', () => {
 
     await test.step('wedge scan: an unknown code names itself in a toast', async () => {
       await go(page, '/pos');
-      await scan(page, UNKNOWN_BARCODE);
-      await expect(page.getByText(L.scanFailed).first()).toBeVisible();
-      await expect(page.getByText(UNKNOWN_BARCODE).first()).toBeVisible();
-      await settle(page, 400);
+      // The toast expires on its own, so the message and the code it names are read in one
+      // pass and scanned again if it has already gone: two separate waits on a four second
+      // toast is a race that only shows up when the machine is busy, and it was failing the
+      // suite under parallel workers rather than telling anyone anything about the app.
+      await expect
+        .poll(
+          async () => {
+            const toast = page.getByText(L.scanFailed).first();
+            if (!(await toast.isVisible().catch(() => false))) {
+              await scan(page, UNKNOWN_BARCODE);
+              return false;
+            }
+            return page.getByText(UNKNOWN_BARCODE).first().isVisible().catch(() => false);
+          },
+          { timeout: 20_000 },
+        )
+        .toBe(true);
       await page.screenshot({ path: `${SHOT_DIR}/barcode-toast-1280.png` });
     });
 

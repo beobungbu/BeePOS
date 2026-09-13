@@ -68,7 +68,17 @@ function makeId(prefix: string): string {
   return `${prefix}-${Date.now()}`;
 }
 
-export function ReturnScreen() {
+export interface ReturnScreenProps {
+  /**
+   * The order the screen should open on, from `/pos/returns?order=<code>`: the hand-over from
+   * an order's "Trả / đổi hàng" action. The route remounts this screen on a change of code
+   * (see `app/(app)/pos/returns.tsx`), so the draft below is built once, from the initial
+   * state, and a cashier's own search is never overwritten by a stale link.
+   */
+  orderCode?: string;
+}
+
+export function ReturnScreen({ orderCode }: ReturnScreenProps) {
   const t = useT();
   const toast = useToast();
   const breakpoint = useBreakpoint();
@@ -87,13 +97,19 @@ export function ReturnScreen() {
   const store = useSessionStore((state) => state.store);
   const storePrices = useStorePriceIndex();
 
-  const [query, setQuery] = useState('');
-  const [orderId, setOrderId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<ReturnDraftLine[]>([]);
+  // The deep-linked order, resolved once at mount. Lazy initialisers rather than an effect:
+  // the screen has to open already showing this order's lines, and an effect would paint an
+  // empty search box first and then replace it.
+  const linked = orderCode ? findOrderByCode(orders, orderCode) : undefined;
+  const [query, setQuery] = useState(orderCode ?? '');
+  const [orderId, setOrderId] = useState<string | null>(linked?.id ?? null);
+  const [draft, setDraft] = useState<ReturnDraftLine[]>(() =>
+    linked ? draftLinesFor(linked, returnsForOrder(returns, linked.id)) : [],
+  );
   const [exchangeLines, setExchangeLines] = useState<ExchangeDraftLine[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [notFound, setNotFound] = useState(false);
+  const [notFound, setNotFound] = useState(Boolean(orderCode) && !linked);
 
   const order = orderId ? orders.find((entry) => entry.id === orderId) : undefined;
   const priorReturns = useMemo(
@@ -116,13 +132,17 @@ export function ReturnScreen() {
     backTo: '/pos',
   });
 
+  function selectOrder(found: Order) {
+    setOrderId(found.id);
+    setDraft(draftLinesFor(found, returnsForOrder(returns, found.id)));
+    setExchangeLines([]);
+  }
+
   function handleFind() {
     const found = findOrderByCode(orders, query);
     setNotFound(!found);
     if (!found) return;
-    setOrderId(found.id);
-    setDraft(draftLinesFor(found, returnsForOrder(returns, found.id)));
-    setExchangeLines([]);
+    selectOrder(found);
   }
 
   function handleClear() {
@@ -197,14 +217,17 @@ export function ReturnScreen() {
     // A company customer who bought on account is owed a smaller balance, not the contents of
     // the drawer. The note is raised before the record is stored so its id can be stamped onto
     // the record itself; `createCreditNote` reads the record and touches no other state.
+    //
+    // The amount is the net still owed after the replacement goods are counted, not the value
+    // of what came back: on an exchange the buyer has already taken stock away in part payment,
+    // and crediting the gross would give them that stock for nothing.
     if (onAccount && summary.exchange.refundDue > 0 && order.customerId) {
-      const entry = useLedgerStore.getState().createCreditNote(order.customerId, record);
-      if (entry) {
-        record.creditNoteId = entry.id;
-      } else {
-        console.warn('[returns] no credit note was written for an on-account return');
-        toast.show({ title: t('returns.creditNoteUnavailable'), variant: 'warning' });
-      }
+      // A positive amount is the store's only refusal condition, and the guard above is it,
+      // so there is no failure branch to write here.
+      const entry = useLedgerStore
+        .getState()
+        .createCreditNote(order.customerId, record, summary.exchange.refundDue);
+      record.creditNoteId = entry?.id;
     }
 
     recordReturn(record);

@@ -20,12 +20,12 @@ export function CategoryReportScreen() {
 
   useScreenHeader({ title: t('reports.title'), subtitle: t('reports.cut.revenueByCategory') });
 
+  // Resolved outside the memo and passed in as a dependency: the label is baked into the rows,
+  // so a memo that does not depend on it keeps printing the previous language's "Khác".
+  const otherLabel = t('reports.column.other');
   const rows = useMemo(
-    () => revenueByCategory(period.orders, products, categories, t('reports.column.other')),
-    // `t` is a new closure per render; the locale it is bound to changes with the store, which
-    // re-renders this screen anyway.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [period.orders, products, categories],
+    () => revenueByCategory(period.orders, products, categories, otherLabel),
+    [period.orders, products, categories, otherLabel],
   );
 
   return (

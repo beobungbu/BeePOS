@@ -34,9 +34,8 @@ import { useScreenHeader } from '../../components/shell/screen-header';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useLedgerStore } from '../../data/ledger-store';
-import { currentOrgId } from '../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
 import { usePurchasingStore } from '../../data/purchasing-store';
-import { stores as allStores } from '../../data/seed';
 import { useSessionStore } from '../../data/session-store';
 import { useSupplierStore } from '../../data/supplier-store';
 import { formatVND, sum } from '../../domain/money';
@@ -83,7 +82,10 @@ export function SupplierReturnDetailScreen({ supplierReturnId }: SupplierReturnD
   const isDraft = !existing || existing.status === 'draft';
 
   const [supplierId, setSupplierId] = useState(existing?.supplierId ?? '');
-  const [storeId, setStoreId] = useState(existing?.storeId ?? currentStore?.id ?? allStores[0].id);
+  // The branches of the chain this device is signed into, not the demo seed: a document
+  // must never be bookable to a branch of another chain.
+  const allStores = useOrgStore((state) => state.stores);
+  const [storeId, setStoreId] = useState(existing?.storeId ?? currentStore?.id ?? allStores[0]?.id ?? '');
   const [receiptId, setReceiptId] = useState(existing?.receiptId ?? '');
   const [lines, setLines] = useState<SupplierReturnLine[]>(existing?.lines ?? []);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -173,24 +175,16 @@ export function SupplierReturnDetailScreen({ supplierReturnId }: SupplierReturnD
       adjustStock(line.productId, record.storeId, -line.qty, `supplier-return:${record.id}`);
     }
 
-    // The ledger's sign convention makes a `credit_note` the entry that reduces a balance, so
-    // this is the payable side of the return whatever the paperwork calls it. When the money
-    // work lands a named supplier debit-note action, this is the one call to move over.
-    const addCreditNote = useLedgerStore.getState().addCreditNote;
-    if (typeof addCreditNote === 'function') {
-      addCreditNote({
-        orgId: record.orgId,
-        storeId: record.storeId,
-        party: 'supplier',
-        partyId: record.supplierId,
-        amount: sum(record.lines.map((line) => line.qty * line.unitCost)),
-        staffId: staff?.id ?? '',
-        refId: record.id,
-      });
-    } else {
-      console.warn('[supplier-returns] no ledger credit note action; the payable was not reduced');
-      toast.show({ title: t('inventory.supplierReturns.debitNoteUnavailable'), variant: 'warning' });
-    }
+    // Giấy báo nợ to the supplier: the goods went back, so the payable comes down by their
+    // value. The ledger store owns the sign; see `createSupplierDebitNote`.
+    useLedgerStore.getState().createSupplierDebitNote({
+      orgId: record.orgId,
+      storeId: record.storeId,
+      supplierId: record.supplierId,
+      amount: sum(record.lines.map((line) => line.qty * line.unitCost)),
+      staffId: staff?.id ?? '',
+      refId: record.id,
+    });
 
     setConfirmOpen(false);
     toast.show({ title: t('inventory.supplierReturns.sentToast'), variant: 'success' });

@@ -25,13 +25,12 @@ import { useCatalogStore } from '../../data/catalog-store';
 import { applyReceiptCost } from '../../data/costing-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useSessionStore } from '../../data/session-store';
-import { stores as allStores } from '../../data/seed';
 import type { GoodsReceipt, GoodsReceiptLine } from '../../domain/types';
 import { useT } from '../../i18n';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { LineEditorTable } from './line-editor-table';
 import { ProductPicker } from './product-picker';
-import { currentOrgId } from '../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
 import { SupplierPicker } from '../suppliers/components/supplier-picker';
 
 function makeReceiptId(): string {
@@ -56,7 +55,10 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
   const notFound = Boolean(receiptId) && !existing;
 
   const [supplierId, setSupplierId] = useState(existing?.supplierId ?? '');
-  const [storeId, setStoreId] = useState(existing?.storeId ?? currentStore?.id ?? allStores[0].id);
+  // The branches of the chain this device is signed into, not the demo seed: a document
+  // must never be bookable to a branch of another chain.
+  const allStores = useOrgStore((state) => state.stores);
+  const [storeId, setStoreId] = useState(existing?.storeId ?? currentStore?.id ?? allStores[0]?.id ?? '');
   const [lines, setLines] = useState<GoodsReceiptLine[]>(existing?.lines ?? []);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);

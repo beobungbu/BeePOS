@@ -7,7 +7,7 @@
  * a reload must not lose work, a schema change must not resurrect an incompatible slice, and a
  * storage failure must never take the app down with it.
  */
-import { Platform } from 'react-native';
+import { AppState, Platform, type AppStateStatus, type NativeEventSubscription } from 'react-native';
 
 /** The async key/value surface both platforms are adapted to. */
 export interface PersistStorage {
@@ -276,6 +276,51 @@ export function getPlatformStorage(): PersistStorage {
 }
 
 /**
+ * Native has no `pagehide`. The last notice an app gets before it can be killed from the app
+ * switcher or reclaimed for memory is the `AppState` change to `inactive` / `background`, so
+ * that is where the debounced writes have to be turned into real ones. Without it a change
+ * made inside the 300 ms window (a scanned line, a login) is lost with the process.
+ *
+ * The registry holds every store `persistStore` created; `stop()` takes it back out, and the
+ * subscription only exists while at least one store is registered.
+ */
+const registered = new Set<PersistedStore>();
+let appStateSubscription: NativeEventSubscription | null = null;
+
+/** Writes the pending change of every registered store. One failing store never stops another. */
+export function flushRegisteredStores(): Promise<void> {
+  const writes = [...registered].map(async (entry) => {
+    try {
+      await entry.flush();
+    } catch (error) {
+      console.warn(`[persist] background flush failed for "${entry.key}":`, error);
+    }
+  });
+  return Promise.all(writes).then(() => undefined);
+}
+
+function onAppStateChange(status: AppStateStatus): void {
+  // `inactive` is the iOS app-switcher / Control-Centre state and comes before `background`;
+  // flushing on both costs nothing, because a write with an unchanged payload is skipped.
+  if (status !== 'background' && status !== 'inactive') return;
+  void flushRegisteredStores();
+}
+
+function watchAppState(): void {
+  // Web already flushes through `pagehide` in the persistence bootstrap; adding an AppState
+  // listener there would duplicate it (react-native-web maps AppState onto visibilitychange).
+  if (appStateSubscription || Platform.OS === 'web') return;
+  if (typeof AppState?.addEventListener !== 'function') return;
+  appStateSubscription = AppState.addEventListener('change', onAppStateChange);
+}
+
+function unwatchAppStateWhenIdle(): void {
+  if (registered.size > 0 || !appStateSubscription) return;
+  appStateSubscription.remove();
+  appStateSubscription = null;
+}
+
+/**
  * Subscribes to `store` and keeps `pick(state)` in storage under `key`.
  *
  * Writes start only after `hydrate()` has run, so a slow storage read can never be overwritten
@@ -345,7 +390,7 @@ export function persistStore<T extends object, S extends Partial<T>>(
     return dropped;
   }
 
-  return {
+  const handle: PersistedStore = {
     key,
 
     async hydrate() {
@@ -419,6 +464,12 @@ export function persistStore<T extends object, S extends Partial<T>>(
         timer = null;
       }
       unsubscribe();
+      registered.delete(handle);
+      unwatchAppStateWhenIdle();
     },
   };
+
+  registered.add(handle);
+  watchAppState();
+  return handle;
 }

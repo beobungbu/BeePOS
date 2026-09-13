@@ -80,10 +80,12 @@ export function useWholesalePricing(cart: PosCart): WholesalePricing {
         priceLists,
         priceRules,
         storePrices,
-        // Promotions are a wholesale-order feature here: the retail tile stays exactly the
-        // shelf price it has always shown, and the promotions screens (W-S) own turning them
-        // on for the counter.
-        promotions: wholesale ? promotions : [],
+        // Promotions run at the counter as well as on a wholesale order: a campaign the owner
+        // set up is a shop-wide offer, and a walk-in who is refused it at the till while a
+        // company buyer gets it is a promotion nobody can explain. What the wholesale switch
+        // still decides is the *base* price the promotion comes off, through `channel`:
+        // retail discounts the shelf price, wholesale discounts the contract price.
+        promotions,
         channel: channelOf(wholesale),
       });
   }, [storeId, wholesale, customer, groups, priceLists, priceRules, storePrices, promotions]);

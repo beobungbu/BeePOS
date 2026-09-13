@@ -55,12 +55,24 @@ export function canReceive(order: PurchaseOrder): boolean {
 }
 
 /**
- * `PO260913-006`: the day plus a running number, unique among `existing`. The shape is the
- * seed's, so a hand-raised order and a seeded one read as the same kind of document in the list.
+ * `PO-HN01-20260913-001`: branch, day, running number.
+ *
+ * The branch is in the code because a purchase order is raised by one shop and a supplier
+ * reads the code off the delivery note to know where the goods go; a chain-wide sequence would
+ * make two shops' orders on the same day differ by a digit. The number runs per branch and
+ * per day, so it is derivable from the documents already on file rather than from a counter.
  */
-export function nextPurchaseOrderCode(existing: readonly PurchaseOrder[], at: Date = new Date()): string {
+export function purchaseOrderCodePrefix(storeCode: string, at: Date): string {
   const pad = (part: number) => String(part).padStart(2, '0');
-  const prefix = `PO${String(at.getFullYear()).slice(2)}${pad(at.getMonth() + 1)}${pad(at.getDate())}-`;
+  return `PO-${storeCode}-${at.getFullYear()}${pad(at.getMonth() + 1)}${pad(at.getDate())}-`;
+}
+
+export function nextPurchaseOrderCode(
+  existing: readonly PurchaseOrder[],
+  storeCode: string,
+  at: Date = new Date(),
+): string {
+  const prefix = purchaseOrderCodePrefix(storeCode, at);
   const used = existing
     .filter((order) => order.code.startsWith(prefix))
     .map((order) => Number(order.code.slice(prefix.length)))

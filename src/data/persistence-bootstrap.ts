@@ -12,8 +12,8 @@ import {
   hydratePreferences,
   readBooleanPreference,
 } from '../lib/preference-storage';
-import { getPlatformStorage, persistStore, type PersistedStore } from './persist';
-import { DEMO_ORG_ID } from './seed';
+import { persistStore, type PersistedStore } from './persist';
+import { ACTIVE_ORG_KEY, activeOrgId } from './active-org';
 import { useAuditStore } from './audit-store';
 import { useCartStore } from './cart-store';
 import { useCashMovementStore } from './cash-movement-store';
@@ -36,31 +36,12 @@ import { useReturnsStore } from './returns-store';
 import { SIDEBAR_COLLAPSED_KEY, useSettingsStore } from './settings-store';
 
 /**
- * The chain whose data these keys address. Kept in its own tiny key so the scope is known
- * before any slice is read: the org slice itself is what would otherwise have to be parsed
- * first, and the data slices are registered at import time.
- *
- * A chain created through onboarding writes its id here and starts from empty storage instead
- * of inheriting the seeded chain's catalogue, orders and stock.
+ * The chain whose data these keys address, read once in `active-org.ts` so the scope is known
+ * before any slice is registered. A chain created through onboarding, or switched to from the
+ * avatar menu, writes its id there and starts from its own storage instead of inheriting the
+ * seeded chain's catalogue, orders and stock.
  */
-const ACTIVE_ORG_KEY = 'beepos.persist.active-org';
-
-function readActiveOrgId(): string {
-  try {
-    return getPlatformStorage().getItemSync?.(ACTIVE_ORG_KEY) || DEMO_ORG_ID;
-  } catch {
-    return DEMO_ORG_ID;
-  }
-}
-
-/** Points the data keys at `orgId`. The caller reloads the app, which re-registers the keys. */
-export function setActiveOrgId(orgId: string): void {
-  const storage = getPlatformStorage();
-  storage.setItemSync?.(ACTIVE_ORG_KEY, orgId);
-  void storage.setItem(ACTIVE_ORG_KEY, orgId);
-}
-
-const ORG_SCOPE = readActiveOrgId();
+const ORG_SCOPE = activeOrgId();
 
 /** Bump a version when the matching slice changes shape; the old copy is then dropped on boot. */
 const VERSION = {
@@ -72,10 +53,14 @@ const VERSION = {
   orders: 2,
   inventory: 1,
   // 2: customers carry a type and the B2B fields.
-  customers: 2,
+  // 3: the billing address moved from the profile extras onto `Customer` itself, so a v2 copy
+  // would keep an address the form no longer reads.
+  customers: 3,
   // 2: products carry selling units, extra barcodes, a minimum order qty and the lot flag.
   catalog: 2,
-  org: 2,
+  // 3: the chain carries a tax code, and the slice is now scoped per chain (see `KEY.org`),
+  // so a v2 copy under the old unscoped key belongs to whichever chain happened to write it.
+  org: 3,
   suppliers: 1,
   storePrices: 1,
   cash: 1,
@@ -114,10 +99,11 @@ const KEY = {
   lots: scoped('lots'),
   orgSettings: scoped('org-settings'),
   notifications: scoped('notifications'),
-  // The chain itself and the device preferences are not scoped: the first is what defines the
-  // scope, and theme, language and density belong to the device rather than to a chain.
+  // Device preferences are not scoped: theme, language and density belong to the device rather
+  // than to a chain. The chain slice itself is, because each chain has its own shops, staff
+  // and credentials; only the pointer at the active chain lives outside the scope.
   settings: 'beepos.persist.settings',
-  org: 'beepos.persist.org',
+  org: scoped('org'),
 } as const;
 
 /** Every persisted key, so a full wipe needs no enumeration API from the platform storage. */

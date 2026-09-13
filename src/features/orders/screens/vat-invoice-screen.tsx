@@ -103,7 +103,7 @@ export function VatInvoiceScreen() {
   const number = invoiceNumber(order);
   const store = stores.find((item) => item.id === order.storeId);
   const seller = allStaff.find((item) => item.id === (order.salesRepId ?? order.cashierId));
-  const sellerTaxCode: string | undefined = (organization as { taxCode?: string }).taxCode;
+  const sellerTaxCode = organization.taxCode;
   const bankAccount = [bankInfo.accountNumber, bankInfo.bankName].filter(Boolean).join(' · ');
 
   function handlePrint() {
@@ -180,9 +180,8 @@ export function VatInvoiceScreen() {
 
         <View className="gap-1">
           <InvoiceRow label={t('orders.vatInvoice.seller')} value={organization.name} bold />
-          {/* The chain has no tax code on `Organization` yet, and inventing one on a tax
-              document would be worse than leaving the line off: a reader would file it. The
-              row appears the moment the field exists. */}
+          {/* A chain that has not entered its MST prints no seller tax-code row at all:
+              a blank line on a tax document reads as missing data a reader would chase. */}
           {sellerTaxCode ? (
             <InvoiceRow label={t('orders.vatInvoice.sellerTaxCode')} value={sellerTaxCode} />
           ) : null}

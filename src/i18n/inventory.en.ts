@@ -234,7 +234,6 @@ export const inventoryEn = {
     sendConfirmDescription: 'Stock drops as soon as it is sent and the payable drops with it. This cannot be undone.',
     effectStock: 'Takes {qty} units off store stock.',
     effectPayable: 'Reduces the supplier payable by {value}.',
-    debitNoteUnavailable: 'No debit note was written: the payables ledger is not available.',
     savedToast: 'Supplier return saved',
     sentToast: 'Supplier return sent',
   },
@@ -348,6 +347,7 @@ export const inventoryEn = {
     applyButton: 'Import {count} valid rows',
     applyDisabled: 'Nothing to import',
     appliedToast: '{count} rows imported',
+    truncated: 'The file has {dropped} rows past the {limit} row limit, which were not read. Split the file and import the rest.',
     emptyPreview: 'Nothing to preview yet.',
     emptyPreviewDescription: 'Pick a file or paste CSV contents, then press Check.',
     issue: {

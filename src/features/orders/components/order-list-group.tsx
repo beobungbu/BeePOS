@@ -85,7 +85,7 @@ export function OrderListGroup({
   );
 }
 
-function groupByDay(orders: Order[]): Array<[string, Order[]]> {
+function groupByDay(orders: Order[]): [string, Order[]][] {
   const groups = new Map<string, Order[]>();
   orders.forEach((order) => {
     const day = order.createdAt.slice(0, 10);

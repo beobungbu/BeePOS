@@ -19,13 +19,12 @@ import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useSessionStore } from '../../data/session-store';
-import { stores as allStores } from '../../data/seed';
 import type { GoodsReceiptLine, StockTransfer } from '../../domain/types';
 import { useT } from '../../i18n';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { LineEditorTable } from './line-editor-table';
 import { ProductPicker } from './product-picker';
-import { currentOrgId } from '../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
 
 function makeTransferId(): string {
   return `transfer-${Date.now()}`;
@@ -51,6 +50,9 @@ export function TransferDetailScreen({ transferId }: TransferDetailScreenProps) 
   const existing = transferId ? transfers.find((item) => item.id === transferId) : undefined;
   const notFound = Boolean(transferId) && !existing;
 
+  // The branches of the chain this device is signed into, not the demo seed: a document
+  // must never be bookable to a branch of another chain.
+  const allStores = useOrgStore((state) => state.stores);
   const defaultTo = allStores.find((store) => store.id !== currentStore?.id) ?? allStores[1] ?? allStores[0];
   const [fromStoreId, setFromStoreId] = useState(existing?.fromStoreId ?? currentStore?.id ?? allStores[0].id);
   const [toStoreId, setToStoreId] = useState(existing?.toStoreId ?? defaultTo.id);

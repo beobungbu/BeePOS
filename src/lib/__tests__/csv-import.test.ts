@@ -1,6 +1,7 @@
 import {
   importableRows,
   mapHeader,
+  MAX_IMPORT_ROWS,
   parseCsvText,
   parseNumberCell,
   parseProductImport,
@@ -143,6 +144,26 @@ describe('parseProductImport', () => {
     const preview = parseProductImport(`${HEADER}\nNEW-3,C,Đồ uống,cái,1,2,,ba muoi`, context);
     expect(preview.rows[0]).toMatchObject({ status: 'warning', action: 'create', stock: undefined });
     expect(preview.rows[0].issues[0].code).toBe('invalidStock');
+  });
+});
+
+describe('parseProductImport row ceiling', () => {
+  it('reads up to the ceiling and says how many rows it left behind', () => {
+    const overflow = 3;
+    const lines = Array.from(
+      { length: MAX_IMPORT_ROWS + overflow },
+      (_, index) => `SKU-${index},San pham ${index},Đồ uống,cái,1000,2000,,5`,
+    );
+    const preview = parseProductImport([HEADER, ...lines].join('\n'), context);
+
+    expect(preview.rows).toHaveLength(MAX_IMPORT_ROWS);
+    expect(preview.droppedRows).toBe(overflow);
+    expect(preview.totals.total).toBe(MAX_IMPORT_ROWS);
+  });
+
+  it('reports nothing dropped for a file that fits', () => {
+    const preview = parseProductImport(`${HEADER}\nSKU-1,San pham,Đồ uống,cái,1000,2000,,5`, context);
+    expect(preview.droppedRows).toBe(0);
   });
 });
 

@@ -93,11 +93,10 @@ export function CustomersListScreen() {
       ...input.business,
     };
     upsertCustomer(newCustomer);
-    if (input.birthday || input.note || input.billingAddress) {
+    if (input.birthday || input.note) {
       setProfileExtra(id, {
         birthday: input.birthday ?? undefined,
         note: input.note || undefined,
-        billingAddress: input.billingAddress || undefined,
       });
     }
   };

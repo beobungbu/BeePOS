@@ -65,25 +65,26 @@ export function PriceListDetailScreen() {
   const [dialog, setDialog] = useState<{ open: boolean; rule?: PriceRule }>({ open: false });
 
   const list = priceLists.find((item) => item.id === id);
-  const nameOf = (productId: string) =>
-    products.find((product) => product.id === productId)?.name ?? productId;
-
+  // Indexed once: the rows are sorted by product name, so a linear scan per comparison would
+  // walk the whole catalogue O(n log n) times on every keystroke in the search box.
+  const productById = useMemo(
+    () => new Map(products.map((product) => [product.id, product])),
+    [products],
+  );
   const rules = useMemo(() => {
     const mine = priceRules.filter((rule) => rule.priceListId === id);
     const needle = search.trim().toLowerCase();
     const matching = needle
       ? mine.filter((rule) => {
-          const product = products.find((item) => item.id === rule.productId);
+          const product = productById.get(rule.productId);
           return (
             product?.name.toLowerCase().includes(needle) ||
             product?.sku.toLowerCase().includes(needle)
           );
         })
       : mine;
-    return sortRules(matching, nameOf);
-    // `nameOf` closes over `products`, which is in the dependency list already.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [priceRules, id, search, products]);
+    return sortRules(matching, (productId) => productById.get(productId)?.name ?? productId);
+  }, [priceRules, id, search, productById]);
 
   useScreenHeader({
     title: list?.name ?? t('pricing.title'),
@@ -134,7 +135,7 @@ export function PriceListDetailScreen() {
         </TableHeader>
         <TableBody>
           {rules.map((rule) => {
-            const product = products.find((item) => item.id === rule.productId);
+            const product = productById.get(rule.productId);
             const delta = vsBasePercent(rule.unitPrice, product);
             const scope = ruleScope(t, rule);
             return (

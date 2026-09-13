@@ -9,12 +9,21 @@
  */
 import { DEFAULT_AUTO_LOCK_MINUTES, isSessionExpired } from '../../domain/auth';
 import { useOrgStore } from '../org-store';
+import { useOrgSettingsStore } from '../org-settings-store';
 import { useSessionStore } from '../session-store';
 import {
   accounts as seedAccounts,
   DEMO_PASSWORD,
+  memberships as seedMemberships,
   organization as seedOrganization,
   registers as seedRegisters,
+  SECOND_ORG_ID,
+  SECOND_ORG_STAFF_ID,
+  secondOrganization,
+  secondOrgAccounts,
+  secondOrgRegisters,
+  secondOrgStaff,
+  secondOrgStores,
   staff as seedStaff,
   stores as seedStores,
 } from '../seed';
@@ -122,6 +131,69 @@ describe('login', () => {
     await login(OWNER_EMAIL, DEMO_PASSWORD);
     await expect(useSessionStore.getState().changePassword('nope', 'Cuahang@2027')).resolves.toBe(false);
     await expect(login(OWNER_EMAIL, DEMO_PASSWORD)).resolves.toMatchObject({ ok: true });
+  });
+});
+
+/**
+ * The org switch, from the session store's side.
+ *
+ * Switching chain re-points the storage scope and reloads, so what the app comes back to is a
+ * fresh sign-in against the *other* chain's shops, staff and tills. The owner's login is one
+ * credential shared by both chains, so the staff record has to come from the membership table
+ * for the active chain; reading `account.staffId` would sign them in as their Hà Nội self and
+ * then offer them four branches they do not work at.
+ */
+describe('the second chain', () => {
+  function signIntoSecondChain(): void {
+    useOrgStore.setState({
+      organization: secondOrganization,
+      stores: secondOrgStores,
+      staff: secondOrgStaff,
+      registers: secondOrgRegisters,
+      accounts: secondOrgAccounts,
+      staffActiveById: {},
+      storeHoursById: {},
+    });
+  }
+
+  beforeEach(() => {
+    useOrgSettingsStore.setState({ memberships: seedMemberships });
+    signIntoSecondChain();
+  });
+
+  afterEach(resetStores);
+
+  it('signs the owner in as the staff record they hold in that chain', async () => {
+    await expect(login(OWNER_EMAIL, DEMO_PASSWORD)).resolves.toMatchObject({ ok: true });
+
+    const state = useSessionStore.getState();
+    expect(state.staff?.id).toBe(SECOND_ORG_STAFF_ID);
+    expect(state.session?.orgId).toBe(SECOND_ORG_ID);
+    expect(state.session?.staffId).toBe(SECOND_ORG_STAFF_ID);
+    // One shop, so it is picked for them; the till still is not.
+    expect(state.storeOptions).toHaveLength(1);
+    expect(state.store?.id).toBe(secondOrgStores[0].id);
+    expect(state.register).toBeNull();
+  });
+
+  it('offers only the tills of that chain', async () => {
+    await login(OWNER_EMAIL, DEMO_PASSWORD);
+    const state = useSessionStore.getState();
+    expect(state.registerOptions.map((item) => item.id)).toEqual(
+      secondOrgRegisters.map((item) => item.id),
+    );
+  });
+
+  it('turns away an account with no membership and no staff record here', async () => {
+    const cashier = seedAccounts.find((account) => account.staffId === CASHIER.id)!;
+    // The credential exists on the device, but this chain has no staff record for it.
+    useOrgStore.setState({ accounts: [...secondOrgAccounts, cashier] });
+
+    await expect(login(CASHIER_EMAIL, DEMO_PASSWORD)).resolves.toEqual({
+      ok: false,
+      reason: 'disabled',
+    });
+    expect(useSessionStore.getState().staff).toBeNull();
   });
 });
 

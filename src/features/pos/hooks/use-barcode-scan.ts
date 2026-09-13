@@ -1,23 +1,32 @@
-import { useEffect, useRef } from 'react';
+import { createElement, useEffect, useRef, type ReactElement } from 'react';
 import { Platform } from 'react-native';
 import { emptyScanBuffer, scanBuffer, type ScanBuffer } from '../../../domain/pos';
 import { isOverlayOpen, isTypingTarget } from '../../../lib/keyboard';
+import { HardwareKeyCapture } from '../../../native/hardware-key-capture';
 
 /**
  * A keyboard-wedge scanner is a keyboard: it types the digits of the code in a burst and
- * sends Enter. This hook listens for that burst on the sell screen and hands the finished
- * code to the caller; the rule itself lives in `scanBuffer` (src/domain/pos.ts) so the
- * timing is tested without a DOM.
+ * sends Enter. This hook listens for that burst and hands the finished code to the caller;
+ * the rule itself lives in `scanBuffer` (src/domain/pos.ts) so the timing is tested without
+ * a DOM.
  *
- * Web only. React Native exposes no global hardware-key event on iOS or Android, so on
- * native the wedge path stays the catalog search field, which a scanner fills and submits
- * exactly like a typist would (see the report for phase 5 W-A).
+ * Web listens at the window. Native has no global key event, so the hook returns the capture
+ * element that holds the keyboard focus instead (`src/native/hardware-key-capture.tsx`), and
+ * the sell screen has to render it:
+ *
+ * ```tsx
+ * const scanCapture = useBarcodeScan(handleScan);
+ * ...
+ * {scanCapture}
+ * ```
+ *
+ * The return value is `null` on web, so rendering it is harmless there.
  */
-export function useBarcodeScan(onScan: (code: string) => void, enabled = true): void {
+export function useBarcodeScan(onScan: (code: string) => void, enabled = true): ReactElement | null {
   // Kept in a ref so a burst is not restarted by a re-render between two keystrokes.
   const buffer = useRef<ScanBuffer>(emptyScanBuffer);
   const handler = useRef(onScan);
-  // Written after the render that produced it, not during: the listener below only reads it
+  // Written after the render that produced it, not during: the listeners below only read it
   // from an event, which is always after the commit.
   useEffect(() => {
     handler.current = onScan;
@@ -62,4 +71,7 @@ export function useBarcodeScan(onScan: (code: string) => void, enabled = true): 
       buffer.current = emptyScanBuffer;
     };
   }, [enabled]);
+
+  if (Platform.OS === 'web') return null;
+  return createElement(HardwareKeyCapture, { onScan, enabled });
 }

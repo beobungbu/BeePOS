@@ -70,7 +70,6 @@ export const returnsVi = {
   doneToast: 'Đã ghi nhận phiếu trả hàng',
   creditNoteToast: 'Đã phát hành phiếu giảm trừ công nợ',
   invalidToast: 'Chưa chọn dòng hàng nào để trả',
-  creditNoteUnavailable: 'Chưa phát hành được phiếu giảm trừ: sổ công nợ chưa sẵn sàng.',
   qtyLabel: 'Số lượng trả {product}',
   selectLine: 'Chọn dòng {product}',
 };

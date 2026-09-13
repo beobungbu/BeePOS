@@ -1,20 +1,49 @@
 import { useEffect, useMemo } from 'react';
-import { FlatList, View } from 'react-native';
+import { View } from 'react-native';
 import { Text } from '@beemvp/beeui-ui';
 import { useLocalSearchParams } from 'expo-router';
-import { products as seedProducts } from '../../data/seed';
+import {
+  customerGroups as seedCustomerGroups,
+  customers as seedCustomers,
+  priceLists as seedPriceLists,
+  priceRules as seedPriceRules,
+  products as seedProducts,
+  promotions as seedPromotions,
+} from '../../data/seed';
+import { resolvePrice } from '../../domain/pricing';
 import type { Product, StockLevel } from '../../domain/types';
-import { ProductCard } from '../pos/components/product-card';
-import { ProductGrid } from '../pos/components/product-grid';
+import { useT } from '../../i18n';
+import { ProductGrid, type TileQuote } from '../pos/components/product-grid';
+import { priceSourceBadge } from '../pos/lib/wholesale';
 import { usePosLayout } from '../pos/hooks/use-pos-layout';
+import { CashBookPerfTable, ReceivablesPerfTable } from './perf-tables';
 
 /** The catalogue size the phase-5 perf budget is written against. */
 export const PERF_PRODUCT_COUNT = 1000;
+/** Default row counts for the two phase-7 money tables. */
+export const PERF_RECEIVABLE_ROWS = 1000;
+export const PERF_CASH_BOOK_ROWS = 500;
 
 /** A store id of this harness's own, so nothing here can be mistaken for a real shop's stock. */
 const PERF_STORE_ID = 'perf-store';
+/**
+ * `?real=1` measures the grid against the seeded branch instead: the first cycle of the
+ * catalogue keeps the seed product ids, so the lot store answers `expiringLotsFor` and the
+ * price rules match, which is what the FEFO badge and the wholesale quote cost in the shop.
+ */
+const REAL_STORE_ID = 'store-1';
 /** No branch prices in the harness; shared so the grid does not get a new map each render. */
 const NO_STORE_PRICES: ReadonlyMap<string, number> = new Map();
+/** The seeded company buyer the wholesale case prices for (Đại lý A, contract rules). */
+const PERF_BUYER_ID = 'customer-41';
+
+/** What the harness is measuring. */
+export type PerfCase = 'grid' | 'receivables' | 'cashbook';
+
+function perfCase(raw: string | string[] | undefined): PerfCase {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return value === 'receivables' || value === 'cashbook' ? value : 'grid';
+}
 
 /**
  * Where the measurements land for `scripts/qa/e2e/specs/perf.spec.ts` to read. The spec takes
@@ -22,7 +51,7 @@ const NO_STORE_PRICES: ReadonlyMap<string, number> = new Map();
  * window between the two covers building the catalogue, rendering it and painting it.
  */
 export interface PerfMarks {
-  /** Catalogue size actually rendered. */
+  /** Rows actually rendered: tiles for the grid, table rows for the money cases. */
   products: number;
   /** `performance.now()` in the first frame after the grid's first commit. */
   firstTileAt?: number;
@@ -39,11 +68,11 @@ function clampCount(raw: string | string[] | undefined): number {
   return Math.min(5000, Math.round(value));
 }
 
-/** Rows per windowing batch from the URL, or `undefined` for the sell screen's own grid. */
-function batchRows(raw: string | string[] | undefined): number | undefined {
+/** A table size from the URL, bounded the same way a catalogue size is. */
+function clampRows(raw: string | string[] | undefined, fallback: number): number {
   const value = Number(Array.isArray(raw) ? raw[0] : raw);
-  if (!Number.isFinite(value) || value <= 0) return undefined;
-  return Math.min(50, Math.round(value));
+  if (!Number.isFinite(value) || value <= 0) return fallback;
+  return Math.min(5000, Math.round(value));
 }
 
 /**
@@ -54,24 +83,29 @@ function batchRows(raw: string | string[] | undefined): number | undefined {
 export function buildPerfCatalog(
   count: number,
   withImages = true,
+  options: { storeId?: string; realIds?: boolean } = {},
 ): { products: Product[]; stockLevels: StockLevel[] } {
+  const storeId = options.storeId ?? PERF_STORE_ID;
   const products: Product[] = [];
   const stockLevels: StockLevel[] = [];
 
   for (let index = 0; index < count; index += 1) {
     const base = seedProducts[index % seedProducts.length];
     const lot = Math.floor(index / seedProducts.length) + 1;
+    // `realIds` keeps the seed id for the first cycle, so lot lookups and price rules hit;
+    // later cycles stay synthetic, which keeps every key in the list unique either way.
+    const id = options.realIds && lot === 1 ? base.id : `perf-${index + 1}`;
     products.push({
       ...base,
-      id: `perf-${index + 1}`,
+      id,
       sku: `${base.sku}-L${lot}`,
       barcode: String(8_930_000_000_000 + index),
       name: lot === 1 ? base.name : `${base.name} (lô ${lot})`,
       imageUrl: withImages ? base.imageUrl : undefined,
     });
     stockLevels.push({
-      productId: `perf-${index + 1}`,
-      storeId: PERF_STORE_ID,
+      productId: id,
+      storeId,
       // A spread of states so the tile renders each stock pill variant, not just the cheap one.
       onHand: index % 37,
       reserved: 0,
@@ -87,6 +121,12 @@ export function buildPerfCatalog(
  * 1000 product catalogue and publishes two marks on `window` for the Playwright perf spec:
  * when the render started and when the first tile reached the screen.
  *
+ * Phase 7 added three knobs to the same route rather than three routes, because `app/**` is not
+ * this worker's to add to: `?wholesale=1` prices every tile through the precedence engine and
+ * gives it the price-source badge and the unit selector, `?real=1` keeps the seed product ids
+ * for the first cycle so the FEFO badge has real lots to find, and `?case=receivables` /
+ * `?case=cashbook` replace the grid with the money tables (`perf-tables.tsx`).
+ *
  * The catalogue is deliberately **not** written into `catalog-store`: `persistence-bootstrap`
  * subscribes to that store, so seeding it would serialise roughly 300 KB into localStorage on
  * a debounce timer, which both persists a synthetic catalogue into the demo and lands a long
@@ -94,17 +134,82 @@ export function buildPerfCatalog(
  * props, so the harness owns them in memory and nothing outside this screen sees them.
  */
 export function PerfHarnessScreen() {
+  const t = useT();
   const layout = usePosLayout();
-  const params = useLocalSearchParams<{ count?: string; images?: string; batch?: string }>();
+  const params = useLocalSearchParams<{
+    count?: string;
+    images?: string;
+    case?: string;
+    rows?: string;
+    real?: string;
+    wholesale?: string;
+    nonce?: string;
+  }>();
   // `?count=120` measures today's catalogue and `?images=0` the same grid without photos, so a
   // frame cost can be pinned on the catalogue size or on the tile's picture.
   const count = clampCount(params.count);
   const withImages = params.images !== '0';
-  // `?batch=4` swaps in the same grid with the list windowing knobs set (see `BatchedGrid`).
-  const batch = batchRows(params.batch);
-  const catalog = useMemo(() => buildPerfCatalog(count, withImages), [count, withImages]);
+  // `?case=receivables` / `?case=cashbook` measure the phase-7 money tables instead.
+  const measuring = perfCase(params.case);
+  const realIds = params.real === '1';
+  const wholesale = params.wholesale === '1';
+  const storeId = realIds ? REAL_STORE_ID : PERF_STORE_ID;
+  const catalog = useMemo(
+    () => buildPerfCatalog(count, withImages, { storeId, realIds }),
+    [count, withImages, storeId, realIds],
+  );
 
-  const productCount = catalog.products.length;
+  // `?wholesale=1`: the tile prices through the real precedence engine for the seeded company
+  // buyer, wears the price-source badge and offers the unit selector, which is what the phase-7
+  // sell screen does with the switch on. Built here rather than read off `use-wholesale-pricing`
+  // because that hook needs a session and a cart, and the harness has neither.
+  const buyer = useMemo(
+    () => (wholesale ? seedCustomers.find((customer) => customer.id === PERF_BUYER_ID) : undefined),
+    [wholesale],
+  );
+  const quoteFor = useMemo(() => {
+    if (!wholesale) return undefined;
+    const group = seedCustomerGroups.find((item) => item.id === buyer?.groupId);
+    return (product: Product, unit: string | undefined): TileQuote => {
+      const resolution = resolvePrice(product, 1, unit, {
+        storeId,
+        customer: buyer,
+        groups: seedCustomerGroups,
+        priceLists: seedPriceLists,
+        priceRules: seedPriceRules,
+        promotions: seedPromotions,
+        channel: 'wholesale',
+      });
+      const promotionName = seedPromotions.find((item) => item.id === resolution.promotionId)?.name;
+      return {
+        price: resolution.unitPrice,
+        badge: priceSourceBadge(t, resolution.source, { group, promotionName }),
+        minOrderText:
+          product.minOrderQty && product.minOrderQty > 1
+            ? `Tối thiểu ${product.minOrderQty}`
+            : undefined,
+      };
+    };
+  }, [wholesale, buyer, storeId, t]);
+
+  // Every SKU that has a case unit is quoting the case, so the selector renders in the state
+  // the seller leaves it in rather than on its cheap default.
+  const unitByProduct = useMemo(() => {
+    if (!wholesale) return undefined;
+    const index = new Map<string, string>();
+    for (const product of catalog.products) {
+      const caseUnit = product.units?.[product.units.length - 1]?.unit;
+      if (caseUnit) index.set(product.id, caseUnit);
+    }
+    return index;
+  }, [wholesale, catalog.products]);
+
+  const rowCount = clampRows(params.rows, measuring === 'cashbook' ? PERF_CASH_BOOK_ROWS : PERF_RECEIVABLE_ROWS);
+  const productCount = measuring === 'grid' ? catalog.products.length : rowCount;
+  // `?nonce=` is the spec's run counter. Without it the effect below is keyed on a row count
+  // that two consecutive measurements can share, and a run that re-measures the same size
+  // would then wait for a mark that never gets republished.
+  const nonce = Array.isArray(params.nonce) ? params.nonce[0] : params.nonce;
   useEffect(() => {
     // Published from the effect rather than during render: the marks are a side effect, and
     // the effect runs after the commit anyway. The next animation frame is the first one that
@@ -115,7 +220,7 @@ export function PerfHarnessScreen() {
       marks.firstTileAt = performance.now();
     });
     return () => cancelAnimationFrame(frame);
-  }, [productCount]);
+  }, [productCount, measuring, nonce]);
 
   return (
     <View className="flex-1" testID="perf-harness-root">
@@ -124,17 +229,24 @@ export function PerfHarnessScreen() {
           Perf harness
         </Text>
         <Text variant="caption" className="text-muted-foreground" testID="perf-product-count">
-          {`${catalog.products.length} sản phẩm · ${layout.gridColumns} cột · ảnh ${withImages ? 'bật' : 'tắt'}${batch === undefined ? '' : ` · batch ${batch}`}`}
+          {measuring === 'grid'
+            ? `${catalog.products.length} sản phẩm · ${layout.gridColumns} cột · ảnh ${withImages ? 'bật' : 'tắt'}${wholesale ? ' · sỉ' : ''}${realIds ? ' · lô thật' : ''}`
+            : `${rowCount} dòng · ${measuring === 'cashbook' ? 'sổ quỹ' : 'phải thu'}`}
         </Text>
       </View>
 
-      {batch === undefined ? (
+      {measuring === 'receivables' ? (
+        <ReceivablesPerfTable rows={rowCount} />
+      ) : measuring === 'cashbook' ? (
+        <CashBookPerfTable rows={rowCount} />
+      ) : (
         <ProductGrid
           products={catalog.products}
           stockLevels={catalog.stockLevels}
-          storeId={PERF_STORE_ID}
+          storeId={storeId}
           // The harness measures the grid, not the pricing rule, so it runs on the chain
           // price: an empty index makes `effectivePrice` fall through to `product.salePrice`.
+          // `?wholesale=1` puts the precedence engine back in, per tile, as the switch does.
           storePrices={NO_STORE_PRICES}
           columns={layout.gridColumns}
           gutter={layout.gutter}
@@ -143,82 +255,11 @@ export function PerfHarnessScreen() {
           compactTiles={layout.compactTiles}
           lines={[]}
           onAddProduct={() => undefined}
-        />
-      ) : (
-        <BatchedGrid
-          products={catalog.products}
-          stockLevels={catalog.stockLevels}
-          columns={layout.gridColumns}
-          gutter={layout.gutter}
-          gap={layout.gap}
-          imageAspectRatio={layout.imageAspectRatio}
-          compactTiles={layout.compactTiles}
-          batch={batch}
+          quoteFor={quoteFor}
+          unitByProduct={unitByProduct}
+          onUnitChange={wholesale ? () => undefined : undefined}
         />
       )}
     </View>
-  );
-}
-
-interface BatchedGridProps {
-  products: Product[];
-  stockLevels: StockLevel[];
-  columns: number;
-  gutter: number;
-  gap: number;
-  imageAspectRatio: number;
-  compactTiles: boolean;
-  /** Rows rendered per windowing batch. */
-  batch: number;
-}
-
-/**
- * The same grid with the `FlatList` windowing knobs set (`?batch=4`), so a long-frame reading
- * off `ProductGrid` can be compared against a tuned list without touching the sell screen.
- * `ProductGrid` takes no windowing props, hence the copy; keep the two in step by hand or
- * delete this one once the knobs move into `ProductGrid` itself.
- */
-function BatchedGrid({
-  products,
-  stockLevels,
-  columns,
-  gutter,
-  gap,
-  imageAspectRatio,
-  compactTiles,
-  batch,
-}: BatchedGridProps) {
-  const stockByProduct = useMemo(
-    () => new Map(stockLevels.map((level) => [level.productId, level])),
-    [stockLevels],
-  );
-
-  return (
-    <FlatList
-      key={columns}
-      className="bg-surface-muted"
-      data={products}
-      numColumns={columns}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={{ padding: gutter, gap }}
-      columnWrapperStyle={columns > 1 ? { gap } : undefined}
-      initialNumToRender={batch}
-      maxToRenderPerBatch={batch}
-      windowSize={7}
-      updateCellsBatchingPeriod={50}
-      renderItem={({ item }) => (
-        <View style={{ flex: 1 / columns }}>
-          <ProductCard
-            product={item}
-            price={item.salePrice}
-            stock={stockByProduct.get(item.id)}
-            inCart={0}
-            imageAspectRatio={imageAspectRatio}
-            compact={compactTiles}
-            onAdd={() => undefined}
-          />
-        </View>
-      )}
-    />
   );
 }

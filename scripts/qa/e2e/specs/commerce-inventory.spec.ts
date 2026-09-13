@@ -150,7 +150,8 @@ async function openLastPurchaseOrder(page: Page): Promise<void> {
   if (await tableRow.isVisible().catch(() => false)) {
     await tableRow.click();
   } else {
-    await page.getByText(/^PO\d{6}-\d{3}$/).last().click();
+    // `PO-HN01-20260913-001`: branch, day, running number.
+    await page.getByText(/^PO-[A-Z0-9]+-\d{8}-\d{3}$/).last().click();
   }
   await page.waitForURL('**/inventory/purchase-orders/**');
 }

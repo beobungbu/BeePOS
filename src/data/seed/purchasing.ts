@@ -12,6 +12,7 @@ import { createRng, pickMany, randInt } from './prng';
 import { products } from './products';
 import { goodsReceipts } from './operations';
 import { DEMO_ORG_ID } from './org';
+import { stores } from './stores';
 import { daysAgo, daysAhead } from './clock';
 
 const SEED = 20260911;
@@ -30,6 +31,11 @@ function receivedQtyFor(status: PurchaseOrderStatus, qty: number, lineIndex: num
   if (status !== 'partial') return 0;
   // First line complete, the rest short: the shape a real part-delivery takes.
   return lineIndex === 0 ? qty : Math.floor(qty / 2);
+}
+
+/** A branch's short code, which is what a purchase order number carries. */
+function storeCodeOf(storeId: string): string {
+  return stores.find((store) => store.id === storeId)?.code ?? storeId;
 }
 
 function buildPurchaseOrders(): PurchaseOrder[] {
@@ -52,7 +58,9 @@ function buildPurchaseOrders(): PurchaseOrder[] {
       orgId: DEMO_ORG_ID,
       storeId: plan.storeId,
       supplierId: plan.supplierId,
-      code: `PO${createdAt.toISOString().slice(2, 10).replace(/-/g, '')}-${String(index + 1).padStart(3, '0')}`,
+      // `PO-HN01-20260913-001`: the shape `nextPurchaseOrderCode` mints, so a hand-raised
+      // order and a seeded one read as the same kind of document in the list.
+      code: `PO-${storeCodeOf(plan.storeId)}-${createdAt.toISOString().slice(0, 10).replace(/-/g, '')}-${String(index + 1).padStart(3, '0')}`,
       lines,
       status: plan.status,
       // A draft has no promised date yet; everything else does.

@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import { Text } from '@beemvp/beeui-ui';
 import { useRouter, usePathname } from 'expo-router';
 import { useT } from '../../i18n';
-import { ShellIcon } from './shell-icons';
+import { AppIcon } from '../icons';
 import { BrandMark } from './brand-mark';
 import { useVisibleNavItems, type NavItem } from './nav-items';
 import { SidebarToggle } from './sidebar-toggle';
@@ -54,7 +54,7 @@ function RailItem({ item, active }: { item: NavItem; active: boolean }) {
         active ? 'bg-primary/15' : ''
       }`}
     >
-      <ShellIcon name={item.icon} size={24} tone={active ? 'primary-pressed' : 'muted-foreground'} />
+      <AppIcon name={item.icon} size={24} tone={active ? 'primary-pressed' : 'muted-foreground'} />
       {/* Two lines, not an ellipsis: "Khách hàng" must stay readable in 60 pt. */}
       <Text
         numberOfLines={2}

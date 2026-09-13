@@ -196,7 +196,6 @@ export function CustomerDetailScreen() {
               customer={customer}
               birthday={extra?.birthday ?? null}
               note={extra?.note ?? ''}
-              billingAddress={extra?.billingAddress ?? ''}
               groups={groups}
               reps={allStaff}
               onSave={(input) => {
@@ -209,7 +208,6 @@ export function CustomerDetailScreen() {
                 setProfileExtra(customer.id, {
                   birthday: input.birthday ?? undefined,
                   note: input.note || undefined,
-                  billingAddress: input.billingAddress || undefined,
                 });
               }}
             />

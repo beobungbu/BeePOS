@@ -38,13 +38,19 @@ export interface BuildOrderInput {
   now?: Date;
 }
 
-/** The buyer's details as the VAT invoice needs them, defaulted from the customer record. */
+/**
+ * The buyer's details as the VAT invoice needs them, defaulted from the customer record.
+ *
+ * The invoice is addressed to the registered office when the buyer has recorded one, and to
+ * the delivery address otherwise: a company whose warehouse and head office differ would
+ * otherwise get an invoice addressed to a loading bay.
+ */
 export function vatInvoiceFor(customer: Customer | undefined): VatInvoiceInfo | undefined {
   if (!customer || customer.type !== 'company') return undefined;
   return {
     buyerName: customer.companyName ?? customer.name,
     taxCode: customer.taxCode ?? '',
-    address: customer.deliveryAddress ?? '',
+    address: customer.billingAddress ?? customer.deliveryAddress ?? '',
   };
 }
 

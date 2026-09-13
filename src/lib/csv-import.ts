@@ -216,6 +216,11 @@ export interface CsvImportPreview {
   totals: CsvImportTotals;
   /** Set when the file could not be read at all; `rows` is then empty. */
   fatal?: CsvIssue;
+  /**
+   * Data rows the file carried beyond `MAX_IMPORT_ROWS`, which were not read. Zero for every
+   * file that fitted. The screen says so rather than importing a silent prefix.
+   */
+  droppedRows?: number;
 }
 
 export interface CsvImportContext {
@@ -226,6 +231,16 @@ export interface CsvImportContext {
 }
 
 const EMPTY_TOTALS: CsvImportTotals = { total: 0, ok: 0, warning: 0, error: 0, create: 0, update: 0 };
+
+/**
+ * Data rows read from one file.
+ *
+ * A CSV is the one place the app takes a file of unknown size from outside it, and every row
+ * becomes a validated object and a rendered preview line. Without a ceiling, a stock keeper
+ * who picks the wrong export freezes the till on a file nobody meant to import. 5 000 is well
+ * past any real catalogue and still parses and draws inside a second.
+ */
+export const MAX_IMPORT_ROWS = 5000;
 
 function cellAt(row: readonly string[], index: number | undefined): string {
   return index === undefined ? '' : (row[index] ?? '').trim();
@@ -275,7 +290,10 @@ export function parseProductImport(text: string, context: CsvImportContext): Csv
     }
   }
 
-  const rows: CsvImportRow[] = grid.slice(1).map((cells, index) => {
+  const dataRows = grid.slice(1);
+  const droppedRows = Math.max(0, dataRows.length - MAX_IMPORT_ROWS);
+
+  const rows: CsvImportRow[] = dataRows.slice(0, MAX_IMPORT_ROWS).map((cells, index) => {
     const line = index + 2;
     const issues: CsvIssue[] = [];
 
@@ -366,7 +384,7 @@ export function parseProductImport(text: string, context: CsvImportContext): Csv
     };
   });
 
-  return { rows, totals: totalsOf(rows) };
+  return { rows, totals: totalsOf(rows), droppedRows };
 }
 
 /** The five counters the toolbar chips and the stat strip show. */

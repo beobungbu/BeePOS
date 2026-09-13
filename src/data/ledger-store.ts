@@ -66,6 +66,20 @@ export interface ManualNoteInput {
   createdAt?: Date;
 }
 
+/** Everything a supplier return's ledger entry needs; the return record carries the rest. */
+export interface SupplierDebitNoteInput {
+  orgId: string;
+  storeId: string;
+  supplierId: string;
+  /** Value of the goods going back, at the cost they were received at. */
+  amount: number;
+  staffId: string;
+  /** The `SupplierReturn` this note answers, so the payables screen can link back to it. */
+  refId?: string;
+  note?: string;
+  createdAt?: Date;
+}
+
 interface LedgerState {
   entries: LedgerEntry[];
   bankAccounts: BankAccount[];
@@ -83,11 +97,27 @@ interface LedgerState {
   /** Books a credit note, the ledger side of a return on a delivered wholesale order. */
   addCreditNote: (input: Omit<SettlementInput, 'bankAccountId'> & { refId?: string }) => LedgerEntry | null;
   /**
-   * The ledger side of a return: lowers what the customer owes by the value of the goods that
-   * came back. Call it from the return flow after the return record is written; the record
-   * carries the branch, the org and the amount, so nothing has to be recomputed here.
+   * The payables side of a supplier return: goods go back, so what the chain owes the partner
+   * comes down by their value.
+   *
+   * Named for the paperwork a Vietnamese shop actually issues (giấy báo nợ, a debit note to the
+   * supplier) while booking the entry the ledger's sign convention needs. Those two disagree on
+   * purpose: `entrySign` gives `debit_note` +1, which *raises* a balance, and on the supplier
+   * side raising the balance means owing more. Booking a literal `debit_note` here would double
+   * the payable instead of clearing it, which is why this call exists rather than each screen
+   * choosing a `kind`.
    */
-  createCreditNote: (customerId: string, record: ReturnRecord) => LedgerEntry | null;
+  createSupplierDebitNote: (input: SupplierDebitNoteInput) => LedgerEntry | null;
+  /**
+   * The ledger side of a return: lowers what the customer owes. The record carries the branch,
+   * the org and the goods value, so nothing has to be recomputed here.
+   *
+   * `amount` defaults to the whole value of the goods that came back, which is right for a
+   * plain return. On an exchange the caller passes the net still owed back after the
+   * replacement goods are counted: the buyer took other stock away in part payment, so
+   * crediting the gross would hand them the replacement for free.
+   */
+  createCreditNote: (customerId: string, record: ReturnRecord, amount?: number) => LedgerEntry | null;
   /** A credit or debit note typed in by a manager, against a customer or a supplier. */
   addManualNote: (input: ManualNoteInput) => LedgerEntry | null;
   /**
@@ -189,13 +219,26 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
     return entry;
   },
 
-  createCreditNote: (customerId, record) =>
+  createSupplierDebitNote: (input) =>
+    get().addCreditNote({
+      orgId: input.orgId,
+      storeId: input.storeId,
+      party: 'supplier',
+      partyId: input.supplierId,
+      amount: input.amount,
+      staffId: input.staffId,
+      refId: input.refId,
+      note: input.note,
+      createdAt: input.createdAt,
+    }),
+
+  createCreditNote: (customerId, record, amount = record.refundAmount) =>
     get().addCreditNote({
       orgId: record.orgId,
       storeId: record.storeId,
       party: 'customer',
       partyId: customerId,
-      amount: record.refundAmount,
+      amount,
       staffId: record.staffId,
       refId: record.id,
       createdAt: record.createdAt,

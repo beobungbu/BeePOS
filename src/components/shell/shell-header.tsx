@@ -34,7 +34,6 @@ import { openCartCount, switchOrg, useAccountOrgs } from '../../features/setting
 import { currentOrgId } from '../../data/org-store';
 import { NAV_ITEMS } from './nav-items';
 import { NotificationBell } from './notification-bell';
-import { ShellIcon } from './shell-icons';
 import { useCurrentScreenHeader } from './screen-header';
 
 /**
@@ -157,7 +156,7 @@ export function ShellHeader() {
                           : storeCountLabel(org.storeCount)}
                       </Text>
                     </View>
-                    {isCurrent ? <ShellIcon name="check" size={16} tone="primary" /> : null}
+                    {isCurrent ? <AppIcon name="check" size={16} tone="primary" /> : null}
                   </View>
                 </DropdownMenuItem>
               );

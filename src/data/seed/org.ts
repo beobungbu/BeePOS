@@ -16,6 +16,9 @@ export const organization: Organization = {
   name: 'Chuỗi tạp hoá Bee',
   plan: 'pro',
   currency: 'VND',
+  // Ten digits, the shape of a Vietnamese chain MST. Printed as the seller tax code on the
+  // VAT invoice, which is otherwise a tax document with a blank seller line.
+  taxCode: '0108452317',
   taxRate: 0.08,
   receiptHeader: 'BeePOS',
   receiptFooter: 'Cảm ơn quý khách, hẹn gặp lại',

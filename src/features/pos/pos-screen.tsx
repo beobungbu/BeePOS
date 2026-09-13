@@ -124,7 +124,9 @@ export default function PosScreen() {
     });
   }
 
-  useBarcodeScan(handleScan);
+  // Native returns a 1x1 transparent capture field the hardware scanner types into; web
+  // listens on the document and returns null, so `{scanCapture}` renders nothing there.
+  const scanCapture = useBarcodeScan(handleScan);
 
   function handleBarcodeSubmit(value: string) {
     const trimmed = value.trim();
@@ -167,6 +169,7 @@ export default function PosScreen() {
 
   return (
     <View className="flex-1 flex-row">
+      {scanCapture}
       <View className="min-w-0 flex-1">
         <OrderTabStrip products={activeProducts} />
         {currentShift ? null : (

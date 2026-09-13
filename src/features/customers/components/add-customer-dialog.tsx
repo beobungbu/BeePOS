@@ -29,7 +29,6 @@ export interface NewCustomerInput {
   phone: string;
   birthday: string | null;
   note: string;
-  billingAddress: string;
   /** Type, company fields, group, rep, limit and term, ready to spread onto a `Customer`. */
   business: Partial<Customer>;
 }
@@ -81,7 +80,6 @@ export function AddCustomerDialog({
       phone: phone.trim(),
       birthday: birthday ? calendarDateToIso(birthday) : null,
       note: note.trim(),
-      billingAddress: business.billingAddress.trim(),
       business: businessPatchOf(business),
     });
     reset();

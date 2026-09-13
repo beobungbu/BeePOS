@@ -19,7 +19,7 @@ import {
   notificationText,
   relativeTime,
 } from '../../features/notifications/lib/notification-presentation';
-import { ShellIcon } from './shell-icons';
+import { AppIcon } from '../icons';
 
 /** Rows the popover carries before it starts hiding things; the screen has the rest. */
 const POPOVER_ROWS = 5;
@@ -151,7 +151,7 @@ function BellButton({
 function BellGlyph({ unread }: { unread: number }) {
   return (
     <View className="h-6 w-6 items-center justify-center">
-      <ShellIcon name="bell" size={22} tone="muted-foreground" />
+      <AppIcon name="bell" size={22} tone="muted-foreground" />
       {unread > 0 ? (
         <View
           pointerEvents="none"

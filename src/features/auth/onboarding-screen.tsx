@@ -18,7 +18,7 @@ import { createSalt, hashPassword, isValidEmail, normalizeEmail, passwordsMatch 
 import { validatePin } from '../../domain/org';
 import type { Organization, Register, Staff, Store, UserAccount } from '../../domain/types';
 import { accountByEmail, useOrgStore } from '../../data/org-store';
-import { setActiveOrgId } from '../../data/persistence-bootstrap';
+import { setActiveOrgId } from '../../data/active-org';
 import { useSessionStore } from '../../data/session-store';
 import { AuthBrand, AuthFooter, AuthLayout } from './auth-layout';
 import { PASSWORD_ERROR_KEY } from './change-password-screen';

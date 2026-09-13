@@ -14,7 +14,7 @@
 
 import { Platform } from 'react-native';
 import { useOrgSettingsStore, orgsForMember } from '../../../data/org-settings-store';
-import { setActiveOrgId } from '../../../data/persistence-bootstrap';
+import { setActiveOrgId } from '../../../data/active-org';
 import { useSessionStore } from '../../../data/session-store';
 import { useCartStore } from '../../../data/cart-store';
 import type { OrgSummary } from '../../../domain/types';

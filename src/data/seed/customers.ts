@@ -61,6 +61,11 @@ const COMPANY_SEEDS: {
   companyName: string;
   contactName: string;
   deliveryAddress: string;
+  /**
+   * The registered office the VAT invoice is addressed to, set only where it differs from the
+   * delivery address. Three of the twelve have one, so the invoice screen has both cases.
+   */
+  billingAddress?: string;
   groupId: string;
   salesRepId: string;
   creditLimit: number;
@@ -71,11 +76,11 @@ const COMPANY_SEEDS: {
 }[] = [
   // The account every commerce mockup is drawn around; its tax code, phone, rep, limit and
   // term are the ones printed in `docs/design/mockups/commerce-sales.html`.
-  { companyName: 'Cty TNHH Thương mại Minh Long', contactName: 'Nguyễn Minh Long', deliveryAddress: '145 Cầu Giấy, Hà Nội', groupId: AGENT_A_GROUP_ID, salesRepId: 'staff-7', creditLimit: 80_000_000, paymentTermDays: 30, taxCode: '0106847221', phone: '0913452118' },
+  { companyName: 'Cty TNHH Thương mại Minh Long', contactName: 'Nguyễn Minh Long', deliveryAddress: '145 Cầu Giấy, Hà Nội', billingAddress: 'Tầng 4, 88 Láng Hạ, Đống Đa, Hà Nội', groupId: AGENT_A_GROUP_ID, salesRepId: 'staff-7', creditLimit: 80_000_000, paymentTermDays: 30, taxCode: '0106847221', phone: '0913452118' },
   { companyName: 'Cty CP Siêu thị Bình Minh', contactName: 'Trần Bình Minh', deliveryAddress: '27 Nguyễn Văn Cừ, Long Biên, Hà Nội', groupId: AGENT_A_GROUP_ID, salesRepId: 'staff-3', creditLimit: 120_000_000, paymentTermDays: 45 },
   { companyName: 'Nhà hàng Sen Vàng', contactName: 'Lê Thị Sen', deliveryAddress: '9 Trần Duy Hưng, Cầu Giấy, Hà Nội', groupId: AGENT_B_GROUP_ID, salesRepId: 'staff-2', creditLimit: 40_000_000, paymentTermDays: 15 },
-  { companyName: 'Cty TNHH Suất ăn Công nghiệp Tân Á', contactName: 'Phạm Tân', deliveryAddress: 'KCN Sài Đồng, Long Biên, Hà Nội', groupId: AGENT_A_GROUP_ID, salesRepId: 'staff-3', creditLimit: 200_000_000, paymentTermDays: 45 },
-  { companyName: 'Chuỗi cà phê Gió Mới', contactName: 'Hoàng Gió', deliveryAddress: '58 Xô Viết Nghệ Tĩnh, Bình Thạnh, TP.HCM', groupId: AGENT_B_GROUP_ID, salesRepId: 'staff-4', creditLimit: 60_000_000, paymentTermDays: 30 },
+  { companyName: 'Cty TNHH Suất ăn Công nghiệp Tân Á', contactName: 'Phạm Tân', deliveryAddress: 'KCN Sài Đồng, Long Biên, Hà Nội', billingAddress: '12 Ngô Quyền, Hoàn Kiếm, Hà Nội', groupId: AGENT_A_GROUP_ID, salesRepId: 'staff-3', creditLimit: 200_000_000, paymentTermDays: 45 },
+  { companyName: 'Chuỗi cà phê Gió Mới', contactName: 'Hoàng Gió', deliveryAddress: '58 Xô Viết Nghệ Tĩnh, Bình Thạnh, TP.HCM', billingAddress: '215 Nguyễn Thị Minh Khai, Quận 1, TP.HCM', groupId: AGENT_B_GROUP_ID, salesRepId: 'staff-4', creditLimit: 60_000_000, paymentTermDays: 30 },
   { companyName: 'Cty TNHH Dịch vụ Trường Phát', contactName: 'Vũ Trường Phát', deliveryAddress: '112 Điện Biên Phủ, Bình Thạnh, TP.HCM', groupId: AGENT_A_GROUP_ID, salesRepId: 'staff-4', creditLimit: 90_000_000, paymentTermDays: 30 },
   { companyName: 'Trường Mầm non Hoa Sữa', contactName: 'Đặng Thị Hoa', deliveryAddress: '4 Trần Phú, Hải Châu, Đà Nẵng', groupId: AGENT_B_GROUP_ID, salesRepId: 'staff-5', creditLimit: 25_000_000, paymentTermDays: 15 },
   { companyName: 'Cty CP Du lịch Biển Đông', contactName: 'Bùi Hải Đăng', deliveryAddress: '77 Võ Nguyên Giáp, Sơn Trà, Đà Nẵng', groupId: AGENT_B_GROUP_ID, salesRepId: 'staff-5', creditLimit: 70_000_000, paymentTermDays: 30 },
@@ -113,6 +118,8 @@ function buildCompanyCustomers(): Customer[] {
       companyName: company.companyName,
       contactName: company.contactName,
       deliveryAddress: company.deliveryAddress,
+      // Absent means the invoice is addressed where the goods go; the screens fall back.
+      billingAddress: company.billingAddress,
       salesRepId: company.salesRepId,
       creditLimit: company.creditLimit,
       paymentTermDays: company.paymentTermDays,

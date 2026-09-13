@@ -10,12 +10,48 @@ import type {
 } from '../domain/types';
 import {
   DEMO_ORG_ID,
+  SECOND_ORG_ID,
   accounts as seedAccounts,
   organization as seedOrganization,
   registers as seedRegisters,
+  secondOrganization,
+  secondOrgAccounts,
+  secondOrgRegisters,
+  secondOrgStaff,
+  secondOrgStores,
   staff as seedStaff,
   stores as seedStores,
 } from './seed';
+import { activeOrgId } from './active-org';
+
+/**
+ * The chain this process is signed into, and only that one.
+ *
+ * Shops, staff and credentials are per chain, and every screen that lists them reads this
+ * store, so holding both chains here at once would offer a store picker in Hà Nội a branch in
+ * Quận 7. The active chain is fixed for the life of the process (`active-org.ts`); the
+ * switcher writes the other id and reloads.
+ */
+function seedForActiveOrg() {
+  if (activeOrgId() === SECOND_ORG_ID) {
+    return {
+      organization: secondOrganization,
+      stores: secondOrgStores,
+      staff: secondOrgStaff,
+      registers: secondOrgRegisters,
+      accounts: secondOrgAccounts,
+    };
+  }
+  return {
+    organization: seedOrganization,
+    stores: seedStores,
+    staff: seedStaff,
+    registers: seedRegisters,
+    accounts: seedAccounts,
+  };
+}
+
+const ACTIVE_SEED = seedForActiveOrg();
 
 interface OrgState {
   /**
@@ -65,11 +101,11 @@ export interface CreateOrganizationInput {
 }
 
 export const useOrgStore = create<OrgState>((set) => ({
-  organization: seedOrganization,
-  stores: seedStores,
-  staff: seedStaff,
-  registers: seedRegisters,
-  accounts: seedAccounts,
+  organization: ACTIVE_SEED.organization,
+  stores: ACTIVE_SEED.stores,
+  staff: ACTIVE_SEED.staff,
+  registers: ACTIVE_SEED.registers,
+  accounts: ACTIVE_SEED.accounts,
   staffActiveById: {},
   storeHoursById: {},
 

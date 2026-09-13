@@ -10,6 +10,8 @@ export interface Organization {
   name: string;
   plan: 'free' | 'pro' | 'enterprise';
   currency: 'VND';
+  /** Mã số thuế of the chain, printed as the seller tax code on a VAT invoice. */
+  taxCode?: string;
   taxRate: number;
   receiptHeader: string;
   receiptFooter: string;
@@ -147,6 +149,12 @@ export interface Customer {
   companyName?: string;
   contactName?: string;
   deliveryAddress?: string;
+  /**
+   * Where the VAT invoice is addressed, when that differs from where the goods go. Kept apart
+   * from `deliveryAddress` because a buyer's registered office and their warehouse are often
+   * two places, and one field would be wrong on half the invoices.
+   */
+  billingAddress?: string;
   /** Staff member who owns the account, for the sales-by-rep report. */
   salesRepId?: string;
   /** Ceiling on the unpaid receivable balance; 0 or absent means no credit is allowed. */

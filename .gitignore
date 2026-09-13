@@ -57,3 +57,7 @@ scripts/audit/props/.results/
 # Phase 11 Part B: Playwright's own run artifacts (traces/screenshots on failure, HTML report)
 /test-results/
 /playwright-report/
+
+# Scratch Playwright specs a worker parks outside the suite. Jest ignores the same path
+# (package.json testPathIgnorePatterns), so one cannot break `npm test` either.
+.tmp-shots/

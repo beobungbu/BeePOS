@@ -234,7 +234,6 @@ export const inventoryVi = {
     sendConfirmDescription: 'Tồn kho giảm ngay khi gửi và công nợ phải trả giảm tương ứng. Không thể hoàn tác.',
     effectStock: 'Trừ {qty} đơn vị khỏi tồn kho cửa hàng.',
     effectPayable: 'Giảm {value} trong sổ phải trả của nhà cung cấp.',
-    debitNoteUnavailable: 'Chưa ghi được phiếu giảm trừ phải trả: sổ công nợ chưa sẵn sàng.',
     savedToast: 'Đã lưu phiếu trả hàng',
     sentToast: 'Đã gửi phiếu trả hàng nhà cung cấp',
   },
@@ -348,6 +347,7 @@ export const inventoryVi = {
     applyButton: 'Nhập {count} dòng hợp lệ',
     applyDisabled: 'Không có dòng nào để nhập',
     appliedToast: 'Đã nhập {count} dòng',
+    truncated: 'File có {dropped} dòng vượt quá giới hạn {limit} dòng nên chưa được đọc. Hãy chia nhỏ file rồi nhập tiếp.',
     emptyPreview: 'Chưa có dữ liệu để xem trước.',
     emptyPreviewDescription: 'Chọn file hoặc dán nội dung CSV rồi bấm Kiểm tra.',
     issue: {

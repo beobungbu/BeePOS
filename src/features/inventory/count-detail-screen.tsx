@@ -32,12 +32,11 @@ import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useSessionStore } from '../../data/session-store';
-import { stores as allStores } from '../../data/seed';
 import { countVariance } from '../../domain/inventory';
 import type { StockCount, StockCountLine } from '../../domain/types';
 import { useT } from '../../i18n';
 import { useScreenHeader } from '../../components/shell/screen-header';
-import { currentOrgId } from '../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
 import { fill } from '../orders/lib/fill';
 import { recordAudit } from '../../data/audit-store';
 
@@ -64,7 +63,10 @@ export function CountDetailScreen({ countId }: CountDetailScreenProps) {
   const existing = countId ? counts.find((item) => item.id === countId) : undefined;
   const notFound = Boolean(countId) && !existing;
 
-  const [storeId, setStoreId] = useState(existing?.storeId ?? currentStore?.id ?? allStores[0].id);
+  // The branches of the chain this device is signed into, not the demo seed: a document
+  // must never be bookable to a branch of another chain.
+  const allStores = useOrgStore((state) => state.stores);
+  const [storeId, setStoreId] = useState(existing?.storeId ?? currentStore?.id ?? allStores[0]?.id ?? '');
   const [categoryId, setCategoryId] = useState<string>('all');
   const [lines, setLines] = useState<StockCountLine[]>(existing?.lines ?? []);
   const [confirmOpen, setConfirmOpen] = useState(false);

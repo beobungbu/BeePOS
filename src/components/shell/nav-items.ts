@@ -5,13 +5,13 @@
 import { can } from '../../domain/auth';
 import type { Permission, StaffRole } from '../../domain/types';
 import { useSessionStore } from '../../data/session-store';
-import type { ShellIconName } from './shell-icons';
+import type { AppIconName } from '../icons';
 
 export interface NavItem {
   id: string;
   href: string;
   labelKey: string;
-  icon: ShellIconName;
+  icon: AppIconName;
   /** Shown as one of the primary bottom tabs on narrow screens (< 768). */
   primaryOnMobile: boolean;
   /**

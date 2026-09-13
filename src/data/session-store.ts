@@ -11,6 +11,8 @@ import {
 } from '../domain/auth';
 import type { Permission, Register, Session, Staff, Store, UserAccount } from '../domain/types';
 import { accountByEmail, accountForStaff, isStaffActive, registersForStore, useOrgStore } from './org-store';
+import { useOrgSettingsStore } from './org-settings-store';
+import { activeOrgId } from './active-org';
 import { auditText, recordAudit, setAuditActorSource } from './audit-store';
 
 export type LoginFailure = 'invalid' | 'disabled' | 'invited' | 'no_store';
@@ -53,6 +55,23 @@ function storeOptionsFor(member: Staff, stores: Store[]): Store[] {
   return stores.filter((store) => member.storeIds.includes(store.id) && store.isActive);
 }
 
+/**
+ * The staff record an account works as inside `orgId`.
+ *
+ * One person has one login and may hold a different staff record in each chain they belong
+ * to, so the membership table is what answers this, not `account.staffId`: that field can only
+ * ever name one of them, and after an org switch it names the wrong one. A chain with no
+ * membership row falls back to the account's own staff id, which is the single-chain case
+ * every onboarding-created chain is in.
+ */
+function staffIdForOrg(account: UserAccount, orgId: string): string {
+  const { memberships } = useOrgSettingsStore.getState();
+  const membership = memberships.find(
+    (entry) => entry.userId === account.id && entry.orgId === orgId,
+  );
+  return membership?.staffId ?? account.staffId;
+}
+
 export const useSessionStore = create<SessionState>((set, get) => ({
   session: null,
   account: null,
@@ -81,7 +100,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     const ok = await verifyPassword(password, account.salt, account.passwordHash);
     if (!ok) return { ok: false, reason: 'invalid' };
 
-    const member = staff.find((candidate) => candidate.id === account.staffId);
+    // The chain this device is signed into, then the staff record this account holds inside it.
+    const orgId = organization?.id ?? activeOrgId();
+    const member = staff.find((candidate) => candidate.id === staffIdForOrg(account, orgId));
     if (!member || !isStaffActive(staffActiveById, member.id)) return { ok: false, reason: 'disabled' };
 
     const options = storeOptionsFor(member, stores);
@@ -89,7 +110,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
     const only = options.length === 1 ? options[0] : null;
     const session = issueSession({
-      orgId: organization?.id ?? account.orgId,
+      orgId,
       userId: account.id,
       staffId: member.id,
       storeId: only?.id,

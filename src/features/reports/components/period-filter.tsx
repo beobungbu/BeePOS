@@ -30,9 +30,19 @@ function fromCalendarDate(value: CalendarVisibleMonth & { day?: number }): Date 
   return new Date(Date.UTC(value.year, value.month - 1, value.day ?? 1));
 }
 
+/**
+ * `13/09/2026`, with a placeholder for "not chosen yet".
+ *
+ * Off the same UTC parts `toCalendarDate` reads rather than through `lib/datetime.ts`: a
+ * custom range is anchored at UTC midnight, and a local-time formatter prints the day before
+ * for any reader west of Greenwich. It is not an `Intl.DateTimeFormat('vi-VN')` either, which
+ * pinned the Vietnamese locale on this one chip while the rest of the screen followed the app
+ * language.
+ */
 function formatShortDate(date: Date | null): string {
   if (!date) return '--/--/----';
-  return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+  const { day, month, year } = toCalendarDate(date);
+  return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
 }
 
 interface PeriodFilterProps {

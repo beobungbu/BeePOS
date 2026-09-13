@@ -30,9 +30,8 @@ import { useCatalogStore } from '../../data/catalog-store';
 import { applyReceiptCost } from '../../data/costing-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useLotStore } from '../../data/lot-store';
-import { currentOrgId } from '../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
 import { usePurchasingStore } from '../../data/purchasing-store';
-import { stores as allStores } from '../../data/seed';
 import { useSessionStore } from '../../data/session-store';
 import { useSupplierStore } from '../../data/supplier-store';
 import { formatVND } from '../../domain/money';
@@ -111,7 +110,10 @@ export function PurchaseOrderDetailScreen({ purchaseOrderId }: PurchaseOrderDeta
   const notFound = Boolean(purchaseOrderId) && !existing;
 
   const [supplierId, setSupplierId] = useState(existing?.supplierId ?? '');
-  const [storeId, setStoreId] = useState(existing?.storeId ?? currentStore?.id ?? allStores[0].id);
+  // The branches of the chain this device is signed into, not the demo seed: a document
+  // must never be bookable to a branch of another chain.
+  const allStores = useOrgStore((state) => state.stores);
+  const [storeId, setStoreId] = useState(existing?.storeId ?? currentStore?.id ?? allStores[0]?.id ?? '');
   const [expected, setExpected] = useState(formatExpiryInput(existing?.expectedAt));
   const [lines, setLines] = useState<PurchaseOrderLine[]>(existing?.lines ?? []);
   const [receiveQty, setReceiveQty] = useState<Record<string, number>>(() =>
@@ -171,7 +173,12 @@ export function PurchaseOrderDetailScreen({ purchaseOrderId }: PurchaseOrderDeta
       orgId: existing?.orgId ?? currentOrgId(),
       storeId,
       supplierId,
-      code: existing?.code ?? nextPurchaseOrderCode(purchaseOrders),
+      code:
+        existing?.code ??
+        nextPurchaseOrderCode(
+          purchaseOrders,
+          allStores.find((store) => store.id === storeId)?.code ?? '',
+        ),
       lines,
       status,
       expectedAt: expectedDate,

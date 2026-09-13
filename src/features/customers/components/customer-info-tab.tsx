@@ -16,7 +16,6 @@ export interface CustomerInfoSave {
   phone: string;
   birthday: string | null;
   note: string;
-  billingAddress: string;
   business: Partial<Customer>;
 }
 
@@ -24,7 +23,6 @@ export function CustomerInfoTab({
   customer,
   birthday: initialBirthday,
   note: initialNote,
-  billingAddress: initialBillingAddress,
   groups,
   reps,
   onSave,
@@ -32,7 +30,6 @@ export function CustomerInfoTab({
   customer: Customer;
   birthday: string | null;
   note: string;
-  billingAddress: string;
   groups: CustomerGroup[];
   reps: Staff[];
   onSave: (input: CustomerInfoSave) => void;
@@ -42,9 +39,7 @@ export function CustomerInfoTab({
   const [phone, setPhone] = useState(customer.phone);
   const [birthday, setBirthday] = useState<CalendarDate | null>(initialBirthday ? isoToCalendarDate(initialBirthday) : null);
   const [note, setNote] = useState(initialNote);
-  const [business, setBusiness] = useState<CustomerBusinessDraft>(() =>
-    businessDraftOf(customer, initialBillingAddress),
-  );
+  const [business, setBusiness] = useState<CustomerBusinessDraft>(() => businessDraftOf(customer));
   const [saved, setSaved] = useState(false);
 
   const nameValid = name.trim().length > 0;
@@ -88,7 +83,6 @@ export function CustomerInfoTab({
             phone: phone.trim(),
             birthday: birthday ? calendarDateToIso(birthday) : null,
             note: note.trim(),
-            billingAddress: business.billingAddress.trim(),
             business: businessPatchOf(business),
           });
           setSaved(true);

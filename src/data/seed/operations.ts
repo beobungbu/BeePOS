@@ -13,10 +13,23 @@ function daysAgoIso(days: number): string {
 }
 
 /**
+ * A receipt line's cost: the catalogue cost moved by `percent`, rounded to whole dong so the
+ * figure reads like an invoice line rather than a floating-point artefact. Never below 1 đ.
+ */
+function receiptUnitCost(costPrice: number, percent: number): number {
+  return Math.max(1, Math.round((costPrice * (100 + percent)) / 100));
+}
+
+/**
  * Six receipts across three branches, every one booked against a real supplier record, which
  * is now the only way a receipt can be booked: the display name is read off the `Supplier`
  * record rather than copied onto the receipt. Two receipts per branch means a supplier detail
  * pane has more than one row to show.
+ *
+ * Line costs drift a few percent either side of the catalogue cost, deterministically, because
+ * a supplier does not invoice the same price twice running. A receipt priced exactly at
+ * `costPrice` leaves the weighted average sitting on its opening value for ever, and the cost
+ * tab and the valuation curve then draw a flat line that proves nothing.
  */
 function buildGoodsReceipts(): GoodsReceipt[] {
   const rng = createRng(SEED + 8);
@@ -27,10 +40,12 @@ function buildGoodsReceipts(): GoodsReceipt[] {
     [0, 1].map((pass) => {
       const index = storeIndex * 2 + pass;
       const supplier = activeSuppliers[index % activeSuppliers.length];
+      // One drift per document: a supplier moves their whole price list, not one line of it.
+      const drift = randInt(rng, -4, 5);
       const lines = pickMany(rng, products, randInt(rng, 4, 8)).map((product) => ({
         productId: product.id,
         qty: randInt(rng, 10, 100),
-        unitCost: product.costPrice,
+        unitCost: receiptUnitCost(product.costPrice, drift),
       }));
       return {
         id: `receipt-${index + 1}`,
@@ -48,7 +63,7 @@ function buildGoodsReceipts(): GoodsReceipt[] {
 function buildStockTransfers(): StockTransfer[] {
   const rng = createRng(SEED + 9);
   const statuses = ['draft', 'sent', 'received'] as const;
-  const pairs: Array<[string, string]> = [
+  const pairs: [string, string][] = [
     ['store-1', 'store-2'],
     ['store-3', 'store-4'],
     ['store-2', 'store-3'],

@@ -46,4 +46,12 @@ export {
   SECOND_ORG_ID,
   SECOND_ORG_STAFF_ID,
 } from './memberships';
+export {
+  SECOND_ORG_STORE_ID,
+  secondOrganization,
+  secondOrgAccounts,
+  secondOrgRegisters,
+  secondOrgStaff,
+  secondOrgStores,
+} from './second-org';
 export { notifications, SEED_NOTIFICATION_LABELS, SEED_NOTIFICATION_COUNT } from './notifications';
