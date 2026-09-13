@@ -151,7 +151,7 @@ Possible outcomes:
 - reduce order;
 - cancel/reject.
 
-SAP sales credit management supports credit checks that can block sales orders/deliveries and require authorized release, demonstrating that credit approval is an operational gate rather than merely a finance report.
+SAP sales credit management supports credit checks at multiple points in the sales-order cycle. A check can evaluate credit-limit utilization, exposure and oldest open items, raise an alert or block an order/delivery, and leave an authorized credit manager to release or cancel the process. This confirms that credit approval is an operational gate rather than merely a finance report.
 
 ## 10. Stage D — Availability and allocation
 
@@ -344,9 +344,9 @@ Potential exposure = 240m, above limit. Even if the new order itself is only 80m
 
 ## 23. Research anchors
 
-- SAP Credit Management sales-order credit check: https://help.sap.com/docs/SAP_S4HANA_CLOUD/0f69f8fb28ac4bf48d2b57b9637e81fa/6532d2531a4d424de10000000a174cb4.html
-- SAP Sales credit-block processing: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/1a4c574d0f5f4cb78ecf7e3c8b3bb8c5/6532d2531a4d424de10000000a174cb4.html
-- APQC Order-to-Cash / PCF frameworks: https://www.apqc.org/process-frameworks
+- SAP S/4HANA Sales — Credit Check Process (2025 FPS01): https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/7b24a64d9d0941bda1afa753263d9e39/4e63bf186cc943be821bc0b8be3557a6.html
+- SAP S/4HANA Financial Operations — Credit Check: https://help.sap.com/docs/SAP_S4HANA_ON-PREMISE/3cb1182b4a184bdd93f8d62e3f1f0741/811174d486d74c709469ef3d36f9b7bb.html
+- APQC Process Frameworks / Order-to-Cash taxonomy: https://www.apqc.org/process-frameworks
 
 ## 24. Open business-policy questions
 
