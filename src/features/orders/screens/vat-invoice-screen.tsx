@@ -7,8 +7,8 @@ import { useScreenHeader } from '../../../components/shell/screen-header';
 import { useCatalogStore } from '../../../data/catalog-store';
 import { useCustomerStore } from '../../../data/customer-store';
 import { useOrderStore } from '../../../data/order-store';
+import { useOrgStore } from '../../../data/org-store';
 import { useSettingsStore } from '../../../data/settings-store';
-import { organization, staff as allStaff, stores } from '../../../data/seed';
 import { formatVND } from '../../../domain/money';
 import { vatInvoiceFor } from '../../pos/lib/build-order';
 import { useT } from '../../../i18n';
@@ -53,6 +53,11 @@ export function VatInvoiceScreen() {
     state.customers.find((item) => item.id === order?.customerId),
   );
   const bankInfo = useSettingsStore((state) => state.bankInfo);
+  // Seller block, branch and staff come from the chain this device is signed into, not the
+  // demo seed: an invoice carrying another chain's name and MST is a false tax document.
+  const organization = useOrgStore((state) => state.organization);
+  const stores = useOrgStore((state) => state.stores);
+  const allStaff = useOrgStore((state) => state.staff);
 
   useScreenHeader({
     title: t('orders.vatInvoice.title'),
@@ -103,7 +108,9 @@ export function VatInvoiceScreen() {
   const number = invoiceNumber(order);
   const store = stores.find((item) => item.id === order.storeId);
   const seller = allStaff.find((item) => item.id === (order.salesRepId ?? order.cashierId));
-  const sellerTaxCode = organization.taxCode;
+  // The chain record is null only before onboarding has run, which no signed-in route reaches.
+  const sellerName = organization?.name ?? '';
+  const sellerTaxCode = organization?.taxCode;
   const bankAccount = [bankInfo.accountNumber, bankInfo.bankName].filter(Boolean).join(' · ');
 
   function handlePrint() {
@@ -119,7 +126,7 @@ export function VatInvoiceScreen() {
       order: order!,
       figures,
       buyer,
-      sellerName: organization.name,
+      sellerName,
       serial,
       number,
       labels: {
@@ -179,7 +186,7 @@ export function VatInvoiceScreen() {
         <View className="h-px bg-border-strong" />
 
         <View className="gap-1">
-          <InvoiceRow label={t('orders.vatInvoice.seller')} value={organization.name} bold />
+          <InvoiceRow label={t('orders.vatInvoice.seller')} value={sellerName} bold />
           {/* A chain that has not entered its MST prints no seller tax-code row at all:
               a blank line on a tax document reads as missing data a reader would chase. */}
           {sellerTaxCode ? (

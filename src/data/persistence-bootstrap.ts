@@ -12,8 +12,8 @@ import {
   hydratePreferences,
   readBooleanPreference,
 } from '../lib/preference-storage';
-import { persistStore, type PersistedStore } from './persist';
-import { ACTIVE_ORG_KEY, activeOrgId } from './active-org';
+import { getPlatformStorage, persistStore, type PersistedStore } from './persist';
+import { ACTIVE_ORG_KEY, activeOrgId, loadActiveOrgId } from './active-org';
 import { useAuditStore } from './audit-store';
 import { useCartStore } from './cart-store';
 import { useCashMovementStore } from './cash-movement-store';
@@ -21,7 +21,7 @@ import { useCatalogStore } from './catalog-store';
 import { useCustomerStore } from './customer-store';
 import { useInventoryStore } from './inventory-store';
 import { useOrderStore } from './order-store';
-import { useOrgStore } from './org-store';
+import { seedForActiveOrg, useOrgStore } from './org-store';
 import { useSessionStore } from './session-store';
 import { useStorePriceStore } from './store-price-store';
 import { useSupplierStore } from './supplier-store';
@@ -36,12 +36,17 @@ import { useReturnsStore } from './returns-store';
 import { SIDEBAR_COLLAPSED_KEY, useSettingsStore } from './settings-store';
 
 /**
- * The chain whose data these keys address, read once in `active-org.ts` so the scope is known
- * before any slice is registered. A chain created through onboarding, or switched to from the
- * avatar menu, writes its id there and starts from its own storage instead of inheriting the
- * seeded chain's catalogue, orders and stock.
+ * The chain whose data these keys address, resolved in `active-org.ts` before any slice is
+ * registered. A chain created through onboarding, or switched to from the avatar menu, writes
+ * its id there and starts from its own storage instead of inheriting the seeded chain's
+ * catalogue, orders and stock.
+ *
+ * On web the scope is known at import, so the slices are registered and read synchronously,
+ * as before. Native storage answers only asynchronously, so there registration waits for
+ * `runHydration()`: the scope is read, the chain's own seed is put into the org store, and
+ * only then are the keys built. Registering at import instead would key every slice to the
+ * demo chain and silently ignore a switch.
  */
-const ORG_SCOPE = activeOrgId();
 
 /** Bump a version when the matching slice changes shape; the old copy is then dropped on boot. */
 const VERSION = {
@@ -77,235 +82,249 @@ const VERSION = {
 
 /** `beepos.persist.<orgId>.<slice>`: one chain's data can never be read as another's. */
 function scoped(slice: string): string {
-  return `beepos.persist.${ORG_SCOPE}.${slice}`;
+  return `beepos.persist.${activeOrgId()}.${slice}`;
 }
 
-const KEY = {
-  session: scoped('session'),
-  carts: scoped('carts'),
-  orders: scoped('orders'),
-  inventory: scoped('inventory'),
-  customers: scoped('customers'),
-  catalog: scoped('catalog'),
-  suppliers: scoped('suppliers'),
-  storePrices: scoped('store-prices'),
-  cash: scoped('cash'),
-  audit: scoped('audit'),
-  pricing: scoped('pricing'),
-  ledger: scoped('ledger'),
-  costing: scoped('costing'),
-  returns: scoped('returns'),
-  purchasing: scoped('purchasing'),
-  lots: scoped('lots'),
-  orgSettings: scoped('org-settings'),
-  notifications: scoped('notifications'),
-  // Device preferences are not scoped: theme, language and density belong to the device rather
-  // than to a chain. The chain slice itself is, because each chain has its own shops, staff
-  // and credentials; only the pointer at the active chain lives outside the scope.
-  settings: 'beepos.persist.settings',
-  org: scoped('org'),
-} as const;
+function keysForActiveOrg() {
+  return {
+    session: scoped('session'),
+    carts: scoped('carts'),
+    orders: scoped('orders'),
+    inventory: scoped('inventory'),
+    customers: scoped('customers'),
+    catalog: scoped('catalog'),
+    suppliers: scoped('suppliers'),
+    storePrices: scoped('store-prices'),
+    cash: scoped('cash'),
+    audit: scoped('audit'),
+    pricing: scoped('pricing'),
+    ledger: scoped('ledger'),
+    costing: scoped('costing'),
+    returns: scoped('returns'),
+    purchasing: scoped('purchasing'),
+    lots: scoped('lots'),
+    orgSettings: scoped('org-settings'),
+    notifications: scoped('notifications'),
+    // Device preferences are not scoped: theme, language and density belong to the device rather
+    // than to a chain. The chain slice itself is, because each chain has its own shops, staff
+    // and credentials; only the pointer at the active chain lives outside the scope.
+    settings: 'beepos.persist.settings',
+    org: scoped('org'),
+  } as const;
+}
 
 /** Every persisted key, so a full wipe needs no enumeration API from the platform storage. */
-export const PERSISTED_KEYS = [...Object.values(KEY), ACTIVE_ORG_KEY];
+export function persistedKeys(): string[] {
+  return [...Object.values(keysForActiveOrg()), ACTIVE_ORG_KEY];
+}
 
-const entries: PersistedStore[] = [
-  // The issued session, its staff, branch and till: a reload lands back on the sell screen
-  // instead of the login form, and a locked till comes back locked rather than open.
-  //
-  // The signed-in member's PIN is blanked before the slice is written: nothing reads it back
-  // off the session (the lock screen checks the org store), so keeping it here only put a
-  // working till credential in `localStorage` where any devtools window can read it. The
-  // account is written without its credential fields for the same reason.
-  persistStore(
-    KEY.session,
-    useSessionStore,
-    (state) => ({
-      session: state.session,
-      account: state.account ? { ...state.account, passwordHash: '', salt: '' } : null,
-      staff: state.staff ? { ...state.staff, pin: '' } : null,
-      store: state.store,
-      register: state.register,
-      storeOptions: state.storeOptions,
-      registerOptions: state.registerOptions,
-      autoLockMinutes: state.autoLockMinutes,
-    }),
-    VERSION.session,
-  ),
-  // `sidebarCollapsed` stays with preference-storage (stores read it while being created) and
-  // `posSidebarCollapsed` is deliberately per-session, so neither is picked here.
-  persistStore(
-    KEY.settings,
-    useSettingsStore,
-    (state) => ({
-      theme: state.theme,
-      locale: state.locale,
-      density: state.density,
-      defaultStoreId: state.defaultStoreId,
-      defaultTaxRate: state.defaultTaxRate,
-      receiptHeader: state.receiptHeader,
-      receiptFooter: state.receiptFooter,
-      receiptShowLogo: state.receiptShowLogo,
-      currencyDisplay: state.currencyDisplay,
-      bankInfo: state.bankInfo,
-      printerId: state.printerId,
-    }),
-    VERSION.settings,
-  ),
-  // Open orders (parked bills). Subscribed from outside so cart-store.ts stays untouched.
-  persistStore(
-    KEY.carts,
-    useCartStore,
-    (state) => ({ carts: state.carts, activeCartId: state.activeCartId }),
-    VERSION.carts,
-  ),
-  persistStore(
-    KEY.orders,
-    useOrderStore,
-    (state) => ({
-      orders: state.orders,
-      shifts: state.shifts,
-      refunds: state.refunds,
-      notes: state.notes,
-      deliveryNotes: state.deliveryNotes,
-    }),
-    VERSION.orders,
-  ),
-  persistStore(
-    KEY.inventory,
-    useInventoryStore,
-    (state) => ({
-      stockLevels: state.stockLevels,
-      goodsReceipts: state.goodsReceipts,
-      stockTransfers: state.stockTransfers,
-      stockCounts: state.stockCounts,
-      movements: state.movements,
-    }),
-    VERSION.inventory,
-  ),
-  persistStore(
-    KEY.customers,
-    useCustomerStore,
-    (state) => ({
-      customers: state.customers,
-      pointHistory: state.pointHistory,
-      profileExtras: state.profileExtras,
-    }),
-    VERSION.customers,
-  ),
-  persistStore(
-    KEY.catalog,
-    useCatalogStore,
-    (state) => ({ products: state.products, categories: state.categories }),
-    VERSION.catalog,
-  ),
-  persistStore(
-    KEY.suppliers,
-    useSupplierStore,
-    (state) => ({ suppliers: state.suppliers }),
-    VERSION.suppliers,
-  ),
-  persistStore(
-    KEY.storePrices,
-    useStorePriceStore,
-    (state) => ({ prices: state.prices }),
-    VERSION.storePrices,
-  ),
-  // Cash in and out during a shift, plus the free-text note each entry was saved with. A
-  // drawer entry that a reload loses is a drawer that cannot be reconciled at close.
-  persistStore(
-    KEY.cash,
-    useCashMovementStore,
-    (state) => ({ movements: state.movements, notes: state.notes }),
-    VERSION.cash,
-  ),
-  // The log is append-only and is the record of who did what; it has to outlive a reload or
-  // it is not a log.
-  persistStore(KEY.audit, useAuditStore, (state) => ({ events: state.events }), VERSION.audit),
-  persistStore(
-    KEY.org,
-    useOrgStore,
-    (state) => ({
-      organization: state.organization,
-      stores: state.stores,
-      staff: state.staff,
-      registers: state.registers,
-      accounts: state.accounts,
-      staffActiveById: state.staffActiveById,
-      storeHoursById: state.storeHoursById,
-    }),
-    VERSION.org,
-  ),
-  // What a buyer pays: groups, lists, rules, promotions and the loyalty maths. Editing a
-  // price list has to outlive a reload or the screen is a demo of a form, not of a price.
-  persistStore(
-    KEY.pricing,
-    usePricingStore,
-    (state) => ({
-      customerGroups: state.customerGroups,
-      priceLists: state.priceLists,
-      priceRules: state.priceRules,
-      promotions: state.promotions,
-      loyaltyRule: state.loyaltyRule,
-    }),
-    VERSION.pricing,
-  ),
-  // Receivables, payables, the bank and the cash book. A collection that a reload loses is a
-  // customer who is still shown as owing money they have paid.
-  persistStore(
-    KEY.ledger,
-    useLedgerStore,
-    (state) => ({
-      entries: state.entries,
-      bankAccounts: state.bankAccounts,
-      cashBook: state.cashBook,
-    }),
-    VERSION.ledger,
-  ),
-  persistStore(
-    KEY.costing,
-    useCostingStore,
-    (state) => ({ history: state.history }),
-    VERSION.costing,
-  ),
-  persistStore(
-    KEY.returns,
-    useReturnsStore,
-    (state) => ({ returns: state.returns, writeOffs: state.writeOffs }),
-    VERSION.returns,
-  ),
-  persistStore(
-    KEY.purchasing,
-    usePurchasingStore,
-    (state) => ({
-      purchaseOrders: state.purchaseOrders,
-      supplierReturns: state.supplierReturns,
-    }),
-    VERSION.purchasing,
-  ),
-  persistStore(KEY.lots, useLotStore, (state) => ({ lots: state.lots }), VERSION.lots),
-  persistStore(
-    KEY.orgSettings,
-    useOrgSettingsStore,
-    (state) => ({
-      storeSettings: state.storeSettings,
-      memberships: state.memberships,
-      orgDirectory: state.orgDirectory,
-    }),
-    VERSION.orgSettings,
-  ),
-  // Read marks are the state worth keeping here: the rows themselves are recomputed from the
-  // other slices, but which of them the owner has already seen is not derivable.
-  persistStore(
-    KEY.notifications,
-    useNotificationStore,
-    (state) => ({ notifications: state.notifications }),
-    VERSION.notifications,
-  ),
-];
+function buildEntries(): PersistedStore[] {
+  const KEY = keysForActiveOrg();
+  return [
+    // The issued session, its staff, branch and till: a reload lands back on the sell screen
+    // instead of the login form, and a locked till comes back locked rather than open.
+    //
+    // The signed-in member's PIN is blanked before the slice is written: nothing reads it back
+    // off the session (the lock screen checks the org store), so keeping it here only put a
+    // working till credential in `localStorage` where any devtools window can read it. The
+    // account is written without its credential fields for the same reason.
+    persistStore(
+      KEY.session,
+      useSessionStore,
+      (state) => ({
+        session: state.session,
+        account: state.account ? { ...state.account, passwordHash: '', salt: '' } : null,
+        staff: state.staff ? { ...state.staff, pin: '' } : null,
+        store: state.store,
+        register: state.register,
+        storeOptions: state.storeOptions,
+        registerOptions: state.registerOptions,
+        autoLockMinutes: state.autoLockMinutes,
+      }),
+      VERSION.session,
+    ),
+    // `sidebarCollapsed` stays with preference-storage (stores read it while being created) and
+    // `posSidebarCollapsed` is deliberately per-session, so neither is picked here.
+    persistStore(
+      KEY.settings,
+      useSettingsStore,
+      (state) => ({
+        theme: state.theme,
+        locale: state.locale,
+        density: state.density,
+        defaultStoreId: state.defaultStoreId,
+        defaultTaxRate: state.defaultTaxRate,
+        receiptHeader: state.receiptHeader,
+        receiptFooter: state.receiptFooter,
+        receiptShowLogo: state.receiptShowLogo,
+        currencyDisplay: state.currencyDisplay,
+        bankInfo: state.bankInfo,
+        printerId: state.printerId,
+      }),
+      VERSION.settings,
+    ),
+    // Open orders (parked bills). Subscribed from outside so cart-store.ts stays untouched.
+    persistStore(
+      KEY.carts,
+      useCartStore,
+      (state) => ({ carts: state.carts, activeCartId: state.activeCartId }),
+      VERSION.carts,
+    ),
+    persistStore(
+      KEY.orders,
+      useOrderStore,
+      (state) => ({
+        orders: state.orders,
+        shifts: state.shifts,
+        refunds: state.refunds,
+        notes: state.notes,
+        deliveryNotes: state.deliveryNotes,
+      }),
+      VERSION.orders,
+    ),
+    persistStore(
+      KEY.inventory,
+      useInventoryStore,
+      (state) => ({
+        stockLevels: state.stockLevels,
+        goodsReceipts: state.goodsReceipts,
+        stockTransfers: state.stockTransfers,
+        stockCounts: state.stockCounts,
+        movements: state.movements,
+      }),
+      VERSION.inventory,
+    ),
+    persistStore(
+      KEY.customers,
+      useCustomerStore,
+      (state) => ({
+        customers: state.customers,
+        pointHistory: state.pointHistory,
+        profileExtras: state.profileExtras,
+      }),
+      VERSION.customers,
+    ),
+    persistStore(
+      KEY.catalog,
+      useCatalogStore,
+      (state) => ({ products: state.products, categories: state.categories }),
+      VERSION.catalog,
+    ),
+    persistStore(
+      KEY.suppliers,
+      useSupplierStore,
+      (state) => ({ suppliers: state.suppliers }),
+      VERSION.suppliers,
+    ),
+    persistStore(
+      KEY.storePrices,
+      useStorePriceStore,
+      (state) => ({ prices: state.prices }),
+      VERSION.storePrices,
+    ),
+    // Cash in and out during a shift, plus the free-text note each entry was saved with. A
+    // drawer entry that a reload loses is a drawer that cannot be reconciled at close.
+    persistStore(
+      KEY.cash,
+      useCashMovementStore,
+      (state) => ({ movements: state.movements, notes: state.notes }),
+      VERSION.cash,
+    ),
+    // The log is append-only and is the record of who did what; it has to outlive a reload or
+    // it is not a log.
+    persistStore(KEY.audit, useAuditStore, (state) => ({ events: state.events }), VERSION.audit),
+    persistStore(
+      KEY.org,
+      useOrgStore,
+      (state) => ({
+        organization: state.organization,
+        stores: state.stores,
+        staff: state.staff,
+        registers: state.registers,
+        accounts: state.accounts,
+        staffActiveById: state.staffActiveById,
+        storeHoursById: state.storeHoursById,
+      }),
+      VERSION.org,
+    ),
+    // What a buyer pays: groups, lists, rules, promotions and the loyalty maths. Editing a
+    // price list has to outlive a reload or the screen is a demo of a form, not of a price.
+    persistStore(
+      KEY.pricing,
+      usePricingStore,
+      (state) => ({
+        customerGroups: state.customerGroups,
+        priceLists: state.priceLists,
+        priceRules: state.priceRules,
+        promotions: state.promotions,
+        loyaltyRule: state.loyaltyRule,
+      }),
+      VERSION.pricing,
+    ),
+    // Receivables, payables, the bank and the cash book. A collection that a reload loses is a
+    // customer who is still shown as owing money they have paid.
+    persistStore(
+      KEY.ledger,
+      useLedgerStore,
+      (state) => ({
+        entries: state.entries,
+        bankAccounts: state.bankAccounts,
+        cashBook: state.cashBook,
+      }),
+      VERSION.ledger,
+    ),
+    persistStore(
+      KEY.costing,
+      useCostingStore,
+      (state) => ({ history: state.history }),
+      VERSION.costing,
+    ),
+    persistStore(
+      KEY.returns,
+      useReturnsStore,
+      (state) => ({ returns: state.returns, writeOffs: state.writeOffs }),
+      VERSION.returns,
+    ),
+    persistStore(
+      KEY.purchasing,
+      usePurchasingStore,
+      (state) => ({
+        purchaseOrders: state.purchaseOrders,
+        supplierReturns: state.supplierReturns,
+      }),
+      VERSION.purchasing,
+    ),
+    persistStore(KEY.lots, useLotStore, (state) => ({ lots: state.lots }), VERSION.lots),
+    persistStore(
+      KEY.orgSettings,
+      useOrgSettingsStore,
+      (state) => ({
+        storeSettings: state.storeSettings,
+        memberships: state.memberships,
+        orgDirectory: state.orgDirectory,
+      }),
+      VERSION.orgSettings,
+    ),
+    // Read marks are the state worth keeping here: the rows themselves are recomputed from the
+    // other slices, but which of them the owner has already seen is not derivable.
+    persistStore(
+      KEY.notifications,
+      useNotificationStore,
+      (state) => ({ notifications: state.notifications }),
+      VERSION.notifications,
+    ),
+  ];
+}
 
 let hydration: Promise<void> | null = null;
 let hydrated = false;
+
+/** The registered slices. Empty until the chain scope their keys are built from is known. */
+let entries: PersistedStore[] = [];
+
+function registerSlices(): void {
+  if (entries.length === 0) entries = buildEntries();
+}
 
 /**
  * Web only: `localStorage` answers without a turn of the event loop, so the stores are filled
@@ -317,9 +336,12 @@ function hydrateSyncAll(): boolean {
   return done.length > 0 && done.every(Boolean);
 }
 
-if (hydrateSyncAll()) {
-  hydrated = true;
-  hydration = Promise.resolve();
+if (getPlatformStorage().getItemSync) {
+  registerSlices();
+  if (hydrateSyncAll()) {
+    hydrated = true;
+    hydration = Promise.resolve();
+  }
 }
 
 /**
@@ -341,6 +363,15 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
 
 async function runHydration(): Promise<void> {
   try {
+    if (entries.length === 0) {
+      // Native: the stored chain is only readable asynchronously, so it is resolved here,
+      // before a key or a seed is derived from it. The org store was created on the demo
+      // chain's seed at import; the chain actually in use puts its own shops, staff and
+      // credentials back before the slices are registered and read.
+      await loadActiveOrgId();
+      useOrgStore.setState(seedForActiveOrg());
+      registerSlices();
+    }
     await hydratePreferences();
     useSettingsStore.setState({
       sidebarCollapsed: readBooleanPreference(SIDEBAR_COLLAPSED_KEY, false),

@@ -25,8 +25,8 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useInventoryStore } from '../../data/inventory-store';
+import { useOrgStore } from '../../data/org-store';
 import { useSessionStore } from '../../data/session-store';
-import { stores as allStores } from '../../data/seed';
 import { formatVND } from '../../domain/money';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useScreenHeader } from '../../components/shell/screen-header';
@@ -59,10 +59,12 @@ export function InventoryScreen() {
   const currentStore = useSessionStore((state) => state.store);
   const products = useCatalogStore((state) => state.products);
   const stockLevels = useInventoryStore((state) => state.stockLevels);
+  // The branches of the chain this device is signed into, not the demo seed.
+  const allStores = useOrgStore((state) => state.stores);
 
   const canSeeAllStores = canViewAllStores(staff);
   /** The store the screen opens on; the toolbar counts a filter only once the scope leaves it. */
-  const defaultScope: StoreScope = currentStore?.id ?? allStores[0].id;
+  const defaultScope: StoreScope = currentStore?.id ?? allStores[0]?.id ?? 'all';
   const [scope, setScope] = useState<StoreScope>(defaultScope);
   // Desktop only, matching the 1440 frame of docs/design/mockups/inventory.html: the narrower
   // bands keep the tab pair and gain no search field in this phase.
@@ -73,7 +75,7 @@ export function InventoryScreen() {
 
   const allRows = useMemo(
     () => buildStockRows(stockLevels, products, allStores, scope),
-    [stockLevels, products, scope],
+    [stockLevels, products, allStores, scope],
   );
   const rows = useMemo(() => {
     const needle = isDesktop ? search.trim().toLowerCase() : '';

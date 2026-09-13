@@ -2,15 +2,11 @@ import { Badge, Button, EmptyState, ListGroup, ListItem, Table, TableBody, Table
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useInventoryStore } from '../../data/inventory-store';
-import { stores as allStores } from '../../data/seed';
+import { useOrgStore } from '../../data/org-store';
 import { useT } from '../../i18n';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { formatDate } from '../../lib/datetime';
 import { fill } from '../orders/lib/fill';
-
-function storeName(storeId: string): string {
-  return allStores.find((store) => store.id === storeId)?.name ?? storeId;
-}
 
 const STATUS_VARIANT = { draft: 'outline', sent: 'warning', received: 'success' } as const;
 
@@ -22,6 +18,12 @@ export function TransfersListScreen() {
   const breakpoint = useBreakpoint();
   const isWide = breakpoint !== 'phone';
   const transfers = useInventoryStore((state) => state.stockTransfers);
+  // The branches of the chain this device is signed into, not the demo seed.
+  const allStores = useOrgStore((state) => state.stores);
+
+  function storeName(storeId: string): string {
+    return allStores.find((store) => store.id === storeId)?.name ?? storeId;
+  }
 
   function statusLabel(status: 'draft' | 'sent' | 'received'): string {
     if (status === 'sent') return t('inventory.transfers.statusSent');

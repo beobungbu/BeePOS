@@ -14,8 +14,8 @@ import {
 } from '@beemvp/beeui-ui';
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
+import { useOrgStore } from '../../data/org-store';
 import { usePurchasingStore } from '../../data/purchasing-store';
-import { stores as allStores } from '../../data/seed';
 import { useSupplierStore } from '../../data/supplier-store';
 import { formatVND, sum } from '../../domain/money';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
@@ -26,19 +26,20 @@ import { formatDate } from '../../lib/datetime';
 /** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
 const GUTTER = { phone: 'p-4', tablet: 'p-5', desktop: 'p-6' } as const;
 
-function storeName(storeId: string): string {
-  return allStores.find((store) => store.id === storeId)?.name ?? storeId;
-}
-
 export function SupplierReturnsListScreen() {
   const t = useT();
   const breakpoint = useBreakpoint();
   const isWide = breakpoint !== 'phone';
   const supplierReturns = usePurchasingStore((state) => state.supplierReturns);
   const suppliers = useSupplierStore((state) => state.suppliers);
+  // The branches of the chain this device is signed into, not the demo seed.
+  const allStores = useOrgStore((state) => state.stores);
 
   const supplierName = (supplierId: string): string =>
     suppliers.find((supplier) => supplier.id === supplierId)?.name ?? supplierId;
+
+  const storeName = (storeId: string): string =>
+    allStores.find((store) => store.id === storeId)?.name ?? storeId;
 
   useScreenHeader({ title: t('inventory.supplierReturns.title'), backTo: '/inventory' });
 

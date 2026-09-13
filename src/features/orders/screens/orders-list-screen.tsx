@@ -3,7 +3,7 @@ import { ScrollView, View } from 'react-native';
 import { EmptyState, Pagination, PaginationItem, Skeleton, Text } from '@beemvp/beeui-ui';
 import { useOrderStore } from '../../../data/order-store';
 import { useCustomerStore } from '../../../data/customer-store';
-import { staff, stores } from '../../../data/seed';
+import { useOrgStore } from '../../../data/org-store';
 import { filterOrders, orderStats, sortOrders, type OrderSortKey, type SortDirection } from '../../../domain/orders';
 import type { Order } from '../../../domain/types';
 import { useScreenHeader } from '../../../components/shell/screen-header';
@@ -38,6 +38,9 @@ export function OrdersListScreen() {
   const orders = useOrderStore((state) => state.orders);
   const refunds = useOrderStore((state) => state.refunds);
   const customers = useCustomerStore((state) => state.customers);
+  // Branch and cashier filters list the chain this device is signed into, not the demo seed.
+  const stores = useOrgStore((state) => state.stores);
+  const staff = useOrgStore((state) => state.staff);
 
   const [filters, setFilters] = useState<OrdersFilterValue>(() => ({
     storeId: '',

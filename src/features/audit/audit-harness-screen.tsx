@@ -29,6 +29,7 @@ import {
   type DialogProps,
 } from '@beemvp/beeui-ui';
 import { ScrollView } from 'react-native';
+import { AuditGuard } from './audit-guard';
 
 /**
  * Test-only route, not part of the product surface. Mounts real BeeUI overlay/toast
@@ -40,16 +41,18 @@ import { ScrollView } from 'react-native';
  */
 export function AuditHarnessScreen() {
   return (
-    <ScrollView testID="audit-harness-root" contentContainerStyle={{ padding: 16, gap: 24 }}>
-      <AlertDialogSection />
-      <DialogWarnSection />
-      <DialogDismissSection />
-      <SelectDuplicateSection />
-      <SelectRemovedSelectionSection />
-      <SheetDismissSection />
-      <ToastFifoSection />
-      <ToastPersistentSection />
-    </ScrollView>
+    <AuditGuard>
+      <ScrollView testID="audit-harness-root" contentContainerStyle={{ padding: 16, gap: 24 }}>
+        <AlertDialogSection />
+        <DialogWarnSection />
+        <DialogDismissSection />
+        <SelectDuplicateSection />
+        <SelectRemovedSelectionSection />
+        <SheetDismissSection />
+        <ToastFifoSection />
+        <ToastPersistentSection />
+      </ScrollView>
+    </AuditGuard>
   );
 }
 

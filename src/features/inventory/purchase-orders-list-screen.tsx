@@ -14,8 +14,8 @@ import {
 } from '@beemvp/beeui-ui';
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
+import { useOrgStore } from '../../data/org-store';
 import { usePurchasingStore } from '../../data/purchasing-store';
-import { stores as allStores } from '../../data/seed';
 import { useSupplierStore } from '../../data/supplier-store';
 import { formatVND } from '../../domain/money';
 import type { PurchaseOrderStatus } from '../../domain/types';
@@ -36,19 +36,20 @@ const STATUS_VARIANT: Record<PurchaseOrderStatus, 'outline' | 'primary' | 'warni
   cancelled: 'destructive',
 };
 
-function storeName(storeId: string): string {
-  return allStores.find((store) => store.id === storeId)?.name ?? storeId;
-}
-
 export function PurchaseOrdersListScreen() {
   const t = useT();
   const breakpoint = useBreakpoint();
   const isWide = breakpoint !== 'phone';
   const purchaseOrders = usePurchasingStore((state) => state.purchaseOrders);
   const suppliers = useSupplierStore((state) => state.suppliers);
+  // The branches of the chain this device is signed into, not the demo seed.
+  const allStores = useOrgStore((state) => state.stores);
 
   const supplierName = (supplierId: string): string =>
     suppliers.find((supplier) => supplier.id === supplierId)?.name ?? supplierId;
+
+  const storeName = (storeId: string): string =>
+    allStores.find((store) => store.id === storeId)?.name ?? storeId;
 
   useScreenHeader({ title: t('inventory.purchaseOrders.title'), backTo: '/inventory' });
 

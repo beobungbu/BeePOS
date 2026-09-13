@@ -11,8 +11,8 @@ import '../../../i18n/returns.en';
 import { isOverlayOpen } from '../../../lib/keyboard';
 import { useActiveCart, useCartStore } from '../../../data/cart-store';
 import { useCustomerStore } from '../../../data/customer-store';
+import { useOrgStore } from '../../../data/org-store';
 import { usePricingStore } from '../../../data/pricing-store';
-import { staff as allStaff } from '../../../data/seed';
 import { cartTotalsOf, cartUnitCount } from '../lib/cart-totals';
 import { cartLabel, countLabel } from '../lib/order-label';
 import { priceSourceBadge } from '../lib/wholesale';
@@ -61,6 +61,8 @@ export function CartPanel({ products, desktop, showHeader = true }: CartPanelPro
   const customers = useCustomerStore((state) => state.customers);
   const createCustomer = useCustomerStore((state) => state.createCustomer);
   const groups = usePricingStore((state) => state.customerGroups);
+  // The roster of the chain this device is signed into, not the demo seed.
+  const allStaff = useOrgStore((state) => state.staff);
   const { wholesale, customer, explain } = useWholesalePricing(cart);
   const saveQuote = useSaveQuote();
 

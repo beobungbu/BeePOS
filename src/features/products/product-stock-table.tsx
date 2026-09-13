@@ -1,6 +1,6 @@
 import { Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Text } from '@beemvp/beeui-ui';
-import { stores as allStores } from '../../data/seed';
 import { useInventoryStore } from '../../data/inventory-store';
+import { useOrgStore } from '../../data/org-store';
 import { availableQty } from '../../domain/inventory';
 import { useT } from '../../i18n';
 
@@ -15,6 +15,8 @@ export function ProductStockTable({ productId, layout = 'scroll' }: ProductStock
   const t = useT();
   const stockLevels = useInventoryStore((state) => state.stockLevels);
   const setMinLevel = useInventoryStore((state) => state.setMinLevel);
+  // The branches of the chain this device is signed into, not the demo seed.
+  const allStores = useOrgStore((state) => state.stores);
   const rows = allStores.map((store) => ({
     store,
     level: stockLevels.find((level) => level.productId === productId && level.storeId === store.id),

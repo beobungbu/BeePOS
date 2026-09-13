@@ -18,7 +18,7 @@ import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { AppIcon } from '../../../components/icons';
 import { useLotStore } from '../../../data/lot-store';
-import { stores as allStores } from '../../../data/seed';
+import { useOrgStore } from '../../../data/org-store';
 import { useSessionStore } from '../../../data/session-store';
 import { useT } from '../../../i18n';
 import { formatDate } from '../../../lib/datetime';
@@ -40,7 +40,9 @@ export function ProductLotsSection({ productId }: ProductLotsSectionProps) {
   const t = useT();
   const lots = useLotStore((state) => state.lots);
   const currentStore = useSessionStore((state) => state.store);
-  const [storeId, setStoreId] = useState(currentStore?.id ?? allStores[0].id);
+  // The branches of the chain this device is signed into, not the demo seed.
+  const allStores = useOrgStore((state) => state.stores);
+  const [storeId, setStoreId] = useState(currentStore?.id ?? allStores[0]?.id ?? '');
   const now = useMemo(() => new Date(), []);
 
   const rows = lotsIn(lots, productId, storeId);

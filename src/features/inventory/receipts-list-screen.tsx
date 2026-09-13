@@ -2,17 +2,13 @@ import { Badge, Button, EmptyState, ListGroup, ListItem, Table, TableBody, Table
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useInventoryStore } from '../../data/inventory-store';
+import { useOrgStore } from '../../data/org-store';
 import { useSupplierStore } from '../../data/supplier-store';
-import { stores as allStores } from '../../data/seed';
 import { receiptTotals } from '../../domain/inventory';
 import { formatVND } from '../../domain/money';
 import { useT } from '../../i18n';
 import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { formatDate } from '../../lib/datetime';
-
-function storeName(storeId: string): string {
-  return allStores.find((store) => store.id === storeId)?.name ?? storeId;
-}
 
 /** Page gutter per band: 16 phone, 20 tablet, 24 desktop (direction doc section 4). */
 const GUTTER = { phone: 'p-4', tablet: 'p-5', desktop: 'p-6' } as const;
@@ -23,6 +19,10 @@ export function ReceiptsListScreen() {
   const isWide = breakpoint !== 'phone';
   const receipts = useInventoryStore((state) => state.goodsReceipts);
   const suppliers = useSupplierStore((state) => state.suppliers);
+  // The branches of the chain this device is signed into, not the demo seed.
+  const allStores = useOrgStore((state) => state.stores);
+  const storeName = (storeId: string): string =>
+    allStores.find((store) => store.id === storeId)?.name ?? storeId;
   // The receipt carries the supplier id only, so the name is always the partner record's
   // current one: renaming a supplier no longer leaves an old name frozen on its receipts.
   const supplierName = (supplierId: string): string =>

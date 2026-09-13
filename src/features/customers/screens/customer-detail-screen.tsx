@@ -16,8 +16,8 @@ import {
 import { useCustomerStore } from '../../../data/customer-store';
 import { useLedgerStore } from '../../../data/ledger-store';
 import { useOrderStore } from '../../../data/order-store';
+import { useOrgStore } from '../../../data/org-store';
 import { usePricingStore } from '../../../data/pricing-store';
-import { staff as allStaff } from '../../../data/seed';
 import { pointHistory } from '../../../domain/customers';
 import { agingFor, balanceFor, creditCheck } from '../../../domain/ledger';
 import { groupFor } from '../../../domain/pricing';
@@ -56,6 +56,9 @@ export function CustomerDetailScreen() {
   const removeCustomer = useCustomerStore((state) => state.removeCustomer);
   const ledgerEntries = useLedgerStore((state) => state.entries);
   const groups = usePricingStore((state) => state.customerGroups);
+  // The roster of the chain this device is signed into, not the demo seed: a sales rep from
+  // another chain must never be offered as this customer's.
+  const allStaff = useOrgStore((state) => state.staff);
   // Select the raw array (stable reference) and derive with useMemo: an inline `.filter()`
   // inside the zustand selector returns a new array every call, which makes
   // useSyncExternalStore see a changed snapshot on every render and loops forever

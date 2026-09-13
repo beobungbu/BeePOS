@@ -16,6 +16,7 @@ import { useT } from '../../i18n';
 import { ProductGrid, type TileQuote } from '../pos/components/product-grid';
 import { priceSourceBadge } from '../pos/lib/wholesale';
 import { usePosLayout } from '../pos/hooks/use-pos-layout';
+import { AuditGuard } from './audit-guard';
 import { CashBookPerfTable, ReceivablesPerfTable } from './perf-tables';
 
 /** The catalogue size the phase-5 perf budget is written against. */
@@ -134,6 +135,14 @@ export function buildPerfCatalog(
  * props, so the harness owns them in memory and nothing outside this screen sees them.
  */
 export function PerfHarnessScreen() {
+  return (
+    <AuditGuard>
+      <PerfHarness />
+    </AuditGuard>
+  );
+}
+
+function PerfHarness() {
   const t = useT();
   const layout = usePosLayout();
   const params = useLocalSearchParams<{

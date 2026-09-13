@@ -32,7 +32,12 @@ import { activeOrgId } from './active-org';
  * Quận 7. The active chain is fixed for the life of the process (`active-org.ts`); the
  * switcher writes the other id and reloads.
  */
-function seedForActiveOrg() {
+/**
+ * The seed of the chain this launch addresses. Exported because on native the chain is only
+ * known after the persistence bootstrap has read it, which is later than this module's import:
+ * the bootstrap puts the right chain's seed back before any slice is hydrated.
+ */
+export function seedForActiveOrg() {
   if (activeOrgId() === SECOND_ORG_ID) {
     return {
       organization: secondOrganization,

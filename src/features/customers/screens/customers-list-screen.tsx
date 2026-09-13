@@ -18,7 +18,6 @@ import { useCustomerStore } from '../../../data/customer-store';
 import { useOrderStore } from '../../../data/order-store';
 import { usePricingStore } from '../../../data/pricing-store';
 import { useSessionStore } from '../../../data/session-store';
-import { staff as allStaff } from '../../../data/seed';
 import { filterCustomers } from '../../../domain/customers';
 import type { Customer, CustomerTier, CustomerType } from '../../../domain/types';
 import { useScreenHeader } from '../../../components/shell/screen-header';
@@ -35,7 +34,7 @@ import { CustomerTable } from '../components/customer-table';
 import { CustomerListGroup } from '../components/customer-list-group';
 import { AddCustomerDialog, type NewCustomerInput } from '../components/add-customer-dialog';
 import { selectContentHeight } from '../../../components/select-content-height';
-import { currentOrgId } from '../../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../../data/org-store';
 
 const TIERS: CustomerTier[] = ['bronze', 'silver', 'gold', 'platinum'];
 const ALL = 'all';
@@ -53,6 +52,9 @@ export function CustomersListScreen() {
   const orders = useOrderStore((state) => state.orders);
   const groups = usePricingStore((state) => state.customerGroups);
   const role = useSessionStore((state) => state.staff?.role);
+  // The roster of the chain this device is signed into, not the demo seed: a sales rep from
+  // another chain must never be offered on a new customer.
+  const allStaff = useOrgStore((state) => state.staff);
 
   const [search, setSearch] = useState('');
   const [tier, setTier] = useState<CustomerTier | ''>('');

@@ -5,7 +5,7 @@ import { Button, Card, EmptyState, Text, useToast } from '@beemvp/beeui-ui';
 import { useOrderStore } from '../../../data/order-store';
 import { useCustomerStore } from '../../../data/customer-store';
 import { useCatalogStore } from '../../../data/catalog-store';
-import { staff, stores } from '../../../data/seed';
+import { useOrgStore } from '../../../data/org-store';
 import { formatVND } from '../../../domain/money';
 import { useT } from '../../../i18n';
 import '../../../i18n/orders.vi';
@@ -46,6 +46,9 @@ export function OrderDetailScreen() {
   const note = useOrderStore((state) => (id ? state.notes[id] : undefined));
   const products = useCatalogStore((state) => state.products);
   const customer = useCustomerStore((state) => state.customers.find((item) => item.id === order?.customerId));
+  // Branch and cashier names come from the chain this device is signed into, not the demo seed.
+  const stores = useOrgStore((state) => state.stores);
+  const staff = useOrgStore((state) => state.staff);
   const actions = useOrderActions(order);
   const wholesaleActions = useWholesaleOrderActions(order);
   const toast = useToast();

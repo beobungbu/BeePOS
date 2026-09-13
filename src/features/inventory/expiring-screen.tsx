@@ -37,9 +37,8 @@ import { useCatalogStore } from '../../data/catalog-store';
 import { currentCost } from '../../data/costing-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { expiringLots, useLotStore } from '../../data/lot-store';
-import { currentOrgId } from '../../data/org-store';
+import { currentOrgId, useOrgStore } from '../../data/org-store';
 import { useReturnsStore } from '../../data/returns-store';
-import { stores as allStores } from '../../data/seed';
 import { useSessionStore } from '../../data/session-store';
 import { formatVND, sum } from '../../domain/money';
 import { canViewAllStores } from '../../domain/org';
@@ -79,9 +78,11 @@ export function ExpiringScreen() {
   const adjustStock = useInventoryStore((state) => state.adjustStock);
   const addWriteOff = useReturnsStore((state) => state.addWriteOff);
   const writeOffs = useReturnsStore((state) => state.writeOffs);
+  // The branches of the chain this device is signed into, not the demo seed.
+  const allStores = useOrgStore((state) => state.stores);
 
   const canSeeAllStores = canViewAllStores(staff);
-  const [scope, setScope] = useState<string>(currentStore?.id ?? allStores[0].id);
+  const [scope, setScope] = useState<string>(currentStore?.id ?? allStores[0]?.id ?? '');
   const [windowDays, setWindowDays] = useState<ExpiryWindow>(EXPIRY_WINDOWS[0]);
   const [search, setSearch] = useState('');
   const [target, setTarget] = useState<WriteOffTarget | null>(null);
