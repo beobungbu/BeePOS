@@ -4,6 +4,7 @@ import type { AuditEvent } from '../domain/types';
 import type { AuditAction, AuditEntity } from '../domain/audit';
 import { t } from '../i18n';
 import { auditEvents as seedAuditEvents } from './seed';
+import { demoSeed } from './chain-seed';
 import { useSettingsStore } from './settings-store';
 import { currentOrgId, useOrgStore } from './org-store';
 
@@ -13,8 +14,13 @@ interface AuditState {
   append: (event: AuditEvent) => void;
 }
 
+/** The log a chain starts with: the demo shop's history, or an empty log. */
+export function auditSeedForActiveOrg(): Pick<AuditState, 'events'> {
+  return { events: demoSeed(seedAuditEvents, []) };
+}
+
 export const useAuditStore = create<AuditState>((set) => ({
-  events: seedAuditEvents,
+  ...auditSeedForActiveOrg(),
   append: (event) => set((state) => ({ events: [event, ...state.events] })),
 }));
 

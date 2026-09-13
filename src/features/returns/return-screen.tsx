@@ -228,6 +228,20 @@ export function ReturnScreen({ orderCode }: ReturnScreenProps) {
         .getState()
         .createCreditNote(order.customerId, record, summary.exchange.refundDue);
       record.creditNoteId = entry?.id;
+    } else if (summary.exchange.refundDue > 0) {
+      // Nothing is on account, so the difference is handed back out of the drawer and the
+      // branch cash book has to see it leave. An exchange where the buyer owes the difference
+      // is the replacement order's cash, booked by that order, not here.
+      useLedgerStore.getState().postCashBook({
+        orgId: record.orgId,
+        storeId: record.storeId,
+        kind: 'refund',
+        amount: summary.exchange.refundDue,
+        ref: `return-${record.id}`,
+        refId: record.id,
+        staffId: record.staffId,
+        createdAt: record.createdAt,
+      });
     }
 
     recordReturn(record);
@@ -239,6 +253,21 @@ export function ReturnScreen({ orderCode }: ReturnScreenProps) {
       addOrder(exchangeOrder);
       for (const line of exchangeOrder.lines) {
         adjustStock(line.productId, record.storeId, -line.qty, `exchange:${exchangeOrder.id}`);
+      }
+      // The difference the buyer paid for the replacement goods is drawer cash like any other
+      // sale. The exchange order is written straight to the order store here rather than
+      // through `submitOrder`, so its cash is booked here too.
+      const takenOnExchange = summary.exchange.amountDue;
+      if (takenOnExchange > 0) {
+        useLedgerStore.getState().postCashBook({
+          orgId: exchangeOrder.orgId,
+          storeId: exchangeOrder.storeId,
+          kind: 'sale',
+          amount: takenOnExchange,
+          ref: `order-${exchangeOrder.id}`,
+          staffId: exchangeOrder.cashierId,
+          createdAt: new Date(exchangeOrder.createdAt),
+        });
       }
     }
 

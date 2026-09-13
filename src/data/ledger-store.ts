@@ -17,11 +17,47 @@ import type {
   ReturnRecord,
 } from '../domain/types';
 import { balanceFor } from '../domain/ledger';
+import { demoSeed } from './chain-seed';
 import {
   bankAccounts as seedBankAccounts,
   cashBook as seedCashBook,
   ledgerEntries as seedLedgerEntries,
 } from './seed';
+
+/**
+ * One cash-book row, from whichever screen moved the money.
+ *
+ * `ref` is the document the row answers (an order id, a cash movement id, a payment entry
+ * id). The row id is derived from it and a row whose id is already in the book is not written
+ * again, so a screen that re-runs its side effects cannot double the drawer.
+ */
+export interface CashBookPost {
+  orgId: string;
+  storeId: string;
+  kind: CashBookKind;
+  amount: number;
+  /** Stable key of the document this row answers; the row id is `cash-<ref>`. */
+  ref: string;
+  /** The document itself, for the screens that link back to it. Defaults to `ref`. */
+  refId?: string;
+  bankAccountId?: string;
+  staffId: string;
+  createdAt?: Date;
+}
+
+/** What a goods receipt bought on credit owes the partner. */
+export interface SupplierInvoiceInput {
+  orgId: string;
+  storeId: string;
+  supplierId: string;
+  amount: number;
+  /** The `GoodsReceipt` the bill is for; the entry id is derived from it. */
+  receiptId: string;
+  /** From the partner's payment terms; absent means the bill carries no due date. */
+  dueDate?: Date;
+  note?: string;
+  createdAt?: Date;
+}
 
 /** Everything a collection or a supplier payment needs, minus what the store can derive. */
 export interface SettlementInput {
@@ -87,6 +123,23 @@ interface LedgerState {
   addEntry: (entry: LedgerEntry) => void;
   removeEntry: (entryId: string) => void;
   addCashBookEntry: (entry: CashBookEntry) => void;
+  /**
+   * The one way cash reaches the book. Every till movement (a cash sale, a cash refund, a
+   * drawer in or out, the hand-over at close) and every settlement goes through here, so the
+   * cash book and the Z report are reading the same events rather than two private ledgers.
+   *
+   * Idempotent on `ref`: booking the same document twice leaves one row and returns it.
+   * A non-positive amount books nothing.
+   */
+  postCashBook: (input: CashBookPost) => CashBookEntry | null;
+  /**
+   * The payables side of a goods receipt taken on credit: the chain owes the partner the
+   * value of what arrived, due on their terms.
+   *
+   * Idempotent on the receipt, so confirming twice (or confirming and then using the
+   * payables action on the same receipt) cannot raise the bill twice.
+   */
+  createSupplierInvoice: (input: SupplierInvoiceInput) => LedgerEntry | null;
   upsertBankAccount: (account: BankAccount) => void;
   removeBankAccount: (accountId: string) => void;
   /**
@@ -131,12 +184,72 @@ function nextId(prefix: string, existing: readonly { id: string }[]): string {
   return `${prefix}-${existing.length + 1}-${Date.now()}`;
 }
 
+/** Ledger id of the bill a goods receipt raises, so the same receipt can never raise two. */
+export function supplierInvoiceId(receiptId: string): string {
+  return `ledger-ap-${receiptId}`;
+}
+
+/** The ledger, the bank and the cash book a chain starts with: the seed, or nothing. */
+export function ledgerSeedForActiveOrg(): Pick<
+  LedgerState,
+  'entries' | 'bankAccounts' | 'cashBook'
+> {
+  return {
+    entries: demoSeed(seedLedgerEntries, []),
+    bankAccounts: demoSeed(seedBankAccounts, []),
+    cashBook: demoSeed(seedCashBook, []),
+  };
+}
+
 export const useLedgerStore = create<LedgerState>((set, get) => ({
-  entries: seedLedgerEntries,
-  bankAccounts: seedBankAccounts,
-  cashBook: seedCashBook,
+  ...ledgerSeedForActiveOrg(),
 
   addEntry: (entry) => set((state) => ({ entries: [...state.entries, entry] })),
+
+  postCashBook: (input) => {
+    if (!Number.isFinite(input.amount) || input.amount <= 0) return null;
+    const id = `cash-${input.ref}`;
+    const existing = get().cashBook.find((entry) => entry.id === id);
+    if (existing) return existing;
+
+    const entry: CashBookEntry = {
+      id,
+      orgId: input.orgId,
+      storeId: input.storeId,
+      kind: input.kind,
+      amount: Math.round(input.amount),
+      refId: input.refId ?? input.ref,
+      bankAccountId: input.bankAccountId,
+      staffId: input.staffId,
+      createdAt: input.createdAt ?? new Date(),
+    };
+    set((state) => ({ cashBook: [...state.cashBook, entry] }));
+    return entry;
+  },
+
+  createSupplierInvoice: (input) => {
+    if (!Number.isFinite(input.amount) || input.amount <= 0) return null;
+    const id = supplierInvoiceId(input.receiptId);
+    const existing = get().entries.find((entry) => entry.id === id);
+    if (existing) return existing;
+
+    const entry: LedgerEntry = {
+      id,
+      orgId: input.orgId,
+      party: 'supplier',
+      partyId: input.supplierId,
+      storeId: input.storeId,
+      kind: 'invoice',
+      refType: 'receipt',
+      refId: input.receiptId,
+      amount: Math.round(input.amount),
+      dueDate: input.dueDate,
+      createdAt: input.createdAt ?? new Date(),
+      note: input.note,
+    };
+    set((state) => ({ entries: [...state.entries, entry] }));
+    return entry;
+  },
 
   removeEntry: (entryId) =>
     set((state) => ({ entries: state.entries.filter((entry) => entry.id !== entryId) })),
@@ -181,22 +294,17 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
     const cashKind: CashBookKind =
       input.party === 'customer' ? 'collection' : 'supplier_payment';
 
-    const cashEntry: CashBookEntry = {
-      id: `cash-${entry.id}`,
+    set((state) => ({ entries: [...state.entries, entry] }));
+    get().postCashBook({
       orgId: input.orgId,
       storeId: input.storeId,
       kind: cashKind,
       amount: input.amount,
-      refId: entry.id,
+      ref: entry.id,
       bankAccountId: input.bankAccountId,
       staffId: input.staffId,
       createdAt,
-    };
-
-    set((state) => ({
-      entries: [...state.entries, entry],
-      cashBook: [...state.cashBook, cashEntry],
-    }));
+    });
     return entry;
   },
 
@@ -263,20 +371,19 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
   },
 
   deposit: (input) => {
-    if (!Number.isFinite(input.amount) || input.amount <= 0) return null;
     if (!input.bankAccountId) return null;
-    const entry: CashBookEntry = {
-      id: nextId('cash-deposit', get().cashBook),
+    return get().postCashBook({
       orgId: input.orgId,
       storeId: input.storeId,
       kind: 'deposit',
       amount: input.amount,
+      // A deposit answers no document of its own, so the ref is minted here; the count keeps
+      // two deposits booked in the same millisecond apart.
+      ref: `deposit-${get().cashBook.length + 1}-${Date.now()}`,
       bankAccountId: input.bankAccountId,
       staffId: input.staffId,
-      createdAt: input.createdAt ?? new Date(),
-    };
-    set((state) => ({ cashBook: [...state.cashBook, entry] }));
-    return entry;
+      createdAt: input.createdAt,
+    });
   },
 }));
 

@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import type { GoodsReceipt, Supplier } from '../domain/types';
 import { receiptTotals } from '../domain/inventory';
 import { suppliers as seedSuppliers } from './seed';
+import { demoSeed } from './chain-seed';
 import { useInventoryStore } from './inventory-store';
 import { useSessionStore } from './session-store';
 
@@ -12,8 +13,13 @@ interface SupplierState {
   setSupplierActive: (supplierId: string, isActive: boolean) => void;
 }
 
+/** The partners a chain starts with: the demo shop's, or none. */
+export function supplierSeedForActiveOrg(): Pick<SupplierState, 'suppliers'> {
+  return { suppliers: demoSeed(seedSuppliers, []) };
+}
+
 export const useSupplierStore = create<SupplierState>((set) => ({
-  suppliers: seedSuppliers,
+  ...supplierSeedForActiveOrg(),
 
   upsertSupplier: (supplier) =>
     set((state) => ({

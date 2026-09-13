@@ -1,6 +1,15 @@
 import { expect, test, type Page } from '@playwright/test';
 import { collectErrors, go, login } from '../lib/session';
-import { money, openShift, overlay, pick, posTile } from '../lib/flows';
+import {
+  PRODUCT_A,
+  V,
+  money,
+  openShift,
+  overlay,
+  pick,
+  pickSupplier,
+  posTile,
+} from '../lib/flows';
 import { C, MINH_LONG, WHOLESALE_PRODUCT_GROUP } from '../lib/labels';
 
 /**
@@ -13,17 +22,20 @@ import { C, MINH_LONG, WHOLESALE_PRODUCT_GROUP } from '../lib/labels';
  *  1. a wholesale order paid `Ghi nợ`      -> receivables up by the invoice
  *  2. a part collection in cash            -> receivables down, cash book up
  *  3. a supplier payment in cash           -> payables down, cash book down
- *  4. a cash-in at the till                -> the shift's expected drawer up
- *  5. the seeded supplier bills            -> the payables opening balance
+ *  4. a goods receipt taken on credit      -> payables up by the bill
+ *  5. a retail sale paid in cash           -> the drawer and the cash book up by it
+ *  6. a cash-in at the till                -> the drawer and the cash book up by it
+ *  7. the seeded supplier bills            -> the payables opening balance
  *
  * The one seed constant used as an anchor is Minh Long's opening balance (52.400.000 đ,
  * `reports/w-t-foundation-report.md` section 5): everything else is derived from it and from
  * what the screens themselves report before each step.
  *
- * There is deliberately **no** "supplier receipt on credit" step: confirming a goods receipt
- * writes no ledger entry (nothing in `src/features/inventory/**` calls `useLedgerStore`), so
- * the only supplier invoices in the app are the seeded ones. That is recorded as a gap in
- * `docs/qa/e2e-coverage-260913.md` rather than faked here.
+ * Steps 4 to 6 are the wave-3 half. Before it, confirming a goods receipt wrote no ledger
+ * entry at all, and a cash sale and a till movement went to `cash-movement-store` while the
+ * money area read `ledger-store.cashBook`, so the Z report and the cash book were two private
+ * ledgers (`reports/w-e-e2e-perf-report.md` 5.1 and 5.2). Both now go through one helper, and
+ * the last step asks the Z report and the cash book the same question.
  */
 
 const M = {
@@ -37,6 +49,12 @@ const M = {
   payPrefix: 'Thanh toán',
   amountPay: 'Số tiền trả',
   confirmPay: /^Ghi nhận trả/,
+  receiptAmount: 'Số tiền phiếu nhập',
+  onCredit: 'Ghi nợ',
+  zAction: 'Báo cáo Z',
+  zCashSales: 'Bán tiền mặt',
+  zCashIn: 'Thu khác',
+  zExpected: 'Dự kiến',
   cashAction: 'Thu / chi tiền',
   cashAmount: 'Số tiền',
   cashIn: 'Thu vào',
@@ -49,12 +67,27 @@ const MINH_LONG_OWES = 52_400_000;
 const COLLECTED = 6_000_000;
 const PAID_TO_SUPPLIER = 4_000_000;
 const CASH_IN = 250_000;
+/** Units of the seeded SKU the goods receipt takes in; its value is read off the screen. */
+const RECEIVED_QTY = 10;
+/** The partner with 30 day terms (`src/data/seed/suppliers.ts`), so the bill carries a due date. */
+const SUPPLIER_ON_TERMS = 'Cty CP Phân phối Miền Bắc';
 
 /** Digits of the figure beside a stat-strip label. */
 async function stat(page: Page, label: string): Promise<number> {
   const node = page.getByText(label, { exact: true }).first();
   await node.waitFor();
   return money(await node.locator('xpath=..').textContent());
+}
+
+/**
+ * One figure off the Z roll, which is a single monospaced block rather than label and value
+ * nodes: the line that starts with the label, minus everything that is not a digit.
+ */
+function zFigure(sheet: string, label: string): number {
+  const line = sheet.split('\n').find((row) => row.trim().startsWith(label));
+  // The amount is flush right, and the label itself can carry a count ("Thu khác (1)"), so
+  // only the trailing figure is read rather than every digit on the row.
+  return money(/[\d.]+\s*đ\s*$/.exec(line ?? '')?.[0] ?? '');
 }
 
 /** What one money screen currently reports, read fresh so nothing is carried across a step. */
@@ -149,6 +182,59 @@ test.describe('money reconciliation', () => {
         .toBe(openingPayable - PAID_TO_SUPPLIER);
     });
 
+    let billed = 0;
+    await test.step('a goods receipt taken on credit raises what the chain owes the partner', async () => {
+      const payableBefore = await payables(page);
+
+      await go(page, '/inventory/receipts/new');
+      await pickSupplier(page, SUPPLIER_ON_TERMS);
+      await page.getByRole('button', { name: V.addProduct }).click();
+      const picker = overlay(page).last();
+      await picker.getByPlaceholder(V.searchProduct).fill(PRODUCT_A);
+      await picker.getByText(PRODUCT_A, { exact: true }).first().click();
+      const row = page.getByRole('row').filter({ hasText: PRODUCT_A });
+      await row.getByRole('textbox').first().fill(String(RECEIVED_QTY));
+
+      // The choice the screen offers: money now, or a bill on the partner's terms.
+      await pick(page, M.onCredit).click();
+      billed = money(
+        await page.getByText(M.receiptAmount, { exact: true }).first().locator('xpath=..').textContent(),
+      );
+      expect(billed, 'the receipt is worth something to owe').toBeGreaterThan(0);
+
+      await page.getByRole('button', { name: V.receiveGoods, exact: true }).click();
+      const confirm = overlay(page).last();
+      await expect(confirm).toContainText(V.receiveConfirmTitle);
+      await confirm.getByRole('button', { name: V.receiveGoods, exact: true }).click();
+      await expect(overlay(page)).toHaveCount(0);
+
+      await expect.poll(() => payables(page), { timeout: 10_000 }).toBe(payableBefore + billed);
+    });
+
+    let cashSale = 0;
+    await test.step('a retail sale in cash reaches the drawer and the branch cash book', async () => {
+      const bookBefore = await cashBookClosing(page);
+      await go(page, '/pos/shift');
+      const drawerBefore = await stat(page, M.expectedCash);
+
+      await go(page, '/pos');
+      await posTile(page, PRODUCT_A).click();
+      await page.getByRole('button', { name: new RegExp(`^${C.checkout} ·`) }).first().click();
+      await page.waitForURL('**/pos/checkout');
+      await pick(page, V.methodCash).click();
+      await page.getByRole('textbox', { name: V.amountReceived }).fill('500000');
+      const finish = page.getByRole('button', { name: new RegExp(`^${V.finish} ·`) }).first();
+      cashSale = money(await finish.innerText());
+      await finish.click();
+      await page.waitForURL('**/pos/receipt/**');
+
+      // The same money in both places: the till expects it in the drawer and the branch cash
+      // book has the row.
+      await go(page, '/pos/shift');
+      expect(await stat(page, M.expectedCash)).toBe(drawerBefore + cashSale);
+      expect(await cashBookClosing(page)).toBe(bookBefore + cashSale);
+    });
+
     await test.step('a cash-in raises the drawer the shift expects', async () => {
       await go(page, '/pos/shift');
       const before = await stat(page, M.expectedCash);
@@ -161,21 +247,30 @@ test.describe('money reconciliation', () => {
     });
 
     await test.step('the cash book balance is the opening plus what came in, less what went out', async () => {
-      // The collection was settled in cash (no bank account picked) and so was the supplier
-      // payment, so one is a drawer inflow and the other a drawer outflow.
-      //
-      // The cash-in is deliberately **not** in this figure. A till cash movement is written to
-      // `cash-movement-store` (the phase-6 shift ledger) and the money area reads
-      // `ledger-store.cashBook`, so the two never meet: the same is true of a cash sale rung up
-      // after the seed. When those are joined up this expectation becomes
-      // `+ CASH_IN` and this comment is the note that says so; it is filed as a gap in
-      // `docs/qa/e2e-coverage-260913.md`.
-      expect(await cashBookClosing(page)).toBe(openingCashBook + COLLECTED - PAID_TO_SUPPLIER);
+      // Every drawer movement of the session, whichever screen made it: the collection and the
+      // supplier payment were settled in cash, the sale was paid in notes and the cash-in was
+      // handed over the counter. The receipt was taken on credit, so it moved no cash.
+      expect(await cashBookClosing(page)).toBe(
+        openingCashBook + COLLECTED - PAID_TO_SUPPLIER + cashSale + CASH_IN,
+      );
+    });
+
+    await test.step('the Z report of the shift and the cash book agree about the till', async () => {
+      await go(page, '/pos/shift/z');
+      const sheet = (await page.getByTestId('z-report-sheet').textContent()) ?? '';
+
+      // The two used to be separate ledgers: the roll counted the till's own movements and the
+      // cash book counted everything except them. They are now the same events read two ways.
+      expect(zFigure(sheet, M.zCashSales)).toBe(cashSale);
+      expect(zFigure(sheet, M.zCashIn)).toBe(CASH_IN);
+
+      await go(page, '/pos/shift');
+      expect(await stat(page, M.expectedCash)).toBe(zFigure(sheet, M.zExpected));
     });
 
     await test.step('the three ledgers still agree when read again from scratch', async () => {
       expect(await receivables(page)).toBe(openingReceivable + invoiced - COLLECTED);
-      expect(await payables(page)).toBe(openingPayable - PAID_TO_SUPPLIER);
+      expect(await payables(page)).toBe(openingPayable - PAID_TO_SUPPLIER + billed);
     });
 
     expect(errors, errors.join('\n')).toEqual([]);

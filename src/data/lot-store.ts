@@ -9,6 +9,7 @@
 import { create } from 'zustand';
 import type { Lot } from '../domain/types';
 import { lots as seedLots } from './seed';
+import { demoSeed } from './chain-seed';
 
 interface LotState {
   lots: Lot[];
@@ -18,8 +19,13 @@ interface LotState {
   removeLot: (lotId: string) => void;
 }
 
+/** The batches a chain starts with; they belong to the seeded stock, so a new chain has none. */
+export function lotSeedForActiveOrg(): Pick<LotState, 'lots'> {
+  return { lots: demoSeed(seedLots, []) };
+}
+
 export const useLotStore = create<LotState>((set) => ({
-  lots: seedLots,
+  ...lotSeedForActiveOrg(),
 
   upsertLot: (lot) =>
     set((state) => {

@@ -6,13 +6,15 @@
  * addEntry).
  */
 
-import { pointsEarned, shiftSummary } from '../../domain/pos';
+import { shiftSummary } from '../../domain/pos';
 import { baseQtyOf } from './lib/wholesale';
+import { loyaltyPointsForOrder } from './lib/loyalty';
 import type { LedgerEntry, Order } from '../../domain/types';
 import { useCustomerStore } from '../../data/customer-store';
 import { useInventoryStore } from '../../data/inventory-store';
 import { useLedgerStore } from '../../data/ledger-store';
 import { useOrderStore } from '../../data/order-store';
+import { usePricingStore } from '../../data/pricing-store';
 
 export interface SubmitOrderOptions {
   shiftId?: string;
@@ -40,11 +42,33 @@ export function submitOrder(order: Order, options: SubmitOrderOptions = {}): voi
     }
   }
 
+  // Cash taken over the counter is drawer cash, whichever channel rang it up, so the branch
+  // cash book sees it the moment the bill is paid. Keyed by the order, so a screen that
+  // re-submits cannot book the takings twice.
+  const cashTaken = order.payments
+    .filter((payment) => payment.method === 'cash')
+    .reduce((total, payment) => total + payment.amount, 0);
+  if (cashTaken > 0) {
+    useLedgerStore.getState().postCashBook({
+      orgId: order.orgId,
+      storeId: order.storeId,
+      kind: 'sale',
+      amount: cashTaken,
+      ref: `order-${order.id}`,
+      staffId: order.cashierId,
+      createdAt: new Date(order.createdAt),
+    });
+  }
+
   if (order.customerId && !wholesale) {
-    const pointsPayment = order.payments.find((payment) => payment.method === 'points');
-    const redeemedPoints = pointsPayment ? Math.round(pointsPayment.amount / 1000) : 0;
-    const earnedPoints = pointsEarned(order.total);
-    useCustomerStore.getState().addPoints(order.customerId, earnedPoints - redeemedPoints, order.total);
+    const customer = useCustomerStore.getState().customers.find((item) => item.id === order.customerId);
+    const rule = usePricingStore.getState().loyaltyRule;
+    // The tier is read before the sale is booked: the bill earns at the rate the buyer stood
+    // on when it was rung up, not at the one it may have just promoted them to.
+    const points = loyaltyPointsForOrder(order, customer?.tier ?? 'bronze', rule);
+    useCustomerStore
+      .getState()
+      .addPoints(order.customerId, points.earned - points.redeemed, order.total, order.id);
   }
 
   if (options.shiftId) {

@@ -9,6 +9,7 @@
 import { create } from 'zustand';
 import type { OrgMembership, OrgSummary, StoreSettings } from '../domain/types';
 import { memberships as seedMemberships, orgDirectory as seedOrgDirectory, storeSettings as seedStoreSettings } from './seed';
+import { demoSeed } from './chain-seed';
 
 interface OrgSettingsState {
   storeSettings: StoreSettings[];
@@ -22,8 +23,19 @@ interface OrgSettingsState {
   removeMembership: (userId: string, orgId: string) => void;
 }
 
+/**
+ * Per-branch settings are the demo shop's branches', so another chain starts without them.
+ *
+ * Memberships and the chain directory are deliberately **not** scoped: they are how an account
+ * finds its second chain and how `login` resolves the staff row inside it, so emptying them
+ * for a new chain would lock its owner out of the shop they just created.
+ */
+export function orgSettingsSeedForActiveOrg(): Pick<OrgSettingsState, 'storeSettings'> {
+  return { storeSettings: demoSeed(seedStoreSettings, []) };
+}
+
 export const useOrgSettingsStore = create<OrgSettingsState>((set) => ({
-  storeSettings: seedStoreSettings,
+  ...orgSettingsSeedForActiveOrg(),
   memberships: seedMemberships,
   orgDirectory: seedOrgDirectory,
 

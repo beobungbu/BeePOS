@@ -528,6 +528,12 @@ export interface Supplier {
   name: string;
   phone?: string;
   address?: string;
+  /**
+   * Days of credit the partner gives. A goods receipt taken on credit is due this many days
+   * after it is confirmed; absent means the bill carries no due date, so the payables screen
+   * shows it as "no due date" rather than inventing one.
+   */
+  paymentTermDays?: number;
   note?: string;
   isActive: boolean;
 }

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { create } from 'zustand';
 import { openShiftOn, shiftSummary } from '../domain/pos';
 import type { Shift } from '../domain/types';
+import { useLedgerStore } from './ledger-store';
 import { useOrderStore } from './order-store';
 import { useSessionStore } from './session-store';
 import { currentOrgId } from './org-store';
@@ -45,6 +46,21 @@ export const useShiftStore = create<ShiftState>(() => ({
       orderCount: summary.orderCount,
       revenue: summary.revenue,
       expectedCash: summary.expectedCash,
+    });
+
+    // The hand-over at close: what was counted, less the float the next shift opens on. That
+    // money leaves the drawer, so the branch cash book has to see it go or its running balance
+    // keeps yesterday's takings in a till that was emptied. No bank account is named because
+    // nobody has carried it to the bank yet; the deposit screen books that leg.
+    const handedOver = Math.max(0, Math.round(closingCash - shift.openingCash));
+    useLedgerStore.getState().postCashBook({
+      orgId: shift.orgId,
+      storeId: shift.storeId,
+      kind: 'deposit',
+      amount: handedOver,
+      ref: `shift-close-${shift.id}`,
+      staffId: shift.cashierId,
+      createdAt: new Date(closedShift.closedAt as string),
     });
   },
 }));

@@ -11,11 +11,14 @@ import {
   EmptyState,
   Field,
   KeyboardAwareScreen,
+  SegmentedControl,
+  SegmentedControlItem,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Text,
   useToast,
 } from '@beemvp/beeui-ui';
 import { goBackOr } from '../../lib/navigation';
@@ -24,9 +27,15 @@ import { View } from 'react-native';
 import { useCatalogStore } from '../../data/catalog-store';
 import { applyReceiptCost } from '../../data/costing-store';
 import { useInventoryStore } from '../../data/inventory-store';
+import { supplierInvoiceId, useLedgerStore } from '../../data/ledger-store';
 import { useSessionStore } from '../../data/session-store';
+import { useSupplierStore } from '../../data/supplier-store';
+import { dueDateFor } from '../../domain/ledger';
+import { formatVND } from '../../domain/money';
 import type { GoodsReceipt, GoodsReceiptLine } from '../../domain/types';
 import { useT } from '../../i18n';
+import { fill } from '../orders/lib/fill';
+import { formatDate } from '../../lib/datetime';
 import { useScreenHeader } from '../../components/shell/screen-header';
 import { LineEditorTable } from './line-editor-table';
 import { ProductPicker } from './product-picker';
@@ -35,6 +44,19 @@ import { SupplierPicker } from '../suppliers/components/supplier-picker';
 
 function makeReceiptId(): string {
   return `receipt-${Date.now()}`;
+}
+
+/** How a receipt is settled with the partner: money now, or a bill on their terms. */
+type ReceiptPayment = 'paid' | 'credit';
+
+/** What the goods on a receipt cost, which is what the partner bills for. */
+function receiptValue(lines: readonly GoodsReceiptLine[]): number {
+  return lines.reduce((total, line) => total + Math.max(0, line.qty) * Math.max(0, line.unitCost), 0);
+}
+
+/** Cash-book key of the payment a receipt settled on the spot. */
+function receiptPaymentRef(receiptId: string): string {
+  return `receipt-${receiptId}`;
 }
 
 interface ReceiptDetailScreenProps {
@@ -50,6 +72,10 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
   const receipts = useInventoryStore((state) => state.goodsReceipts);
   const upsertGoodsReceipt = useInventoryStore((state) => state.upsertGoodsReceipt);
   const receiveGoodsReceipt = useInventoryStore((state) => state.receiveGoodsReceipt);
+  const staff = useSessionStore((state) => state.staff);
+  const suppliers = useSupplierStore((state) => state.suppliers);
+  const ledgerEntries = useLedgerStore((state) => state.entries);
+  const cashBook = useLedgerStore((state) => state.cashBook);
 
   const existing = receiptId ? receipts.find((item) => item.id === receiptId) : undefined;
   const notFound = Boolean(receiptId) && !existing;
@@ -62,6 +88,26 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
   const [lines, setLines] = useState<GoodsReceiptLine[]>(existing?.lines ?? []);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [debtOpen, setDebtOpen] = useState(false);
+  /** Null while the choice follows the partner's terms; set once the buyer overrides it. */
+  const [paymentOverride, setPaymentOverride] = useState<ReceiptPayment | null>(null);
+
+  const supplier = suppliers.find((item) => item.id === supplierId);
+  // A partner who gives terms is normally billed on them, so that is the offered default; one
+  // who gives none is paid at the door. Either way the choice is on screen before the goods
+  // are taken in, because it is the difference between money leaving the till and a debt.
+  const payment: ReceiptPayment = paymentOverride ?? (supplier?.paymentTermDays ? 'credit' : 'paid');
+  const total = receiptValue(lines);
+  const dueDate = dueDateFor(new Date(), supplier?.paymentTermDays);
+
+  // What this receipt has already been settled with, if anything. Both are keyed by the
+  // receipt, so this is the same question the two store actions refuse a second time.
+  const hasBill = existing
+    ? ledgerEntries.some((entry) => entry.id === supplierInvoiceId(existing.id))
+    : false;
+  const hasPayment = existing
+    ? cashBook.some((entry) => entry.id === `cash-${receiptPaymentRef(existing.id)}`)
+    : false;
 
   const isReceived = existing?.status === 'received';
   // The receipt stores the supplier id only and the name is read back off the partner record:
@@ -91,6 +137,42 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
     goBackOr('/inventory/receipts');
   }
 
+  /**
+   * Books what the delivery costs the chain: either money out of the branch drawer now, or a
+   * bill on the partner's terms that the payables screen can then collect against.
+   *
+   * Both store calls are keyed by the receipt and refuse a second pass, so confirming twice,
+   * or confirming and then using the payables action on the same receipt, still leaves one
+   * bill and one payment.
+   */
+  function settleReceipt(receipt: GoodsReceipt, choice: ReceiptPayment): void {
+    const amount = receiptValue(receipt.lines);
+    if (amount <= 0) return;
+
+    if (choice === 'credit') {
+      useLedgerStore.getState().createSupplierInvoice({
+        orgId: receipt.orgId,
+        storeId: receipt.storeId,
+        supplierId: receipt.supplierId,
+        amount,
+        receiptId: receipt.id,
+        dueDate: dueDateFor(new Date(receipt.createdAt), supplier?.paymentTermDays),
+        note: supplier?.name,
+      });
+      return;
+    }
+
+    useLedgerStore.getState().postCashBook({
+      orgId: receipt.orgId,
+      storeId: receipt.storeId,
+      kind: 'supplier_payment',
+      amount,
+      ref: receiptPaymentRef(receipt.id),
+      refId: receipt.id,
+      staffId: staff?.id ?? '',
+    });
+  }
+
   function handleConfirmReceive() {
     const receipt = buildReceipt('draft');
     upsertGoodsReceipt(receipt);
@@ -98,9 +180,24 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
     // average. It refuses a second pass over the same receipt, so this cannot double count.
     applyReceiptCost(receipt);
     receiveGoodsReceipt(receipt.id);
+    settleReceipt(receipt, payment);
     setConfirmOpen(false);
-    toast.show({ title: t('inventory.receipts.confirmReceive'), variant: 'success' });
+    toast.show({
+      title:
+        payment === 'credit'
+          ? t('inventory.receipts.payment.debtToast')
+          : t('inventory.receipts.payment.paidToast'),
+      variant: 'success',
+    });
     goBackOr('/inventory/receipts');
+  }
+
+  /** The bill a receipt confirmed before this existed never got; raised from the detail screen. */
+  function handleRecordDebt() {
+    if (!existing) return;
+    settleReceipt(existing, 'credit');
+    setDebtOpen(false);
+    toast.show({ title: t('inventory.receipts.payment.debtToast'), variant: 'success' });
   }
 
   if (notFound) {
@@ -144,10 +241,64 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
 
         <LineEditorTable lines={lines} products={productById} editable={!isReceived} onChange={setLines} />
 
+        {isReceived && existing ? (
+          <View className="gap-1.5 rounded-md bg-surface-muted p-3">
+            <Text variant="caption" className="text-muted-foreground">
+              {hasBill || hasPayment
+                ? t('inventory.receipts.payment.alreadyRecorded')
+                : t('inventory.receipts.payment.recordDebtDescription')}
+            </Text>
+            {hasBill || hasPayment ? null : (
+              <View className="flex-row justify-end">
+                <Button variant="outline" onPress={() => setDebtOpen(true)}>
+                  {t('inventory.receipts.payment.recordDebt')}
+                </Button>
+              </View>
+            )}
+          </View>
+        ) : null}
+
         {!isReceived && (
           <Button variant="outline" onPress={() => setPickerOpen(true)}>
             {t('inventory.receipts.addLine')}
           </Button>
+        )}
+
+        {!isReceived && (
+          <Field label={t('inventory.receipts.payment.label')}>
+            <View className="gap-1.5">
+              <SegmentedControl
+                value={payment}
+                onValueChange={(value) => setPaymentOverride(value as ReceiptPayment)}
+                accessibilityLabel={t('inventory.receipts.payment.label')}
+              >
+                <SegmentedControlItem value="paid">
+                  {t('inventory.receipts.payment.paidNow')}
+                </SegmentedControlItem>
+                <SegmentedControlItem value="credit">
+                  {t('inventory.receipts.payment.onCredit')}
+                </SegmentedControlItem>
+              </SegmentedControl>
+              <Text variant="caption" className="text-muted-foreground">
+                {payment === 'paid'
+                  ? t('inventory.receipts.payment.paidNowNote')
+                  : dueDate && supplier?.paymentTermDays
+                    ? fill(t('inventory.receipts.payment.dueNote'), {
+                        date: formatDate(dueDate.toISOString()),
+                        days: supplier.paymentTermDays,
+                      })
+                    : t('inventory.receipts.payment.noTermNote')}
+              </Text>
+              <View className="flex-row items-center justify-between">
+                <Text variant="caption" className="text-muted-foreground">
+                  {t('inventory.receipts.payment.amount')}
+                </Text>
+                <Text variant="label" numeric="tabular" className="font-semibold text-foreground">
+                  {formatVND(total)}
+                </Text>
+              </View>
+            </View>
+          </Field>
         )}
 
         {!isReceived && (
@@ -171,6 +322,21 @@ export function ReceiptDetailScreen({ receiptId }: ReceiptDetailScreenProps) {
           setPickerOpen(false);
         }}
       />
+
+      <AlertDialog open={debtOpen} onOpenChange={setDebtOpen}>
+        <AlertDialogContent>
+          <AlertDialogTitle>{t('inventory.receipts.payment.recordDebt')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {`${t('inventory.receipts.payment.amount')}: ${formatVND(total)}`}
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.actions.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onPress={handleRecordDebt}>
+              {t('inventory.receipts.payment.recordDebt')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>

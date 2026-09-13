@@ -16,9 +16,10 @@ import { collectErrors, go, login } from '../lib/session';
  *     case has stated the budget rather than a regression ceiling ever since);
  *  3. the phase-7 tile at 120 products: FEFO badge, unit selector and a wholesale price
  *     resolved per tile through the precedence engine (`?real=1&wholesale=1`);
- *  4. the same at 1000 products. Both wholesale cases are held to a recorded ceiling instead
- *     of the budget: re-pricing every visible tile on every commit costs three to six frames
- *     over 100 ms on a busy machine, and the fix is in files this worker does not own;
+ *  4. the same at 1000 products. Both wholesale cases were held to a recorded ceiling while
+ *     every visible tile was re-priced on every commit (three to six frames over 100 ms on a
+ *     busy machine); the quote is memoised per product, unit, quantity, branch and buyer since
+ *     wave 3 (`src/features/pos/lib/price-cache.ts`), so they state the budget like the rest;
  *  5. a 1000 row receivables table and 6. a 500 row cash book (`?case=`), neither of which
  *     windows: both shipped screens render every row, so the cost is at the first paint.
  *
@@ -229,27 +230,6 @@ async function measureWithinBudget(
   return best.measurement as Measurement;
 }
 
-/**
- * What the 1000 tile **wholesale** grid measures at, with headroom: a regression guard, not
- * the budget, and the one case in this file that is not held to it.
- *
- * With the switch on, every visible tile is priced through the precedence engine on every
- * commit (`quoteFor` walks the price-rule and promotion arrays per tile) and the lot-tracked
- * SKUs also ask the lot store. At the shipped 120 SKUs that is free (case 3 meets the budget).
- * At 1000 it costs three to six frames over 100 ms on every run of a two-worker suite, against
- * none for the same 1000 tiles priced at the shelf. Measured, not assumed: the two cases differ
- * only by `?wholesale=1`. The fix belongs in `use-wholesale-pricing.ts` / `product-grid.tsx`
- * (a price memo per product and unit, invalidated with the buyer, instead of a resolve per
- * render), which this worker does not own; see `docs/qa/perf-260913.md`.
- */
-const WHOLESALE_FRAME_CEILING_MS = 300;
-// The count of long frames is the noisiest of the three numbers on a shared machine (four to
-// seven in one suite run, none on an idle one), so the ceiling on it is loose and the worst
-// frame and the p95 below are what would actually catch a regression.
-const WHOLESALE_FRAMES_OVER_CEILING = 10;
-/** The p95 a wholesale grid is allowed: three frames, one more than the budget's two. */
-const WHOLESALE_P95_CEILING_MS = 50.1;
-
 /** The phase-5 budget: first row inside 1500 ms, no frame over 100 ms, p95 inside two frames. */
 function budgetChecks(m: Measurement): string[] {
   const failures: string[] = [];
@@ -262,29 +242,6 @@ function budgetChecks(m: Measurement): string[] {
   // Two frames exactly is the budget, not a miss: 33.4 ms is what a 60 Hz browser reports for
   // two, and a grid that sits on it has dropped one frame in twenty, not janked.
   if (m.p95FrameMs > P95_BUDGET_MS) failures.push(`p95 ${m.p95FrameMs} ms`);
-  return failures;
-}
-
-/** Says so in the log when a wholesale case came in over the frame budget it is not held to. */
-function noteIfOverBudget(m: Measurement): void {
-  if (m.framesOverBudget <= FRAME_BUDGET_TOLERANCE) return;
-  console.log(
-    `PERF NOTE the wholesale grid missed the ${FRAME_BUDGET_MS} ms frame budget at ${m.products} tiles ` +
-      `(${m.framesOverBudget} frames over, worst ${m.worstFrameMs} ms) where the same tiles at the ` +
-      'shelf price do not. Fix: memoise the per-tile quote instead of resolving the precedence ' +
-      'engine per render; see docs/qa/perf-260913.md.',
-  );
-}
-
-/** The wholesale cases: the recorded ceiling above rather than the frame budget. */
-function wholesaleCeilingChecks(m: Measurement): string[] {
-  const failures: string[] = [];
-  if (m.firstTileMs >= FIRST_TILE_BUDGET_MS) failures.push(`first row ${m.firstTileMs} ms`);
-  if (m.worstFrameMs >= WHOLESALE_FRAME_CEILING_MS) failures.push(`worst frame ${m.worstFrameMs} ms`);
-  if (m.framesOverBudget > WHOLESALE_FRAMES_OVER_CEILING) {
-    failures.push(`${m.framesOverBudget} frames over ${FRAME_BUDGET_MS} ms`);
-  }
-  if (m.p95FrameMs > WHOLESALE_P95_CEILING_MS) failures.push(`p95 ${m.p95FrameMs} ms`);
   return failures;
 }
 
@@ -317,7 +274,7 @@ test.describe('perf harness', () => {
       expect(stress.products, 'the harness must render the full catalogue').toBe(1000);
     });
 
-    await test.step('the phase-7 wholesale tile at the shipped catalogue holds the recorded ceiling', async () => {
+    await test.step('the phase-7 wholesale tile at the shipped catalogue meets the budget', async () => {
       // `?real=1` gives the first cycle the seed ids, so `expiringLotsFor` finds the branch's
       // real lots and the price rules match; `?wholesale=1` prices every tile through the
       // precedence engine and gives it the source badge and the unit segments.
@@ -325,16 +282,14 @@ test.describe('perf harness', () => {
         page,
         `?count=${SHIPPED_CATALOGUE}&real=1&wholesale=1`,
         READY_TILE,
-        wholesaleCeilingChecks,
+        budgetChecks,
       );
       expect(tile.products).toBe(SHIPPED_CATALOGUE);
-      noteIfOverBudget(tile);
     });
 
-    await test.step('1000 wholesale tiles hold the recorded ceiling, not the frame budget', async () => {
-      const stress = await measureWithinBudget(page, '?real=1&wholesale=1', READY_TILE, wholesaleCeilingChecks);
+    await test.step('1000 wholesale tiles meet the budget, memo and all', async () => {
+      const stress = await measureWithinBudget(page, '?real=1&wholesale=1', READY_TILE, budgetChecks);
       expect(stress.products).toBe(1000);
-      noteIfOverBudget(stress);
     });
 
     await test.step(`${RECEIVABLE_ROWS} receivable rows meet the budget`, async () => {

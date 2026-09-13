@@ -13,7 +13,7 @@ Specs referenced (`scripts/qa/e2e/specs/`):
 | money | `commerce-money.spec.ts` | 4 |
 | inventory | `commerce-inventory.spec.ts` | 7 |
 | settings | `commerce-settings.spec.ts` | 5 |
-| **coverage** | `commerce-coverage.spec.ts` | **14, new here** (13 assert, 1 skips with a stated reason) |
+| **coverage** | `commerce-coverage.spec.ts` | **14** (all 14 assert since wave 3 closed B6b) |
 | **reconciliation** | `commerce-reconciliation.spec.ts` | **1, new here** |
 | perf | `perf.spec.ts` | 1 test, 6 measurements |
 | chain-ops, pos-features, inventory-ops, multi-order, persistence, reports-settings, customer-from-pos, shortcuts | phase 5 and 6 | 11 |
@@ -44,7 +44,7 @@ Specs referenced (`scripts/qa/e2e/specs/`):
 | B4 | precedence, shown on the POS tile and the cart line | sales 1 and 2; perf case 3 measures the tile with the badge on | |
 | B5 | promotions: percent / amount / buy X get Y, by product or category, by store, time window, stackable | settings 1 (create one, it lands with a status) | The three types and the scope rules are covered by `promotion-status` and `pricing` unit tests |
 | B6 | promotions **auto-applied** | **coverage** "a live promotion prices a retail cart line" | W-R turned promotions on at the counter, and the cart line for a Vinamilk SKU is charged 6.300 đ against a 7.000 đ shelf price |
-| B6b | …and quoted on the tile | **coverage** "and the sell tile quotes the promotion the cart will charge" — **skips today** | **Gap:** `pos-screen.tsx` hands `ProductGrid` its `quoteFor` only when the wholesale switch is on, so a retail tile still prices through `effectivePrice`. The tile says 7.000 đ and the cart charges 6.300 đ. The test skips with that sentence and starts asserting the moment the grid is given the quote at retail |
+| B6b | …and quoted on the tile | **coverage** "and the sell tile quotes the promotion the cart will charge" | Closed in wave 3: `pos-screen.tsx` hands `ProductGrid` its `quoteFor` on both channels, so the tile prices through the engine the cart is repriced through and wears the promotion badge. The test asserts the tile is **not** at the shelf price and is at the promotion price |
 | B7 | loyalty rules configurable (earn rate, redeem rate, tier thresholds) | settings 2 (the earn rate is edited and its worked example follows) | |
 | B8 | loyalty earning at the till | **coverage** "a sale earns the customer loyalty points" | **Gap recorded in the test:** the till awards `pointsEarned(total)` from `src/domain/pos.ts` (a fixed point per 10.000 đ). `LoyaltyRule.earnPerVnd` and `tierMultiplier` are never read by `src/features/pos/adapters.ts`, so the Settings form and the counter disagree. The test asserts what the till does today and says in a comment what it becomes when the rule is wired in |
 
@@ -126,12 +126,23 @@ Specs referenced (`scripts/qa/e2e/specs/`):
 
 ## Open gaps, in one list
 
-1. **A supplier bill on credit cannot be raised in the app** (D8). Only the seed has supplier
-   invoices, so the payables side of the ledger can be paid down but never up.
-2. **The cash book does not see live till cash** (D2): sales, refunds and shift cash-ins land
-   in `cash-movement-store`, the cash book reads `ledger-store.cashBook`.
-3. **The loyalty rule does not reach the counter** (B8): `adapters.ts` awards a fixed point per
-   10.000 đ and ignores `earnPerVnd` and `tierMultiplier`.
-4. **A retail tile quotes the shelf price while the cart charges the promotion** (B6b): the
-   engine and the cart line have promotions, the grid is not given the quote unless the
-   wholesale switch is on.
+All four are **closed** in wave 3 (`reports/wave3-gaps-report.md`); the text below is what was
+found and what now proves it.
+
+1. ~~**A supplier bill on credit cannot be raised in the app** (D8).~~ Confirming a goods
+   receipt now offers "Trả ngay" or "Ghi nợ", and a receipt already confirmed without a bill
+   carries a "Ghi nhận công nợ" action. Proven by the reconciliation spec (payables up by the
+   bill) and by `src/data/__tests__/supplier-invoice.test.ts`.
+2. ~~**The cash book does not see live till cash** (D2).~~ Every cash sale, cash refund, drawer
+   movement and hand-over at close goes through `useLedgerStore.postCashBook`, keyed by the
+   document so it cannot be booked twice. The reconciliation spec asserts the cash book and the
+   Z report figure for figure; `src/data/__tests__/cash-book-reconciliation.test.ts` does the
+   same at the store level.
+3. ~~**The loyalty rule does not reach the counter** (B8).~~ The till, the checkout preview and
+   the receipt all award `amount x earnPerVnd x tierMultiplier[tier]` from the active
+   `LoyaltyRule`, and redeem at `redeemVndPerPoint`. The coverage spec also asserts the receipt
+   prints what the sale awarded; the rate and the multipliers are moved in
+   `src/features/pos/lib/__tests__/loyalty.test.ts`.
+4. ~~**A retail tile quotes the shelf price while the cart charges the promotion** (B6b).~~ The
+   grid is given `quoteFor` on both channels, memoised through
+   `src/features/pos/lib/price-cache.ts` so the retail grid does not pay for it per commit.

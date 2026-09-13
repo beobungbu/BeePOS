@@ -14,25 +14,25 @@ import {
 } from '../lib/preference-storage';
 import { getPlatformStorage, persistStore, type PersistedStore } from './persist';
 import { ACTIVE_ORG_KEY, activeOrgId, loadActiveOrgId } from './active-org';
-import { useAuditStore } from './audit-store';
+import { auditSeedForActiveOrg, useAuditStore } from './audit-store';
 import { useCartStore } from './cart-store';
 import { useCashMovementStore } from './cash-movement-store';
 import { catalogSeedForActiveOrg, useCatalogStore } from './catalog-store';
-import { useCustomerStore } from './customer-store';
+import { customerSeedForActiveOrg, useCustomerStore } from './customer-store';
 import { inventorySeedForActiveOrg, useInventoryStore } from './inventory-store';
-import { useOrderStore } from './order-store';
+import { orderSeedForActiveOrg, useOrderStore } from './order-store';
 import { seedForActiveOrg, useOrgStore } from './org-store';
 import { useSessionStore } from './session-store';
-import { useStorePriceStore } from './store-price-store';
-import { useSupplierStore } from './supplier-store';
-import { useCostingStore } from './costing-store';
-import { useLedgerStore } from './ledger-store';
-import { useLotStore } from './lot-store';
-import { useNotificationStore } from './notification-store';
-import { useOrgSettingsStore } from './org-settings-store';
-import { usePricingStore } from './pricing-store';
-import { usePurchasingStore } from './purchasing-store';
-import { useReturnsStore } from './returns-store';
+import { storePriceSeedForActiveOrg, useStorePriceStore } from './store-price-store';
+import { supplierSeedForActiveOrg, useSupplierStore } from './supplier-store';
+import { costingSeedForActiveOrg, useCostingStore } from './costing-store';
+import { ledgerSeedForActiveOrg, useLedgerStore } from './ledger-store';
+import { lotSeedForActiveOrg, useLotStore } from './lot-store';
+import { notificationSeedForActiveOrg, useNotificationStore } from './notification-store';
+import { orgSettingsSeedForActiveOrg, useOrgSettingsStore } from './org-settings-store';
+import { pricingSeedForActiveOrg, usePricingStore } from './pricing-store';
+import { purchasingSeedForActiveOrg, usePurchasingStore } from './purchasing-store';
+import { returnsSeedForActiveOrg, useReturnsStore } from './returns-store';
 import { SIDEBAR_COLLAPSED_KEY, useSettingsStore } from './settings-store';
 
 /**
@@ -316,6 +316,34 @@ function buildEntries(): PersistedStore[] {
   ];
 }
 
+/**
+ * Puts every seeded slice back to what the **active** chain starts with.
+ *
+ * Each store decides that for itself (`xSeedForActiveOrg()`); this is only the list of them,
+ * which is the one place a new slice has to be remembered. Needed because on native the
+ * chain in use is known only after `loadActiveOrgId()`, while the stores were created at
+ * import against the demo chain: without this pass a second chain opens on the demo chain's
+ * orders, buyers, price lists, ledgers, cash book and unread notifications.
+ */
+function applyChainSeed(): void {
+  useCatalogStore.setState(catalogSeedForActiveOrg());
+  useInventoryStore.setState(inventorySeedForActiveOrg());
+  useOrderStore.setState(orderSeedForActiveOrg());
+  useCustomerStore.setState(customerSeedForActiveOrg());
+  useSupplierStore.setState(supplierSeedForActiveOrg());
+  useStorePriceStore.setState(storePriceSeedForActiveOrg());
+  usePricingStore.setState(pricingSeedForActiveOrg());
+  useLedgerStore.setState(ledgerSeedForActiveOrg());
+  useCostingStore.setState(costingSeedForActiveOrg());
+  useReturnsStore.setState(returnsSeedForActiveOrg());
+  usePurchasingStore.setState(purchasingSeedForActiveOrg());
+  useLotStore.setState(lotSeedForActiveOrg());
+  useOrgSettingsStore.setState(orgSettingsSeedForActiveOrg());
+  useNotificationStore.setState(notificationSeedForActiveOrg());
+  useAuditStore.setState(auditSeedForActiveOrg());
+  useCashMovementStore.setState({ movements: [], notes: {} });
+}
+
 let hydration: Promise<void> | null = null;
 let hydrated = false;
 
@@ -371,10 +399,9 @@ async function runHydration(): Promise<void> {
       await loadActiveOrgId();
       useOrgStore.setState(seedForActiveOrg());
       // A chain that is not the demo one sells nothing until it is given something to sell,
-      // so its catalogue and stock start empty rather than inheriting the seeded shop. Applied
+      // so every seeded slice starts empty rather than inheriting the seeded shop. Applied
       // before the slices are registered, so it is also the state `resetDemoData()` restores.
-      useCatalogStore.setState(catalogSeedForActiveOrg());
-      useInventoryStore.setState(inventorySeedForActiveOrg());
+      applyChainSeed();
       registerSlices();
     }
     await hydratePreferences();

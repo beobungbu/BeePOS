@@ -36,6 +36,16 @@ import { makeSupplierId, purchaseHistoryFor, useSupplierStore } from '../../data
 
 /** Form content is capped at 480 and centred at every breakpoint (direction doc section 7). */
 const FORM_MAX_WIDTH = 480;
+
+/**
+ * The credit the partner gives, in whole days. Anything that is not a positive number is no
+ * term at all: a bill dated "due today" because the field held a typo is worse than a bill
+ * with no due date.
+ */
+function paymentTermDays(text: string): number | undefined {
+  const parsed = Number.parseInt(text.trim(), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
 /** Page padding per band: 16 phone, 24 tablet, 32 desktop (direction doc section 7). */
 const FORM_PADDING = { phone: 'p-4', tablet: 'p-6', desktop: 'p-8' } as const;
 
@@ -68,6 +78,9 @@ export function SupplierDetailScreen({ supplierId }: SupplierDetailScreenProps) 
   const [name, setName] = useState(existing?.name ?? '');
   const [phone, setPhone] = useState(existing?.phone ?? '');
   const [address, setAddress] = useState(existing?.address ?? '');
+  const [paymentTermText, setPaymentTermText] = useState(
+    existing?.paymentTermDays !== undefined ? String(existing.paymentTermDays) : '',
+  );
   const [note, setNote] = useState(existing?.note ?? '');
   const [isActive, setIsActive] = useState(existing?.isActive ?? true);
   const [touched, setTouched] = useState(false);
@@ -99,6 +112,7 @@ export function SupplierDetailScreen({ supplierId }: SupplierDetailScreenProps) 
       name: name.trim(),
       phone: phone.trim() || undefined,
       address: address.trim() || undefined,
+      paymentTermDays: paymentTermDays(paymentTermText),
       note: note.trim() || undefined,
       isActive,
     };
@@ -142,6 +156,18 @@ export function SupplierDetailScreen({ supplierId }: SupplierDetailScreenProps) 
             </Field>
             <Field label={t('chain.suppliers.form.address')}>
               <Input value={address} onChangeText={setAddress} editable={canManage} />
+            </Field>
+            <Field
+              label={t('chain.suppliers.form.paymentTerm')}
+              description={t('chain.suppliers.form.paymentTermHint')}
+            >
+              <Input
+                value={paymentTermText}
+                onChangeText={setPaymentTermText}
+                keyboardType="number-pad"
+                editable={canManage}
+                accessibilityLabel={t('chain.suppliers.form.paymentTerm')}
+              />
             </Field>
             <Field label={t('chain.suppliers.form.note')}>
               <Textarea value={note} onChangeText={setNote} editable={canManage} />

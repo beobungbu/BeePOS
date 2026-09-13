@@ -39,6 +39,8 @@ export const chainEn = {
       name: 'Supplier name',
       phone: 'Phone number',
       address: 'Address',
+      paymentTerm: 'Payment term (days)',
+      paymentTermHint: 'Days of credit on a receipt taken on account. Leave empty for cash on delivery.',
       note: 'Note',
       status: 'Active',
       requiredError: 'This field is required',

@@ -215,6 +215,7 @@ export const posVi = {
     discount: 'Giảm giá',
     tax: 'Thuế',
     change: 'Tiền thừa',
+    pointsEarned: 'Điểm tích luỹ',
     print: 'In hoá đơn',
     printedToast: 'Đã gửi lệnh in',
     printFailed: 'Trình duyệt không hỗ trợ in',

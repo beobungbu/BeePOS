@@ -9,6 +9,7 @@ import { create } from 'zustand';
 import type { ReturnRecord, WriteOff } from '../domain/types';
 import { writeOffsForReturn } from '../domain/returns';
 import { returnRecords as seedReturns, writeOffs as seedWriteOffs } from './seed';
+import { demoSeed } from './chain-seed';
 
 interface ReturnsState {
   returns: ReturnRecord[];
@@ -23,9 +24,13 @@ interface ReturnsState {
   removeWriteOff: (writeOffId: string) => void;
 }
 
+/** The returns and write-offs a chain starts with. */
+export function returnsSeedForActiveOrg(): Pick<ReturnsState, 'returns' | 'writeOffs'> {
+  return { returns: demoSeed(seedReturns, []), writeOffs: demoSeed(seedWriteOffs, []) };
+}
+
 export const useReturnsStore = create<ReturnsState>((set) => ({
-  returns: seedReturns,
-  writeOffs: seedWriteOffs,
+  ...returnsSeedForActiveOrg(),
 
   recordReturn: (record) => {
     const produced = writeOffsForReturn(record.lines, {

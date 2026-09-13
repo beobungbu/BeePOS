@@ -27,6 +27,8 @@ import {
   priceRules as seedPriceRules,
   promotions as seedPromotions,
 } from './seed';
+import { activeOrgId } from './active-org';
+import { demoSeed } from './chain-seed';
 
 interface PricingState {
   customerGroups: CustomerGroup[];
@@ -51,12 +53,29 @@ function upsertBy<T extends { id: string }>(list: T[], item: T): T[] {
   return exists ? list.map((entry) => (entry.id === item.id ? item : entry)) : [...list, item];
 }
 
+/**
+ * What a chain starts charging with: the demo shop's groups, lists, rules and campaigns, or
+ * none of them.
+ *
+ * The loyalty rule is the exception and is kept: it is a setting rather than data, every till
+ * needs one to award a point, and the Settings form edits it from the first day. It is stamped
+ * with the chain that is running so the rule a new chain edits is its own.
+ */
+export function pricingSeedForActiveOrg(): Pick<
+  PricingState,
+  'customerGroups' | 'priceLists' | 'priceRules' | 'promotions' | 'loyaltyRule'
+> {
+  return {
+    customerGroups: demoSeed(seedCustomerGroups, []),
+    priceLists: demoSeed(seedPriceLists, []),
+    priceRules: demoSeed(seedPriceRules, []),
+    promotions: demoSeed(seedPromotions, []),
+    loyaltyRule: demoSeed(seedLoyaltyRule, { ...seedLoyaltyRule, orgId: activeOrgId() }),
+  };
+}
+
 export const usePricingStore = create<PricingState>((set) => ({
-  customerGroups: seedCustomerGroups,
-  priceLists: seedPriceLists,
-  priceRules: seedPriceRules,
-  promotions: seedPromotions,
-  loyaltyRule: seedLoyaltyRule,
+  ...pricingSeedForActiveOrg(),
 
   upsertCustomerGroup: (group) =>
     set((state) => ({ customerGroups: upsertBy(state.customerGroups, group) })),

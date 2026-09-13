@@ -438,6 +438,8 @@ export interface ReceiptTextLabels {
   tax: string;
   total: string;
   change: string;
+  /** "Điểm tích luỹ"; only printed when the sale earned some. */
+  pointsEarned?: string;
 }
 
 export interface ReceiptTextInput {
@@ -455,6 +457,8 @@ export interface ReceiptTextInput {
   total: number;
   payments: { label: string; amount: number }[];
   change: number;
+  /** Points this sale awarded the buyer, already netted by the till. Zero prints no line. */
+  pointsEarned?: number;
   footer: string;
   labels: ReceiptTextLabels;
 }
@@ -521,6 +525,9 @@ export function formatReceiptText(input: ReceiptTextInput): string {
     rows.push(pair(payment.label, formatVND(payment.amount)));
   }
   if (input.change > 0) rows.push(pair(input.labels.change, formatVND(input.change)));
+  if (input.pointsEarned && input.pointsEarned > 0 && input.labels.pointsEarned) {
+    rows.push(pair(input.labels.pointsEarned, `+${input.pointsEarned}`));
+  }
 
   rows.push(rule, centre(input.footer));
   return rows.join('\n');

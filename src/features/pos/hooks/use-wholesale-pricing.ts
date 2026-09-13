@@ -9,8 +9,9 @@
  */
 
 import { useEffect, useMemo } from 'react';
-import { groupFor, resolvePrice, type PriceResolution } from '../../../domain/pricing';
+import { groupFor, type PriceResolution } from '../../../domain/pricing';
 import { unitFactor } from '../../../domain/units';
+import { cachedResolvePrice, type PriceCacheScope } from '../lib/price-cache';
 import type {
   CartLine,
   Customer,
@@ -72,10 +73,19 @@ export function useWholesalePricing(cart: PosCart): WholesalePricing {
   );
 
   const priceOf = useMemo(() => {
+    const buyer = wholesale ? customer : undefined;
+    const scope: PriceCacheScope = {
+      storeId,
+      channel: channelOf(wholesale),
+      customerId: buyer?.id,
+      groupId: buyer?.groupId,
+    };
     return (product: Product, qty: number, unit: string | undefined): PriceResolution =>
-      resolvePrice(product, qty, unit, {
+      // Memoised on exactly the inputs the scope names: the grid asks for the same quote once
+      // per visible tile per commit, and a scroll is nothing but commits.
+      cachedResolvePrice(scope, product, qty, unit, {
         storeId,
-        customer: wholesale ? customer : undefined,
+        customer: buyer,
         groups,
         priceLists,
         priceRules,

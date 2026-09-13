@@ -15,6 +15,7 @@ import {
   type CostUpdate,
 } from '../domain/costing';
 import { costHistory as seedCostHistory } from './seed';
+import { demoSeed } from './chain-seed';
 import { useInventoryStore } from './inventory-store';
 
 /** Units of a product a receipt brought into one branch. */
@@ -62,8 +63,13 @@ interface CostingState {
   ) => CostUpdate[];
 }
 
+/** The cost history a chain starts with; it is the seeded receipts', so a new chain has none. */
+export function costingSeedForActiveOrg(): Pick<CostingState, 'history'> {
+  return { history: demoSeed(seedCostHistory, []) };
+}
+
 export const useCostingStore = create<CostingState>((set, get) => ({
-  history: seedCostHistory,
+  ...costingSeedForActiveOrg(),
 
   addCostHistory: (entry) => set((state) => ({ history: [...state.history, entry] })),
 

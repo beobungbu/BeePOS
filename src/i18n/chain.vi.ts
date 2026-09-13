@@ -44,6 +44,8 @@ export const chainVi = {
       name: 'Tên nhà cung cấp',
       phone: 'Số điện thoại',
       address: 'Địa chỉ',
+      paymentTerm: 'Kỳ hạn thanh toán (ngày)',
+      paymentTermHint: 'Số ngày được nợ khi nhập hàng ghi nợ. Để trống nếu trả ngay.',
       note: 'Ghi chú',
       status: 'Đang hoạt động',
       requiredError: 'Trường này bắt buộc',

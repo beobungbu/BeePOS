@@ -30,6 +30,7 @@ const L = {
   quickAddCustomer: 'Thêm khách mới',
   quickAddName: 'Tên khách hàng',
   pointsStat: 'Điểm tích luỹ',
+  receiptPoints: 'Điểm tích luỹ',
   debtLimit: 'Hạn mức',
   // POS
   customerDefault: 'Khách lẻ',
@@ -98,6 +99,11 @@ const L = {
   profile: 'Tài khoản',
   secondOrg: 'Chuỗi Minh Châu',
   switchOrgConfirm: 'Đổi chuỗi',
+  emptyCatalogue: 'Chưa có sản phẩm',
+  ordersEmpty: 'Không tìm thấy đơn hàng',
+  customersEmpty: 'Không tìm thấy khách hàng',
+  notificationsEmpty: 'Không có thông báo nào',
+  cashClosing: 'Số dư sổ sách',
 } as const;
 
 /** `promo-1`, 10 percent off the Vinamilk milk range, live for the whole of this week. */
@@ -215,12 +221,10 @@ test.describe('commerce coverage', () => {
     await go(page, '/pos');
     const label = await tileLabel(page, PROMO_PRODUCT);
     const tilePrice = money(/[\d.]+\s*đ/.exec(label)?.[0] ?? '');
-    test.skip(
-      tilePrice === PROMO_SHELF_PRICE,
-      'the retail tile prices through `effectivePrice`: `pos-screen.tsx` hands the grid its ' +
-        '`quoteFor` only when the wholesale switch is on, so a promotion reaches the cart line ' +
-        'and the total but not the tile the cashier quotes from',
-    );
+    // The retail grid is handed the same `quoteFor` the wholesale one is, so the tile prices
+    // through the engine the cart is repriced through. A tile still reading the shelf price is
+    // the defect this closes.
+    expect(tilePrice, 'the tile and the line have to agree').not.toBe(PROMO_SHELF_PRICE);
     expect(tilePrice, 'the tile and the line have to agree').toBe(PROMO_PRICE);
     expect(label, 'and the tile names the promotion it is pricing').toContain(PROMO_NAME);
 
@@ -261,15 +265,23 @@ test.describe('commerce coverage', () => {
     );
     expect(total).toBeGreaterThan(0);
 
-    // What the till awards is `pointsEarned(total)` from `src/domain/pos.ts`: a fixed point per
-    // 10.000 đ. The configurable rule Settings edits (`LoyaltyRule.earnPerVnd` and the per-tier
-    // multiplier) is not read by `src/features/pos/adapters.ts`, so a gold customer earns what a
-    // bronze one does. When the rule is wired in, this becomes `pointsEarnedForTier(rule, total,
-    // tier)` and this failure is the reminder.
+    // The till awards `amount x earnPerVnd x tierMultiplier[tier]` from the chain's own
+    // `LoyaltyRule`. The seeded rule earns a point per 10.000 đ and a new buyer is bronze, whose
+    // multiplier is 1, so that arithmetic is this figure; the rate and the multipliers
+    // themselves are moved and re-asserted in `src/features/pos/lib/__tests__/loyalty.test.ts`,
+    // which a browser cannot do without editing Settings mid-sale.
     expect(earned).toBe(Math.floor(total / 10_000));
 
     await action.click();
     await page.waitForURL('**/pos/receipt/**');
+
+    // The receipt says what the sale awarded, which is the line the buyer keeps.
+    await expect(page.getByText(L.receiptPoints, { exact: true }).first()).toBeVisible();
+    expect(
+      money(
+        await page.getByText(L.receiptPoints, { exact: true }).first().locator('xpath=..').textContent(),
+      ),
+    ).toBe(earned);
 
     await go(page, '/customers');
     await page.getByRole('searchbox', { name: L.customerSearch }).first().fill(buyer.phone);
@@ -574,6 +586,27 @@ test.describe('commerce coverage', () => {
     // The till is standing in the other chain's shop, not in the demo chain's four branches.
     await expect(page.getByText(SECOND_ORG_BRANCH).first()).toBeVisible();
     await expect(page.getByText(DEMO_BRANCH)).toHaveCount(0);
+
+    // And it inherits none of the demo chain's trading history. Only the catalogue and the
+    // stock were scoped before, so a brand new chain opened on the demo chain's orders, buyers,
+    // ledgers and fourteen unread notifications (`reports/p7-native-fix-report.md` 7.1).
+    await expect(page.getByText(L.emptyCatalogue).first()).toBeVisible();
+
+    await go(page, '/orders');
+    await expect(page.getByText(L.ordersEmpty).first()).toBeVisible();
+
+    await go(page, '/customers');
+    await expect(page.getByText(L.customersEmpty).first()).toBeVisible();
+
+    await go(page, '/money/receivables');
+    expect(await stat(page, L.receivablesTotal)).toBe(0);
+    await go(page, '/money/payables');
+    expect(await stat(page, L.payablesTotal)).toBe(0);
+    await go(page, '/money/cashbook');
+    expect(await stat(page, L.cashClosing)).toBe(0);
+
+    await go(page, '/notifications');
+    await expect(page.getByText(L.notificationsEmpty).first()).toBeVisible();
 
     expect(errors, errors.join('\n')).toEqual([]);
   });

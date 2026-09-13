@@ -18,6 +18,7 @@ import { AppIcon } from '../../../components/icons';
 import type { Customer } from '../../../domain/types';
 import { SecondaryButtonLabel } from './secondary-button-label';
 import { useT } from '../../../i18n';
+import { useHoldScanCapture } from '../lib/capture-lock';
 import { validateCustomerDraft, type CustomerDraftError } from '../lib/customer-draft';
 
 interface CustomerDialogProps {
@@ -41,6 +42,9 @@ export function CustomerDialog({ customers, selectedCustomerId, onSelect, onCrea
   const t = useT();
   const toast = useToast();
   const [open, setOpen] = useState(false);
+  // The search field here is a real field: the scanner capture must not take the focus back
+  // off it while the picker is up.
+  useHoldScanCapture(open);
   const [query, setQuery] = useState('');
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');

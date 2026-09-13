@@ -5,6 +5,7 @@ import { movementsInShift } from '../domain/pos';
 import { formatVND } from '../domain/money';
 import { currentOrgId } from './org-store';
 import { recordAudit } from './audit-store';
+import { useLedgerStore } from './ledger-store';
 import { useSessionStore } from './session-store';
 
 /**
@@ -85,6 +86,18 @@ export function recordCashMovement(input: CashMovementInput): CashMovementResult
   };
 
   useCashMovementStore.getState().add(movement, input.note);
+  // The drawer and the branch cash book are the same money, so a movement is booked in both
+  // or the two disagree from the first entry of the day. Keyed by the movement, so a screen
+  // that re-submits cannot double the row.
+  useLedgerStore.getState().postCashBook({
+    orgId: movement.orgId,
+    storeId: movement.storeId,
+    kind: movement.type === 'in' ? 'in' : 'out',
+    amount: movement.amount,
+    ref: movement.id,
+    staffId: movement.staffId,
+    createdAt: movement.createdAt,
+  });
   recordAudit({
     action: input.type === 'in' ? 'cashIn' : 'cashOut',
     entity: 'cash',

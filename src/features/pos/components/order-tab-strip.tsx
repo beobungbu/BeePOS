@@ -27,6 +27,7 @@ import { MAX_OPEN_CARTS } from '../../../domain/pos';
 import type { Product } from '../../../domain/types';
 import type { PosCart } from '../../../data/cart-store';
 import { useT } from '../../../i18n';
+import { useHoldScanCapture } from '../lib/capture-lock';
 import { isOverlayOpen } from '../../../lib/keyboard';
 import { useCartStore } from '../../../data/cart-store';
 import { cartLineCount, cartTotalsOf } from '../lib/cart-totals';
@@ -77,6 +78,7 @@ export function OrderTabStrip({ products }: OrderTabStripProps) {
   const [renameId, setRenameId] = useState<string | undefined>(undefined);
   const [renameDraft, setRenameDraft] = useState('');
   const renameCart = carts.find((cart) => cart.id === renameId);
+  useHoldScanCapture(renameId !== undefined);
   const atLimit = carts.length >= MAX_OPEN_CARTS;
 
   function handleNewOrder() {

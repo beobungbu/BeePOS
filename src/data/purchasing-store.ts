@@ -10,6 +10,7 @@ import type {
   SupplierReturn,
 } from '../domain/types';
 import { purchaseOrders as seedPurchaseOrders, supplierReturns as seedSupplierReturns } from './seed';
+import { demoSeed } from './chain-seed';
 
 /** How much of a line is still to come. */
 export interface ReceiveLineInput {
@@ -51,9 +52,19 @@ export function outstandingQty(order: PurchaseOrder): number {
   return order.lines.reduce((total, line) => total + Math.max(0, line.qty - line.receivedQty), 0);
 }
 
+/** The purchasing paperwork a chain starts with. */
+export function purchasingSeedForActiveOrg(): Pick<
+  PurchasingState,
+  'purchaseOrders' | 'supplierReturns'
+> {
+  return {
+    purchaseOrders: demoSeed(seedPurchaseOrders, []),
+    supplierReturns: demoSeed(seedSupplierReturns, []),
+  };
+}
+
 export const usePurchasingStore = create<PurchasingState>((set) => ({
-  purchaseOrders: seedPurchaseOrders,
-  supplierReturns: seedSupplierReturns,
+  ...purchasingSeedForActiveOrg(),
 
   upsertPurchaseOrder: (order) =>
     set((state) => ({ purchaseOrders: upsertBy(state.purchaseOrders, order) })),

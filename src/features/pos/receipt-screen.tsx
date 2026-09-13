@@ -10,11 +10,13 @@ import { useActiveCart } from '../../data/cart-store';
 import { useCatalogStore } from '../../data/catalog-store';
 import { useCustomerStore } from '../../data/customer-store';
 import { useOrderStore } from '../../data/order-store';
+import { usePricingStore } from '../../data/pricing-store';
 import { useSessionStore } from '../../data/session-store';
 import { METHOD_LABEL_KEY } from './components/payment-method-cards';
 import { SecondaryButtonLabel } from './components/secondary-button-label';
 import { usePosLayout } from './hooks/use-pos-layout';
 import { cartLabel } from './lib/order-label';
+import { pointsEarnedOnOrder } from './lib/loyalty';
 import { formatDateTime } from '../../lib/datetime';
 import {
   ensurePrintStylesheet,
@@ -40,6 +42,8 @@ export default function ReceiptScreen() {
   const order = useOrderStore((state) => state.orders.find((item) => item.id === orderId));
   const products = useCatalogStore((state) => state.products);
   const customers = useCustomerStore((state) => state.customers);
+  const pointHistory = useCustomerStore((state) => state.pointHistory);
+  const loyaltyRule = usePricingStore((state) => state.loyaltyRule);
   const store = useSessionStore((state) => state.store);
   const staff = useSessionStore((state) => state.staff);
   const nextCart = useActiveCart();
@@ -72,6 +76,9 @@ export default function ReceiptScreen() {
   }, 0);
   const dateText = formatDateTime(order.createdAt);
   const customerName = customer?.name ?? t('pos.cart.customerDefault');
+  // What this sale actually awarded, under the chain's own earn rate and the buyer's tier at
+  // the moment it was rung up. A sale with no buyer attached earns nothing and prints nothing.
+  const pointsEarned = customer ? pointsEarnedOnOrder(pointHistory, order, loyaltyRule) : 0;
 
   // Bound once so the two callbacks below keep the narrowing the guard above established.
   const paidOrder = order;
@@ -99,6 +106,7 @@ export default function ReceiptScreen() {
         amount: payment.amount,
       })),
       change: totalChange,
+      pointsEarned,
       footer: t('pos.receipt.footer'),
       labels: {
         orderCode: t('pos.receipt.orderCode'),
@@ -110,6 +118,7 @@ export default function ReceiptScreen() {
         tax: t('pos.receipt.tax'),
         total: t('pos.cart.grandTotal'),
         change: t('pos.receipt.change'),
+        pointsEarned: t('pos.receipt.pointsEarned'),
       },
     };
     return formatReceiptText(input);
@@ -214,6 +223,12 @@ export default function ReceiptScreen() {
             ))}
             {totalChange > 0 ? (
               <ReceiptRow label={t('pos.receipt.change')} value={formatVND(totalChange)} />
+            ) : null}
+            {pointsEarned > 0 ? (
+              <ReceiptRow
+                label={t('pos.receipt.pointsEarned')}
+                value={`+${pointsEarned} ${t('pos.checkout.pointsUnit')}`}
+              />
             ) : null}
 
             <Text variant="caption" className="pt-1 text-center text-subtle-foreground">

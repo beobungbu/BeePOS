@@ -20,3 +20,15 @@ import { DEMO_ORG_ID } from './seed/org';
 export function isDemoChain(): boolean {
   return activeOrgId() === DEMO_ORG_ID;
 }
+
+/**
+ * The seeded slice for the demo chain, `empty` for any other.
+ *
+ * Every seeded slice goes through this rather than testing the chain itself, so "what a new
+ * chain starts with" is one decision in one place. A chain that inherited the demo chain's
+ * orders, buyers, price lists or unread notifications is not an empty shop: it is the demo
+ * shop with its shelves taken away.
+ */
+export function demoSeed<T>(seed: T, empty: T): T {
+  return isDemoChain() ? seed : empty;
+}

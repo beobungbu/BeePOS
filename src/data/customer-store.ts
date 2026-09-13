@@ -5,6 +5,7 @@ import { customers as seedCustomers, orders as seedOrders } from './seed';
 import { buildSeedRefunds } from '../features/orders/lib/seed-refunds';
 import { buildSeedPointHistory } from '../features/customers/lib/seed-point-history';
 import { currentOrgId } from './org-store';
+import { demoSeed } from './chain-seed';
 
 const seedRefunds = buildSeedRefunds(seedOrders);
 
@@ -27,7 +28,12 @@ interface CustomerState {
    */
   createCustomer: (input: { name: string; phone: string }) => Customer;
   setProfileExtra: (customerId: string, extra: CustomerProfileExtra) => void;
-  addPoints: (customerId: string, points: number, spent: number) => void;
+  /**
+   * Books what a sale did to a balance. `orderId` stamps the movement with the bill it came
+   * from, which is how the receipt prints the points that sale earned rather than recomputing
+   * them against a tier the same sale may have just changed.
+   */
+  addPoints: (customerId: string, points: number, spent: number, orderId?: string) => void;
   /** Manager-driven manual adjustment: records a movement and updates points only. */
   addPointMovement: (movement: PointMovement) => void;
   /** Refund-driven deduction: records a movement and updates both points and totalSpent. */
@@ -42,9 +48,16 @@ interface CustomerState {
   removeCustomer: (customerId: string) => void;
 }
 
+/** The buyers a chain starts with: the demo shop's, or none. */
+export function customerSeedForActiveOrg(): Pick<CustomerState, 'customers' | 'pointHistory'> {
+  return {
+    customers: demoSeed(seedCustomers, []),
+    pointHistory: demoSeed(buildSeedPointHistory(seedCustomers, seedOrders, seedRefunds), []),
+  };
+}
+
 export const useCustomerStore = create<CustomerState>((set, get) => ({
-  customers: seedCustomers,
-  pointHistory: buildSeedPointHistory(seedCustomers, seedOrders, seedRefunds),
+  ...customerSeedForActiveOrg(),
   profileExtras: {},
 
   upsertCustomer: (customer) =>
@@ -85,7 +98,7 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
       profileExtras: { ...state.profileExtras, [customerId]: { ...state.profileExtras[customerId], ...extra } },
     })),
 
-  addPoints: (customerId, points, spent) =>
+  addPoints: (customerId, points, spent, orderId) =>
     set((state) => ({
       customers: state.customers.map((item) =>
         item.id === customerId
@@ -103,12 +116,13 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
           : [
               ...state.pointHistory,
               {
-                id: `pm-earn-${customerId}-${Date.now()}`,
+                id: `pm-earn-${orderId ?? customerId}-${Date.now()}`,
                 customerId,
                 kind: 'earned' as const,
                 points,
                 note: 'Tích điểm từ đơn hàng',
                 createdAt: new Date().toISOString(),
+                orderId,
               },
             ],
     })),

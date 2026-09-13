@@ -75,6 +75,7 @@ export interface AppNotification { id: string; orgId: string; storeId?: string; 
 | 1 | W-I inventory 2 + returns UI | E (POS return/exchange, supplier returns) + F | DONE |
 | 1 | W-S settings, promotions, reports, notifications | B promotions + loyalty, G | DONE · [report](reports/w-s-settings-reports-report.md) |
 | 2 | W-R review (DONE, 9c55701) · W-E E2E + perf (IN PROGRESS) · W-N native (DONE: iOS smoke 29 checks, AppState flush, hardware scanner capture, native org switch) · P7 fix worker (IN PROGRESS: cash-in recording, shift reachability, wholesale phone cart, 7 smaller) | J, H, I | IN PROGRESS |
+| 3 | gap worker | the seven wave-2 product gaps (supplier bill on credit, cash book, loyalty, retail tile quote, wholesale memo, chain scoping, scanner capture) | DONE · [report](reports/wave3-gaps-report.md) |
 | 3 | integrator | gates, dark sweep, deploy, BeeUI batches, report | PENDING |
 
 ## Acceptance (program)
@@ -94,10 +95,12 @@ export interface AppNotification { id: string; orgId: string; storeId?: string; 
 - W-I open decisions: credit-note amount on an exchange (net vs gross), PO code shape, CSV import route placement.
 - W-P: `Organization.taxCode?` and `Customer.billingAddress?` type additions; promotions currently applied on wholesale orders only, decision: apply on retail too (owner wants general promotions); `/pos/returns?order=<code>` deep link from order detail.
 
-## Wave 2 product gaps from W-E (2026-09-13 16:40), for the wave 3 gap worker
-1. No screen raises a supplier bill on credit (receipt confirm with payment term should book an AP invoice; payables list needs "Ghi nhận công nợ" from a receipt).
-2. Cash book never sees live till cash: `cash-movement-store` (shift in/out) and `ledger-store.cashBook` are separate; a shift cash-in and every cash sale must post cash-book rows.
-3. The till ignores `LoyaltyRule`: points awarded at a fixed rate per 10.000 đ instead of earnPerVnd x tier multiplier.
-4. Retail tile quotes the shelf price while the cart charges the promotion (`pos-screen.tsx` passes `quoteFor` only on wholesale); tiles must show the effective price for retail too.
-5. Wholesale grid re-prices every visible tile per commit; memoise `resolvePrice` per (product, customer group, store) and only re-price on those inputs.
-Also from W-N: a non-demo chain inherits the demo catalogue (P7 worker implements empty start with the CSV import empty state).
+## Wave 2 product gaps from W-E (2026-09-13 16:40) — ALL CLOSED in wave 3
+Closed 2026-09-13 19:45 by the wave-3 gap worker · [report](reports/wave3-gaps-report.md).
+1. ~~No screen raises a supplier bill on credit.~~ Receipt confirm offers "Trả ngay" (cash-book `supplier_payment`) or "Ghi nợ" (AP invoice due on the partner's terms); a receipt already received without a bill carries "Ghi nhận công nợ". `Supplier.paymentTermDays` added and seeded.
+2. ~~Cash book never sees live till cash.~~ One `useLedgerStore.postCashBook` helper, idempotent by ref: cash sales, cash refunds, shift in/out and the hand-over at close all post. The Z report and the cash book are asserted figure for figure in the reconciliation E2E and in a store test.
+3. ~~The till ignores `LoyaltyRule`.~~ Till, checkout preview and receipt all use `amount x earnPerVnd x tierMultiplier[tier]` and redeem at `redeemVndPerPoint`; the receipt prints the points the sale awarded.
+4. ~~Retail tile quotes the shelf price.~~ `quoteFor` is passed on both channels; the promotion badge is on the tile.
+5. ~~Wholesale grid re-prices every visible tile per commit.~~ `src/features/pos/lib/price-cache.ts` memoises per branch, channel, buyer, group, product, unit and quantity; both wholesale perf cases now meet the frame budget at 120 and at 1000 and the perf spec holds them to it.
+6. ~~A non-demo chain inherits the demo chain's data.~~ Every seeded slice goes through `demoSeed`; `chuoi-demo-2` starts empty except its own shop, memberships and chain directory. Asserted slice by slice in jest and screen by screen in the second-chain E2E.
+7. ~~The native scanner keeps the focus behind a non-form modal.~~ The order rename, discount and customer dialogs hold a capture lock and the sell screen parks the capture.

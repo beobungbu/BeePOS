@@ -16,7 +16,7 @@ import {
 import { AppIcon } from '../../components/icons';
 import { FormScrollView } from '../../components/form-scroll-view';
 import { useScreenHeader } from '../../components/shell/screen-header';
-import { pointsEarned } from '../../domain/pos';
+import { loyaltyPoints } from './lib/loyalty';
 import { creditCheck, dueDateFor } from '../../domain/ledger';
 import { formatVND, roundVND, sum } from '../../domain/money';
 import type { Order, Payment, PaymentMethod } from '../../domain/types';
@@ -29,6 +29,7 @@ import { useCatalogStore } from '../../data/catalog-store';
 import { useCustomerStore } from '../../data/customer-store';
 import { useLedgerStore } from '../../data/ledger-store';
 import { useOrderStore } from '../../data/order-store';
+import { usePricingStore } from '../../data/pricing-store';
 import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift } from '../../data/shift-store';
 import { recordOnAccountInvoice, submitOrder } from './adapters';
@@ -70,6 +71,7 @@ export default function CheckoutScreen() {
   const orders = useOrderStore((state) => state.orders);
   const setVatInvoice = useCartStore((state) => state.setVatInvoice);
   const ledgerEntries = useLedgerStore((state) => state.entries);
+  const loyaltyRule = usePricingStore((state) => state.loyaltyRule);
 
   const [choice, setChoice] = useState<PaymentChoice>('cash');
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -278,7 +280,7 @@ export default function CheckoutScreen() {
           {customer ? (
             <MetaRow
               label={t('pos.checkout.pointsEarned')}
-              value={`${pointsEarned(totals.total)} ${t('pos.checkout.pointsUnit')}`}
+              value={`${loyaltyPoints(loyaltyRule, totals.total, customer.tier).earned} ${t('pos.checkout.pointsUnit')}`}
             />
           ) : null}
         </View>

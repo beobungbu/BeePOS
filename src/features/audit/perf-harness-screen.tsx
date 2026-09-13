@@ -10,11 +10,11 @@ import {
   products as seedProducts,
   promotions as seedPromotions,
 } from '../../data/seed';
-import { resolvePrice } from '../../domain/pricing';
 import type { Product, StockLevel } from '../../domain/types';
 import { useT } from '../../i18n';
 import { ProductGrid, type TileQuote } from '../pos/components/product-grid';
 import { priceSourceBadge } from '../pos/lib/wholesale';
+import { cachedResolvePrice, type PriceCacheScope } from '../pos/lib/price-cache';
 import { usePosLayout } from '../pos/hooks/use-pos-layout';
 import { AuditGuard } from './audit-guard';
 import { CashBookPerfTable, ReceivablesPerfTable } from './perf-tables';
@@ -171,7 +171,9 @@ function PerfHarness() {
   // `?wholesale=1`: the tile prices through the real precedence engine for the seeded company
   // buyer, wears the price-source badge and offers the unit selector, which is what the phase-7
   // sell screen does with the switch on. Built here rather than read off `use-wholesale-pricing`
-  // because that hook needs a session and a cart, and the harness has neither.
+  // because that hook needs a session and a cart, and the harness has neither; it goes through
+  // the same `cachedResolvePrice` the hook does, so what is measured is the quote the shop
+  // actually pays for rather than one without the memo in front of it.
   const buyer = useMemo(
     () => (wholesale ? seedCustomers.find((customer) => customer.id === PERF_BUYER_ID) : undefined),
     [wholesale],
@@ -179,8 +181,14 @@ function PerfHarness() {
   const quoteFor = useMemo(() => {
     if (!wholesale) return undefined;
     const group = seedCustomerGroups.find((item) => item.id === buyer?.groupId);
+    const scope: PriceCacheScope = {
+      storeId,
+      channel: 'wholesale',
+      customerId: buyer?.id,
+      groupId: buyer?.groupId,
+    };
     return (product: Product, unit: string | undefined): TileQuote => {
-      const resolution = resolvePrice(product, 1, unit, {
+      const resolution = cachedResolvePrice(scope, product, 1, unit, {
         storeId,
         customer: buyer,
         groups: seedCustomerGroups,

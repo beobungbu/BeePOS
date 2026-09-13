@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Cart, DeliveryNote, Order, OrderStatus, Shift } from '../domain/types';
 import type { Refund } from '../domain/orders';
 import { assertTransition } from '../domain/lifecycle';
+import { demoSeed } from './chain-seed';
 import {
   deliveryNotes as seedDeliveryNotes,
   orders as seedOrders,
@@ -37,13 +38,23 @@ interface OrderState {
   addRefund: (refund: Refund) => void;
 }
 
+/** The trading history a chain starts with: the demo shop's, or none at all. */
+export function orderSeedForActiveOrg(): Pick<
+  OrderState,
+  'orders' | 'shifts' | 'refunds' | 'notes' | 'deliveryNotes'
+> {
+  return {
+    orders: demoSeed(seedOrders, []),
+    shifts: demoSeed(seedShifts, []),
+    refunds: demoSeed(buildSeedRefunds(seedOrders), []),
+    notes: demoSeed(buildOrderNotes(seedOrders), {}),
+    deliveryNotes: demoSeed(seedDeliveryNotes, []),
+  };
+}
+
 export const useOrderStore = create<OrderState>((set) => ({
-  orders: seedOrders,
-  shifts: seedShifts,
+  ...orderSeedForActiveOrg(),
   cart: null,
-  refunds: buildSeedRefunds(seedOrders),
-  notes: buildOrderNotes(seedOrders),
-  deliveryNotes: seedDeliveryNotes,
 
   addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
 

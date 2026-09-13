@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import type { StorePrice } from '../domain/types';
 import { indexStorePrices } from '../domain/catalog';
 import { storePrices as seedStorePrices } from './seed';
+import { demoSeed } from './chain-seed';
 import { useSessionStore } from './session-store';
 
 interface StorePriceState {
@@ -13,8 +14,13 @@ interface StorePriceState {
   clearStorePrice: (storeId: string, productId: string) => void;
 }
 
+/** The branch price overrides a chain starts with; they name seeded products and branches. */
+export function storePriceSeedForActiveOrg(): Pick<StorePriceState, 'prices'> {
+  return { prices: demoSeed(seedStorePrices, []) };
+}
+
 export const useStorePriceStore = create<StorePriceState>((set) => ({
-  prices: seedStorePrices,
+  ...storePriceSeedForActiveOrg(),
 
   setStorePrice: (input) => {
     if (!Number.isFinite(input.salePrice) || input.salePrice < 0) return;

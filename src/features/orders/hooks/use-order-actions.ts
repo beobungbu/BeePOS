@@ -9,6 +9,7 @@ import { useToast } from '@beemvp/beeui-ui';
 import { useOrderStore } from '../../../data/order-store';
 import { useCustomerStore } from '../../../data/customer-store';
 import { useInventoryStore } from '../../../data/inventory-store';
+import { useLedgerStore } from '../../../data/ledger-store';
 import { applyRefund, canVoid, type Refund, type RefundPlanResult } from '../../../domain/orders';
 import { formatVND, sum } from '../../../domain/money';
 import type { Order, PaymentMethod } from '../../../domain/types';
@@ -66,6 +67,19 @@ export function useOrderActions(order: Order | undefined): OrderActions {
     };
 
     addRefund(record);
+    // Money handed back over the counter leaves the drawer, so the branch cash book sees it.
+    // Only cash: a refund put back on a card or a transfer never touches the till.
+    if (method === 'cash') {
+      useLedgerStore.getState().postCashBook({
+        orgId: order.orgId,
+        storeId: order.storeId,
+        kind: 'refund',
+        amount: plan.amount,
+        ref: record.id,
+        staffId: order.cashierId,
+        createdAt: new Date(record.createdAt),
+      });
+    }
     recordAudit({
       action: 'orderRefund',
       entity: 'order',

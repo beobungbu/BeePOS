@@ -15,6 +15,7 @@ import {
   type NotificationInput,
 } from '../domain/notify';
 import { notifications as seedNotifications } from './seed';
+import { demoSeed } from './chain-seed';
 
 interface NotificationState {
   notifications: AppNotification[];
@@ -25,8 +26,13 @@ interface NotificationState {
   dismiss: (notificationId: string) => void;
 }
 
+/** The alerts a chain starts with; a new chain has nothing to be alerted about yet. */
+export function notificationSeedForActiveOrg(): Pick<NotificationState, 'notifications'> {
+  return { notifications: demoSeed(seedNotifications, []) };
+}
+
 export const useNotificationStore = create<NotificationState>((set, get) => ({
-  notifications: seedNotifications,
+  ...notificationSeedForActiveOrg(),
 
   refresh: (input) => {
     const merged = mergeNotifications(get().notifications, buildNotifications(input));

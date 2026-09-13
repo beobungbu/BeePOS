@@ -19,6 +19,7 @@ import {
 import type { Discount } from '../../../domain/types';
 import { SecondaryButtonLabel } from './secondary-button-label';
 import { useT } from '../../../i18n';
+import { useHoldScanCapture } from '../lib/capture-lock';
 
 interface OrderDiscountDialogProps {
   discount: Discount | undefined;
@@ -34,6 +35,7 @@ const PERCENT_PRESETS = [5, 10, 20] as const;
 export function OrderDiscountDialog({ discount, onApply }: OrderDiscountDialogProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
+  useHoldScanCapture(open);
   const [type, setType] = useState<Discount['type']>(discount?.type ?? 'percent');
   const [value, setValue] = useState(discount ? String(discount.value) : '');
   const [reason, setReason] = useState(discount?.reason ?? '');

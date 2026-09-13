@@ -107,6 +107,62 @@ export function entriesInRange(
   );
 }
 
+/**
+ * The kinds a till books itself: a sale, a refund and the two drawer movements. A collection,
+ * a supplier payment and a bank deposit are branch money rather than till money, which is why
+ * a Z report knows nothing about them.
+ */
+export const TILL_KINDS: readonly CashBookKind[] = ['sale', 'refund', 'in', 'out'];
+
+export interface TillCashTotals {
+  cashSales: number;
+  refunds: number;
+  cashIn: number;
+  cashOut: number;
+  /** What the four did to the drawer together. */
+  net: number;
+}
+
+/**
+ * What the cash book says one till did over a window, in the same four figures a Z report
+ * prints. The two are compared in `src/data/__tests__/cash-book-reconciliation.test.ts`: they
+ * are now the same events, so a Z report that does not match the cash book is a defect rather
+ * than a fact about two separate ledgers.
+ */
+export function tillCashTotals(
+  entries: readonly CashBookEntry[],
+  storeId: string,
+  start?: Date,
+  end?: Date,
+): TillCashTotals {
+  const inWindow = entries.filter((entry) => {
+    if (entry.storeId !== storeId) return false;
+    if (!TILL_KINDS.includes(entry.kind)) return false;
+    const at = entry.createdAt.getTime();
+    if (start && at < start.getTime()) return false;
+    if (end && at > end.getTime()) return false;
+    return true;
+  });
+  const sumOf = (kind: CashBookKind): number =>
+    roundVND(
+      inWindow
+        .filter((entry) => entry.kind === kind)
+        .reduce((total, entry) => total + Math.max(0, entry.amount), 0),
+    );
+
+  const cashSales = sumOf('sale');
+  const refunds = sumOf('refund');
+  const cashIn = sumOf('in');
+  const cashOut = sumOf('out');
+  return {
+    cashSales,
+    refunds,
+    cashIn,
+    cashOut,
+    net: roundVND(cashSales + cashIn - cashOut - refunds),
+  };
+}
+
 /** Drawer balance carried into a range: everything before it. */
 export function openingBalanceAt(entries: readonly CashBookEntry[], start: Date): number {
   return cashNet(entries.filter((entry) => entry.createdAt.getTime() < start.getTime()));

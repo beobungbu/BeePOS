@@ -12,7 +12,6 @@ import { useOrgStore } from '../../data/org-store';
 import { useSessionStore } from '../../data/session-store';
 import { useCurrentShift, useRegisterShift } from '../../data/shift-store';
 import { useStorePriceIndex } from '../../data/store-price-store';
-import { effectivePrice } from '../../domain/catalog';
 import { findByBarcode, unitFactor } from '../../domain/units';
 import { CartPanel } from './components/cart-panel';
 import { CatalogSearch } from './components/catalog-search';
@@ -28,6 +27,7 @@ import { useCartRepricing, useWholesalePricing } from './hooks/use-wholesale-pri
 import { cartTotalsOf, cartLineCount, cartUnitCount } from './lib/cart-totals';
 import { cartLabel } from './lib/order-label';
 import { priceSourceBadge, tileMinOrderText } from './lib/wholesale';
+import { useScanCaptureLocked } from './lib/capture-lock';
 
 export default function PosScreen() {
   const t = useT();
@@ -50,7 +50,6 @@ export default function PosScreen() {
   const storePrices = useStorePriceIndex();
   const cart = useActiveCart();
   const ensureStore = useCartStore((state) => state.ensureStore);
-  const addProduct = useCartStore((state) => state.addProduct);
   const addPricedProduct = useCartStore((state) => state.addPricedProduct);
 
   const [query, setQuery] = useState('');
@@ -59,6 +58,7 @@ export default function PosScreen() {
   const [tileUnits, setTileUnits] = useState<ReadonlyMap<string, string>>(() => new Map());
 
   const { wholesale, explain } = useWholesalePricing(cart);
+  const captureLocked = useScanCaptureLocked();
   useCartRepricing(cart);
 
   useEffect(() => {
@@ -82,26 +82,23 @@ export default function PosScreen() {
   }, [activeProducts, category, query]);
 
   function handleAddProduct(product: Product, unit?: string) {
-    const selectedUnit = unit ?? tileUnits.get(product.id);
-    if (wholesale) {
-      // Priced through the engine at the quantity the order will end up holding, so a tile
-      // that says "Bậc 10+" adds a line at that tier rather than at the shelf price.
-      const existing = cart.lines.find((line) => line.productId === product.id);
-      const sameUnit = existing ? (existing.unit ?? undefined) === (selectedUnit ?? undefined) : false;
-      const nextQty = existing && sameUnit ? existing.qty + 1 : 1;
-      const { resolution } = explain(product, nextQty, selectedUnit);
-      addPricedProduct(product.id, {
-        unit: selectedUnit,
-        unitFactor: unitFactor(product, selectedUnit),
-        unitPrice: resolution.unitPrice,
-        priceSource: resolution.source,
-        promotionId: resolution.promotionId,
-      });
-    } else {
-      // The line keeps the price at sale time, so a price changed later never rewrites a bill
-      // that was already rung up.
-      addProduct(product.id, effectivePrice(product, store?.id, storePrices));
-    }
+    const selectedUnit = wholesale ? unit ?? tileUnits.get(product.id) : undefined;
+    // Priced through the engine at the quantity the order will end up holding, so a tile that
+    // says "Bậc 10+" adds a line at that tier rather than at the shelf price, and a retail
+    // tile that says a promotion adds the line at the promotion. The engine is asked on both
+    // channels because the cart is repriced through it on both: quoting one price and
+    // charging another is the one thing a till must not do.
+    const existing = cart.lines.find((line) => line.productId === product.id);
+    const sameUnit = existing ? (existing.unit ?? undefined) === (selectedUnit ?? undefined) : false;
+    const nextQty = existing && sameUnit ? existing.qty + 1 : 1;
+    const { resolution } = explain(product, nextQty, selectedUnit);
+    addPricedProduct(product.id, {
+      unit: selectedUnit,
+      unitFactor: unitFactor(product, selectedUnit),
+      unitPrice: resolution.unitPrice,
+      priceSource: resolution.source,
+      promotionId: resolution.promotionId,
+    });
     toast.show({ title: t('pos.addedToCart'), description: product.name, variant: 'success', duration: 1500 });
   }
 
@@ -132,7 +129,11 @@ export default function PosScreen() {
 
   // Native returns a 1x1 transparent capture field the hardware scanner types into; web
   // listens on the document and returns null, so `{scanCapture}` renders nothing there.
-  const scanCapture = useBarcodeScan(handleScan);
+  //
+  // Parked while the order rename, the discount dialog or the customer picker is up: those
+  // have fields of their own, and the capture claims the keyboard focus back 150 ms after it
+  // releases it, which is what swallowed their first keystrokes on device.
+  const scanCapture = useBarcodeScan(handleScan, !captureLocked);
 
   function handleBarcodeSubmit(value: string) {
     const trimmed = value.trim();
@@ -157,16 +158,22 @@ export default function PosScreen() {
   }
 
   /**
-   * What a tile quotes on a wholesale order: the engine's price for one of the selected unit,
-   * the label naming where it came from, and the minimum-order note when one unit is under
-   * the product's wholesale minimum.
+   * What a tile quotes: the engine's price for one of the selected unit, the label naming
+   * where it came from, and the minimum-order note when one unit is under the product's
+   * wholesale minimum.
+   *
+   * Asked on retail as well as wholesale. The cart has been repriced through the engine on
+   * both channels since promotions reached the counter, so a tile that priced through
+   * `effectivePrice` quoted the shelf price while the line charged the promotion
+   * (`reports/w-e-e2e-perf-report.md` 5.4). On retail the only badge the engine can produce
+   * is the promotion: a shelf or branch price wears none.
    */
   function quoteFor(product: Product, unit: string | undefined) {
     const { resolution, group, minQty, promotionName } = explain(product, 1, unit);
     return {
       price: resolution.unitPrice,
       badge: priceSourceBadge(t, resolution.source, { group, minQty, promotionName }),
-      minOrderText: tileMinOrderText(t, product, unit),
+      minOrderText: wholesale ? tileMinOrderText(t, product, unit) : undefined,
     };
   }
 
@@ -229,7 +236,7 @@ export default function PosScreen() {
           storePrices={storePrices}
           lines={cart.lines}
           onAddProduct={handleAddProduct}
-          quoteFor={wholesale ? quoteFor : undefined}
+          quoteFor={quoteFor}
           unitByProduct={wholesale ? tileUnits : undefined}
           onUnitChange={wholesale ? (product, unit) => handleTileUnitChange(product, unit) : undefined}
           catalogEmpty={activeProducts.length === 0}

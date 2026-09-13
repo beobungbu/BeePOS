@@ -215,6 +215,7 @@ export const posEn = {
     discount: 'Discount',
     tax: 'Tax',
     change: 'Change',
+    pointsEarned: 'Points earned',
     print: 'Print',
     printedToast: 'Print job sent',
     printFailed: 'This browser cannot print',
