@@ -149,5 +149,7 @@ overflow and focus entries before writing).
 
 The dev client's user defaults were put back
 (`xcrun simctl spawn booted defaults delete com.beemvp.beepos RCTDevMenu`), so hot loading is at
-its default again. The iPhone 16 Pro simulator is signed in on the seed data, the iPad simulator
-is shut down, and Metro on 8106 is still up from the build command.
+its default again. The iPhone 16 Pro simulator is signed in on the seed data and the iPad
+simulator is shut down. Metro on 8106 was stopped at the end of the run, so the installed dev
+client needs a bundler again (`npx expo start --dev-client --port 8106`) before the next launch;
+the native build itself is current and does not need rebuilding.
