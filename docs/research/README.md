@@ -57,7 +57,23 @@ This is a logical domain split, not a microservice requirement. A modular monoli
 3. [`03-canonical-domain-model.md`](./03-canonical-domain-model.md) — proposed bounded contexts, entities and invariants.
 4. [`04-vietnam-compliance-and-platform.md`](./04-vietnam-compliance-and-platform.md) — e-invoice, offline, peripheral and integration requirements.
 5. [`05-roadmap.md`](./05-roadmap.md) — research-to-build sequence and priority gates.
-6. [`../adr/ADR-001-retail-domain-foundation.md`](../adr/ADR-001-retail-domain-foundation.md) — first architecture decision draft.
+6. [`06-execution-backlog.md`](./06-execution-backlog.md) — Gate 0 dependency graph, implementation unblock matrix and backend-schema Definition of Ready.
+
+## Architecture decision set
+
+- [`ADR-001`](../adr/ADR-001-retail-domain-foundation.md) — retail-domain foundation and modular-monolith boundaries.
+- [`ADR-002`](../adr/ADR-002-organization-identity-store-register.md) — Organization, UserAccount, Employee, Store and Register.
+- [`ADR-003`](../adr/ADR-003-product-sku-identifier-uom.md) — Product, SKU, identifiers and UOM.
+- [`ADR-004`](../adr/ADR-004-pricing-resolution.md) — PriceBook applicability and deterministic price resolution.
+- [`ADR-005`](../adr/ADR-005-promotion-stacking-allocation.md) — promotion boundaries, stacking and allocation.
+- [`ADR-006`](../adr/ADR-006-retail-transaction-snapshot.md) — immutable finalized retail transactions and returns.
+- [`ADR-007`](../adr/ADR-007-inventory-ledger.md) — inventory movements as truth, StockPosition as read model.
+- [`ADR-008`](../adr/ADR-008-cash-tender-business-day.md) — shifts, cash movements, tender reconciliation and business day.
+- [`ADR-009`](../adr/ADR-009-offline-idempotency-sync.md) — offline identity, idempotency and sync contract.
+- [`ADR-010`](../adr/ADR-010-vietnam-fiscal-provider.md) — Vietnam fiscal/e-invoice provider boundary.
+- [`ADR-011`](../adr/ADR-011-business-audit-events.md) — business audit events.
+
+All ADRs are currently **Proposed**, not silently treated as approved. Parent decision tracker: GitHub issue #2. Decision issues: #3–#12. Review checklist: #14.
 
 ## Decision principles
 
@@ -68,6 +84,7 @@ This is a logical domain split, not a microservice requirement. A modular monoli
 - **Rules over columns.** Pricing and promotions need explicit applicability, priority and calculation rules rather than more `salePrice` fields.
 - **Adapters at external boundaries.** Printer, scanner, payment, e-invoice and accounting providers must not leak into core domain types.
 - **Offline semantics must be explicit.** Local persistence is useful but is not equivalent to production offline synchronization.
+- **Historical facts are immutable.** Finalized commercial, stock, cash, fiscal and audit records are corrected with linked events, not silently rewritten.
 
 ## Primary references
 
