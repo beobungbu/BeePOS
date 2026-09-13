@@ -1380,6 +1380,381 @@
   </div>
 </div>
 
+<h2 class="secthead">13 · Lịch sử giá vốn và bình quân gia quyền
+  <span>Một mục trong trang chi tiết sản phẩm. Giá vốn tính lại mỗi lần xác nhận phiếu nhập.</span></h2>
+<div class="frames">
+  <div class="frame frame--desktop">
+    <div class="frame__label">DESKTOP <span>1440 x 900 · /products/DU-001 mục Giá vốn</span></div>
+    <div class="screen screen--desktop" style="flex-direction:row">
+      <nav class="sidebar" data-beeui="ListGroup + ListItem">
+        <div class="brand" style="padding:4px 8px 12px">
+          <span class="brand__mark"><svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
+          <span class="brand__word">BeePOS</span>
+        </div>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#" class="on"><svg class="svg" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-truck"/></svg>Nhà cung cấp</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-users"/></svg>Khách hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-store"/></svg>Cửa hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-idcard"/></svg>Nhân viên</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-clipboard"/></svg>Nhật ký</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
+        <span class="grow"></span>
+        <div class="row" style="gap:10px;padding:10px 8px">
+          <span class="avatar" style="width:32px;height:32px">NA</span>
+          <span class="grow">
+            <div class="t-label" style="font-weight:600">Nguyễn Văn An</div>
+            <div class="t-caption muted">Chủ chuỗi</div>
+          </span>
+        </div>
+        <button class="navtoggle" type="button" title="Phím tắt ["><svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-chevron-left"/></svg>Thu gọn</button>
+      </nav>
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <header class="appheader appheader--compact" data-beeui="AppHeader">
+          <span class="grow screentitle">Nước ngọt Coca-Cola 330ml <span>DU-001 · Đồ uống · đơn vị lon</span></span>
+          <button class="storechip" type="button" data-beeui="DropdownMenu">
+            <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-store"/></svg>Chuỗi tạp hoá Bee
+            <svg class="svg svg--16" viewBox="0 0 24 24" style="transform:rotate(90deg)"><use href="#i-chevron-right"/></svg>
+          </button>
+          <span class="avatar" style="width:32px;height:32px">NA</span>
+        </header>
+        <div class="toolbar toolbar--row" data-beeui="Tabs + Button">
+          <span class="chip">Thông tin</span><span class="chip">Tồn kho</span>
+          <span class="chip">Giá theo cửa hàng</span><span class="chip chip--on">Giá vốn</span>
+          <span class="chip">Lô và hạn dùng</span><span class="chip">Mã vạch</span>
+          <span class="grow"></span>
+          <button class="btn btn--outline" type="button" style="min-height:40px">Điều chỉnh giá vốn</button>
+        </div>
+        <div class="statstrip" data-beeui="Stat">
+          <div><div class="k">Giá vốn bình quân</div><div class="v">6.500 đ</div></div>
+          <div><div class="k">Giá nhập gần nhất</div><div class="v">6.500 đ</div></div>
+          <div><div class="k">Giá bán lẻ</div><div class="v">9.000 đ</div></div>
+          <div><div class="k">Biên lợi nhuận lẻ</div><div class="v" style="color:var(--color-success)">27,8 %</div></div>
+          <div><div class="k">Biên theo giá sỉ 7.500 đ</div><div class="v warn">13,3 %</div></div>
+        </div>
+        <div style="flex:1;overflow:hidden;padding:16px 24px;background:var(--color-surface-muted);display:flex;gap:20px">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px">
+            <div class="t-label" style="font-weight:600">Lịch sử giá vốn toàn chuỗi</div>
+            <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden" data-beeui="Table">
+              <table class="table table--tight table--48">
+                <thead><tr><th>Ngày</th><th>Nguồn</th><th class="r">SL nhập</th><th class="r">Giá nhập</th>
+                  <th class="r">Tồn trước</th><th class="r">BQ trước</th><th class="r">BQ sau</th></tr></thead>
+                <tbody>
+                  <tr><td class="num muted">12/07/2026</td>
+                    <td><span class="badge badge">Tồn đầu kỳ</span><div class="t-caption muted num">seed</div></td>
+                    <td class="r">+120</td><td class="r" style="font-weight:400">6.200 đ</td>
+                    <td class="r" style="font-weight:400">0</td><td class="r" style="font-weight:400"><span style="color:var(--color-subtle-foreground)">chưa có</span></td>
+                    <td class="r">6.200 đ</td></tr>
+                  <tr><td class="num muted">12/08/2026</td>
+                    <td><span class="badge badge--success">Phiếu nhập</span><div class="t-caption muted num">PN20260812-0005</div></td>
+                    <td class="r">+240</td><td class="r" style="font-weight:400">6.400 đ</td>
+                    <td class="r" style="font-weight:400">96</td><td class="r" style="font-weight:400">6.200 đ</td>
+                    <td class="r">6.343 đ</td></tr>
+                  <tr><td class="num muted">29/08/2026</td>
+                    <td><span class="badge badge--success">Phiếu nhập</span><div class="t-caption muted num">PN20260829-0003</div></td>
+                    <td class="r">+180</td><td class="r" style="font-weight:400">6.600 đ</td>
+                    <td class="r" style="font-weight:400">204</td><td class="r" style="font-weight:400">6.343 đ</td>
+                    <td class="r">6.463 đ</td></tr>
+                  <tr><td class="num muted">05/09/2026</td>
+                    <td><span class="badge badge--warning">Điều chỉnh tay</span><div class="t-caption muted num">Trần Thị Bình</div></td>
+                    <td class="r"><span style="color:var(--color-subtle-foreground)">0</span></td><td class="r" style="font-weight:400">6.500 đ</td>
+                    <td class="r" style="font-weight:400">312</td><td class="r" style="font-weight:400">6.463 đ</td>
+                    <td class="r">6.500 đ</td></tr>
+                  <tr><td class="num muted">13/09/2026</td>
+                    <td><span class="badge badge--success">Phiếu nhập</span><div class="t-caption muted num">PN20260913-0007</div></td>
+                    <td class="r">+240</td><td class="r" style="font-weight:400">6.500 đ</td>
+                    <td class="r" style="font-weight:400">264</td><td class="r" style="font-weight:400">6.500 đ</td>
+                    <td class="r">6.500 đ</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="panel" style="background:var(--color-surface);gap:6px">
+              <div class="t-label" style="font-weight:600">Cách tính bình quân gia quyền</div>
+              <div class="t-caption muted">BQ sau = (tồn trước x BQ trước + SL nhập x giá nhập) / (tồn trước + SL nhập).</div>
+              <div class="t-caption muted">Dòng 12/08: (96 x 6.200 + 240 x 6.400) / 336 = 2.131.200 / 336 = 6.343 đ.</div>
+              <div class="t-caption muted">Dòng 29/08: (204 x 6.343 + 180 x 6.600) / 384 = 2.481.972 / 384 = 6.463 đ.</div>
+              <div class="t-caption muted">Điều chỉnh tay đặt thẳng giá vốn mới, không tính trung bình, và luôn ghi vào nhật ký thao tác.</div>
+            </div>
+          </div>
+          <div style="width:380px;flex:none;display:flex;flex-direction:column;gap:16px">
+            <div class="panel" style="gap:8px">
+              <div class="t-label" style="font-weight:600">Giá vốn chốt khi bán</div>
+              <div class="t-caption muted">Mỗi dòng đơn hàng lưu lại giá vốn tại đúng thời điểm bán. Báo cáo lợi nhuận dùng con số đã lưu đó, không dùng giá vốn hôm nay.</div>
+              <div class="totals__rule"></div>
+              <div class="kv"><span>Đã bán hôm nay</span><span class="num" style="font-weight:600">96 lon</span></div>
+              <div class="kv"><span>Giá vốn đã chốt</span><span class="num" style="font-weight:600">6.500 đ</span></div>
+              <div class="kv"><span>Giá vốn x số lượng</span><span class="num" style="font-weight:700">624.000 đ</span></div>
+              <div class="t-caption muted">Trùng khớp với dòng DU-001 trong báo cáo lợi nhuận gộp ở mục 11.</div>
+            </div>
+            <div class="panel" style="background:color-mix(in srgb, var(--color-warning) 10%, #fff);border:none;gap:6px">
+              <div class="row" style="gap:8px">
+                <svg class="svg" style="color:var(--color-warning)" viewBox="0 0 24 24"><use href="#i-alert"/></svg>
+                <span class="t-label" style="font-weight:600;color:#92400e">Giá sỉ bậc 10+ chỉ còn biên 13,3 %</span>
+              </div>
+              <div class="t-caption" style="color:#92400e">7.500 đ trên giá vốn 6.500 đ. Cảnh báo bật khi biên dưới 15 phần trăm.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class="frame__notes">
+      <li>Bảy cột cho phép tự kiểm tra từng bước: tồn trước, bình quân trước, số nhập, giá nhập, bình quân sau.</li>
+      <li>Công thức và hai ví dụ có số thật nằm ngay dưới bảng, không phải trong tài liệu riêng.</li>
+      <li>Điều chỉnh tay có badge warning riêng vì đó là dòng duy nhất không theo công thức.</li>
+      <li>Pane phải nối giá vốn với báo cáo lợi nhuận: 96 x 6.500 = 624.000 đ đúng bằng cột Giá vốn của DU-001 ở mục 11.</li>
+    </ul>
+  </div>
+</div>
+
+<h2 class="secthead">14 · Giá trị tồn kho theo thời gian
+  <span>Giá trị theo giá vốn, chụp lại mỗi tuần, so sánh hiện tại với 30 ngày trước theo từng cửa hàng.</span></h2>
+<div class="frames">
+  <div class="frame frame--desktop">
+    <div class="frame__label">DESKTOP <span>1440 x 900 · /reports/inventory-valuation</span></div>
+    <div class="screen screen--desktop" style="flex-direction:row">
+      <nav class="sidebar" data-beeui="ListGroup + ListItem">
+        <div class="brand" style="padding:4px 8px 12px">
+          <span class="brand__mark"><svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
+          <span class="brand__word">BeePOS</span>
+        </div>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-truck"/></svg>Nhà cung cấp</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-users"/></svg>Khách hàng</a>
+        <a href="#" class="on"><svg class="svg" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-store"/></svg>Cửa hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-idcard"/></svg>Nhân viên</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-clipboard"/></svg>Nhật ký</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
+        <span class="grow"></span>
+        <div class="row" style="gap:10px;padding:10px 8px">
+          <span class="avatar" style="width:32px;height:32px">NA</span>
+          <span class="grow">
+            <div class="t-label" style="font-weight:600">Nguyễn Văn An</div>
+            <div class="t-caption muted">Chủ chuỗi</div>
+          </span>
+        </div>
+        <button class="navtoggle" type="button" title="Phím tắt ["><svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-chevron-left"/></svg>Thu gọn</button>
+      </nav>
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <header class="appheader appheader--compact" data-beeui="AppHeader">
+          <span class="grow screentitle">Giá trị tồn kho <span>Toàn chuỗi · 13/09/2026</span></span>
+          <button class="storechip" type="button" data-beeui="DropdownMenu">
+            <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-store"/></svg>Chuỗi tạp hoá Bee
+            <svg class="svg svg--16" viewBox="0 0 24 24" style="transform:rotate(90deg)"><use href="#i-chevron-right"/></svg>
+          </button>
+          <span class="avatar" style="width:32px;height:32px">NA</span>
+        </header>
+        <div class="toolbar toolbar--row" data-beeui="SegmentedControl + Select + Button">
+          <div class="segmented" style="width:300px" data-beeui="SegmentedControl">
+            <button type="button">30 ngày</button><button class="on" type="button">90 ngày</button>
+            <button type="button">Tuỳ chọn</button>
+          </div>
+          <button class="btn btn--outline" type="button" style="min-height:40px">Cửa hàng: Tất cả</button>
+          <button class="btn btn--outline" type="button" style="min-height:40px">Danh mục: Tất cả</button>
+          <span class="grow"></span>
+          <button class="btn btn--secondary" type="button" style="min-height:40px">Xuất CSV</button>
+        </div>
+        <div class="statstrip" data-beeui="Stat">
+          <div><div class="k">Giá trị hiện tại</div><div class="v">592.100.000 đ</div></div>
+          <div><div class="k">30 ngày trước</div><div class="v">573.040.000 đ</div></div>
+          <div><div class="k">Thay đổi</div><div class="v" style="color:var(--color-success)">+19.060.000 đ</div></div>
+          <div><div class="k">Tỉ lệ</div><div class="v" style="color:var(--color-success)">+3,3 %</div></div>
+          <div><div class="k">Số SKU có tồn</div><div class="v">118</div></div>
+          <div><div class="k">Tồn chậm luân chuyển</div><div class="v warn">42.600.000 đ</div></div>
+        </div>
+        <div style="flex:1;overflow:hidden;padding:16px 24px;background:var(--color-surface-muted);display:flex;gap:20px">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:16px">
+            <div class="panel" style="gap:12px">
+              <div class="t-label" style="font-weight:600">Giá trị tồn toàn chuỗi theo tuần</div>
+              <div class="bars" data-beeui="Box + Text">
+                <div class="bars__row"><span class="bars__label" style="width:60px">13/08</span><span class="bars__track"><span class="bars__fill" style="width:95%"></span></span><span class="bars__val" style="width:140px">573.040.000 đ</span></div>
+                <div class="bars__row"><span class="bars__label" style="width:60px">20/08</span><span class="bars__track"><span class="bars__fill" style="width:93%"></span></span><span class="bars__val" style="width:140px">561.800.000 đ</span></div>
+                <div class="bars__row"><span class="bars__label" style="width:60px">27/08</span><span class="bars__track"><span class="bars__fill" style="width:98%"></span></span><span class="bars__val" style="width:140px">588.420.000 đ</span></div>
+                <div class="bars__row"><span class="bars__label" style="width:60px">03/09</span><span class="bars__track"><span class="bars__fill" style="width:96%"></span></span><span class="bars__val" style="width:140px">576.900.000 đ</span></div>
+                <div class="bars__row"><span class="bars__label" style="width:60px">10/09</span><span class="bars__track"><span class="bars__fill" style="width:100%"></span></span><span class="bars__val" style="width:140px">601.340.000 đ</span></div>
+                <div class="bars__row"><span class="bars__label" style="width:60px">13/09</span><span class="bars__track"><span class="bars__fill" style="background:var(--color-primary)" style="width:98%"></span></span><span class="bars__val" style="width:140px">592.100.000 đ</span></div>
+              </div>
+              <div class="t-caption muted">Cột 13/09 dùng màu primary vì đó là điểm hiện tại. Đỉnh 10/09 là sau đợt nhập hàng Tết.</div>
+            </div>
+            <div class="panel" style="gap:8px">
+              <div class="t-label" style="font-weight:600">Đọc báo cáo này thế nào</div>
+              <div class="t-caption muted">Giá trị tính theo giá vốn bình quân tại thời điểm chụp, không theo giá bán.</div>
+              <div class="t-caption muted">Tăng không phải lúc nào cũng tốt: HN01 tăng 9,7 phần trăm vì vừa nhập hàng, còn HN02 giảm 6,3 phần trăm vì bán chạy chứ không phải hết hàng.</div>
+              <div class="t-caption muted">Tồn chậm luân chuyển là hàng không bán được trong 60 ngày, tính theo giá vốn.</div>
+            </div>
+          </div>
+          <div style="width:630px;flex:none;display:flex;flex-direction:column;gap:12px">
+            <div class="t-label" style="font-weight:600">So sánh theo cửa hàng</div>
+            <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden" data-beeui="Table">
+              <table class="table table--tight table--48">
+                <thead><tr><th>Cửa hàng</th><th class="r">Hiện tại</th><th class="r">30 ngày trước</th><th class="r">Thay đổi</th><th class="r">Tỉ lệ</th></tr></thead>
+                <tbody>
+                  <tr><td><b>HN01</b><div class="t-caption muted">Tạp hoá Cầu Giấy</div></td>
+                    <td class="r">184.520.000 đ</td><td class="r" style="font-weight:400">168.240.000 đ</td>
+                    <td class="r" style="color:var(--color-success)">+16.280.000 đ</td><td class="r" style="color:var(--color-success);font-weight:400">+9,7 %</td></tr>
+                  <tr><td><b>HN02</b><div class="t-caption muted">Tạp hoá Long Biên</div></td>
+                    <td class="r">142.380.000 đ</td><td class="r" style="font-weight:400">151.900.000 đ</td>
+                    <td class="r" style="color:var(--color-destructive)">-9.520.000 đ</td><td class="r" style="color:var(--color-destructive);font-weight:400">-6,3 %</td></tr>
+                  <tr><td><b>HCM01</b><div class="t-caption muted">Tạp hoá Bình Thạnh</div></td>
+                    <td class="r">168.940.000 đ</td><td class="r" style="font-weight:400">160.100.000 đ</td>
+                    <td class="r" style="color:var(--color-success)">+8.840.000 đ</td><td class="r" style="color:var(--color-success);font-weight:400">+5,5 %</td></tr>
+                  <tr><td><b>DN01</b><div class="t-caption muted">Tạp hoá Hải Châu</div></td>
+                    <td class="r">96.260.000 đ</td><td class="r" style="font-weight:400">92.800.000 đ</td>
+                    <td class="r" style="color:var(--color-success)">+3.460.000 đ</td><td class="r" style="color:var(--color-success);font-weight:400">+3,7 %</td></tr>
+                  <tr style="background:var(--color-surface-muted)"><td><b>Toàn chuỗi</b></td>
+                    <td class="r">592.100.000 đ</td><td class="r">573.040.000 đ</td>
+                    <td class="r" style="color:var(--color-success)">+19.060.000 đ</td>
+                    <td class="r" style="color:var(--color-success);font-weight:400">+3,3 %</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="t-caption muted">Bốn cửa hàng cộng lại đúng dòng tổng: 16.280.000 - 9.520.000 + 8.840.000 + 3.460.000 = 19.060.000 đ. Giá trị HN01 trùng với màn hình Kho hàng.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class="frame__notes">
+      <li>Thanh ngang cho chuỗi thời gian, bảng cho so sánh cửa hàng: hai câu hỏi khác nhau, hai cách trình bày khác nhau.</li>
+      <li>Thay đổi và tỉ lệ đổi màu theo chiều, nhưng phần chú thích nói rõ tăng chưa chắc đã tốt.</li>
+      <li>Mọi con số cộng lại được bằng tay, và giá trị HN01 khớp với dải Stat của màn hình Kho hàng.</li>
+    </ul>
+  </div>
+</div>
+
+<h2 class="secthead">15 · Hoá đơn giá trị gia tăng
+  <span>Mở từ chi tiết đơn sỉ. Khổ A5 trên máy in văn phòng, khác đường in hoá đơn bán lẻ 80 mm.</span></h2>
+<div class="frames">
+  <div class="frame frame--desktop">
+    <div class="frame__label">DESKTOP <span>1440 x 900 · xem trước bản in</span></div>
+    <div class="screen screen--desktop" style="flex-direction:row">
+      <nav class="sidebar" data-beeui="ListGroup + ListItem">
+        <div class="brand" style="padding:4px 8px 12px">
+          <span class="brand__mark"><svg class="svg" viewBox="0 0 24 24"><use href="#i-hex"/></svg></span>
+          <span class="brand__word">BeePOS</span>
+        </div>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-cart"/></svg>Bán hàng</a>
+        <a href="#" class="on"><svg class="svg" viewBox="0 0 24 24"><use href="#i-receipt"/></svg>Đơn hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-package"/></svg>Sản phẩm</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-warehouse"/></svg>Kho hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-truck"/></svg>Nhà cung cấp</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-users"/></svg>Khách hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Báo cáo</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-store"/></svg>Cửa hàng</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-idcard"/></svg>Nhân viên</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-clipboard"/></svg>Nhật ký</a>
+        <a href="#"><svg class="svg" viewBox="0 0 24 24"><use href="#i-settings"/></svg>Cài đặt</a>
+        <span class="grow"></span>
+        <div class="row" style="gap:10px;padding:10px 8px">
+          <span class="avatar" style="width:32px;height:32px">NA</span>
+          <span class="grow">
+            <div class="t-label" style="font-weight:600">Nguyễn Văn An</div>
+            <div class="t-caption muted">Chủ chuỗi</div>
+          </span>
+        </div>
+        <button class="navtoggle" type="button" title="Phím tắt ["><svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-chevron-left"/></svg>Thu gọn</button>
+      </nav>
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <header class="appheader appheader--compact" data-beeui="AppHeader">
+          <span class="grow screentitle">Hoá đơn VAT <span>DH20260913-0004 · Cty TNHH Thương mại Minh Long</span></span>
+          <button class="storechip" type="button" data-beeui="DropdownMenu">
+            <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-store"/></svg>Chuỗi tạp hoá Bee
+            <svg class="svg svg--16" viewBox="0 0 24 24" style="transform:rotate(90deg)"><use href="#i-chevron-right"/></svg>
+          </button>
+          <span class="avatar" style="width:32px;height:32px">ĐH</span>
+        </header>
+        <div class="toolbar toolbar--row" data-beeui="Button">
+          <button class="btn btn--outline" type="button" style="min-height:40px">Sửa thông tin người mua</button>
+          <button class="btn btn--outline" type="button" style="min-height:40px">Khổ giấy: A5</button>
+          <span class="grow"></span>
+          <button class="btn btn--outline" type="button" style="min-height:40px">Xuất PDF</button>
+          <button class="btn btn--primary" type="button" style="min-height:40px">
+            <svg class="svg svg--16" viewBox="0 0 24 24"><use href="#i-printer"/></svg>In hoá đơn</button>
+        </div>
+        <div style="flex:1;overflow:hidden;background:var(--color-surface-muted);display:flex;gap:24px;padding:20px 24px;justify-content:center">
+          <div class="invoice" data-beeui="Card (printable)">
+            <div class="invoice__head">
+              <div style="font-size:11px;color:var(--color-muted-foreground)">Mẫu số: 01GTKT0/001</div>
+              <div class="invoice__title">HOÁ ĐƠN GIÁ TRỊ GIA TĂNG</div>
+              <div class="invoice__meta"><span>Ký hiệu: 1C26TBE</span><span>Số: 0000184</span>
+                <span>Ngày 13 tháng 09 năm 2026</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:8px;border-bottom:1px solid var(--color-border-strong)">
+              <div class="invoice__party"><b>Đơn vị bán hàng</b><span style="font-weight:700">CHUỖI TẠP HOÁ BEE</span></div>
+              <div class="invoice__party"><b>Mã số thuế</b><span class="num">0108 246 135</span></div>
+              <div class="invoice__party"><b>Địa chỉ</b><span>12 Xuân Thuỷ, Cầu Giấy, Hà Nội</span></div>
+              <div class="invoice__party"><b>Số tài khoản</b><span class="num">0011 0023 4567 · Vietcombank</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;padding:8px 0">
+              <div class="invoice__party"><b>Họ tên người mua</b><span>Ông Nguyễn Minh Long</span></div>
+              <div class="invoice__party"><b>Tên đơn vị</b><span style="font-weight:700">Cty TNHH Thương mại Minh Long</span></div>
+              <div class="invoice__party"><b>Mã số thuế</b><span class="num">0106 847 221</span></div>
+              <div class="invoice__party"><b>Địa chỉ</b><span>Số 8 ngõ 72 Nguyễn Trãi, Thanh Xuân, Hà Nội</span></div>
+              <div class="invoice__party"><b>Hình thức thanh toán</b><span>Ghi nợ, hạn 13/10/2026</span></div>
+            </div>
+            <table>
+              <thead><tr><th style="width:28px">STT</th><th>Tên hàng hoá, dịch vụ</th>
+                <th style="width:46px">ĐVT</th><th style="width:56px">Số lượng</th>
+                <th style="width:78px">Đơn giá</th><th style="width:88px">Thành tiền</th></tr></thead>
+              <tbody>
+                <tr><td class="c">1</td><td>Nước ngọt Coca-Cola 330ml</td><td class="c">lon</td><td class="r">240</td><td class="r">7.500</td><td class="r">1.800.000</td></tr>
+                <tr><td class="c">2</td><td>Mì Hảo Hảo tôm chua cay 75g</td><td class="c">gói</td><td class="r">600</td><td class="r">3.900</td><td class="r">2.340.000</td></tr>
+                <tr><td class="c">3</td><td>Sữa tươi Vinamilk 180ml</td><td class="c">hộp</td><td class="r">240</td><td class="r">6.300</td><td class="r">1.512.000</td></tr>
+                <tr><td class="c">4</td><td>Gạo ST25 thơm dẻo 5kg</td><td class="c">túi</td><td class="r">3</td><td class="r">168.000</td><td class="r">504.000</td></tr>
+                <tr><td colspan="5" class="r"><b>Cộng tiền hàng</b></td><td class="r"><b>6.156.000</b></td></tr>
+                <tr><td colspan="5" class="r">Thuế suất GTGT: 10 % · Tiền thuế GTGT</td><td class="r">615.600</td></tr>
+                <tr><td colspan="5" class="r"><b>Tổng cộng tiền thanh toán</b></td><td class="r"><b>6.771.600</b></td></tr>
+              </tbody>
+            </table>
+            <div style="padding:4px 0 0">
+              <span style="color:var(--color-muted-foreground)">Số tiền viết bằng chữ:</span>
+              <b> Sáu triệu bảy trăm bảy mươi mốt nghìn sáu trăm đồng.</b>
+            </div>
+            <div class="invoice__sign">
+              <div><b>Người mua hàng</b><span>(Ký, ghi rõ họ tên)</span><i></i></div>
+              <div><b>Người bán hàng</b><span>(Ký, đóng dấu, ghi rõ họ tên)</span><i></i>
+                <span style="color:var(--color-foreground)">Đặng Văn Hải</span></div>
+            </div>
+          </div>
+
+          <div style="width:340px;display:flex;flex-direction:column;gap:12px">
+            <div class="panel" style="gap:8px">
+              <div class="t-label" style="font-weight:600">Khác gì hoá đơn bán lẻ</div>
+              <div class="t-caption muted">Hoá đơn bán lẻ và báo cáo Z in khổ 80 mm bằng chữ đơn cách. Hoá đơn VAT in khổ A5 trên máy in văn phòng, dùng phông thường và bảng có kẻ ô.</div>
+              <div class="t-caption muted">Vì vậy đây là đường in thứ hai, chọn máy in riêng trong Cài đặt cửa hàng.</div>
+            </div>
+            <div class="panel" style="gap:8px">
+              <div class="t-label" style="font-weight:600">Kiểm tra số</div>
+              <div class="kv"><span>Cộng tiền hàng</span><span class="num">6.156.000 đ</span></div>
+              <div class="kv"><span>Thuế GTGT 10 %</span><span class="num">615.600 đ</span></div>
+              <div class="kv"><span>Tổng thanh toán</span><span class="num" style="font-weight:700">6.771.600 đ</span></div>
+              <div class="t-caption muted">Bằng đúng tổng đơn DH20260913-0004 ở mục 10 và số ghi nợ ở màn hình POS bán sỉ.</div>
+            </div>
+            <div class="panel" style="background:color-mix(in srgb, var(--color-warning) 10%, #fff);border:none;gap:6px">
+              <div class="row" style="gap:8px">
+                <svg class="svg" style="color:var(--color-warning)" viewBox="0 0 24 24"><use href="#i-alert"/></svg>
+                <span class="t-label" style="font-weight:600;color:#92400e">Bản mẫu, chưa nối hoá đơn điện tử</span>
+              </div>
+              <div class="t-caption" style="color:#92400e">Ký hiệu và số hoá đơn do bản mẫu sinh ra, chưa phát hành qua nhà cung cấp hoá đơn điện tử.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class="frame__notes">
+      <li>Bố cục theo mẫu 01GTKT quen thuộc: khối bán, khối mua, bảng hàng có kẻ ô, tiền bằng chữ, hai ô chữ ký.</li>
+      <li>Đơn giá trên hoá đơn là giá chưa thuế, đúng giá sỉ đã áp ở POS, nên khách đối chiếu được từng dòng.</li>
+      <li>Tiền bằng chữ là bắt buộc và phải khớp: 6.771.600 đọc là sáu triệu bảy trăm bảy mươi mốt nghìn sáu trăm đồng.</li>
+      <li>Nói thẳng đây là bản mẫu chưa phát hành qua hoá đơn điện tử, không giả vờ đã phát hành.</li>
+    </ul>
+  </div>
+</div>
+
 <script>
   document.getElementById('map').addEventListener('change', function (e) {
     document.body.classList.toggle('map', e.target.checked);

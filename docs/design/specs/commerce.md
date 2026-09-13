@@ -37,8 +37,20 @@ order, plus the due date computed from the payment term. The pay button reads
 `Ghi nợ · 6.771.600 đ`.
 
 **VAT invoice block** sits above the pay button: buyer name, tax code, an edit affordance.
-Wholesale orders show VAT as its own line because a VAT invoice requires it; retail orders
-keep tax inside the price.
+Wholesale orders show VAT as its own line because a VAT invoice requires it; retail orders keep
+tax inside the price.
+
+**The printed VAT invoice is a second print path.** The retail receipt and the Z report are
+80 mm monospace; the VAT invoice is A5 on an office printer, so it uses the normal font and a
+ruled table, and the printer is chosen separately in store settings. Layout follows the
+familiar 01GTKT shape: form number, serial and invoice number and date; seller block with name,
+tax code, address and bank account; buyer block with contact name, company, tax code, address
+and payment terms; a ruled line table with STT, description, unit, quantity, unit price and
+amount; then goods total, VAT rate and VAT amount, grand total; the amount in Vietnamese words;
+and two signature areas. Unit prices on the invoice are net of tax and equal the wholesale
+prices applied at POS, so the buyer can reconcile line by line. The prototype states plainly
+that the serial and number are locally generated and nothing has been issued through an
+e-invoice provider.
 
 ## B. Customers, groups and pricing screens
 
@@ -59,10 +71,40 @@ the first question anyone asks.
 
 Promotions are a list plus an edit pane on one screen. `Cộng dồn` is its own column, since
 stacking is the main cause of wrong prices. Ended promotions stay visible at 55 percent
-opacity so they can be cloned next season. Loyalty rules are three blocks, earn, redeem,
-tier thresholds, and every numeric field carries a worked example in real money.
+opacity so they can be cloned next season. Loyalty rules are four blocks: earn, redeem,
+an optional per tier multiplier (`tierMultiplier`, default 1 for every tier, drawn as
+`x 1,0 / x 1,2 / x 1,5 / x 2,0`), and tier thresholds. Every numeric field carries a worked
+example in real money, including the multiplier: a 250.000 đ order for a gold customer earns
+`25 x 1,5 = 37` points, rounded down.
 
-## C. Money
+## C. Cost and valuation
+
+**Weighted average, recomputed on every confirmed receipt.** The cost history table on the
+product detail shows seven columns so the reader can check each step: date, source, quantity
+received, unit cost, on hand before, average before, average after. The formula and two worked
+examples with real numbers sit directly under the table, not in separate documentation:
+`BQ sau = (tồn trước x BQ trước + SL nhập x giá nhập) / (tồn trước + SL nhập)`.
+
+A manual adjustment sets the cost directly rather than averaging, so it carries its own
+`warning` badge and always writes an audit event. Source badges: `Tồn đầu kỳ` neutral,
+`Phiếu nhập` success, `Điều chỉnh tay` warning.
+
+**Profit uses the snapshot, not today's cost.** Every order line stores the unit cost at the
+moment of sale, and the gross profit report reads that stored number. The product detail says
+so explicitly and shows the reconciliation (`96 x 6.500 = 624.000 đ`) against the report.
+
+**Margin warning.** The stat strip carries margin at retail price and at the wholesale tier
+price; a tier that drops the margin under 15 percent gets a `warning` panel naming both
+numbers.
+
+**Inventory valuation history** is a separate report: a horizontal bar per weekly snapshot for
+the chain total with the current point in `primary`, plus a per store table of current value,
+value 30 days ago, change and percentage, with a totals row. Value is at average cost, never
+at sale price, and the report says so. It also says out loud that an increase is not
+automatically good, since it usually means a delivery just landed. Slow moving stock is a stat,
+defined as not sold in 60 days, valued at cost.
+
+## D. Money
 
 **Cash book** is per store and runs across shifts; it is a manager's screen, not a cashier's.
 Retail sales are aggregated into one row per span of a shift with a `Gộp giao dịch bán lẻ`
@@ -80,7 +122,7 @@ allocation line by line, and state the balance after the transaction. Cash goes 
 cash book; a transfer goes to a bank account and never touches the drawer. Quick chips offer
 `Thu hết`, the overdue amount, and a round number.
 
-## D. Returns and exchange
+## E. Returns and exchange
 
 One transaction: returned lines on the left, exchange lines in the right pane, one net number
 at the bottom. Disposition is a **per line** decision, `Nhập lại kho` in `success` or
@@ -96,7 +138,7 @@ instead of opening the drawer.
 Supplier returns always start from a goods receipt, so cost and reason are already known, and
 they state both consequences: stock down, payable down.
 
-## E. Inventory 2
+## F. Inventory 2
 
 **Purchase orders** step `Nháp` to `Đã gửi` to `Nhận một phần` to `Đã nhận`, with the stepper
 inside the 56 pt toolbar rather than on its own row. `Nhận lần này` is an editable quantity
@@ -117,7 +159,7 @@ percent so text still passes AA): ok, warning, error. Every problem row states t
 the consequence on the row itself, not in a summary box. The primary button counts the rows
 that will actually import, `Nhập 115 dòng hợp lệ`, not the rows in the file.
 
-## F. Order lifecycle, reports, notifications, settings
+## G. Order lifecycle, reports, notifications, settings
 
 Wholesale order detail uses the same stepper pattern: `Báo giá`, `Đã xác nhận`, `Đang giao`,
 `Hoàn tất`. Partial delivery is normal, so `Còn lại` is a `warning` coloured column rather

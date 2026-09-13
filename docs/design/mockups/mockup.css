@@ -777,3 +777,26 @@ tr.err td { background: color-mix(in srgb, var(--color-destructive) 6%, #fff); }
   color: var(--color-foreground); font-size: var(--text-label); }
 .menu a.on { background: color-mix(in srgb, var(--color-primary) 12%, #fff); font-weight: 600; }
 .menu hr { border: none; border-top: 1px solid var(--color-border); margin: var(--space-1) 0; }
+
+/* ---------- VAT invoice: A4 or A5 on an office printer, not the 80 mm receipt path ---------- */
+.invoice {
+  width: 640px; background: var(--color-surface); border: 1px solid var(--color-border-strong);
+  padding: var(--space-6); font-size: 12px; line-height: 18px; color: var(--color-foreground);
+}
+.invoice__head { text-align: center; margin-bottom: var(--space-4); }
+.invoice__title { font-size: 16px; font-weight: 700; letter-spacing: .04em; }
+.invoice__meta { display: flex; justify-content: center; gap: var(--space-5);
+  font-size: 11px; color: var(--color-muted-foreground); margin-top: 4px; }
+.invoice__party { display: flex; gap: 6px; }
+.invoice__party b { min-width: 132px; font-weight: 400; color: var(--color-muted-foreground); }
+.invoice table { width: 100%; border-collapse: collapse; margin: var(--space-3) 0; }
+.invoice th, .invoice td { border: 1px solid var(--color-border-strong);
+  padding: 5px 7px; font-size: 11px; line-height: 16px; }
+.invoice th { background: var(--color-surface-muted); font-weight: 700; text-align: center; }
+.invoice td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.invoice td.c { text-align: center; }
+.invoice__sign { display: flex; gap: var(--space-6); margin-top: var(--space-5); text-align: center; }
+.invoice__sign > div { flex: 1; }
+.invoice__sign b { display: block; font-size: 11px; }
+.invoice__sign span { display: block; font-size: 10px; color: var(--color-muted-foreground); }
+.invoice__sign i { display: block; height: 52px; }
