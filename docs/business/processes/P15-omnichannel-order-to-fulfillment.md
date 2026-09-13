@@ -120,6 +120,8 @@ Source decision may consider:
 - item handling constraints;
 - inventory aging/strategic balancing.
 
+Oracle Retail Order Broker provides a useful enterprise reference: its routing engine evaluates enterprise inventory availability and applies business rules to select fulfillment locations, while Store Connect supports store associates fulfilling omnichannel orders.
+
 ## 9. Store-pick process
 
 1. Order enters store fulfillment queue.
@@ -163,6 +165,8 @@ Policy must cover:
 6. Goods are handed over.
 7. Pickup completion is recorded.
 8. Staging inventory is cleared.
+
+Oracle Xstore's Order Broker pickup flow provides a concrete retail reference: an associate opens the order, selects items ready for pickup and can scan them before adding them to the pickup transaction to confirm the correct merchandise.
 
 ### Pickup expiry
 
@@ -342,9 +346,9 @@ Raw on-hand = 5, but omnichannel promiseable quantity may be only 1. Promising a
 
 ## 23. Research anchors
 
-- Oracle Retail Order Management / Order Broker documentation: https://docs.oracle.com/en/industries/retail/retail-order-broker-cloud-service/
-- Oracle Store Pickup fulfillment guidance: https://docs.oracle.com/en/industries/retail/retail-xstore-point-of-service/
-- Oracle Retail omnichannel fulfillment documentation: https://docs.oracle.com/en/industries/retail/
+- Oracle Retail Order Broker Cloud Service 21.1: https://docs.oracle.com/en/industries/retail/retail-order-broker-cloud/21.1/
+- Oracle Xstore 25 — Order Transactions Through Order Orchestration/Order Broker: https://docs.oracle.com/en/industries/retail/retail-xstore-point-of-service/25.0/rpxmo/order-transactions-order-broker-cloud-service.htm
+- Oracle Retail product documentation index: https://docs.oracle.com/en/industries/retail/
 
 ## 24. Open business-policy questions
 
