@@ -4,24 +4,25 @@ Status: DONE_WITH_CONCERNS
 Date: 2026-09-13 · worker: W-E (wave 2) · branch: main (not committed)
 
 Every row of the scope checklist A to G now maps to a test or to a stated reason
-(`docs/qa/e2e-coverage-260913.md`). Two new specs landed (14 tests), the perf harness measures
-the phase-7 tile and the two money tables, the suite is green in 5.7 minutes on two workers,
-and the three flaky tests other workers reported are fixed. Four real gaps came out of writing
-the tests; they are in section 5 and they are somebody else's file in every case.
+(`docs/qa/e2e-coverage-260913.md`). Two new specs landed (15 tests), the perf harness measures
+the phase-7 tile and the two money tables, the suite is green in 6.3 minutes on two workers,
+and the flaky tests other workers reported are fixed. Five real gaps came out of writing the
+tests; they are in section 5 and they are somebody else's file in every case.
 
 ## Gates
 
 | Gate | Result |
 |---|---|
-| `npx playwright test --list` | 100 tests in 16 files, clean |
-| `npm run qa:e2e` | **74 passed, 26 skipped, 0 failed, 5.7 min** (`--output /tmp/claude-501/pw-we`, port 8132) |
+| `npx playwright test --list` | 102 tests in 16 files, clean |
+| `npm run qa:e2e` | **76 passed, 26 skipped, 0 failed, 6.3 min** (`--output /tmp/claude-501/pw-we`, port 8132) |
 | `npx tsc --noEmit` | clean (repo) and clean for `scripts/qa/e2e/tsconfig.json` |
 | `npx eslint src/features/audit scripts/qa/e2e` | 0 errors, 0 warnings |
 | `npx jest` | 51 suites, 700 tests passed |
 
 The 26 skips are the viewport guards the suite already had (the manager screens run at the
-desktop frame only) plus the two tests written against work still in flight; every skip carries
-its reason in the test itself.
+desktop frame only) plus one test written against a gap that is still open; every skip carries
+its reason in the test itself. The run above is against `9c55701`, so it includes W-R's second
+chain and promotions-at-retail work.
 
 ## 1. Coverage matrix
 
@@ -32,12 +33,13 @@ is one of three kinds: the behaviour is a pure predicate already covered by a do
 test moves through a document (supplier debt block), or the feature does not exist yet
 (section 5).
 
-New spec: **`scripts/qa/e2e/specs/commerce-coverage.spec.ts`**, 13 tests, desktop frame.
+New spec: **`scripts/qa/e2e/specs/commerce-coverage.spec.ts`**, 14 tests, desktop frame.
 
 | Test | Checklist row it closes |
 |---|---|
 | a company customer is created with its tax code and credit limit | A1, B1 |
-| a live promotion is applied on a retail order | B6 — **skips**, see 5.4 |
+| a live promotion prices a retail cart line | B6 (passes since W-R's `b82c0e6`) |
+| and the sell tile quotes the promotion the cart will charge | B6b — **skips**, see 5.4 |
 | a sale earns the customer loyalty points | B8 — see 5.3 |
 | stock driven under its minimum raises a low-stock notification | G5 |
 | the report cuts render: category, hour, staff, product profit, valuation, debt by store | A10, C3, D12, G7 to G11 |
@@ -48,16 +50,19 @@ New spec: **`scripts/qa/e2e/specs/commerce-coverage.spec.ts`**, 13 tests, deskto
 | a delivery note for part of an order leaves the rest outstanding, then completes it (+ a confirmed order is cancelled with a reason) | A5b, A6 |
 | the sell tile warns about a batch that has gone out of date | F6 |
 | a return against an on-account order issues a credit note, not cash | E4 |
-| signing in after an org switch lands in the second chain | G3 — **skips**, see 5.5 |
+| signing in after an org switch lands in the second chain | G3 (passes since W-R's `9c55701`) |
 
 Labels for the new flows are in a per-spec `L` block at the head of the file, as
 `commerce-money` and `commerce-settings` do; `lib/labels.ts` and `lib/flows.ts` are unchanged,
 so nothing another worker's spec depends on moved.
 
-**The two skipping tests are not placeholders.** Each drives the flow to the point where the
-missing behaviour would show, checks for it, and skips with the sentence that says who owns it.
-The day W-R turns promotions on at retail, or seeds the second chain, the assertion below the
-skip starts running without anyone having to remember it.
+**A skipping test is not a placeholder.** It drives the flow to the point where the missing
+behaviour would show, checks for it, and skips with the sentence that says what is missing, so
+the assertion below the skip starts running the day the change lands. Two of the three written
+that way this afternoon have already started asserting on their own: W-R's promotions and
+second-chain commits landed mid-session and the tests picked them up with no edit beyond
+pointing the org test at the second chain's single branch (its store picker is skipped, because
+one option needs no choice).
 
 ## 2. Reconciliation
 
@@ -123,8 +128,10 @@ a `PERF NOTE`, exactly as phase 5 handled the untuned grid; the fix is a memo in
 
 ## 4. Suite hygiene
 
-- **Runtime 5.7 min** on two workers, against the 12 minute budget (it was 5.4 before this
-  worker added 14 tests and three perf measurements; the new tests are 2 to 4 seconds each).
+- **Runtime 6.3 min** on two workers, against the 12 minute budget (it was 5.4 before this
+  worker added 15 tests and three perf measurements; the new tests are 2 to 5 seconds each and
+  the perf spec carries most of the difference, because a contended case is now measured up to
+  three times).
 - **`qa:e2e:quick`** added to `package.json` scripts:
   `playwright test -c scripts/qa/e2e/playwright.config.ts --project=wide specs/journey.spec.ts specs/commerce-reconciliation.spec.ts`
   — the journey plus the one commerce spec that touches the most screens, about 70 seconds.
@@ -144,8 +151,9 @@ a `PERF NOTE`, exactly as phase 5 handled the untuned grid; the fix is a memo in
      that re-scans if the toast has already gone.
   3. `commerce-inventory.spec.ts` "the same screens at the phone frame" failed twice in
      full-suite runs during this session and passed alone and under light load every time
-     afterwards, including in the final green run. No change made; flagged here so the
-     integrator knows it has been seen.
+     afterwards, including in the last three green runs. No change made; flagged here so the
+     integrator knows it has been seen. Both failures were while three Playwright instances
+     were sharing one Metro, which is not what a real run looks like.
 
 ## 5. Findings
 
@@ -175,17 +183,31 @@ rate in Settings and the till awards the same points, and a gold customer earns 
 one does. The E2E asserts today's behaviour with a comment naming what it becomes, so wiring the
 rule in fails the test that has to be updated with it.
 
-### 5.4 Promotions at retail (B6) and 5.5 the second chain (G3)
+### 5.4 A retail tile quotes the shelf price while the cart charges the promotion (B6b)
 
-Both are already on the plan as wave-2 items for W-R and both now have a test waiting for them.
-No new information, only a test each.
+W-R turned promotions on at the counter and they reach the pricing engine and the cart line: a
+Vinamilk SKU is charged 6.300 đ against a 7.000 đ shelf price, which the new test asserts. The
+**tile** still prices through `effectivePrice`, because `pos-screen.tsx` hands `ProductGrid` its
+`quoteFor` only when the wholesale switch is on (line 214). So the grid the cashier quotes from
+and the line they charge disagree by the promotion, which is the one place this must not happen.
+One line in a file this worker does not own; the second test skips with exactly that sentence.
+
+### 5.5 The second chain (G3) — closed
+
+W-R seeded `chuoi-demo-2` with a store, staff, register and the owner's credential and made
+`login` resolve the staff row through `OrgMembership`. The test now signs in after the switch
+and asserts the till is standing in Minh Châu Quận 7 with none of the demo chain's branches on
+screen.
 
 ### 5.6 The wholesale grid re-prices every visible tile on every commit
 
 `quoteFor` is called from `ProductGrid`'s `renderItem`, so `resolvePrice` walks the price-rule
-and promotion arrays per visible tile per commit, and a scroll is nothing but commits. Free at
-120 SKUs, three to six dropped frames at 1000. Suggested shape (a quote memo keyed on product
-and unit, invalidated with the buyer, branch and rules) is in `docs/qa/perf-260913.md`.
+and promotion arrays per visible tile per commit, and a scroll is nothing but commits. Four to
+seven dropped frames on a busy machine at 120 SKUs **and** at 1000, none on an idle one, none
+for the same tiles at the shelf price. Suggested shape (a quote memo keyed on product and unit,
+invalidated with the buyer, the branch and the rules) is in `docs/qa/perf-260913.md`. 5.4 and
+5.6 are the same call site: giving the retail grid its quote would make this worse unless the
+memo lands with it.
 
 ### 5.7 Unrelated: the phase-11 browser audit specs cannot sign in any more
 
@@ -224,12 +246,20 @@ deleted) · `src/features/audit/audit-harness-screen.tsx` (the guard wrapper, 3 
 jest ignore list) · `.gitignore` (`.tmp-shots/`).
 
 Untouched: every other spec, `scripts/qa/e2e/lib/**`, `playwright.config.ts`, all of `src/`
-outside `src/features/audit/**`, `app/**`, all BeeUI packages. Nothing committed.
+outside `src/features/audit/**`, `app/**`, all BeeUI packages.
+
+Nothing was committed by this worker. Note for the integrator: two of the files above were
+picked up by somebody else's commits mid-session (`b82c0e6`, `9c55701`) in an earlier state —
+`scripts/qa/e2e/specs/perf.spec.ts` and `docs/qa/e2e-coverage-260913.md` are still modified in
+the working tree and the version on disk is the one this report describes.
 
 ## Open questions
 
 1. **5.1 and 5.2 are the two that change what the money screens mean.** Both are small, both
    are outside my ownership, and both need an owner naming: should the integrator take them, or
    do they wait for a wave-3 worker?
-2. The 1000-tile wholesale grid holds a ceiling rather than the budget (5.6). Is the memo worth
-   doing now, or is "the shipped catalogue is 120 SKUs" the answer for this prototype?
+2. The wholesale grid holds a ceiling rather than the budget (5.6), and it misses at 120 SKUs
+   too, so "the shipped catalogue is small" is no longer the answer. The memo is a dozen lines
+   in `use-wholesale-pricing.ts`; worth doing in wave 3, or accepted for a prototype?
+3. 5.4 (the retail tile quoting the shelf price while the cart charges the promotion) is a
+   one-line change with a perf consequence: whoever takes it should take 5.6 in the same pass.

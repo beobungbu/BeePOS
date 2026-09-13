@@ -74,7 +74,7 @@ export interface AppNotification { id: string; orgId: string; storeId?: string; 
 | 1 | W-M money + cost | C + D + credit notes for E | DONE |
 | 1 | W-I inventory 2 + returns UI | E (POS return/exchange, supplier returns) + F | DONE |
 | 1 | W-S settings, promotions, reports, notifications | B promotions + loyalty, G | DONE · [report](reports/w-s-settings-reports-report.md) |
-| 2 | W-R review · W-E E2E + perf · W-N native (iOS smoke, hardware scanner spike, AppState flush, VoiceOver) | J, H, I | IN PROGRESS |
+| 2 | W-R review (DONE, 9c55701) · W-E E2E + perf (IN PROGRESS) · W-N native (DONE: iOS smoke 29 checks, AppState flush, hardware scanner capture, native org switch) · P7 fix worker (IN PROGRESS: cash-in recording, shift reachability, wholesale phone cart, 7 smaller) | J, H, I | IN PROGRESS |
 | 3 | integrator | gates, dark sweep, deploy, BeeUI batches, report | PENDING |
 
 ## Acceptance (program)

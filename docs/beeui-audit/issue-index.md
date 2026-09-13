@@ -186,3 +186,10 @@ Checked and not filed: `llms-tokens.txt` 404 (not referenced anywhere), `bg-card
 | BeeUI issue | Source | Severity | Title |
 |---|---|---|---|
 | [#613](https://github.com/beobungbu/BeeUI/issues/613) | 25-01, 26-01, 26-02, 28-01 | minor | umbrella 9 |
+
+## Batch 21 (2026-09-13, commerce wave 2)
+
+| BeeUI issue | Source | Severity | Title |
+|---|---|---|---|
+| [#614](https://github.com/beobungbu/BeeUI/issues/614) | 30N-02 | major | Input with accessibilityLabel hides its value from VoiceOver |
+| [#600](https://github.com/beobungbu/BeeUI/issues/600) (comment) | 30N-01 | minor | SegmentedControl mid-word wrap |
