@@ -1,153 +1,150 @@
 # BeePOS — Business Operations Research Baseline
 
-Status: Working research baseline · 2026-09-13
+Status: Full SOP-level documentation coverage · desk-research baseline · 2026-09-13
 
 ## Purpose
 
-This package describes **how a retail / wholesale / distribution business operates** before deciding how BeePOS should implement it technically.
+This package describes how a retail / wholesale / distribution business operates **before software implementation design**.
 
-The focus is business analysis, not software architecture. Documents here should be readable by a retail owner, operations manager, buyer, store manager, warehouse manager, accountant, BA and product manager without needing to read source code.
+It is business analysis, not backend/schema/API architecture. The documents are intended to be readable by owners, COO/operations, category, procurement, warehouse, store, finance, sales, BA and product teams.
 
-## Scope
+## Coverage status
 
-The research now covers four connected operating areas:
+The business matrix now has **100% SOP-level documentation coverage**:
 
-- **Retail/store operations:** merchandise, purchasing, receiving, inventory, replenishment, checkout, return, cash reconciliation, pricing/promotion and sales assurance.
-- **Customer/channel operations:** customer/loyalty and omnichannel fulfillment.
-- **Wholesale/distribution:** B2B order-to-cash, credit/AR, dealer/customer delivery, direct distribution and van/route settlement.
-- **Finance-facing controls:** supplier settlement, AP matching, AR, cash/tender settlement, inventory-value/costing questions and operational close controls.
+- 16/16 Level-1 business domains covered;
+- all Level-2 process families in the three-level matrix have dedicated SOP ownership;
+- 27 detailed SOP-level process specifications exist: **P01–P27**;
+- no `Baseline` or `Capability-only` label remains in `11-three-level-business-matrix.md`.
+
+Important: **SOP-level coverage does not mean retailer-approved SOP.**
+
+Current maturity:
+
+```text
+Professional desk-research SOP
+          ↓
+Real-retailer validation
+          ↓
+Validated SOP
+          ↓
+Approved / Operational SOP
+```
+
+Retailer-specific thresholds, tolerances, legal operating detail, authority levels and commercial policies remain subject to validation.
 
 ## Research principles
 
-1. **Business process first.** Start from actors, triggers, activities, decisions, documents, exceptions, controls and KPIs.
-2. **Separate process from software.** A business process may span POS, ERP, WMS, accounting, spreadsheets, paper and human approval.
-3. **Document the happy path and exceptions.** Real retail operations are dominated by shortage, overage, partial delivery, price mismatch, return, damaged goods, credit hold and cash variance.
-4. **Trace every process to business value.** Revenue, margin, availability, working capital, shrinkage, service level or compliance.
-5. **Use industry references as a baseline, not as a product specification.**
-6. **Preserve business facts.** Exceptions are evidence; do not rewrite dispatch, receipt, sale, count or tender history merely to make numbers match.
-7. **Separate universal process logic from retailer policy.** Thresholds, tolerances, return windows, credit limits, approval levels and stacking rules belong in an explicit policy register.
-8. **Prefer real-operator evidence over more feature comparison.** The next research maturity step is SOP/forms/interviews/observations from a real retailer.
+1. Business process first: actors, triggers, evidence, decisions, exceptions, controls and KPIs.
+2. Separate business process from software implementation.
+3. Preserve business facts and discrepancies rather than editing history to force reconciliation.
+4. Separate common/reference process logic from retailer-specific policy.
+5. Treat exceptions as first-class workflow, not edge notes.
+6. Use professional references as evidence, not as a schema to copy.
+7. Prefer real-operator evidence as the next maturity step.
 
-## Reference framework families
+## Core business-analysis documents
 
-The detailed, verified source map is maintained in [`09-professional-source-map.md`](./09-professional-source-map.md).
+1. [`01-business-capability-map.md`](./01-business-capability-map.md) — Level-1 capability/domain map.
+2. [`02-process-catalogue.md`](./02-process-catalogue.md) — process taxonomy backbone.
+3. [`03-actors-and-responsibilities.md`](./03-actors-and-responsibilities.md) — actors, RACI and segregation of duties.
+4. [`04-end-to-end-processes.md`](./04-end-to-end-processes.md) — cross-domain E2E flows.
+5. [`05-business-rules-controls-kpis.md`](./05-business-rules-controls-kpis.md) — rules, controls and KPI tree.
+6. [`06-business-glossary.md`](./06-business-glossary.md) — normalized business vocabulary.
+7. [`07-business-policy-decision-register.md`](./07-business-policy-decision-register.md) — retailer-policy decisions still to validate.
+8. [`08-process-control-kpi-traceability.md`](./08-process-control-kpi-traceability.md) — process → risk → control → evidence → KPI.
+9. [`09-professional-source-map.md`](./09-professional-source-map.md) — professional source/evidence map.
+10. [`10-real-retailer-validation-guide.md`](./10-real-retailer-validation-guide.md) — interview/observation/evidence pack.
+11. [`11-three-level-business-matrix.md`](./11-three-level-business-matrix.md) — Level 1 → Level 2 → Level 3 coverage matrix.
 
-The research uses:
+## SOP catalogue P01–P27
 
-- APQC Retail / Cross-Industry Process Classification Frameworks for taxonomy, definitions and key measures;
-- ASCM SCOR Digital Standard for supply-chain value streams/performance language;
-- GS1 for retail/product/logistics identification concepts;
-- Oracle Retail Merchandising, Pricing, Assortment Planning, Xstore, Sales Audit, Customer Engagement, Invoice Matching and Order Broker for mature enterprise retail operating references;
-- SAP Retail / Credit Management / Last Mile Distribution for replenishment, B2B credit and direct-distribution references;
-- KiotViet operational guides as Vietnamese-market workflow evidence.
+### Retail / store / supply core
 
-## Core document set
-
-1. [`01-business-capability-map.md`](./01-business-capability-map.md) — what capabilities a retail / wholesale / distribution operator needs.
-2. [`02-process-catalogue.md`](./02-process-catalogue.md) — L0/L1/L2 catalogue of business processes.
-3. [`03-actors-and-responsibilities.md`](./03-actors-and-responsibilities.md) — business actors, responsibilities and segregation-of-duty considerations.
-4. [`04-end-to-end-processes.md`](./04-end-to-end-processes.md) — canonical end-to-end flows.
-5. [`05-business-rules-controls-kpis.md`](./05-business-rules-controls-kpis.md) — rules, internal controls, exception conditions and operational KPIs.
-6. [`06-business-glossary.md`](./06-business-glossary.md) — common retail terms and document definitions.
-7. [`07-business-policy-decision-register.md`](./07-business-policy-decision-register.md) — retailer-specific policy questions that must be resolved with business owners.
-8. [`08-process-control-kpi-traceability.md`](./08-process-control-kpi-traceability.md) — cross-process risk, control, evidence and KPI traceability.
-9. [`09-professional-source-map.md`](./09-professional-source-map.md) — verified professional reference map and evidence-strength guidance.
-10. [`10-real-retailer-validation-guide.md`](./10-real-retailer-validation-guide.md) — interview, evidence collection, observation and process-maturity field-validation pack.
-
-## Detailed process specifications
-
-These documents deepen core flows to SOP/BPMN-ready business level without prescribing tables, APIs or services.
-
-### Retail / store / supply
-
-1. [`processes/P01-procure-to-receive.md`](./processes/P01-procure-to-receive.md)
-   - requirement → PO → supplier confirmation → receiving → discrepancy → closure.
-2. [`processes/P02-inventory-to-availability.md`](./processes/P02-inventory-to-availability.md)
-   - stock states, transfer, count, adjustment, shrinkage and in-transit responsibility.
-3. [`processes/P03-replenish-to-shelf.md`](./processes/P03-replenish-to-shelf.md)
-   - demand signal, target stock, source selection, store receiving, backroom-to-shelf and OSA.
-4. [`processes/P04-store-to-cash.md`](./processes/P04-store-to-cash.md)
-   - basket, price/promotion, override, tender, uncertain payment, receipt and completed-sale control.
-5. [`processes/P05-return-to-resolution.md`](./processes/P05-return-to-resolution.md)
-   - verified/unverified returns, promotion allocation, refund tender, disposition and fraud controls.
-6. [`processes/P06-shift-to-reconciliation.md`](./processes/P06-shift-to-reconciliation.md)
-   - opening float, cash movement, safe drop, blind count, over/short, electronic tender and business day.
-7. [`processes/P07-pricing-and-promotion-lifecycle.md`](./processes/P07-pricing-and-promotion-lifecycle.md)
-   - regular price, emergency price, markdown, campaign mechanics, stacking, stock readiness and evaluation.
-8. [`processes/P08-sales-to-assurance.md`](./processes/P08-sales-to-assurance.md)
-   - store-day completeness, missing/duplicate transactions, tender balancing, suspicious patterns and exception lifecycle.
-9. [`processes/P09-supplier-to-settlement.md`](./processes/P09-supplier-to-settlement.md)
-   - supplier approval, PO/receipt/invoice matching, discrepancy resolution, supplier claims and payment authorization controls.
-10. [`processes/P10-category-assortment-product-lifecycle.md`](./processes/P10-category-assortment-product-lifecycle.md)
-    - category strategy, assortment breadth/depth, NPI, ranging, lifecycle, delist and residual-stock exit.
-11. [`processes/P11-grocery-quality-expiry-waste.md`](./processes/P11-grocery-quality-expiry-waste.md)
-    - shelf life, FEFO, quarantine, expiry/waste, quality incidents and recall.
-12. [`processes/P12-customer-loyalty-lifecycle.md`](./processes/P12-customer-loyalty-lifecycle.md)
-    - enrollment, earning, redemption, tiers, expiry, return reversal, adjustments and abuse controls.
+- `P01-procure-to-receive.md`
+- `P02-inventory-to-availability.md`
+- `P03-replenish-to-shelf.md`
+- `P04-store-to-cash.md`
+- `P05-return-to-resolution.md`
+- `P06-shift-to-reconciliation.md`
+- `P07-pricing-and-promotion-lifecycle.md`
+- `P08-sales-to-assurance.md`
+- `P09-supplier-to-settlement.md`
+- `P10-category-assortment-product-lifecycle.md`
+- `P11-grocery-quality-expiry-waste.md`
+- `P12-customer-loyalty-lifecycle.md`
 
 ### Wholesale / distribution / omnichannel / finance
 
-13. [`processes/P13-wholesale-order-to-cash.md`](./processes/P13-wholesale-order-to-cash.md)
-    - B2B account/terms, credit check, allocation, delivery, invoice, collection, AR, returns and rebates.
-14. [`processes/P14-distribution-route-to-settlement.md`](./processes/P14-distribution-route-to-settlement.md)
-    - presales/van sales, route preparation, vehicle stock, visits, collections, truck transfers and settlement.
-15. [`processes/P15-omnichannel-order-to-fulfillment.md`](./processes/P15-omnichannel-order-to-fulfillment.md)
-    - enterprise availability, sourcing, store pick, pickup, ship-from-store, substitution, cancellation and cross-channel return.
-16. [`processes/P16-finance-facing-retail-controls.md`](./processes/P16-finance-facing-retail-controls.md)
-    - AP/AR, tender/bank settlement, inventory value/COGS policy questions, cutoff and finance-facing reconciliations.
+- `P13-wholesale-order-to-cash.md`
+- `P14-distribution-route-to-settlement.md`
+- `P15-omnichannel-order-to-fulfillment.md`
+- `P16-finance-facing-retail-controls.md`
 
-## Research progression
+### Coverage-completion SOPs
 
-```text
-Reference frameworks / market evidence
-             ↓
-Business Capability Map
-             ↓
-Process Catalogue L0/L1/L2
-             ↓
-Actors / RACI / Segregation of Duties
-             ↓
-End-to-End Process Baseline
-             ↓
-Detailed SOP-level Process Specifications P01–P16
-             ↓
-Business Policy Decision Register
-             ↓
-Control / Evidence / KPI Traceability
-             ↓
-Professional Source Map
-             ↓
-Real-Retailer Validation Pack
-             ↓
-Future: current-state validation → BPMN swimlanes → approved target SOPs
-```
+- `P17-strategy-to-performance.md`
+- `P18-supplier-return-to-credit.md`
+- `P19-demand-planning-and-allocation.md`
+- `P20-warehouse-inbound-storage-crossdock.md`
+- `P21-store-open-to-close.md`
+- `P22-customer-service-to-recovery.md`
+- `P23-customer-analytics-to-targeting.md`
+- `P24-workforce-lifecycle-and-scheduling.md`
+- `P25-risk-compliance-and-continuity.md`
+- `P26-master-data-reporting-kpi-governance.md`
+- `P27-trade-promotion-and-dealer-management.md`
 
-## Acceptance standard for a mature business-process document
+## Reference framework families
 
-A process is not “done” merely because a happy path exists. A mature specification should include:
+The detailed source map is in `09-professional-source-map.md`.
 
-- purpose / business outcome;
-- start/end boundary;
-- process owner and actors;
+Main references include:
+
+- APQC PCF 8.0 for enterprise process taxonomy and key measures;
+- ASCM SCOR Digital Standard for supply-chain process/performance language;
+- GS1 for retail/product/logistics identification standards;
+- Oracle Retail and Oracle WMS for merchandising, assortment, pricing, receiving, warehouse, POS, sales audit, loyalty, AP matching and omnichannel patterns;
+- SAP Retail / Credit Management / Last Mile Distribution / Trade Promotion references for B2B credit, route/van sales and rebates;
+- KiotViet operational guides for Vietnamese retail workflow evidence;
+- official Vietnam Government legal sources for current fiscal/e-invoice requirements, including Decree 254/2026/NĐ-CP effective 1 July 2026.
+
+## Acceptance standard for an SOP-level document
+
+A dedicated SOP should contain the relevant subset of:
+
+- purpose and boundary;
+- owner and actors;
 - trigger / entry criteria;
-- documents / evidence;
-- happy path;
-- business statuses / milestones;
+- business evidence/documents;
+- lifecycle/statuses;
+- normal flow;
 - exception catalogue;
-- approvals and authority points;
-- business rules and tolerances;
+- decisions and approvals;
+- rules and tolerances;
 - segregation of duties / controls;
-- KPI definitions;
-- real-world scenarios;
-- upstream/downstream relationships;
-- unresolved policy questions.
+- KPIs;
+- worked example;
+- upstream/downstream relationship;
+- open retailer-policy questions;
+- professional research anchors.
 
-## Current research maturity
+## Next maturity step
 
-The current package is now a **strong desk-research / reference-model baseline**, but it is not yet a retailer-approved SOP set.
+Do **not** move directly from this coverage milestone into code.
 
-Before deriving definitive product requirements, the highest-risk processes should be validated using [`10-real-retailer-validation-guide.md`](./10-real-retailer-validation-guide.md): real operator interviews, anonymized SOP/forms/reports, observed workflow and at least one real exception case per important process.
+Use `10-real-retailer-validation-guide.md` to validate P01–P27 against:
 
-## Important boundary
+- real operator interviews;
+- current SOPs/forms/reports;
+- observed work;
+- at least one normal case and one exception case;
+- policy/authority/tolerance values;
+- legal/fiscal operating practice;
+- real management KPIs and evidence.
 
-These documents intentionally do **not** decide database tables, APIs, services, event schemas, sync architecture or implementation technology. Those decisions must be derived later from an accepted and validated business model.
+Only then should an SOP be promoted from **Desk-Research SOP** to **Validated SOP** and eventually **Approved / Operational SOP**.
+
+## Boundary
+
+These documents do not authorize or prescribe database tables, APIs, services, event schemas, sync architecture or implementation technology.
