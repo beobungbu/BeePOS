@@ -17,13 +17,13 @@ Trong một ngày, BeePOS đi từ "POS bán lẻ một chuỗi, đăng nhập b
 | Chỉ số | Giá trị |
 |---|---|
 | Unit test | 741 / 741 (57 suite) |
-| E2E | 79 kịch bản, 21 file, 6 phút local; production sau `8a2cc03` xem dòng cuối mục này |
+| E2E | 79 kịch bản, 21 file, 6 phút local; production xem dòng cuối bảng |
 | Ma trận phủ E2E | 48 mục A đến G, không mục nào bỏ trống (`docs/qa/e2e-coverage-260913.md`) |
 | Perf lưới sỉ 1000 SKU | p95 33 ms, 0 đến 1 frame quá 100 ms (`docs/qa/perf-260913.md`) |
 | Mã nguồn `src/` | khoảng 54.000 dòng, 17 feature |
 | Commit hôm nay | 32 |
 | BeeUI issue mới hôm nay | #610 đến #615 (6) + comment; tổng BeePOS đã file 56 |
-| E2E production cuối | (điền sau khi lượt chạy kết thúc) |
+| E2E production cuối | 73 passed (9.0m) sau `8a2cc03` |
 
 ## 4. Mockup trước khi code
 `docs/design/mockups/auth.html`, `chain-ops.html`, `commerce-sales.html`, `commerce-ops.html`; số liệu trong mockup khớp nhau (Z report, sổ quỹ, công nợ Minh Long 52.400.000 đ) và seed khớp mockup (test khoá số liệu). Tài liệu thiết kế tách thành `design-direction.md` (nền) + `docs/design/specs/*.md`.
