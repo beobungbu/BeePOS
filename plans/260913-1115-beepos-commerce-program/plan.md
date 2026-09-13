@@ -1,6 +1,6 @@
 # BeePOS commerce program (phase 7): everything discussed on 2026-09-13, nothing left out
 
-Status: waves 0 and 1 DONE (commit after wave 1 deployed), wave 2 IN PROGRESS · 2026-09-13 14:45 · owner: Ambrose
+Status: waves 0 to 3 DONE (commit 8a2cc03, live) · 2026-09-13 20:00 · owner: Ambrose
 Owner instruction: "lập hết các cái đã trao đổi để làm, không được thiếu gì". B2B mode is the hybrid the owner was offered (same app, per-order "Bán sỉ" switch); pure-B2B was not chosen, so hybrid is the working assumption.
 
 ## Scope checklist (source: chat 2026-09-13 09:03 to 11:15 and `docs/chain-multitenant-gap-analysis.md` P2/P3)
@@ -74,9 +74,9 @@ export interface AppNotification { id: string; orgId: string; storeId?: string; 
 | 1 | W-M money + cost | C + D + credit notes for E | DONE |
 | 1 | W-I inventory 2 + returns UI | E (POS return/exchange, supplier returns) + F | DONE |
 | 1 | W-S settings, promotions, reports, notifications | B promotions + loyalty, G | DONE · [report](reports/w-s-settings-reports-report.md) |
-| 2 | W-R review (DONE, 9c55701) · W-E E2E + perf (IN PROGRESS) · W-N native (DONE: iOS smoke 29 checks, AppState flush, hardware scanner capture, native org switch) · P7 fix worker (IN PROGRESS: cash-in recording, shift reachability, wholesale phone cart, 7 smaller) | J, H, I | IN PROGRESS |
+| 2 | W-R review (9c55701) · W-E E2E + perf · W-N native (iOS smoke 29 checks, AppState flush, hardware scanner capture, native org switch) · P7 fix worker (10 defects) | J, H, I | DONE |
 | 3 | gap worker | the seven wave-2 product gaps (supplier bill on credit, cash book, loyalty, retail tile quote, wholesale memo, chain scoping, scanner capture) | DONE · [report](reports/wave3-gaps-report.md) |
-| 3 | integrator | gates, dark sweep, deploy, BeeUI batches, report | PENDING |
+| 3 | gap worker (7 items) + integrator | gates, deploy, BeeUI batches 20 to 22, report `plans/reports/day-summary-260913-2000-*.md` | DONE |
 
 ## Acceptance (program)
 - Every checklist row has a screen or a documented reason it is not there.

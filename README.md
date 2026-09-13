@@ -94,8 +94,24 @@ mẫu" to restore the seed.
   tiers and points, chain reports with period and custom range, stores, staff, settings
   (theme, language vi / en, density, receipt text, reset demo data).
 - Desktop chrome: collapsible sidebar (`[`), 48 pt header with store switcher, one-row
-  toolbars, command palette (`Cmd/Ctrl+K`), shortcut help (`?`), CSV export on orders,
-  products and inventory.
+  toolbars with a filter popover, command palette (`Cmd/Ctrl+K`), shortcut help (`?`), CSV export.
+- Accounts and tenants: email + password sign-in (salted, stretched hashes), store and register
+  pickers, lock screen with per-cashier PIN and cashier switch, permission matrix by role, staff
+  invites, onboarding wizard for a new chain, org switch for accounts in several chains,
+  per-store settings, audit log, notification center.
+- Wholesale (B2B) mode per order: company customers with tax code, group, sales rep, credit limit
+  and payment terms; unit conversions (thùng / lốc / lẻ); price lists by group, by customer and by
+  quantity tier with the price source shown on the line; promotions (percent, amount, buy X get Y,
+  time window, stackable); loyalty rules with tier multipliers; on-account payment against the
+  credit limit; order lifecycle quote → confirmed → delivering → completed with delivery notes;
+  A5 VAT invoice.
+- Money: cash book per store, bank accounts, receivables with aging and partial collections,
+  payables with supplier bills on credit and payments, debt summary; weighted-average cost on
+  receipt with cost history and COGS snapshots on every sale.
+- Inventory 2: suppliers, purchase orders with partial receive, supplier returns, lots and expiry
+  with an expiring report and write-offs, CSV import with validation preview, multiple barcodes.
+- Returns and exchanges in one transaction with reasons and restock / damaged disposition, credit
+  notes for on-account customers, cash in / out during a shift, printable Z report.
 
 ## Scripts
 
